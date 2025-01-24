@@ -1,0 +1,170 @@
+/* Admin Dashboard Container */
+.admin-dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+/* Content Section */
+.admin-dashboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* View Section (Card/Table) */
+.dashboard-view {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* conditionally center items for CardView */
+.card-view-centered {
+  align-items: center; /* Only applies when CardView is selected */
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .admin-dashboard {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .admin-dashboard-content {
+    width: 100%;
+    height: auto;
+  }
+
+  .dashboard-view {
+    flex: 1;
+    height: auto;
+    width: 100%;
+  }
+}
+
+
+
+/* Sidebar styling */
+.sidebar {
+  /* flex: 1; */
+  height: 100vh;
+  width: 250px;
+  background-color: rgb(225, 225, 225);
+  color: white;
+  padding: 0 1rem;
+}
+
+.sidebar h2 {
+  margin-bottom: 1rem;
+  color: #000;
+  font-size: 40px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  padding: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.sidebar ul li.active {
+  background-color: #4a2373;
+}
+
+/* Header styling */
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem 10rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notification-icon {
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.profile-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
+.view-dropdown {
+  padding: 0.5rem;
+  border: none;
+  /* border-radius: 5px; */
+  background: none;
+  color: #000;
+  cursor: pointer;
+}
+
+.view-dropdown:focus {
+  outline: none;
+  border-color: #5b2d8f;
+}
+
+.table-view-filters {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1rem 0;
+}
+
+
+.table-view-filters button {
+  /* margin-left: 1rem; */
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #000;
+  color: #000;
+}
+
+
+.filter-button {
+  background-color: rgb(164, 85, 164)
+}
+
+.add-button {
+  background-color: #28a745;
+  color: white;
+}
+
+
+/* AdminDashboard.css */
+.sidebar ul li {
+  cursor: pointer;
+  padding: 10px;
+}
+
+.sidebar ul li.active {
+  background-color: #4a2373;
+  color: white;
+  border-radius: 5px;
+}
+
+

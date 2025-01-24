@@ -1,0 +1,116 @@
+.card-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: 80%;
+    width: 400px;
+    cursor: grab;
+}
+
+.card-view:active {
+    cursor: grabbing;
+}
+
+@media (max-width: 768px) {
+    .card-view {
+        height: 100%;
+        width: 100%;
+    }
+}
+
+.card-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out
+}
+
+.card {
+    position: relative;
+    min-width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+}
+
+.card-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: start;
+    padding: 16px;
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.9),
+            rgba(0, 0, 0, 0.2),
+            rgba(0, 0, 0, 0));
+    color: white;
+    text-align: center;
+    z-index: 2;
+    user-select: none;
+    touch-action: pan-x pan-y;
+}
+
+
+.generate-family-tree {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background-color: #4a2373ab;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 3;
+    user-select: none;
+}
+
+.generate-family-tree:hover {
+    background-color: rgba(255, 255, 255, 1);
+    color: #5436c7;
+}
+
+.card-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 5px 30px;
+    z-index: 3;
+}
+
+.card-subtitle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #E9FFEF;
+    border-radius: 40px;
+    height: 40px;
+    width: 120px;
+    margin: 5px 30px;
+    margin-bottom: 60px;
+    z-index: 3;
+}
+
+.card-subtitle-text {
+    color: #409261;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.card-title,
+.card-subtitle {
+    user-select: none;
+}
