@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+// import Header from "../../components/Header";
 import TableView from "../../components/TableView";
 import CardView from "../../components/CardView";
 import Compare from "../../components/Compare"; // Import Compare Component
@@ -30,7 +30,7 @@ const AdminDashboard = () => {
         <Sidebar setView={setView} currentView={view} /> // Pass props to Sidebar
       )}
       <div className="admin-dashboard-content overflow-y-scroll overflow-hidden">
-        <Header view={view} setView={setView} />
+        {/* <Header view={view} setView={setView} /> */}
         <div
           className={`dashboard-view ${
             view === "Card View" ? "card-view-centered" : ""
