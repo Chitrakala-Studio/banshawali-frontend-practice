@@ -11,18 +11,10 @@ import { globalData } from "../data/globalData";
 import EditFormModal from "./EditFormModal";
 import CardViewPopup from "./CardViewPopup";
 import "./../assets/styles/TableView.css";
-import Swal from "sweetalert2";
 
 const TableView = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterData, setFilterData] = useState({
-    generation: "",
-    fatherName: "",
-    motherName: "",
-  });
 
   const [selectedRow, setSelectedRow] = useState(null); // State to track selected row
   const [isEditing, setIsEditing] = useState(false); // State to manage Edit Modal
@@ -75,28 +67,6 @@ const TableView = () => {
     setIsAdding(false); // Close the Add New modal
   };
 
-  const applyFilter = () => {
-    console.log("Filters Applied:", filterData);
-    setIsFilterOpen(false); // Close the popup after applying the filter
-  };
-
-  const handleDelete = (row) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: `Do you want to delete ${row.name}? This action cannot be undone.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        console.log("Deleted row:", row);
-        Swal.fire("Deleted!", `${row.name} has been deleted.`, "success");
-      }
-    });
-  };
-
   return (
     <div className="table-view">
       <div className="table-view-filters">
@@ -105,105 +75,9 @@ const TableView = () => {
           <FaSearch className="search-icon" />
           <input type="text" placeholder="Search" className="search-input" />
         </div>
+
         {/* Buttons */}
-        <div className="relative">
-          {/* Filter Button */}
-          <button
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md shadow hover:bg-gray-300"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-          >
-            Filter
-          </button>
-
-          {/* Filter Popup */}
-          {isFilterOpen && (
-            <div
-              className="absolute w-64 p-4 bg-white border border-gray-300 rounded-md shadow-md z-10"
-              style={{
-                top: "50%", // Center the popup vertically in the button's height
-                left:
-                  window.innerWidth -
-                    (document.querySelector(".table-view")?.offsetWidth || 0) <
-                  300
-                    ? "auto" // If space is too tight on the right, open it on the left
-                    : "0",
-                right:
-                  window.innerWidth -
-                    (document.querySelector(".table-view")?.offsetWidth || 0) <
-                  300
-                    ? "0"
-                    : "auto", // Position it to the left when necessary
-              }}
-            >
-              <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                Filter
-              </h3>
-              {/* Filter Inputs */}
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Generation
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter generation"
-                  value={filterData.generation}
-                  onChange={(e) =>
-                    setFilterData({ ...filterData, generation: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* Father's Name Filter */}
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Father's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter father's name"
-                  value={filterData.fatherName}
-                  onChange={(e) =>
-                    setFilterData({ ...filterData, fatherName: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* Mother's Name Filter */}
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Mother's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter mother's name"
-                  value={filterData.motherName}
-                  onChange={(e) =>
-                    setFilterData({ ...filterData, motherName: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
-                  onClick={() => setIsFilterOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600"
-                  onClick={applyFilter}
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
+        <button className="filter-button">Filter</button>
         <button
           className="add-button"
           onClick={() => {
@@ -278,10 +152,7 @@ const TableView = () => {
                 >
                   <FaEdit />
                 </button>
-                <button
-                  className="icon-button delete-button"
-                  onClick={() => handleDelete(row)}
-                >
+                <button className="icon-button delete-button">
                   <FaTrash />
                 </button>
               </td>
@@ -292,15 +163,12 @@ const TableView = () => {
       <div className="table-footer">
         {/* <button className="import-button">
           Import <FaCloudDownloadAlt className="import-icon" />
-        </button>
-        <div className="flex items-center justify-between w-full mt-4">
-          <div className="flex items-center space-x-2">
         </button> */}
         <div className="paginate-align">
           <div>
             <span>Show </span>
             <select
-              className="border bg-white rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rows-per-page"
               value={rowsPerPage}
               onChange={(e) => {
                 setCurrentPage(0);
@@ -317,23 +185,13 @@ const TableView = () => {
           </div>
 
           <ReactPaginate
-            previousLabel={
-              <button className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                {"<"}
-              </button>
-            }
-            nextLabel={
-              <button className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                {">"}
-              </button>
-            }
+            previousLabel={"<"}
+            nextLabel={">"}
             breakLabel={"..."}
             pageCount={Math.ceil(globalData.length / rowsPerPage)}
             onPageChange={handlePageChange}
-            containerClassName={"flex items-center space-x-2"}
-            activeClassName={
-              "bg-blue-500 text-white px-3 py-1 rounded-full cursor-pointer"
-            }
+            containerClassName={"pagination"}
+            activeClassName={"active"}
           />
         </div>
       </div>
