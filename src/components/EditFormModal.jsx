@@ -101,6 +101,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setShowMotherSuggestions(false); // Hide suggestions after selection
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(URL.createObjectURL(file)); // Create a preview of the selected image
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -126,12 +133,29 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
       <div className="bg-white h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
-        >
-          &#x2715;
-        </button>
+        <div className="fixed top-10 left-55">
+          <button
+            onClick={onClose}
+            className="fixed absolute top-10 right-full text-gray-700 font-bold text-2xl hover:text-red-500 "
+          >
+            {/* Circle with a cross */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+            
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 flex flex-col h-full w-full items-center ">
           {/* Profile Picture */}
@@ -151,7 +175,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               name="username"
               value={form.username}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter username"
             />
           </div>
@@ -166,7 +190,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               name="pusta_number"
               value={form.pusta_number}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter pusta number"
             />
           </div>
@@ -181,7 +205,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               name="father_name"
               value={form.father_name}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter father's name"
             />
             {showSuggestions && suggestions.length > 0 && (
@@ -209,7 +233,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               name="mother_name"
               value={form.mother_name}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter mother's name"
             />
             {showMotherSuggestions && motherSuggestions.length > 0 && (
@@ -260,7 +284,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               name="status"
               value={form.status}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  sm:text-sm"
+              className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
               <option value="Alive">Alive</option>
               <option value="Dead">Dead</option>
@@ -277,7 +301,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               name="profession"
               value={form.profession}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter profession"
             />
           </div>
@@ -291,18 +315,18 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  sm:text-sm"
+              className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
-              <option value="Alive">Male</option>
-              <option value="Dead">Female</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
             </select>
           </div>
 
           {/* Save Button */}
-          <div className="flex justify-center w-3/4">
+          <div className="flex justify-center w-full">
             <button
               type="submit"
-              className="bg-green-600 w-full mb-4 text-white px-6 py-2 rounded-md shadow-sm hover:bg-green-700"
+              className="mb-4 bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
             >
               Save Changes
             </button>

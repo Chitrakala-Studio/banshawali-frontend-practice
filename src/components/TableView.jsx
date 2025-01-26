@@ -142,9 +142,9 @@ const TableView = () => {
       </table>
 
       <div className="table-footer">
-        <button className="import-button">
+        {/* <button className="import-button">
           Import <FaCloudDownloadAlt className="import-icon" />
-        </button>
+        </button> */}
         <div className="paginate-align">
           <div>
             <span>Show </span>
