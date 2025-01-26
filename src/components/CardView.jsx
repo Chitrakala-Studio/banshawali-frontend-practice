@@ -97,6 +97,11 @@ const CardView = () => {
                 <p className="font-bold text-white">Gender: {item.gender}</p>
                 <p className="font-bold text-white">DOB: {item.date_of_birth}</p>
                 <p className="font-bold text-white">Living Status: {item.status}</p>
+                <p className="font-bold text-white">Mother&apos;s Name: {item.family_relations.mother}</p>
+                <p className="font-bold text-white">Father&apos;s Name: {item.family_relations.father}</p>
+                <p className="font-bold text-white">Gender: {item.gender}</p>
+                <p className="font-bold text-white">DOB: {item.date_of_birth}</p>
+                <p className="font-bold text-white">Living Status: {item.status}</p>
                 
               </div>
             )}

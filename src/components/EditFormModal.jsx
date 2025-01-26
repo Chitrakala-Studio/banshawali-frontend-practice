@@ -1,8 +1,49 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import Swal from "sweetalert2";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(formData);
+  const [suggestions, setSuggestions] = useState([]);
+  const [motherSuggestions, setMotherSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
+
+  // Updated familyMembers data with separate father_dob and mother_dob
+  const familyMembers = [
+    { name: "Ram Bahadur", father_dob: "1970-05-15", mother_dob: "1975-06-25", pusta_number: "2", mother_name: "Sita Devi" },
+    { name: "Shyam Lal", father_dob: "1965-11-20", mother_dob: "1970-01-10", pusta_number: "3", mother_name: "Radha Devi" },
+    { name: "Hari Krishna", father_dob: "1975-02-10", mother_dob: "1980-04-05", pusta_number: "1", mother_name: "Gita Devi" },
+    { name: "Gopal Prasad", father_dob: "1980-08-25", mother_dob: "1985-02-15", pusta_number: "2", mother_name: "Maya Devi" },
+  ];
+
+  // Function to fetch father's name suggestions
+  const fetchFatherSuggestions = (adjustedPustaNumber, query) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const suggestions = familyMembers.filter(
+          (member) =>
+            member.pusta_number === adjustedPustaNumber.toString() && 
+            member.name.toLowerCase().includes(query.toLowerCase())
+        );
+        resolve(suggestions);
+      }, 500); // Simulate API delay
+    });
+  };
+
+  // Function to fetch mother's name suggestions
+  const fetchMotherSuggestions = (adjustedPustaNumber, query) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const suggestions = familyMembers.filter(
+          (member) =>
+            member.pusta_number === adjustedPustaNumber.toString() &&
+            member.mother_name.toLowerCase().includes(query.toLowerCase())
+        );
+        resolve(suggestions);
+      }, 500); // Simulate API delay
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -10,17 +51,80 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       ...prev,
       [name]: value,
     }));
+
+    // Handle father name suggestions
+    if (name === "father_name" && value.trim()) {
+      const adjustedPustaNumber = form.pusta_number - 1;
+      fetchSuggestions(adjustedPustaNumber, value);
+    } else if (name === "father_name" && !value.trim()) {
+      setSuggestions([]);
+    }
+
+    // Handle mother name suggestions
+    if (name === "mother_name" && value.trim()) {
+      const adjustedPustaNumber = form.pusta_number - 1;
+      fetchMotherSuggestions(adjustedPustaNumber, value).then((results) => {
+        setMotherSuggestions(results);
+        setShowMotherSuggestions(true); // Ensure suggestions are shown
+      });
+    } else if (name === "mother_name" && !value.trim()) {
+      setMotherSuggestions([]);
+    }
+  };
+
+  const fetchSuggestions = async (adjustedPustaNumber, query) => {
+    try {
+      const results = await fetchFatherSuggestions(adjustedPustaNumber, query); // Pass adjusted number
+      setSuggestions(results);
+      setShowSuggestions(true); // Show father suggestions
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setForm((prev) => ({
+      ...prev,
+      father_name: suggestion.name,
+      father_dob: suggestion.father_dob, // Set father's DOB
+    }));
+    setShowSuggestions(false);
+  };
+
+  const handleMotherSuggestionClick = (suggestion) => {
+    setForm((prev) => ({
+      ...prev,
+      mother_name: suggestion.mother_name,
+      mother_dob: suggestion.mother_dob, // Set mother's DOB
+    }));
+    setShowMotherSuggestions(false); // Hide suggestions after selection
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(form); // Pass updated data back to parent
-    onClose(); // Close modal
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to save these changes?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#28a745",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, save it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onSave(form); // Pass updated data back to parent
+        Swal.fire("Saved!", "Your changes have been saved.", "success");
+        window.location.reload(); // Reload the page
+        onClose(); // Close modal
+      }
+    });
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
-      <div className="bg-white h-[600px] w-[700px]   rounded-lg relative  flex justify-center items-center overflow-y-scroll overflow-hidden">
+      <div className="bg-white h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -29,7 +133,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           &#x2715;
         </button>
 
-        <form onSubmit={handleSubmit} className="space-y-4  flex flex-col h-full w-full items-center ">
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col h-full w-full items-center ">
           {/* Profile Picture */}
           <div className="flex justify-center mt-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center">
@@ -80,6 +184,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
               placeholder="Enter father's name"
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {suggestion.name} ({suggestion.father_dob})
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Mother's Name */}
@@ -95,17 +212,42 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
               placeholder="Enter mother's name"
             />
+            {showMotherSuggestions && motherSuggestions.length > 0 && (
+              <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
+                {motherSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleMotherSuggestionClick(suggestion)}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {suggestion.mother_name} ({suggestion.mother_dob})
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
-          {/* DOB */}
+          {/* Father's DOB */}
           <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700">DOB</label>
+            <label className="block text-sm font-medium text-gray-700">Father's DOB</label>
             <input
               type="date"
-              name="dob"
-              value={form.dob}
+              name="father_dob"
+              value={form.father_dob}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
+            />
+          </div>
+
+          {/* Mother's DOB */}
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700">Mother's DOB</label>
+            <input
+              type="date"
+              name="mother_dob"
+              value={form.mother_dob}
+              onChange={handleChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
             />
           </div>
 
@@ -177,7 +319,8 @@ EditFormModal.propTypes = {
     pusta_number: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,
-    dob: PropTypes.string,
+    father_dob: PropTypes.string,
+    mother_dob: PropTypes.string,
     status: PropTypes.string,
     profession: PropTypes.string,
     gender: PropTypes.string,

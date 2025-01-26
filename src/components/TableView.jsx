@@ -9,101 +9,91 @@ import {
 import ReactPaginate from "react-paginate";
 import { globalData } from "../data/globalData";
 import EditFormModal from "./EditFormModal";
-import CardViewPopup from "./CardViewPopup";
+import FamilyTreeModal from "./FamilyTreeModal"; // Import FamilyTreeModal
 import "./../assets/styles/TableView.css";
+import Swal from "sweetalert2";
 
 const TableView = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [selectedRow, setSelectedRow] = useState(null); // State to track selected row
-  const [isEditing, setIsEditing] = useState(false); // State to manage Edit Modal
-  const [showInfoPopup, setShowInfoPopup] = useState(false); // State to manage Info View popup
-  const [isAdding, setIsAdding] = useState(false); // State to manage Add New Modal
-  const [formData, setFormData] = useState({
-    username: "",
-    pusta_number: "",
-    father_name: "",
-    mother_name: "",
-    dob: "",
-    status: "Alive",
-    profession: "",
-    gender: "Male",
-  }); // Initial form state for Add New
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [selectedFamily, setSelectedFamily] = useState(null); // State to manage FamilyTreeModal
 
-  // Calculate the rows for the current page
   const offset = currentPage * rowsPerPage;
   const currentRows = globalData.slice(offset, offset + rowsPerPage);
+  
+    const handleDelete = () => {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33", // Red color to indicate danger
+        cancelButtonColor: "#3085d6", // Blue color for cancel button
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Delete the item
+    
+          Swal.fire("Deleted!", "The item has been deleted.", "success");
+        }
+      });
+    };
+    
+  
 
-  // Handle page change
   const handlePageChange = ({ selected }) => {
     setCurrentPage(selected);
   };
 
-  // Open Edit Modal
   const handleEditClick = (row) => {
     setSelectedRow(row);
     setIsEditing(true);
   };
 
-  // Open Info View Popup
   const handleInfoClick = (row) => {
-    setSelectedRow(row);
-    setShowInfoPopup(true);
+    setSelectedFamily(row); // Set the selected family member's data
   };
 
-  // Save changes from Edit Modal
   const handleSave = (updatedRow) => {
     console.log("Updated Row:", updatedRow);
-    // Update globalData or local state here with updatedRow logic
-    setIsEditing(false); // Close the Edit Modal
+    setIsEditing(false);
   };
 
-  // Save new data
   const handleSaveNew = (newData) => {
     console.log("New Data:", newData);
-    // Add new data to globalData or manage it locally
-    globalData.push(newData); // Append to globalData (or replace with state logic)
-    setIsAdding(false); // Close the Add New modal
+    globalData.push(newData);
+    setIsAdding(false);
   };
 
   return (
     <div className="table-view">
       <div className="table-view-filters">
-        {/* Search Bar */}
         <div className="search-bar">
           <FaSearch className="search-icon" />
           <input type="text" placeholder="Search" className="search-input" />
         </div>
-
-        {/* Buttons */}
         <button className="filter-button">Filter</button>
         <button
           className="add-button"
           onClick={() => {
-            setFormData({
-              username: "",
-              pusta_number: "",
-              father_name: "",
-              mother_name: "",
-              dob: "",
-              status: "Alive",
-              profession: "",
-              gender: "Male",
-            }); // Reset form for new entry
-            setIsAdding(true); // Open Add New modal
+            setIsAdding(true);
           }}
         >
           + Add New
         </button>
       </div>
+
       <table>
         <thead>
           <tr>
             <th>Name</th>
             <th>Generation</th>
-            <th>Mother&apos;s name</th>
-            <th>Father&apos;s name</th>
+            <th>Mother&apos;s Name</th>
+            <th>Father&apos;s Name</th>
             <th>Gender</th>
             <th>DOB</th>
             <th>Actions</th>
@@ -117,42 +107,32 @@ const TableView = () => {
                 {row.name}
               </td>
               <td>
-                {row.pusta_number === "1" ? (
-                  <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
-                    <span
-                      className="w-2 h-2 rounded-full mr-2"
-                      style={{ backgroundColor: "green" }}
-                    ></span>
-                    G{row.pusta_number}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
-                    <span
-                      className="w-2 h-2 rounded-full mr-2"
-                      style={{ backgroundColor: "red" }}
-                    ></span>
-                    G{row.pusta_number}
-                  </div>
-                )}
+                <div
+                  className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${
+                    row.pusta_number === "1"
+                      ? "bg-green-200 text-green-700"
+                      : "bg-red-200 text-red-700"
+                  }`}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full mr-2"
+                    style={{ backgroundColor: row.pusta_number === "1" ? "green" : "red" }}
+                  ></span>
+                  G{row.pusta_number}
+                </div>
               </td>
-              <td>{row.family_relations.mother}</td>
-              <td>{row.family_relations.father}</td>
+              <td>{row.family_relations?.mother || "Unknown"}</td>
+              <td>{row.family_relations?.father || "Unknown"}</td>
               <td>{row.gender}</td>
               <td>{row.date_of_birth}</td>
               <td>
-                <button
-                  className="icon-button info-button"
-                  onClick={() => handleInfoClick(row)} // Open Info Popup
-                >
+                <button className="icon-button info-button" onClick={() => handleInfoClick(row)}>
                   <FaInfoCircle />
                 </button>
-                <button
-                  className="icon-button edit-button"
-                  onClick={() => handleEditClick(row)} // Open Edit Modal
-                >
+                <button className="icon-button edit-button" onClick={() => handleEditClick(row)}>
                   <FaEdit />
                 </button>
-                <button className="icon-button delete-button">
+                <button className="icon-button delete-button" onClick={() => handleDelete(row)}>
                   <FaTrash />
                 </button>
               </td>
@@ -160,6 +140,7 @@ const TableView = () => {
           ))}
         </tbody>
       </table>
+
       <div className="table-footer">
         <button className="import-button">
           Import <FaCloudDownloadAlt className="import-icon" />
@@ -175,11 +156,11 @@ const TableView = () => {
                 setRowsPerPage(parseInt(e.target.value, 10));
               }}
             >
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-              <option value={5}>5</option>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
             </select>
             <span> Rows</span>
           </div>
@@ -209,25 +190,34 @@ const TableView = () => {
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
           }}
-          onClose={() => setIsEditing(false)} // Close the Edit Modal
-          onSave={handleSave} // Save changes
+          onClose={() => setIsEditing(false)}
+          onSave={handleSave}
         />
       )}
 
-      {/* Info View Popup */}
-      {showInfoPopup && (
-        <CardViewPopup
-          selectedData={selectedRow}
-          onClose={() => setShowInfoPopup(false)} // Close Info Popup
+      {/* Family Tree Modal */}
+      {selectedFamily && (
+        <FamilyTreeModal
+          familyData={selectedFamily}
+          onClose={() => setSelectedFamily(null)}
         />
       )}
 
       {/* Add New Modal */}
       {isAdding && (
         <EditFormModal
-          formData={formData}
-          onClose={() => setIsAdding(false)} // Close Add New modal
-          onSave={handleSaveNew} // Save new data
+          formData={{
+            username: "",
+            pusta_number: "",
+            father_name: "",
+            mother_name: "",
+            dob: "",
+            status: "Alive",
+            profession: "",
+            gender: "Male",
+          }}
+          onClose={() => setIsAdding(false)}
+          onSave={handleSaveNew}
         />
       )}
     </div>
