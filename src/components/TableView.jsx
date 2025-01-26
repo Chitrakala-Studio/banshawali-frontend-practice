@@ -290,11 +290,14 @@ const TableView = () => {
         </tbody>
       </table>
       <div className="table-footer">
-        <button className="import-button">
+        {/* <button className="import-button">
           Import <FaCloudDownloadAlt className="import-icon" />
         </button>
         <div className="flex items-center justify-between w-full mt-4">
           <div className="flex items-center space-x-2">
+        </button> */}
+        <div className="paginate-align">
+          <div>
             <span>Show </span>
             <select
               className="border bg-white rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
