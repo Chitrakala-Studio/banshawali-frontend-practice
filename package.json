@@ -21,10 +21,8 @@
     "react-organizational-chart": "^2.2.1",
     "react-paginate": "^8.2.0",
     "react-router-dom": "^7.1.1",
-<<<<<<< HEAD
-=======
+    "react-swipeable": "^7.0.2",
     "react-tinder-card": "^1.6.4",
->>>>>>> e801e65c20742b13da2756132852668fca5193de
     "sweetalert2": "^11.15.10"
   },
   "devDependencies": {

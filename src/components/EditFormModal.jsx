@@ -8,13 +8,38 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Updated familyMembers data with separate father_dob and mother_dob
   const familyMembers = [
-    { name: "Ram Bahadur", father_dob: "1970-05-15", mother_dob: "1975-06-25", pusta_number: "2", mother_name: "Sita Devi" },
-    { name: "Shyam Lal", father_dob: "1965-11-20", mother_dob: "1970-01-10", pusta_number: "3", mother_name: "Radha Devi" },
-    { name: "Hari Krishna", father_dob: "1975-02-10", mother_dob: "1980-04-05", pusta_number: "1", mother_name: "Gita Devi" },
-    { name: "Gopal Prasad", father_dob: "1980-08-25", mother_dob: "1985-02-15", pusta_number: "2", mother_name: "Maya Devi" },
+    {
+      name: "Ram Bahadur",
+      father_dob: "1970-05-15",
+      mother_dob: "1975-06-25",
+      pusta_number: "2",
+      mother_name: "Sita Devi",
+    },
+    {
+      name: "Shyam Lal",
+      father_dob: "1965-11-20",
+      mother_dob: "1970-01-10",
+      pusta_number: "3",
+      mother_name: "Radha Devi",
+    },
+    {
+      name: "Hari Krishna",
+      father_dob: "1975-02-10",
+      mother_dob: "1980-04-05",
+      pusta_number: "1",
+      mother_name: "Gita Devi",
+    },
+    {
+      name: "Gopal Prasad",
+      father_dob: "1980-08-25",
+      mother_dob: "1985-02-15",
+      pusta_number: "2",
+      mother_name: "Maya Devi",
+    },
   ];
 
   // Function to fetch father's name suggestions
@@ -23,7 +48,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       setTimeout(() => {
         const suggestions = familyMembers.filter(
           (member) =>
-            member.pusta_number === adjustedPustaNumber.toString() && 
+            member.pusta_number === adjustedPustaNumber.toString() &&
             member.name.toLowerCase().includes(query.toLowerCase())
         );
         resolve(suggestions);
@@ -51,6 +76,32 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       ...prev,
       [name]: value,
     }));
+
+    // Clear errors for father_name and mother_name when Pusta Number is entered
+    if (name === "pusta_number" && value.trim()) {
+      setErrors((prev) => ({
+        ...prev,
+        father_name: "",
+        mother_name: "",
+      }));
+    }
+
+    // Validate Pusta Number before allowing input in father_name or mother_name
+    if (
+      (name === "father_name" || name === "mother_name") &&
+      !form.pusta_number
+    ) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Please enter Pusta Number first.",
+      }));
+      return;
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
 
     // Handle father name suggestions
     if (name === "father_name" && value.trim()) {
@@ -133,16 +184,16 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
       <div className="bg-white h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
         {/* Close Button */}
-        <div className="fixed top-10 left-55">
+        <div className="absolute top-2 right-2">
           <button
             onClick={onClose}
-            className="fixed absolute top-10 right-full text-gray-700 font-bold text-2xl hover:text-red-500 "
+            className="sticky top-2 right-2 text-gray-700 font-bold text-2xl hover:text-red-500 "
           >
             {/* Circle with a cross */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-8 w-8"
-              fill="none"
+              fill="white"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
@@ -153,11 +204,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
-            
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col h-full w-full items-center ">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 flex flex-col h-full w-full items-center "
+        >
           {/* Profile Picture */}
           <div className="flex justify-center mt-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center">
@@ -208,6 +261,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter father's name"
             />
+            {errors.father_name && (
+              <p className="text-red-500 text-sm mt-1">{errors.father_name}</p>
+            )}
             {showSuggestions && suggestions.length > 0 && (
               <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
                 {suggestions.map((suggestion, index) => (
@@ -236,6 +292,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter mother's name"
             />
+            {errors.mother_name && (
+              <p className="text-red-500 text-sm mt-1">{errors.mother_name}</p>
+            )}
             {showMotherSuggestions && motherSuggestions.length > 0 && (
               <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
                 {motherSuggestions.map((suggestion, index) => (
@@ -253,7 +312,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           {/* Father's DOB */}
           <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700">Father's DOB</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Father's DOB
+            </label>
             <input
               type="date"
               name="father_dob"
@@ -265,7 +326,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           {/* Mother's DOB */}
           <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700">Mother's DOB</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Mother's DOB
+            </label>
             <input
               type="date"
               name="mother_dob"

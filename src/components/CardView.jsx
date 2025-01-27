@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { globalData } from "../data/globalData";
 import FamilyTreeModal from "./FamilyTreeModal";
+import TinderCard from "react-tinder-card";
 
 const CardView = () => {
+  const containerRef = useRef(null);
   const [selectedFamily, setSelectedFamily] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null); // Track which card info is displayed
 
@@ -14,7 +16,46 @@ const CardView = () => {
   // Toggle the info section visibility
   const handleInfoClick = (family) => {
     setInfoPopup(infoPopup === family.name ? null : family.name);
-    
+  };
+
+  // Scroll to the previous card with a visual effect
+  const scrollLeft = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({
+        left: -containerRef.current.clientWidth,
+        behavior: "smooth",
+      });
+      // Add a visual effect to the container
+      containerRef.current.classList.add("animate-pulse");
+      setTimeout(() => {
+        containerRef.current.classList.remove("animate-pulse");
+      }, 300); // Remove the effect after 300ms
+    }
+  };
+
+  // Scroll to the next card with a visual effect
+  const scrollRight = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({
+        left: containerRef.current.clientWidth,
+        behavior: "smooth",
+      });
+      // Add a visual effect to the container
+      containerRef.current.classList.add("animate-pulse");
+      setTimeout(() => {
+        containerRef.current.classList.remove("animate-pulse");
+      }, 300); // Remove the effect after 300ms
+    }
+  };
+
+  const handleSwipe = (direction, index) => {
+    if (direction === "left" && index < globalData.length - 1) {
+      // Show the next card
+      scrollRight();
+    } else if (direction === "right" && index > 0) {
+      // Show the previous card
+      scrollLeft();
+    }
   };
 
   return (
@@ -22,7 +63,7 @@ const CardView = () => {
       {/* Navigation Buttons */}
       <button
         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
-        onClick={() => document.getElementById("container").scrollBy({ left: -window.innerWidth, behavior: "smooth" })}
+        onClick={scrollLeft}
       >
         <img
           className="w-6 h-6"
@@ -32,7 +73,7 @@ const CardView = () => {
       </button>
       <button
         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
-        onClick={() => document.getElementById("container").scrollBy({ left: window.innerWidth, behavior: "smooth" })}
+        onClick={scrollRight}
       >
         <img
           className="w-6 h-6"
@@ -43,15 +84,20 @@ const CardView = () => {
 
       {/* Card Container */}
       <div
+        ref={containerRef}
         id="container"
-        className={`flex w-full h-full overflow-x-scroll snap-x snap-mandatory scrollbar-hide`}
+        className="flex w-full h-full overflow-x-scroll snap-x snap-mandatory scrollbar-hide"
       >
         {globalData.map((item, index) => (
-          <div
+          <TinderCard
             key={index}
             className={`relative min-w-full h-full snap-center flex flex-col ${
-              infoPopup === item.name ? "overflow-y-scroll" : "overflow-y-hidden"
+              infoPopup === item.name
+                ? "overflow-y-scroll"
+                : "overflow-y-hidden"
             }`}
+            preventSwipe={["up", "down"]}
+            onSwipe={(direction) => handleSwipe(direction, index)} // Add swipe handler
           >
             {/* Image Section */}
             <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
@@ -67,7 +113,9 @@ const CardView = () => {
                 >
                   Generate Family Tree
                 </button>
-                <h2 className="text-2xl font-bold ml-5 mb-4 z-20">{item.name}</h2>
+                <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
+                  {item.name}
+                </h2>
                 <div className="flex justify-between items-center w-full mb-10">
                   <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
                     Pusta no. {item.pusta_number}
@@ -92,20 +140,35 @@ const CardView = () => {
             {/* Info Section */}
             {infoPopup === item.name && (
               <div className="w-full bg-gray-800 text-white p-4 rounded-b-lg shadow-lg z-10">
-                <p className="font-bold text-white">Mother&apos;s Name: {item.family_relations.mother}</p>
-                <p className="font-bold text-white">Father&apos;s Name: {item.family_relations.father}</p>
+                <p className="font-bold text-white">
+                  Mother&apos;s Name: {item.family_relations.mother}
+                </p>
+                <p className="font-bold text-white">
+                  Father&apos;s Name: {item.family_relations.father}
+                </p>
                 <p className="font-bold text-white">Gender: {item.gender}</p>
-                <p className="font-bold text-white">DOB: {item.date_of_birth}</p>
-                <p className="font-bold text-white">Living Status: {item.status}</p>
-                <p className="font-bold text-white">Mother&apos;s Name: {item.family_relations.mother}</p>
-                <p className="font-bold text-white">Father&apos;s Name: {item.family_relations.father}</p>
+                <p className="font-bold text-white">
+                  DOB: {item.date_of_birth}
+                </p>
+                <p className="font-bold text-white">
+                  Living Status: {item.status}
+                </p>
+                <p className="font-bold text-white">
+                  Mother&apos;s Name: {item.family_relations.mother}
+                </p>
+                <p className="font-bold text-white">
+                  Father&apos;s Name: {item.family_relations.father}
+                </p>
                 <p className="font-bold text-white">Gender: {item.gender}</p>
-                <p className="font-bold text-white">DOB: {item.date_of_birth}</p>
-                <p className="font-bold text-white">Living Status: {item.status}</p>
-                
+                <p className="font-bold text-white">
+                  DOB: {item.date_of_birth}
+                </p>
+                <p className="font-bold text-white">
+                  Living Status: {item.status}
+                </p>
               </div>
             )}
-          </div>
+          </TinderCard>
         ))}
       </div>
 
