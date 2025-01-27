@@ -56,17 +56,17 @@ const Compare = () => {
   };
 
   return (
-    <div className="flex flex-col items-center px-2 h-full w-full overflow-y-scroll overflow-hidden">
+    <div className="flex flex-col items-center px-2 h-full w-full overflow-y-auto">
       <h1 className="text-center text-3xl font-bold mt-4 mb-6">Compare</h1>
 
       {/* Flex Container for Left and Right Person */}
-      <div className="flex flex-col lg:flex-row lg:justify-center lg:space-x-8 space-y-8 lg:space-y-0">
+      <div className="flex flex-col lg:flex-row lg:justify-center lg:space-x-8 space-y-8 lg:space-y-0 w-full max-w-4xl">
         {/* Left Person */}
-        <div className="flex flex-col items-center space-y-4">
+        <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
             <span className="text-2xl text-gray-500">+</span>
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Name</label>
             <input
               type="text"
@@ -79,7 +79,7 @@ const Compare = () => {
               disabled={isLeftConfirmed}
             />
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Generation</label>
             <input
               type="text"
@@ -95,7 +95,7 @@ const Compare = () => {
               disabled={isLeftConfirmed}
             />
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Father's Name</label>
             <input
               type="text"
@@ -111,7 +111,7 @@ const Compare = () => {
               disabled={isLeftConfirmed}
             />
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Mother's Name</label>
             <input
               type="text"
@@ -137,11 +137,11 @@ const Compare = () => {
         </div>
 
         {/* Right Person */}
-        <div className="flex flex-col items-center space-y-4">
+        <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
             <span className="text-2xl text-gray-500">+</span>
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Name</label>
             <input
               type="text"
@@ -157,7 +157,7 @@ const Compare = () => {
               disabled={isRightConfirmed}
             />
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Generation</label>
             <input
               type="text"
@@ -173,7 +173,7 @@ const Compare = () => {
               disabled={isRightConfirmed}
             />
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Father's Name</label>
             <input
               type="text"
@@ -189,7 +189,7 @@ const Compare = () => {
               disabled={isRightConfirmed}
             />
           </div>
-          <div className="w-full lg:w-64">
+          <div className="w-full">
             <label className="block mb-2">Mother's Name</label>
             <input
               type="text"
@@ -216,7 +216,7 @@ const Compare = () => {
       </div>
 
       {/* Relationship Result */}
-      <div className="text-center w-48 mt-8 flex flex-col mb-4">
+      <div className="text-center w-full max-w-md mt-8 flex flex-col mb-4">
         <button
           className="bg-purple-700 text-white px-10 py-2 rounded-lg text-xl mb-4"
           onClick={handleCompare}
@@ -226,7 +226,7 @@ const Compare = () => {
 
         {relationship && <p className="text-lg font-bold">{relationship}</p>}
         <button
-          className="bg-green-600 text-white px-18 py-2 rounded mt-4"
+          className="bg-green-600 text-white px-10 py-2 rounded mt-4"
           onClick={handleGenerateFamilyTree}
         >
           Generate Family Tree

@@ -24,10 +24,10 @@ const TableView = () => {
     motherName: "",
   });
 
-  const [selectedRow, setSelectedRow] = useState(null); // State to track selected row
-  const [isEditing, setIsEditing] = useState(false); // State to manage Edit Modal
-  const [showInfoPopup, setShowInfoPopup] = useState(false); // State to manage Info View popup
-  const [isAdding, setIsAdding] = useState(false); // State to manage Add New Modal
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     pusta_number: "",
@@ -37,47 +37,39 @@ const TableView = () => {
     status: "Alive",
     profession: "",
     gender: "Male",
-  }); // Initial form state for Add New
+  });
 
-  // Calculate the rows for the current page
   const offset = currentPage * rowsPerPage;
   const currentRows = globalData.slice(offset, offset + rowsPerPage);
 
-  // Handle page change
   const handlePageChange = ({ selected }) => {
     setCurrentPage(selected);
   };
 
-  // Open Edit Modal
   const handleEditClick = (row) => {
     setSelectedRow(row);
     setIsEditing(true);
   };
 
-  // Open Info View Popup
   const handleInfoClick = (row) => {
     setSelectedRow(row);
     setShowInfoPopup(true);
   };
 
-  // Save changes from Edit Modal
   const handleSave = (updatedRow) => {
     console.log("Updated Row:", updatedRow);
-    // Update globalData or local state here with updatedRow logic
-    setIsEditing(false); // Close the Edit Modal
+    setIsEditing(false);
   };
 
-  // Save new data
   const handleSaveNew = (newData) => {
     console.log("New Data:", newData);
-    // Add new data to globalData or manage it locally
-    globalData.push(newData); // Append to globalData (or replace with state logic)
-    setIsAdding(false); // Close the Add New modal
+    globalData.push(newData);
+    setIsAdding(false);
   };
 
   const applyFilter = () => {
     console.log("Filters Applied:", filterData);
-    setIsFilterOpen(false); // Close the popup after applying the filter
+    setIsFilterOpen(false);
   };
 
   const handleDelete = (row) => {
@@ -98,16 +90,13 @@ const TableView = () => {
   };
 
   return (
-    <div className="table-view">
+    <div className="table-view ml-0 lg:ml-64 transition-all duration-300">
       <div className="table-view-filters">
-        {/* Search Bar */}
         <div className="search-bar">
           <FaSearch className="search-icon" />
           <input type="text" placeholder="Search" className="search-input" />
         </div>
-        {/* Buttons */}
         <div className="relative">
-          {/* Filter Button */}
           <button
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md shadow hover:bg-gray-300"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -115,30 +104,28 @@ const TableView = () => {
             Filter
           </button>
 
-          {/* Filter Popup */}
           {isFilterOpen && (
             <div
               className="absolute w-64 p-4 bg-white border border-gray-300 rounded-md shadow-md z-10"
               style={{
-                top: "50%", // Center the popup vertically in the button's height
+                top: "50%",
                 left:
                   window.innerWidth -
                     (document.querySelector(".table-view")?.offsetWidth || 0) <
                   300
-                    ? "auto" // If space is too tight on the right, open it on the left
+                    ? "auto"
                     : "0",
                 right:
                   window.innerWidth -
                     (document.querySelector(".table-view")?.offsetWidth || 0) <
                   300
                     ? "0"
-                    : "auto", // Position it to the left when necessary
+                    : "auto",
               }}
             >
               <h3 className="text-lg font-semibold text-gray-700 mb-3">
                 Filter
               </h3>
-              {/* Filter Inputs */}
               <div className="mb-3">
                 <label className="block text-sm text-gray-600 mb-1">
                   Generation
@@ -154,7 +141,6 @@ const TableView = () => {
                 />
               </div>
 
-              {/* Father's Name Filter */}
               <div className="mb-3">
                 <label className="block text-sm text-gray-600 mb-1">
                   Father's Name
@@ -170,7 +156,6 @@ const TableView = () => {
                 />
               </div>
 
-              {/* Mother's Name Filter */}
               <div className="mb-3">
                 <label className="block text-sm text-gray-600 mb-1">
                   Mother's Name
@@ -216,8 +201,8 @@ const TableView = () => {
               status: "Alive",
               profession: "",
               gender: "Male",
-            }); // Reset form for new entry
-            setIsAdding(true); // Open Add New modal
+            });
+            setIsAdding(true);
           }}
         >
           + Add New
@@ -268,13 +253,13 @@ const TableView = () => {
               <td>
                 <button
                   className="icon-button info-button"
-                  onClick={() => handleInfoClick(row)} // Open Info Popup
+                  onClick={() => handleInfoClick(row)}
                 >
                   <FaInfoCircle />
                 </button>
                 <button
                   className="icon-button edit-button"
-                  onClick={() => handleEditClick(row)} // Open Edit Modal
+                  onClick={() => handleEditClick(row)}
                 >
                   <FaEdit />
                 </button>
@@ -335,7 +320,6 @@ const TableView = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
       {isEditing && (
         <EditFormModal
           formData={{
@@ -348,25 +332,23 @@ const TableView = () => {
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
           }}
-          onClose={() => setIsEditing(false)} // Close the Edit Modal
-          onSave={handleSave} // Save changes
+          onClose={() => setIsEditing(false)}
+          onSave={handleSave}
         />
       )}
 
-      {/* Info View Popup */}
       {showInfoPopup && (
         <CardViewPopup
           selectedData={selectedRow}
-          onClose={() => setShowInfoPopup(false)} // Close Info Popup
+          onClose={() => setShowInfoPopup(false)}
         />
       )}
 
-      {/* Add New Modal */}
       {isAdding && (
         <EditFormModal
           formData={formData}
-          onClose={() => setIsAdding(false)} // Close Add New modal
-          onSave={handleSaveNew} // Save new data
+          onClose={() => setIsAdding(false)}
+          onSave={handleSaveNew}
         />
       )}
     </div>
