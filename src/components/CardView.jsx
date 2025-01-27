@@ -1,60 +1,39 @@
 import { useRef, useState } from "react";
 import { globalData } from "../data/globalData";
-import FamilyTreeModal from "./FamilyTreeModal";
-import TinderCard from "react-tinder-card";
+import FamilyTreeGraph from "./FamilyTreeGraph";
 
 const CardView = () => {
   const containerRef = useRef(null);
-  const [selectedFamily, setSelectedFamily] = useState(null);
+  const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null); // Track which card info is displayed
 
   // Handle the click to generate the family tree
-  const handleGenerateFamilyTree = (family) => {
-    setSelectedFamily(family); // Set the selected family to display in the modal
+  const handleGenerateFamilyTree = (person) => {
+    setSelectedPerson(person.name); // Set the selected person's name to display in the graph
   };
 
   // Toggle the info section visibility
-  const handleInfoClick = (family) => {
-    setInfoPopup(infoPopup === family.name ? null : family.name);
+  const handleInfoClick = (person) => {
+    setInfoPopup(infoPopup === person.name ? null : person.name);
   };
 
-  // Scroll to the previous card with a visual effect
+  // Scroll to the previous card
   const scrollLeft = () => {
     if (containerRef.current) {
       containerRef.current.scrollBy({
         left: -containerRef.current.clientWidth,
         behavior: "smooth",
       });
-      // Add a visual effect to the container
-      containerRef.current.classList.add("animate-pulse");
-      setTimeout(() => {
-        containerRef.current.classList.remove("animate-pulse");
-      }, 300); // Remove the effect after 300ms
     }
   };
 
-  // Scroll to the next card with a visual effect
+  // Scroll to the next card
   const scrollRight = () => {
     if (containerRef.current) {
       containerRef.current.scrollBy({
         left: containerRef.current.clientWidth,
         behavior: "smooth",
       });
-      // Add a visual effect to the container
-      containerRef.current.classList.add("animate-pulse");
-      setTimeout(() => {
-        containerRef.current.classList.remove("animate-pulse");
-      }, 300); // Remove the effect after 300ms
-    }
-  };
-
-  const handleSwipe = (direction, index) => {
-    if (direction === "left" && index < globalData.length - 1) {
-      // Show the next card
-      scrollRight();
-    } else if (direction === "right" && index > 0) {
-      // Show the previous card
-      scrollLeft();
     }
   };
 
@@ -147,37 +126,27 @@ const CardView = () => {
                   Father&apos;s Name: {item.family_relations.father}
                 </p>
                 <p className="font-bold text-white">Gender: {item.gender}</p>
-                <p className="font-bold text-white">
-                  DOB: {item.date_of_birth}
-                </p>
-                <p className="font-bold text-white">
-                  Living Status: {item.status}
-                </p>
-                <p className="font-bold text-white">
-                  Mother&apos;s Name: {item.family_relations.mother}
-                </p>
-                <p className="font-bold text-white">
-                  Father&apos;s Name: {item.family_relations.father}
-                </p>
-                <p className="font-bold text-white">Gender: {item.gender}</p>
-                <p className="font-bold text-white">
-                  DOB: {item.date_of_birth}
-                </p>
-                <p className="font-bold text-white">
-                  Living Status: {item.status}
-                </p>
+                <p className="font-bold text-white">DOB: {item.date_of_birth}</p>
+                <p className="font-bold text-white">Living Status: {item.status}</p>
               </div>
             )}
           </TinderCard>
         ))}
       </div>
 
-      {/* Family Tree Modal */}
-      {selectedFamily && (
-        <FamilyTreeModal
-          familyData={selectedFamily}
-          onClose={() => setSelectedFamily(null)}
-        />
+      {/* Family Tree Graph */}
+      {selectedPerson && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
+            <button
+              onClick={() => setSelectedPerson(null)}
+              className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
+            >
+              &#x2715;
+            </button>
+            <FamilyTreeGraph selectedPerson={selectedPerson} />
+          </div>
+        </div>
       )}
     </div>
   );

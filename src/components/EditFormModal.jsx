@@ -76,33 +76,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       ...prev,
       [name]: value,
     }));
-
-    // Clear errors for father_name and mother_name when Pusta Number is entered
-    if (name === "pusta_number" && value.trim()) {
-      setErrors((prev) => ({
-        ...prev,
-        father_name: "",
-        mother_name: "",
-      }));
-    }
-
-    // Validate Pusta Number before allowing input in father_name or mother_name
-    if (
-      (name === "father_name" || name === "mother_name") &&
-      !form.pusta_number
-    ) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "Please enter Pusta Number first.",
-      }));
-      return;
-    } else {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-
+    
     // Handle father name suggestions
     if (name === "father_name" && value.trim()) {
       const adjustedPustaNumber = form.pusta_number - 1;
@@ -193,7 +167,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-8 w-8"
-              fill="white"
+              fill="white" 
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
