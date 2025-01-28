@@ -5,6 +5,7 @@ import {
   FaTrash,
   FaSearch,
   FaCloudDownloadAlt,
+  FaLightbulb,
 } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
 import { globalData } from "../data/globalData";
@@ -12,8 +13,9 @@ import EditFormModal from "./EditFormModal";
 import CardViewPopup from "./CardViewPopup";
 import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
+import Sidebar from "./Sidebar";
 
-const TableView = () => {
+const TableView = ({ isAdmin = true }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -89,268 +91,324 @@ const TableView = () => {
     });
   };
 
+  const handleSuggestionClick = () => {
+    Swal.fire({
+      title: "Submit Suggestion",
+      input: "textarea",
+      inputAttributes: {
+        autocapitalize: "off",
+      },
+      showCancelButton: true,
+      confirmButtonText: "Submit",
+      showLoaderOnConfirm: true,
+      preConfirm: (suggestion) => {
+        // Handle the suggestion submission here
+        console.log("Suggestion:", suggestion);
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, 1000);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Suggestion Submitted!",
+          text: "Your suggestion has been submitted successfully.",
+          icon: "success",
+        });
+      }
+    });
+  };
+
   return (
-    <div className="table-view ml-0 lg:ml-64 transition-all duration-300">
-      <div className="table-view-filters">
-        <div className="search-bar">
-          <FaSearch className="search-icon" />
-          <input type="text" placeholder="Search" className="search-input" />
-        </div>
-        <div className="relative">
-          <button
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md shadow hover:bg-gray-300"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-          >
-            Filter
-          </button>
-
-          {isFilterOpen && (
-            <div
-              className="absolute w-64 p-4 bg-white border border-gray-300 rounded-md shadow-md z-10"
-              style={{
-                top: "50%",
-                left:
-                  window.innerWidth -
-                    (document.querySelector(".table-view")?.offsetWidth || 0) <
-                  300
-                    ? "auto"
-                    : "0",
-                right:
-                  window.innerWidth -
-                    (document.querySelector(".table-view")?.offsetWidth || 0) <
-                  300
-                    ? "0"
-                    : "auto",
-              }}
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar />
+      <div className="table-view ml-0 lg:ml-64 transition-all duration-300">
+        <div className="table-view-filters">
+          <div className="search-bar">
+            <FaSearch className="search-icon" />
+            <input type="text" placeholder="Search" className="search-input" />
+          </div>
+          <div className="relative">
+            <button
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md shadow hover:bg-gray-300"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
             >
-              <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                Filter
-              </h3>
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Generation
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter generation"
-                  value={filterData.generation}
-                  onChange={(e) =>
-                    setFilterData({ ...filterData, generation: e.target.value })
-                  }
-                />
-              </div>
+              Filter
+            </button>
 
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Father's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter father's name"
-                  value={filterData.fatherName}
-                  onChange={(e) =>
-                    setFilterData({ ...filterData, fatherName: e.target.value })
-                  }
-                />
-              </div>
+            {isFilterOpen && (
+              <div
+                className="absolute w-64 p-4 bg-white border border-gray-300 rounded-md shadow-md z-10"
+                style={{
+                  top: "50%",
+                  left:
+                    window.innerWidth -
+                      (document.querySelector(".table-view")?.offsetWidth ||
+                        0) <
+                    300
+                      ? "auto"
+                      : "0",
+                  right:
+                    window.innerWidth -
+                      (document.querySelector(".table-view")?.offsetWidth ||
+                        0) <
+                    300
+                      ? "0"
+                      : "auto",
+                }}
+              >
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                  Filter
+                </h3>
+                <div className="mb-3">
+                  <label className="block text-sm text-gray-600 mb-1">
+                    Generation
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter generation"
+                    value={filterData.generation}
+                    onChange={(e) =>
+                      setFilterData({
+                        ...filterData,
+                        generation: e.target.value,
+                      })
+                    }
+                  />
+                </div>
 
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Mother's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter mother's name"
-                  value={filterData.motherName}
-                  onChange={(e) =>
-                    setFilterData({ ...filterData, motherName: e.target.value })
-                  }
-                />
-              </div>
+                <div className="mb-3">
+                  <label className="block text-sm text-gray-600 mb-1">
+                    Father's Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter father's name"
+                    value={filterData.fatherName}
+                    onChange={(e) =>
+                      setFilterData({
+                        ...filterData,
+                        fatherName: e.target.value,
+                      })
+                    }
+                  />
+                </div>
 
-              <div className="flex justify-end space-x-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
-                  onClick={() => setIsFilterOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600"
-                  onClick={applyFilter}
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+                <div className="mb-3">
+                  <label className="block text-sm text-gray-600 mb-1">
+                    Mother's Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter mother's name"
+                    value={filterData.motherName}
+                    onChange={(e) =>
+                      setFilterData({
+                        ...filterData,
+                        motherName: e.target.value,
+                      })
+                    }
+                  />
+                </div>
 
-        <button
-          className="add-button"
-          onClick={() => {
-            setFormData({
-              username: "",
-              pusta_number: "",
-              father_name: "",
-              mother_name: "",
-              dob: "",
-              status: "Alive",
-              profession: "",
-              gender: "Male",
-            });
-            setIsAdding(true);
-          }}
-        >
-          + Add New
-        </button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Generation</th>
-            <th>Mother&apos;s name</th>
-            <th>Father&apos;s name</th>
-            <th>Gender</th>
-            <th>DOB</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentRows.map((row, index) => (
-            <tr key={index}>
-              <td>
-                <img src={row.photo_url} alt="Profile" />
-                {row.name}
-              </td>
-              <td>
-                {row.pusta_number === "1" ? (
-                  <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
-                    <span
-                      className="w-2 h-2 rounded-full mr-2"
-                      style={{ backgroundColor: "green" }}
-                    ></span>
-                    G{row.pusta_number}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
-                    <span
-                      className="w-2 h-2 rounded-full mr-2"
-                      style={{ backgroundColor: "red" }}
-                    ></span>
-                    G{row.pusta_number}
-                  </div>
-                )}
-              </td>
-              <td>{row.family_relations.mother}</td>
-              <td>{row.family_relations.father}</td>
-              <td>{row.gender}</td>
-              <td>{row.date_of_birth}</td>
-              <td>
-                <button
-                  className="icon-button info-button"
-                  onClick={() => handleInfoClick(row)}
-                >
-                  <FaInfoCircle />
-                </button>
-                <button
-                  className="icon-button edit-button"
-                  onClick={() => handleEditClick(row)}
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  className="icon-button delete-button"
-                  onClick={() => handleDelete(row)}
-                >
-                  <FaTrash />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="table-footer">
-        <button className="import-button">
-          Import <FaCloudDownloadAlt className="import-icon" />
-        </button>
-        <div className="flex items-center justify-between w-full mt-4">
-          <div className="flex items-center space-x-2">
-            <span>Show </span>
-            <select
-              className="border bg-white rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setCurrentPage(0);
-                setRowsPerPage(parseInt(e.target.value, 10));
-              }}
-            >
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-              <option value={5}>5</option>
-            </select>
-            <span> Rows</span>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
+                    onClick={() => setIsFilterOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                    onClick={applyFilter}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          <ReactPaginate
-            previousLabel={
-              <button className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                {"<"}
-              </button>
-            }
-            nextLabel={
-              <button className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                {">"}
-              </button>
-            }
-            breakLabel={"..."}
-            pageCount={Math.ceil(globalData.length / rowsPerPage)}
-            onPageChange={handlePageChange}
-            containerClassName={"flex items-center space-x-2"}
-            activeClassName={
-              "bg-blue-500 text-white px-3 py-1 rounded-full cursor-pointer"
-            }
-          />
+          <button
+            className="add-button"
+            onClick={() => {
+              setFormData({
+                username: "",
+                pusta_number: "",
+                father_name: "",
+                mother_name: "",
+                dob: "",
+                status: "Alive",
+                profession: "",
+                gender: "Male",
+              });
+              setIsAdding(true);
+            }}
+          >
+            + Add New
+          </button>
         </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Generation</th>
+              <th>Mother&apos;s name</th>
+              <th>Father&apos;s name</th>
+              <th>Gender</th>
+              <th>DOB</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentRows.map((row, index) => (
+              <tr key={index}>
+                <td>
+                  <img src={row.photo_url} alt="Profile" />
+                  {row.name}
+                </td>
+                <td>
+                  {row.pusta_number === "1" ? (
+                    <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
+                      <span
+                        className="w-2 h-2 rounded-full mr-2"
+                        style={{ backgroundColor: "green" }}
+                      ></span>
+                      G{row.pusta_number}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
+                      <span
+                        className="w-2 h-2 rounded-full mr-2"
+                        style={{ backgroundColor: "red" }}
+                      ></span>
+                      G{row.pusta_number}
+                    </div>
+                  )}
+                </td>
+                <td>{row.family_relations.mother}</td>
+                <td>{row.family_relations.father}</td>
+                <td>{row.gender}</td>
+                <td>{row.date_of_birth}</td>
+                <td>
+                  <button
+                    className="icon-button info-button"
+                    onClick={() => handleInfoClick(row)}
+                  >
+                    <FaInfoCircle />
+                  </button>
+                  {isAdmin ? (
+                    <>
+                      <button
+                        className="icon-button edit-button"
+                        onClick={() => handleEditClick(row)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="icon-button delete-button"
+                        onClick={() => handleDelete(row)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="icon-button suggestion-button"
+                      onClick={handleSuggestionClick}
+                    >
+                      <FaLightbulb />
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="table-footer">
+          <button className="import-button">
+            Import <FaCloudDownloadAlt className="import-icon" />
+          </button>
+          <div className="flex items-center justify-between w-full mt-4">
+            <div className="flex items-center space-x-2">
+              <span>Show </span>
+              <select
+                className="border bg-white rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setCurrentPage(0);
+                  setRowsPerPage(parseInt(e.target.value, 10));
+                }}
+              >
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={3}>3</option>
+                <option value={4}>4</option>
+                <option value={5}>5</option>
+              </select>
+              <span> Rows</span>
+            </div>
+
+            <ReactPaginate
+              previousLabel={
+                <button className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
+                  {"<"}
+                </button>
+              }
+              nextLabel={
+                <button className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
+                  {">"}
+                </button>
+              }
+              breakLabel={"..."}
+              pageCount={Math.ceil(globalData.length / rowsPerPage)}
+              onPageChange={handlePageChange}
+              containerClassName={"flex items-center space-x-2"}
+              activeClassName={
+                "bg-blue-500 text-white px-3 py-1 rounded-full cursor-pointer"
+              }
+            />
+          </div>
+        </div>
+
+        {isEditing && (
+          <EditFormModal
+            formData={{
+              username: selectedRow.name || "",
+              pusta_number: selectedRow.pusta_number || "",
+              father_name: selectedRow.family_relations?.father || "",
+              mother_name: selectedRow.family_relations?.mother || "",
+              dob: selectedRow.date_of_birth || "",
+              status: selectedRow.status || "Alive",
+              profession: selectedRow.profession || "",
+              gender: selectedRow.gender || "",
+            }}
+            onClose={() => setIsEditing(false)}
+            onSave={handleSave}
+          />
+        )}
+
+        {showInfoPopup && (
+          <CardViewPopup
+            selectedData={selectedRow}
+            onClose={() => setShowInfoPopup(false)}
+          />
+        )}
+
+        {isAdding && (
+          <EditFormModal
+            formData={formData}
+            onClose={() => setIsAdding(false)}
+            onSave={handleSaveNew}
+          />
+        )}
       </div>
-
-      {isEditing && (
-        <EditFormModal
-          formData={{
-            username: selectedRow.name || "",
-            pusta_number: selectedRow.pusta_number || "",
-            father_name: selectedRow.family_relations?.father || "",
-            mother_name: selectedRow.family_relations?.mother || "",
-            dob: selectedRow.date_of_birth || "",
-            status: selectedRow.status || "Alive",
-            profession: selectedRow.profession || "",
-            gender: selectedRow.gender || "",
-          }}
-          onClose={() => setIsEditing(false)}
-          onSave={handleSave}
-        />
-      )}
-
-      {showInfoPopup && (
-        <CardViewPopup
-          selectedData={selectedRow}
-          onClose={() => setShowInfoPopup(false)}
-        />
-      )}
-
-      {isAdding && (
-        <EditFormModal
-          formData={formData}
-          onClose={() => setIsAdding(false)}
-          onSave={handleSaveNew}
-        />
-      )}
     </div>
   );
 };

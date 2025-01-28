@@ -1,87 +1,78 @@
-import PropTypes from "prop-types";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-const Sidebar = ({ setView, currentView }) => {
+const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Close sidebar when a link is clicked (for mobile view)
+  const closeSidebar = () => {
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
+
   return (
     <>
-      {/* Hamburger Menu for Mobile */}
+      {/* Mobile Toggle Button */}
       <button
-        className="fixed top-5 left-5 z-50 flex flex-col justify-around w-8 h-6 bg-transparent border-none cursor-pointer p-0 focus:outline-none lg:hidden"
         onClick={toggleSidebar}
-        aria-label="Toggle Sidebar"
+        className="md:hidden fixed top-4 left-4 p-2 bg-gray-800 text-white rounded-lg z-50"
       >
-        <span
-          className={`block w-full h-0.5 bg-white transition-transform duration-300 ${
-            isSidebarOpen ? "transform rotate-45 translate-y-2.5" : ""
-          }`}
-        ></span>
-        <span
-          className={`block w-full h-0.5 bg-white transition-opacity duration-300 ${
-            isSidebarOpen ? "opacity-0" : "opacity-100"
-          }`}
-        ></span>
-        <span
-          className={`block w-full h-0.5 bg-white transition-transform duration-300 ${
-            isSidebarOpen ? "transform -rotate-45 -translate-y-2.5" : ""
-          }`}
-        ></span>
+        ☰
       </button>
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-gray-800 text-white p-5 transition-transform duration-300 ease-in-out z-40 ${
+        className={`w-64 bg-gray-800 text-white flex flex-col fixed h-full transform transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
+        } md:translate-x-0 z-40`} // Ensure sidebar has a higher z-index
       >
-        <h2 className="text-xl font-bold mb-5">Banshawali</h2>
-        <ul>
-          <li
-            className={`p-2 my-2 rounded cursor-pointer transition-colors duration-200 ${
-              currentView === "Table View" ? "bg-teal-500" : "hover:bg-gray-700"
-            }`}
-            onClick={() => {
-              setView("Table View");
-              setIsSidebarOpen(false); // Close sidebar on mobile after selection
-            }}
-          >
-            Table
-          </li>
-          <li
-            className={`p-2 my-2 rounded cursor-pointer transition-colors duration-200 ${
-              currentView === "Compare View"
-                ? "bg-teal-500"
-                : "hover:bg-gray-700"
-            }`}
-            onClick={() => {
-              setView("Compare View");
-              setIsSidebarOpen(false); // Close sidebar on mobile after selection
-            }}
-          >
-            Compare
-          </li>
-        </ul>
+        {/* Banshawali with Link to "/" */}
+        <Link
+          to="/table"
+          onClick={closeSidebar}
+          className="px-4 py-6 text-2xl font-bold"
+        >
+          Banshawali
+        </Link>
+
+        <nav className="flex-1 px-4 py-2">
+          <ul>
+            <li className="py-2">
+              <Link
+                to="/"
+                onClick={closeSidebar}
+                className="text-gray-300 hover:text-white"
+              >
+                Card
+              </Link>
+            </li>
+            <li className="py-2">
+              <Link
+                to="/compare"
+                onClick={closeSidebar}
+                className="text-gray-300 hover:text-white"
+              >
+                Compare
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </div>
 
-      {/* Overlay for Mobile */}
+      {/* Overlay for mobile */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
           onClick={toggleSidebar}
         ></div>
       )}
     </>
   );
-};
-
-Sidebar.propTypes = {
-  setView: PropTypes.func.isRequired, // Function to set the view
-  currentView: PropTypes.string.isRequired, // Current view as a string
 };
 
 export default Sidebar;
