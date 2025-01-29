@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ReactD3Tree from "react-d3-tree";
-import { Face6Outlined, Face3Outlined } from "@mui/icons-material"; // Import MUI icons
+import { Face, Face3 } from "@mui/icons-material"; // Import MUI icons
 
 // Dummy database data (simulated API response)
 const dummyDatabase = [
@@ -11,12 +11,12 @@ const dummyDatabase = [
     mother: { name: "Matashree", photo: "/assets/public/sample_6.jpg", gender: "female", pusta: "10" },
     fathersSiblings: [
       { name: "Uncle 1", spouse: { name: "Aunt-in-law 1", photo: null, gender: "female", pusta: "10" }, gender: "male", photo: null, pusta: "10" },
-      { name: "Aunt 1", spouse: { name: "Uncle-in-law", photo: null, pusta: "10", gender: "male" }, gender: "female", photo: null, pusta: "10" }
+      { name: "Aunt 1", spouse: null, gender: "female", photo: null, pusta: "10" }
     ],
     grandfather: { name: "Grandfather", photo: "/assets/public/grandpa.jpg", gender: "male", pusta: "9" },
     grandmother: { name: "Grandmother", photo: null, gender: "female", pusta: "9" },
     siblings: [
-      { name: "Sibling 1", gender: "male", photo: "/assets/public/sample_3.jpg" , pusta: "11" },
+      { name: "Sibling 1", gender: "male", photo: null , pusta: "11" },
       { name: "Sibling 2", gender: "female", photo: "/assets/public/sample_3.jpg", pusta: "11" }
     ],
     gender: "male",
@@ -29,7 +29,7 @@ const dummyDatabase = [
     mother: { name: "Matashree", photo: "/assets/public/sample_1", gender: "female", pusta: "12" },
     fathersSiblings: [
       { name: "Uncle 1", spouse: { name: "Aunt-in-law 1", photo: "/assets/public/sample_2", gender: "female", pusta: "12" }, gender: "male", photo: null, pusta: "12" },
-      { name: "Aunt 1", spouse: { name: "Uncle-in-law 2", photo: null, gender: "male" }, gender: "female", photo: null, pusta: "12" }
+      { name: "Aunt 1", spouse: null, gender: "female", photo: null, pusta: "12" }
     ],
     grandfather: { name: "Grandfather", photo: "/assets/public/grandpa", gender: "male", pusta: "11" },
     grandmother: { name: "Grandmother", photo: "/assets/public/grandma", gender: "female", pusta: "11" },
@@ -129,16 +129,57 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
 
   const renderNode = (nodeDatum) => {
     const isPair = nodeDatum.name.includes(" - ") || nodeDatum.name.includes(" & ");
-    const photo = nodeDatum.photo; // Direct photo URL
-    const gender = nodeDatum.gender;
+    
 
-    const iconColor = gender === "male" ? "#0000FF" : "#FF69B4";
     // Blue for male, Pink for female
 
     const circleRadius = 47;
     const imageSize = circleRadius * 2;
-    const iconSize = circleRadius * 1.2;
+    if(!isPair){
+      const photo = nodeDatum.photo; // Direct photo URL
+      const gender = nodeDatum.gender;
+      const iconColor = gender === "male" ? "#93d9d9" : "#fab3eb"; // Blue for male, Pink for female
+      const shouldDisplayIcon = !photo || photo === "null"; // Check for null, undefined, or "null" as string
 
+      return (
+        <g>
+          <circle
+            r={circleRadius}
+            fill={shouldDisplayIcon ? iconColor : "transparent"} // Use iconColor if no photo, else transparent
+            stroke={shouldDisplayIcon ? "#000" : "white"} // Dark stroke if no photo
+          />
+          {shouldDisplayIcon ? (
+            <foreignObject x="-47" y="-47" width={imageSize} height={imageSize}>
+              <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                {gender === "male" ? (
+                  <Face style={{ fontSize: imageSize / 1.5 }} />
+                ) : (
+                  <Face3 style={{ fontSize: imageSize / 1.5 }} />
+                )}
+              </div>
+            </foreignObject>
+          ) : (
+            <image
+              x={-circleRadius}
+              y={-circleRadius}
+              width={imageSize}
+              height={imageSize}
+              href={photo}
+              clipPath="circle(50%)"
+            />
+          )}
+          <text fill="white" x="0" y="60" textAnchor="middle" fontSize={14}>
+            {nodeDatum.name}
+          </text>
+          <text fill="white" x="0" y="75" textAnchor="middle" fontSize={14}>
+            {nodeDatum.pusta}
+          </text>
+        </g>
+      );
+    
+  
+    
+  }
     // If the node is a pair (e.g., a couple), handle it separately
     if (isPair) {
       const delimiter = nodeDatum.name.includes(" - ") ? " - " : " & ";
@@ -146,8 +187,8 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
       const [photo1, photo2] = nodeDatum.photo.split(delimiter);
       const [gender1, gender2] = nodeDatum.gender.split(delimiter);
       const [pusta1, pusta2] = nodeDatum.pusta.split(delimiter);
-      const iconColor1 = gender1 === "male" ? "#0000FF" : "#FF69B4";
-      const iconColor2 = gender2 === "male" ? "#0000FF" : "#FF69B4";
+      const iconColor1 = gender1 === "male" ? "#93d9d9" : "#fab3eb";
+      const iconColor2 = gender2 === "male" ? "#93d9d9" : "#fab3eb";
       return (
         <g>
           {/* First Circle */}
@@ -162,9 +203,9 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
             <foreignObject x="-95" y="-47" width={imageSize} height={imageSize}>
               <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
                 {gender1 === "male" ? (
-                  <Face6Outlined style={{ fontSize: imageSize / 1.5 }} />
+                  <Face style={{ fontSize: imageSize / 1.5 }} />
                 ) : (
-                  <Face3Outlined style={{ fontSize: imageSize / 1.5 }} />
+                  <Face3 style={{ fontSize: imageSize / 1.5 }} />
                 )}
               </div>
             </foreignObject>
@@ -190,15 +231,15 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
             cy="0"
             r={circleRadius}
             fill={photo2 === "null" ? iconColor2 : "transparent"} // Transparent if there's a photo, else color based on gender
-            stroke={photo2 ? "white" : "#000"} // No stroke if photo exists
+            stroke={photo2=== "null" ? "#000":"white"  } // No stroke if photo exists
           />
           {photo2 === "null" ? (
             <foreignObject x="0" y="-47" width={imageSize} height={imageSize}>
               <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
                 {gender2 === "male" ? (
-                  <Face6Outlined style={{ fontSize: imageSize / 1.5 }} />
+                  <Face style={{ fontSize: imageSize / 1.5 }} />
                 ) : (
-                  <Face3Outlined style={{ fontSize: imageSize / 1.5 }} />
+                  <Face3 style={{ fontSize: imageSize / 1.5 }} />
                 )}
               </div>
             </foreignObject>
@@ -222,43 +263,9 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
         </g>
       );
     }
-
+    
     // Single person node rendering
-    return (
-      <g>
-        <circle
-          r={circleRadius}
-          fill={photo === "null" ? iconColor : "transparent"} // Transparent if there's a photo, else color based on gender
-          stroke={photo === "null" ? "#000" : "white"} // No stroke if photo exists
-        />
-        {photo === "null" ? (
-        <foreignObject x="-47" y="-47" width={imageSize} height={imageSize}>
-          <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            {gender === "male" ? (
-              <Face6Outlined style={{ fontSize: imageSize }} />
-            ) : (
-              <Face3Outlined style={{ fontSize: imageSize }} />
-            )}
-          </div>
-        </foreignObject>
-      ) : (
-        <image
-          x={-circleRadius}
-          y={-circleRadius}
-          width={imageSize}
-          height={imageSize}
-          href={photo}
-          clipPath="circle(50%)"
-        />
-      )}
-        <text fill="white" x="0" y="55" textAnchor="middle" fontSize={14}>
-          {nodeDatum.name}
-        </text>
-        <text fill="white" x="0" y="70" textAnchor="middle" fontSize={14}>
-          {nodeDatum.pusta}
-        </text>
-      </g>
-    );
+   
   };
 
   if (!treeData) {
