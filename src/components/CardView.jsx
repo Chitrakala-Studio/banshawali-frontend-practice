@@ -176,10 +176,10 @@ const CardView = () => {
 
             {/* Info Section */}
             {infoPopup === item.name && (
-              <div className="w-full bg-gray-800 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
+              <div className="w-full bg-black/90 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
                 {/* Personal Information Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h1 className="font-bold text-m mb-4">
+                  <h3 className="font-bold text-lg mb-2">
                     Personal Information
                   </h1>
                   <div className="space-y-3">
