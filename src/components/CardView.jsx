@@ -4,6 +4,16 @@ import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
 import { useNavigate } from "react-router-dom";
 import FamilyTreeGraph from "./FamilyTreeGraph";
+import {
+  FaBirthdayCake,
+  FaPhone,
+  FaEnvelope,
+  FaUser,
+  FaVenusMars,
+  FaInfoCircle,
+  FaBriefcase,
+  FaUsers,
+} from "react-icons/fa"; // Import icons
 
 const CardView = () => {
   const containerRef = useRef(null);
@@ -169,65 +179,108 @@ const CardView = () => {
               <div className="w-full bg-gray-800 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
                 {/* Personal Information Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-lg mb-2">
+                  <h1 className="font-bold text-m mb-4">
                     Personal Information
-                  </h3>
-                  <p className="text-black font-semibold">
-                    Full Name: {item.name}
-                  </p>
-                  <p className="text-black font-semibold">
-                    Gender: {item.gender}
-                  </p>
-                  <p className="text-black font-semibold">
-                    DOB: {item.date_of_birth}
-                  </p>
-                  <p className="text-black font-semibold">
-                    Status: {item.status}
-                  </p>
+                  </h1>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <FaUser className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.name || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaVenusMars className="mr-2" />
+                      <p className="text-l mb-2 text-white">
+                        {item.gender || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaBirthdayCake className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.date_of_birth || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaInfoCircle className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {" "}
+                        {item.status || "N/A"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Family Information Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-lg mb-2">Family Information</h3>
-                  <p className="text-black font-semibold">
-                    Father's Name: {item.family_relations.father}
-                  </p>
-                  <p className="text-black font-semibold">
-                    Mother's Name: {item.family_relations.mother}
-                  </p>
+                  <h3 className="font-bold text-m mb-4">Family Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaUser className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.family_relations.father || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaUser className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.family_relations.mother || "N/A"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
+                {/* Contact Information Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-lg mb-2">
-                    Contact Information
-                  </h3>
-                  <p className="text-black font-semibold">
-                    Phone Number: {item.phone_number}
-                  </p>
-                  <p className="text-black font-semibold">
-                    Email Address: {item.email_address}
-                  </p>
+                  <h3 className="font-bold text-m mb-4">Contact Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaPhone className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.phone_number || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaEnvelope className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.email_address || "N/A"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
+                {/* Professional Information Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-lg mb-2">
+                  <h3 className="font-bold text-m mb-4">
                     Professional Information
                   </h3>
-                  <p className="text-black font-semibold">
-                    Profession: {item.profession}
-                  </p>
+                  <div className="flex items-center">
+                    <FaBriefcase className="mr-2" />
+                    <p className="text-l text-white mb-2">
+                      {item.profession || "N/A"}
+                    </p>
+                  </div>
                 </div>
 
+                {/* Genealogy and Lineage Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-lg mb-2">
+                  <h3 className="font-bold text-m mb-4">
                     Genealogy And Lineage
                   </h3>
-                  <p className="text-black font-semibold">
-                    Pusta Number: {item.pusta_number}
-                  </p>
-                  <p className="text-black font-semibold">
-                    Same Vamsha Status: {item.vamsha}
-                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaUsers className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.pusta_number || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaUsers className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.vansha || "N/A"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
