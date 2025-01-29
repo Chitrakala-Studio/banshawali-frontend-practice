@@ -166,20 +166,69 @@ const CardView = () => {
 
             {/* Info Section */}
             {infoPopup === item.name && (
-              <div className="w-full bg-gray-800 text-white p-4 rounded-b-lg shadow-lg z-10">
-                <p className="font-bold text-white">
-                  Mother&apos;s Name: {item.family_relations.mother}
-                </p>
-                <p className="font-bold text-white">
-                  Father&apos;s Name: {item.family_relations.father}
-                </p>
-                <p className="font-bold text-white">Gender: {item.gender}</p>
-                <p className="font-bold text-white">
-                  DOB: {item.date_of_birth}
-                </p>
-                <p className="font-bold text-white">
-                  Living Status: {item.status}
-                </p>
+              <div className="w-full bg-gray-800 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
+                {/* Personal Information Box */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-lg mb-2">
+                    Personal Information
+                  </h3>
+                  <p className="text-black font-semibold">
+                    Full Name: {item.name}
+                  </p>
+                  <p className="text-black font-semibold">
+                    Gender: {item.gender}
+                  </p>
+                  <p className="text-black font-semibold">
+                    DOB: {item.date_of_birth}
+                  </p>
+                  <p className="text-black font-semibold">
+                    Status: {item.status}
+                  </p>
+                </div>
+
+                {/* Family Information Box */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-lg mb-2">Family Information</h3>
+                  <p className="text-black font-semibold">
+                    Father's Name: {item.family_relations.father}
+                  </p>
+                  <p className="text-black font-semibold">
+                    Mother's Name: {item.family_relations.mother}
+                  </p>
+                </div>
+
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-lg mb-2">
+                    Contact Information
+                  </h3>
+                  <p className="text-black font-semibold">
+                    Phone Number: {item.phone_number}
+                  </p>
+                  <p className="text-black font-semibold">
+                    Email Address: {item.email_address}
+                  </p>
+                </div>
+
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-lg mb-2">
+                    Professional Information
+                  </h3>
+                  <p className="text-black font-semibold">
+                    Profession: {item.profession}
+                  </p>
+                </div>
+
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-lg mb-2">
+                    Genealogy And Lineage
+                  </h3>
+                  <p className="text-black font-semibold">
+                    Pusta Number: {item.pusta_number}
+                  </p>
+                  <p className="text-black font-semibold">
+                    Same Vamsha Status: {item.vamsha}
+                  </p>
+                </div>
               </div>
             )}
           </TinderCard>
