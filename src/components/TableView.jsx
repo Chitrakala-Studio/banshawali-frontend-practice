@@ -275,7 +275,7 @@ const TableView = ({ isAdmin = true }) => {
                   {row.name}
                 </td>
                 <td>
-                  {row.pusta_number === "1" ? (
+                  {row.pusta_number % 2 === 1 ? ( // Check if the generation number is odd
                     <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
                       <span
                         className="w-2 h-2 rounded-full mr-2"
@@ -397,7 +397,7 @@ const TableView = ({ isAdmin = true }) => {
 
         {showInfoPopup && (
           <FamilyTreeModal
-          familyData={selectedRow}
+            familyData={selectedRow}
             onClose={() => setShowInfoPopup(false)}
           />
         )}

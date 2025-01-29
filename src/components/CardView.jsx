@@ -1,9 +1,19 @@
 import { useRef, useState } from "react";
 import { globalData } from "../data/globalData";
-import FamilyTreeGraph from "./FamilyTreeGraph";
+import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
 import { useNavigate } from "react-router-dom";
 import FamilyTreeGraph from "./FamilyTreeGraph";
+import {
+  FaBirthdayCake,
+  FaPhone,
+  FaEnvelope,
+  FaUser,
+  FaVenusMars,
+  FaInfoCircle,
+  FaBriefcase,
+  FaUsers,
+} from "react-icons/fa"; // Import icons
 
 const CardView = () => {
   const containerRef = useRef(null);
@@ -11,8 +21,6 @@ const CardView = () => {
   const [infoPopup, setInfoPopup] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
   const navigate = useNavigate();
-  const [selectedPerson, setSelectedPerson] = useState(null);
-  const [infoPopup, setInfoPopup] = useState(null); // Track which card info is displayed
 
   // Handle the click to generate the family tree
   const handleGenerateFamilyTree = (person) => {
@@ -20,28 +28,53 @@ const CardView = () => {
   };
 
   // Toggle the info section visibility
-  const handleInfoClick = (person) => {
-    setInfoPopup(infoPopup === person.name ? null : person.name);
+  const handleInfoClick = (family) => {
+    setInfoPopup(infoPopup === family.name ? null : family.name);
   };
 
-  // Scroll to the previous card
+  // Scroll to the previous card with circular navigation
   const scrollLeft = () => {
+    const newIndex =
+      currentIndex === 0 ? globalData.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+    scrollToCard(newIndex);
+  };
+
+  // Scroll to the next card with circular navigation
+  const scrollRight = () => {
+    const newIndex =
+      currentIndex === globalData.length - 1 ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+    scrollToCard(newIndex);
+  };
+
+  // Scroll to a specific card
+  const scrollToCard = (index) => {
     if (containerRef.current) {
-      containerRef.current.scrollBy({
-        left: -containerRef.current.clientWidth,
+      const cardWidth = containerRef.current.clientWidth;
+      containerRef.current.scrollTo({
+        left: cardWidth * index,
         behavior: "smooth",
       });
+      // Add a visual effect to the container
+      containerRef.current.classList.add("animate-pulse");
+      setTimeout(() => {
+        containerRef.current.classList.remove("animate-pulse");
+      }, 300); // Remove the effect after 300ms
     }
   };
 
-  // Scroll to the next card
-  const scrollRight = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollBy({
-        left: containerRef.current.clientWidth,
-        behavior: "smooth",
-      });
+  const handleSwipe = (direction, index) => {
+    if (direction === "left") {
+      scrollRight();
+    } else if (direction === "right") {
+      scrollLeft();
     }
+  };
+
+  // Handle Compare button click
+  const handleCompareClick = () => {
+    navigate("/compare");
   };
 
   return (
@@ -50,6 +83,7 @@ const CardView = () => {
       <button
         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
         onClick={scrollLeft}
+        onTouchEnd={scrollLeft}
       >
         <img
           className="w-6 h-6"
@@ -60,6 +94,7 @@ const CardView = () => {
       <button
         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
         onClick={scrollRight}
+        onTouchEnd={scrollRight}
       >
         <img
           className="w-6 h-6"
@@ -83,7 +118,7 @@ const CardView = () => {
                 : "overflow-y-hidden"
             }`}
             preventSwipe={["up", "down"]}
-            onSwipe={(direction) => handleSwipe(direction, index)} // Add swipe handler
+            onSwipe={(direction) => handleSwipe(direction, index)}
           >
             {/* Image Section */}
             <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
@@ -93,12 +128,24 @@ const CardView = () => {
                 className="w-full h-full object-cover select-none"
               />
               <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+                {/* Generate Family Tree Button */}
                 <button
                   onClick={() => handleGenerateFamilyTree(item)}
+                  onTouchEnd={() => handleGenerateFamilyTree(item)}
                   className="absolute top-4 left-4 bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-white hover:text-purple-700"
                 >
                   Generate Family Tree
                 </button>
+
+                {/* Compare Button (Visible only in mobile view) */}
+                <button
+                  onClick={handleCompareClick}
+                  onTouchEnd={handleCompareClick}
+                  className="absolute top-4 right-4 bg-blue-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-white hover:text-blue-700 lg:hidden"
+                >
+                  Compare
+                </button>
+
                 <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
                   {item.name}
                 </h2>
@@ -109,7 +156,11 @@ const CardView = () => {
                   <button
                     className="pr-4 text-white text-xl"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent the event from propagating to the parent
+                      e.stopPropagation();
+                      handleInfoClick(item);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.stopPropagation();
                       handleInfoClick(item);
                     }}
                   >
@@ -125,16 +176,112 @@ const CardView = () => {
 
             {/* Info Section */}
             {infoPopup === item.name && (
-              <div className="w-full bg-gray-800 text-white p-4 rounded-b-lg shadow-lg z-10">
-                <p className="font-bold text-white">
-                  Mother&apos;s Name: {item.family_relations.mother}
-                </p>
-                <p className="font-bold text-white">
-                  Father&apos;s Name: {item.family_relations.father}
-                </p>
-                <p className="font-bold text-white">Gender: {item.gender}</p>
-                <p className="font-bold text-white">DOB: {item.date_of_birth}</p>
-                <p className="font-bold text-white">Living Status: {item.status}</p>
+              <div className="w-full bg-black/90 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
+                {/* Personal Information Box */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-lg mb-2">
+                    Personal Information
+                  </h1>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <FaUser className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.name || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaVenusMars className="mr-2" />
+                      <p className="text-l mb-2 text-white">
+                        {item.gender || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaBirthdayCake className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.date_of_birth || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaInfoCircle className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {" "}
+                        {item.status || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Family Information Box */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-m mb-4">Family Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaUser className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.family_relations.father || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaUser className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.family_relations.mother || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information Box */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-m mb-4">Contact Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaPhone className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.phone_number || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaEnvelope className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.email_address || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Professional Information Box */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-m mb-4">
+                    Professional Information
+                  </h3>
+                  <div className="flex items-center">
+                    <FaBriefcase className="mr-2" />
+                    <p className="text-l text-white mb-2">
+                      {item.profession || "N/A"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Genealogy and Lineage Box */}
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-bold text-m mb-4">
+                    Genealogy And Lineage
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaUsers className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.pusta_number || "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaUsers className="mr-2" />
+                      <p className="text-l text-white mb-2">
+                        {item.vansha || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </TinderCard>
