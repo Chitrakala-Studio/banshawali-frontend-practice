@@ -1,69 +1,40 @@
 import { useRef, useState } from "react";
 import { globalData } from "../data/globalData";
-import FamilyTreeModal from "./FamilyTreeModal";
+import FamilyTreeGraph from "./FamilyTreeGraph";
 import TinderCard from "react-tinder-card";
-import { useNavigate } from "react-router-dom";
-
 const CardView = () => {
   const containerRef = useRef(null);
-  const [selectedFamily, setSelectedFamily] = useState(null);
-  const [infoPopup, setInfoPopup] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
-  const navigate = useNavigate();
+  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [infoPopup, setInfoPopup] = useState(null); // Track which card info is displayed
 
   // Handle the click to generate the family tree
-  const handleGenerateFamilyTree = (family) => {
-    setSelectedFamily(family);
+  const handleGenerateFamilyTree = (person) => {
+    setSelectedPerson(person.name); // Set the selected person's name to display in the graph
   };
 
   // Toggle the info section visibility
-  const handleInfoClick = (family) => {
-    setInfoPopup(infoPopup === family.name ? null : family.name);
+  const handleInfoClick = (person) => {
+    setInfoPopup(infoPopup === person.name ? null : person.name);
   };
 
-  // Scroll to the previous card with circular navigation
+  // Scroll to the previous card
   const scrollLeft = () => {
-    const newIndex =
-      currentIndex === 0 ? globalData.length - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
-    scrollToCard(newIndex);
-  };
-
-  // Scroll to the next card with circular navigation
-  const scrollRight = () => {
-    const newIndex =
-      currentIndex === globalData.length - 1 ? 0 : currentIndex + 1;
-    setCurrentIndex(newIndex);
-    scrollToCard(newIndex);
-  };
-
-  // Scroll to a specific card
-  const scrollToCard = (index) => {
     if (containerRef.current) {
-      const cardWidth = containerRef.current.clientWidth;
-      containerRef.current.scrollTo({
-        left: cardWidth * index,
+      containerRef.current.scrollBy({
+        left: -containerRef.current.clientWidth,
         behavior: "smooth",
       });
-      // Add a visual effect to the container
-      containerRef.current.classList.add("animate-pulse");
-      setTimeout(() => {
-        containerRef.current.classList.remove("animate-pulse");
-      }, 300); // Remove the effect after 300ms
     }
   };
 
-  const handleSwipe = (direction, index) => {
-    if (direction === "left") {
-      scrollRight();
-    } else if (direction === "right") {
-      scrollLeft();
+  // Scroll to the next card
+  const scrollRight = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({
+        left: containerRef.current.clientWidth,
+        behavior: "smooth",
+      });
     }
-  };
-
-  // Handle Compare button click
-  const handleCompareClick = () => {
-    navigate("/compare");
   };
 
   return (
@@ -72,7 +43,6 @@ const CardView = () => {
       <button
         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
         onClick={scrollLeft}
-        onTouchEnd={scrollLeft}
       >
         <img
           className="w-6 h-6"
@@ -83,7 +53,6 @@ const CardView = () => {
       <button
         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
         onClick={scrollRight}
-        onTouchEnd={scrollRight}
       >
         <img
           className="w-6 h-6"
@@ -107,7 +76,7 @@ const CardView = () => {
                 : "overflow-y-hidden"
             }`}
             preventSwipe={["up", "down"]}
-            onSwipe={(direction) => handleSwipe(direction, index)}
+            onSwipe={(direction) => handleSwipe(direction, index)} // Add swipe handler
           >
             {/* Image Section */}
             <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
@@ -117,24 +86,12 @@ const CardView = () => {
                 className="w-full h-full object-cover select-none"
               />
               <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
-                {/* Generate Family Tree Button */}
                 <button
                   onClick={() => handleGenerateFamilyTree(item)}
-                  onTouchEnd={() => handleGenerateFamilyTree(item)}
                   className="absolute top-4 left-4 bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-white hover:text-purple-700"
                 >
                   Generate Family Tree
                 </button>
-
-                {/* Compare Button (Visible only in mobile view) */}
-                <button
-                  onClick={handleCompareClick}
-                  onTouchEnd={handleCompareClick}
-                  className="absolute top-4 right-4 bg-blue-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-white hover:text-blue-700 lg:hidden"
-                >
-                  Compare
-                </button>
-
                 <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
                   {item.name}
                 </h2>
@@ -145,11 +102,7 @@ const CardView = () => {
                   <button
                     className="pr-4 text-white text-xl"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      handleInfoClick(item);
-                    }}
-                    onTouchEnd={(e) => {
-                      e.stopPropagation();
+                      e.stopPropagation(); // Prevent the event from propagating to the parent
                       handleInfoClick(item);
                     }}
                   >
@@ -173,24 +126,27 @@ const CardView = () => {
                   Father&apos;s Name: {item.family_relations.father}
                 </p>
                 <p className="font-bold text-white">Gender: {item.gender}</p>
-                <p className="font-bold text-white">
-                  DOB: {item.date_of_birth}
-                </p>
-                <p className="font-bold text-white">
-                  Living Status: {item.status}
-                </p>
+                <p className="font-bold text-white">DOB: {item.date_of_birth}</p>
+                <p className="font-bold text-white">Living Status: {item.status}</p>
               </div>
             )}
           </TinderCard>
         ))}
       </div>
 
-      {/* Family Tree Modal */}
-      {selectedFamily && (
-        <FamilyTreeModal
-          familyData={selectedFamily}
-          onClose={() => setSelectedFamily(null)}
-        />
+      {/* Family Tree Graph */}
+      {selectedPerson && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
+            <button
+              onClick={() => setSelectedPerson(null)}
+              className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
+            >
+              &#x2715;
+            </button>
+            <FamilyTreeGraph selectedPerson={selectedPerson} />
+          </div>
+        </div>
       )}
     </div>
   );
