@@ -2,14 +2,21 @@ import { useRef, useState } from "react";
 import { globalData } from "../data/globalData";
 import FamilyTreeGraph from "./FamilyTreeGraph";
 import TinderCard from "react-tinder-card";
+import { useNavigate } from "react-router-dom";
+import FamilyTreeGraph from "./FamilyTreeGraph";
+
 const CardView = () => {
   const containerRef = useRef(null);
+  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [infoPopup, setInfoPopup] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
+  const navigate = useNavigate();
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null); // Track which card info is displayed
 
   // Handle the click to generate the family tree
   const handleGenerateFamilyTree = (person) => {
-    setSelectedPerson(person.name); // Set the selected person's name to display in the graph
+    setSelectedPerson(person.name);
   };
 
   // Toggle the info section visibility
@@ -134,7 +141,7 @@ const CardView = () => {
         ))}
       </div>
 
-      {/* Family Tree Graph */}
+      {/* Family Tree Modal */}
       {selectedPerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">

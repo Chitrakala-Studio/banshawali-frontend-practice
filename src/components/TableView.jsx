@@ -11,6 +11,7 @@ import ReactPaginate from "react-paginate";
 import { globalData } from "../data/globalData";
 import EditFormModal from "./EditFormModal";
 import CardViewPopup from "./CardViewPopup";
+import FamilyTreeModal from "./FamilyTreeModal";
 import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
 import Sidebar from "./Sidebar";
@@ -395,8 +396,8 @@ const TableView = ({ isAdmin = true }) => {
         )}
 
         {showInfoPopup && (
-          <CardViewPopup
-            selectedData={selectedRow}
+          <FamilyTreeModal
+          familyData={selectedRow}
             onClose={() => setShowInfoPopup(false)}
           />
         )}
