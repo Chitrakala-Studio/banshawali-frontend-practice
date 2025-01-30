@@ -20,14 +20,15 @@ const CardView = () => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
+  const isMobile = window.innerWidth < 764;
   const navigate = useNavigate();
 
   // Handle the click to generate the family tree
   const handleGenerateFamilyTree = (person) => {
     setSelectedPerson(person.name);
+    setIsHorizontal(!isHorizontal); // Set orientation to horizontal
   };
-
-  // Toggle the info section visibility
+  
   const handleInfoClick = (family) => {
     setInfoPopup(infoPopup === family.name ? null : family.name);
   };
@@ -127,7 +128,7 @@ const CardView = () => {
                 alt={item.name}
                 className="w-full h-full object-cover select-none"
               />
-              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-1 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
                 {/* Generate Family Tree Button */}
                 <button
                   onClick={() => handleGenerateFamilyTree(item)}
@@ -314,12 +315,15 @@ const CardView = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
             <button
-              onClick={() => setSelectedPerson(null)}
+              onClick={() => {
+                setSelectedPerson(null);
+                setIsHorizontal(false); // Reset orientation
+              }}
               className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
             >
               &#x2715;
             </button>
-            <FamilyTreeGraph selectedPerson={selectedPerson} />
+            <FamilyTreeGraph selectedPerson={selectedPerson} isMobile={isMobile} />
           </div>
         </div>
       )}
