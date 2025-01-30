@@ -288,6 +288,27 @@ const CardView = () => {
         ))}
       </div>
 
+      <div className="w-full flex justify-around mt-1 p-4 text-white rounded-lg">
+        <button
+          onClick={handleCompareClick}
+          className="bg-blue-700 px-4 py-2 rounded-lg hover:bg-blue-500"
+        >
+          Compare
+        </button>
+        <button
+          onClick={handleGenerateFamilyTree}
+          className="bg-purple-700 px-4 py-2 rounded-lg hover:bg-purple-500"
+        >
+          Generate Family Tree
+        </button>
+        <button
+          onClick={() => navigate("/table")}
+          className="bg-green-700 px-4 py-2 rounded-lg hover:bg-green-500"
+        >
+          Table
+        </button>
+      </div>
+
       {/* Family Tree Modal */}
       {selectedPerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
