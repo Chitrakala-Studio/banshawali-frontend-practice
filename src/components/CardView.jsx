@@ -183,27 +183,27 @@ const CardView = () => {
                     Personal Information
                   </h3>
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <FaUser className="mr-2" />
+                    <div className="flex items-center border-b border-gray-600 pb-3">
+                      <FaUser className="mr-2 text-xl" />
                       <p className="text-l text-white mb-2">
                         {item.name || "N/A"}
                       </p>
                     </div>
                     <div className="flex items-center border-b border-gray-600 pb-3">
-                      <FaVenusMars className="mr-2" />
-                      <p className="text-l mb-2 text-white">
+                      <FaVenusMars className="mr-2 text-xl" />
+                      <p className="text-l mt-0 text-white">
                         {item.gender || "N/A"}
                       </p>
                     </div>
                     <div className="flex items-center border-b border-gray-600 pb-3">
-                      <FaBirthdayCake className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaBirthdayCake className="mr-2 text-xl" />
+                      <p className="text-l mt-0 text-white">
                         {item.date_of_birth || "N/A"}
                       </p>
                     </div>
                     <div className="flex items-center">
-                      <FaInfoCircle className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaInfoCircle className="mr-2 text-xl" />
+                      <p className="text-l text-white mt-0">
                         {" "}
                         {item.status || "N/A"}
                       </p>
