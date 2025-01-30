@@ -181,7 +181,7 @@ const CardView = () => {
                 <div className="bg-gray-700 p-4 rounded-lg">
                   <h3 className="font-bold text-lg mb-2">
                     Personal Information
-                  </h1>
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
                       <FaUser className="mr-2" />

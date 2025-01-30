@@ -26,10 +26,10 @@ const dummyDatabase = [
   },
   {
     selectedPerson: "Sita Devi Kafle",
-    // father: { name: "Pitashree", photo: null, gender: "male", pusta: "12" },
-    // mother: { name: "Matashree", photo: "src/assets/public/sample_1.jpg", gender: "female", pusta: "12" },
-    father: null,
-    mother: null,
+    father: { name: "Pitashree", photo: null, gender: "male", pusta: "12" },
+    mother: { name: "Matashree", photo: "src/assets/public/sample_1.jpg", gender: "female", pusta: "12" },
+    // father: null,
+    // mother: null,
     fathersSiblings: [
       { name: "Uncle 1", spouse: { name: "Aunt-in-law 1", photo: "src/assets/public/sample_2.jpg", gender: "female", pusta: "12" }, gender: "male", photo: null, pusta: "12" },
       { name: "Aunt 1", spouse: null, gender: "female", photo: null, pusta: "12" }
@@ -146,7 +146,7 @@ const transformToTreeData = (familyData,generationLevel) => {
 // Rendering the tree data with photos or icons
 const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
   const [treeData, setTreeData] = useState(null);
-  const [dimensions, setDimensions] = useState({ width: 900, height: 550 });
+  const [dimensions, setDimensions] = useState({ width: 950, height: 550 });
   const treeContainerRef = useRef(null);
   const [generationLevel, setGenerationLevel] = useState("current");
   const [hasChildren, setHasChildren] = useState(false);
@@ -344,7 +344,7 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
   }
 
   const translateX = isMobile ? dimensions.width / 3 : dimensions.width / 2; // Adjust for mobile and desktop
-  const nodeSize = isMobile ? { x: 100, y: 80 } : { x: 180, y: 190 }; // Smaller nodes on mobile
+  const nodeSize = isMobile ? { x: 100, y: 80 } : { x: 190, y: 180 }; // Smaller nodes on mobile
   const scale = isMobile ? 0.8 : 1.2; // Scale down the tree for mobile to fit
 
   return (
