@@ -7,6 +7,8 @@ import FamilyTreeGraph from "./FamilyTreeGraph";
 import {
   FaBirthdayCake,
   FaPhone,
+  FaArrowUp,
+  FaArrowDown,
   FaEnvelope,
   FaUser,
   FaVenusMars,
@@ -20,7 +22,19 @@ const CardView = () => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTableView, setIsTableView] = useState(false);
   const navigate = useNavigate();
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const toggleView = () => {
+    setIsTableView(!isTableView);
+    navigate(isTableView ? "/" : "/table");
+  };
 
   // Handle the click to generate the family tree
   const handleGenerateFamilyTree = (person) => {
@@ -79,30 +93,65 @@ const CardView = () => {
 
   return (
     <div className="relative w-full h-full lg:w-2/5 lg:h-[90%] md:w-3/5 md:h-[80%]">
-      {/* Navigation Buttons */}
-      <button
-        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
-        onClick={scrollLeft}
-        onTouchEnd={scrollLeft}
-      >
-        <img
-          className="w-6 h-6"
-          src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
-          alt="Scroll Left"
-        />
-      </button>
-      <button
-        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 opacity-50 text-white rounded-full z-20 hover:opacity-75"
-        onClick={scrollRight}
-        onTouchEnd={scrollRight}
-      >
-        <img
-          className="w-6 h-6"
-          src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
-          alt="Scroll Right"
-        />
-      </button>
+      <div className="absolute top-4 right-4 z-50">
+        <label className="flex items-center cursor-pointer">
+          <div className="relative">
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={isTableView}
+              onChange={toggleView}
+            />
+            <div
+              className={`w-12 h-6 rounded-full shadow-inner transition-colors ${
+                isTableView ? "bg-blue-700" : "bg-gray-300"
+              }`}
+            ></div>
+            <div
+              className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${
+                isTableView ? "translate-x-6" : "translate-x-0"
+              }`}
+            ></div>
+          </div>
+          <span className="ml-2 text-white">
+            {isTableView ? "Table View" : "Card View"}
+          </span>
+        </label>
+      </div>
 
+      {/* Navigation Buttons */}
+      <div
+        className="group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <button
+          className={`absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 transition-opacity ${
+            isHovered ? "opacity-50 hover:opacity-75" : "opacity-0"
+          }`}
+          onClick={scrollLeft}
+          onTouchEnd={scrollLeft}
+        >
+          <img
+            className="w-6 h-6"
+            src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+            alt="Scroll Left"
+          />
+        </button>
+        <button
+          className={`absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 transition-opacity ${
+            isHovered ? "opacity-50 hover:opacity-75" : "opacity-0"
+          }`}
+          onClick={scrollRight}
+          onTouchEnd={scrollRight}
+        >
+          <img
+            className="w-6 h-6"
+            src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+            alt="Scroll Right"
+          />
+        </button>
+      </div>
       {/* Card Container */}
       <div
         ref={containerRef}
@@ -127,6 +176,7 @@ const CardView = () => {
                 alt={item.name}
                 className="w-full h-full object-cover select-none"
               />
+
               <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
                 {/* Generate Family Tree Button */}
                 <button
@@ -164,11 +214,9 @@ const CardView = () => {
                       handleInfoClick(item);
                     }}
                   >
-                    <img
-                      className="w-10 h-10"
-                      src="https://img.icons8.com/ios/50/FFFFFF/info-squared.png"
-                      alt="info-squared"
-                    />
+                    <button onClick={toggleExpand} className="expand-button">
+                      {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                    </button>
                   </button>
                 </div>
               </div>
@@ -185,7 +233,7 @@ const CardView = () => {
                   <div className="space-y-3">
                     <div className="flex items-center border-b border-gray-600 pb-3">
                       <FaUser className="mr-2 text-xl" />
-                      <p className="text-l text-white mb-2">
+                      <p className="text-l text-white mt-1">
                         {item.name || "N/A"}
                       </p>
                     </div>
@@ -213,17 +261,17 @@ const CardView = () => {
 
                 {/* Family Information Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-m mb-4">Family Information</h3>
+                  <h3 className="font-bold text-lg mb-2">Family Information</h3>
                   <div className="space-y-3">
                     <div className="flex items-center border-b border-gray-600 pb-3">
-                      <FaUser className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaUser className="mr-2 text-xl" />
+                      <p className="text-l text-white mt-1">
                         {item.family_relations.father || "N/A"}
                       </p>
                     </div>
                     <div className="flex items-center">
-                      <FaUser className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaUser className="mr-2 text-xl" />
+                      <p className="text-l text-white mt-0">
                         {item.family_relations.mother || "N/A"}
                       </p>
                     </div>
@@ -235,14 +283,14 @@ const CardView = () => {
                   <h3 className="font-bold text-m mb-4">Contact Information</h3>
                   <div className="space-y-3">
                     <div className="flex items-center border-b border-gray-600 pb-3">
-                      <FaPhone className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaPhone className="mr-2 text-xl" />
+                      <p className="text-l text-white mt-1">
                         {item.phone_number || "N/A"}
                       </p>
                     </div>
                     <div className="flex items-center">
-                      <FaEnvelope className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaEnvelope className="mr-2 text-xl" />
+                      <p className="text-l text-white mt-0">
                         {item.email_address || "N/A"}
                       </p>
                     </div>
@@ -251,12 +299,12 @@ const CardView = () => {
 
                 {/* Professional Information Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-m mb-4">
+                  <h3 className="font-bold text-m mt-1">
                     Professional Information
                   </h3>
                   <div className="flex items-center">
-                    <FaBriefcase className="mr-2" />
-                    <p className="text-l text-white mb-2">
+                    <FaBriefcase className="mr-2 text-xl" />
+                    <p className="text-l text-white mt-0">
                       {item.profession || "N/A"}
                     </p>
                   </div>
@@ -264,19 +312,19 @@ const CardView = () => {
 
                 {/* Genealogy and Lineage Box */}
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-bold text-m mb-4">
+                  <h3 className="font-bold text-m mt-1">
                     Genealogy And Lineage
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center border-b border-gray-600 pb-3">
-                      <FaUsers className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaUsers className="mr-2 text-xl" />
+                      <p className="text-l text-white mt-0">
                         {item.pusta_number || "N/A"}
                       </p>
                     </div>
                     <div className="flex items-center">
-                      <FaUsers className="mr-2" />
-                      <p className="text-l text-white mb-2">
+                      <FaUsers className="mr-2 text-xl" />
+                      <p className="text-l text-white mt-0">
                         {item.vansha || "N/A"}
                       </p>
                     </div>
@@ -288,27 +336,20 @@ const CardView = () => {
         ))}
       </div>
 
-      <div className="w-full flex justify-around mt-1 p-4 text-white rounded-lg">
+      <div className="w-full flex justify-around mt-1 p-4 text-white rounded-lg bg-gray-800">
         <button
           onClick={handleCompareClick}
-          className="bg-blue-700 px-4 py-2 rounded-lg hover:bg-blue-500"
+          className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-28 ml-5 z-20"
         >
           Compare
         </button>
         <button
           onClick={handleGenerateFamilyTree}
-          className="bg-purple-700 px-4 py-2 rounded-lg hover:bg-purple-500"
+          className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-38 ml-5 z-20"
         >
           Generate Family Tree
         </button>
-        <button
-          onClick={() => navigate("/table")}
-          className="bg-green-700 px-4 py-2 rounded-lg hover:bg-green-500"
-        >
-          Table
-        </button>
       </div>
-
       {/* Family Tree Modal */}
       {selectedPerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
