@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
+//import Sidebar from "../../components/Sidebar";
 // import Header from "../../components/Header";
 import TableView from "../../components/TableView";
 import CardView from "../../components/CardView";
@@ -26,9 +26,9 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      {!isMobile && (
+      {/*  {!isMobile && (
         <Sidebar setView={setView} currentView={view} /> // Pass props to Sidebar
-      )}
+      )} */}
       <div className="admin-dashboard-content overflow-y-scroll overflow-hidden">
         {/* <Header view={view} setView={setView} /> */}
         <div
