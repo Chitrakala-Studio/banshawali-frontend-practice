@@ -42,7 +42,7 @@ const CardView = () => {
     setSelectedPerson(person.name);
     setIsHorizontal(!isHorizontal); // Set orientation to horizontal
   };
-  
+
   const handleInfoClick = (family) => {
     setInfoPopup(infoPopup === family.name ? null : family.name);
   };
@@ -181,6 +181,35 @@ const CardView = () => {
                 alt={item.name}
                 className="w-full h-full object-cover select-none"
               />
+
+              {/* Buttons Section */}
+              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+                {/* Scroll Left Button */}
+                <button
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  onClick={scrollLeft}
+                  onTouchEnd={scrollLeft}
+                >
+                  <img
+                    className="w-6 h-6"
+                    src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+                    alt="Scroll Left"
+                  />
+                </button>
+
+                {/* Scroll Right Button */}
+                <button
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  onClick={scrollRight}
+                  onTouchEnd={scrollRight}
+                >
+                  <img
+                    className="w-6 h-6"
+                    src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+                    alt="Scroll Right"
+                  />
+                </button>
+              </div>
               <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
                 {/* Generate Family Tree Button */}
                 <button
@@ -189,15 +218,6 @@ const CardView = () => {
                   className="absolute top-4 left-4 bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-white hover:text-purple-700"
                 >
                   Generate Family Tree
-                </button>
-
-                {/* Compare Button (Visible only in mobile view) */}
-                <button
-                  onClick={handleCompareClick}
-                  onTouchEnd={handleCompareClick}
-                  className="absolute top-4 right-4 bg-blue-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-white hover:text-blue-700 lg:hidden"
-                >
-                  Compare
                 </button>
 
                 <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
@@ -366,7 +386,10 @@ const CardView = () => {
             >
               &#x2715;
             </button>
-            <FamilyTreeGraph selectedPerson={selectedPerson} isMobile={isMobile} />
+            <FamilyTreeGraph
+              selectedPerson={selectedPerson}
+              isMobile={isMobile}
+            />
           </div>
         </div>
       )}
