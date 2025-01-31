@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ReactD3Tree from "react-d3-tree";
 import { Face, Face3 } from "@mui/icons-material"; // Import MUI icons
-
+import "./App.css";
 // Dummy database data (simulated API response)
 const dummyDatabase = [
   {
@@ -214,7 +214,7 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
       const shouldDisplayIcon = !photo || photo === "null"; // Check for null, undefined, or "null" as string
 
       return (
-        <g>
+        <g className="tree">
           <circle
             r={circleRadius}
             fill={shouldDisplayIcon ? iconColor : "transparent"} // Use iconColor if no photo, else transparent
@@ -262,7 +262,7 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
       const iconColor1 = gender1 === "male" ? "#93d9d9" : "#fab3eb";
       const iconColor2 = gender2 === "male" ? "#93d9d9" : "#fab3eb";
       return (
-        <g>
+        <g className="tree">
           {/* First Circle */}
           <circle
             cx="-45"
@@ -299,14 +299,14 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
 
           {/* Second Circle */}
           <circle
-            cx= {isMobile? "22.5": "45"}
+            cx= { "45"}
             cy="0"
-            r={isMobile? circleRadius/1.5: circleRadius}
+            r={ circleRadius}
             fill={photo2 === "null" ? iconColor2 : "transparent"} // Transparent if there's a photo, else color based on gender
             stroke={"white"} // No stroke if photo exists
           />
           {photo2 === "null" ? (
-            <foreignObject x="0" y={isMobile?"-20": "-47"} width={isMobile?imageSize/3: imageSize} height={isMobile?imageSize/3: imageSize}>
+            <foreignObject x="0" y={"-47"} width={ imageSize} height={ imageSize}>
               <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
                 {gender2 === "male" ? (
                   <Face style={{ fontSize: imageSize / 1.5 }} />
@@ -346,16 +346,17 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
 
   dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
   dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
-  const translateX = isMobile? dimensions.width/2 : dimensions.width / 1.25; // 
+  const translateX = isMobile? dimensions.width/2.35 : dimensions.width / 1.25; // 
   // Adjust for mobile and desktop
-  const translateY = isMobile ?  dimensions.height/1.7 :  50; // Adjust for mobile and desktop
-  const nodeSize = isMobile ? { x: 180, y: 120 } : { x: 185, y: 180 }; // Smaller nodes on mobile
-  const scale = isMobile ? 0.1 : 0.9; // Scale down the tree for mobile to fit
+  const translateY = isMobile ?  dimensions.height/1.6 :  50; // Adjust for mobile and desktop
+  const nodeSize = isMobile ? { x: 140, y: 100 } : { x: 185, y: 180 }; // Smaller nodes on mobile
+  const scale = 0.9; // Scale down the tree for mobile to fit
 
   return (
     <>
        <div style={{ position: "relative", width: "100%", height: "100%" , zIndex:"100"}}>
       <div
+        className="tree"
         ref={treeContainerRef}
         style={{
           width: isMobile ? "80vh" : "100%",
@@ -385,7 +386,9 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
             translate={{
               x: translateX,
               y: translateY,
+
             }}
+            
             scale={scale} // Apply scaling for mobile view
             renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
           />
@@ -396,14 +399,14 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
            top: isMobile? "85%": "10px", 
            right: isMobile? "-20px": "0px",
             padding: "1em" }}>
-          <button className="bg-purple-700/70 text-white px-4 py-2 my-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("upper")} disabled={!hasUpperGeneration || generationLevel === "above"} style={{
+          <button className="bg-purple-700/70 text-white px-4 py-2 my-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("upper")} onTouchEnd ={()=>handleGenerationChange("upper")} disabled={!hasUpperGeneration || generationLevel === "above"} style={{
             opacity: (hasUpperGeneration && generationLevel !== "upper") ? 1 : 0.5,
             cursor: (hasUpperGeneration && generationLevel !== "upper") ? "pointer" : "not-allowed"
 
           }}>
            {isMobile ? "Above":" Above Generation"}
           </button>
-          <button className="bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("below")} disabled={!hasChildren || generationLevel === "below"} style={{
+          <button className="bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("below")}  onTouchEnd ={()=>handleGenerationChange("below")} disabled={!hasChildren || generationLevel === "below"} style={{
             opacity: (hasChildren && generationLevel !== "below") ? 1 : 0.5,
             cursor: (hasChildren && generationLevel !== "below") ? "pointer" : "not-allowed"
           }}>
