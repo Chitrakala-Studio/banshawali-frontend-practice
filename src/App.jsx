@@ -3,6 +3,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Compare from "./components/Compare";
 import TableView from "./components/TableView";
+import CardView from "./components/CardView";
 
 const App = () => {
   return (
@@ -11,9 +12,11 @@ const App = () => {
         {/* <Route path="/" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminDashboard />} /> */}
 
-        <Route path="/" element={<AdminDashboard />} />
+        <Route path="/:id" element={<AdminDashboard />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/table" element={<TableView />} />
+        {/* Add a route for CardView with an id parameter */}
+        <Route path="/card/:id" element={<CardView />} />
       </Routes>
     </Router>
   );
