@@ -1,97 +1,108 @@
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { globalData } from "../data/globalData";
+import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
 import { useNavigate, useParams } from "react-router-dom";
 import FamilyTreeGraph from "./FamilyTreeGraph";
-import {
-  FaBirthdayCake,
-  FaPhone,
-  FaArrowUp,
-  FaArrowDown,
-  FaEnvelope,
-  FaUser,
-  FaVenusMars,
-  FaInfoCircle,
-  FaBriefcase,
-  FaUsers,
-} from "react-icons/fa";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa"; // Import icons
+import InfoSection from "./InfoSection";
+import ToggleView from "./ToggleView";
+import FamilyTreeCardButton from "./FamilyTreeCardButton";
+import FooterButtons from "./FooterButtons";
 
 const CardView = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Extract the id from URL params
+  const containerRef = useRef(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
+  const isMobile = window.innerWidth < 764;
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isTableView, setIsTableView] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTableView, setIsTableView] = useState(false);
   const navigate = useNavigate();
+  const [isHorizontal, setIsHorizontal] = useState(false);
 
   useEffect(() => {
     const index = globalData.findIndex((item) => item.id === parseInt(id));
-    if (index === -1) {
-      navigate("/table");
-      return;
+    if (index !== -1) {
+      setCurrentIndex(index);
+      // Wait for the DOM to render before scrolling
+      setTimeout(() => scrollToCard(index), 100);
+    } else {
+      navigate("/table"); // Redirect if invalid `id`
     }
-    setCurrentIndex(index);
   }, [id, navigate]);
 
-  const currentPerson = globalData[currentIndex];
-
-  const toggleExpand = () => setIsExpanded(!isExpanded);
-  const toggleView = () => navigate(isTableView ? "/card" : "/table");
-
-  const handleGenerateFamilyTree = () => {
-    setSelectedPerson(currentPerson.name);
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
   };
 
-  const handleInfoClick = () => {
-    setInfoPopup(infoPopup === currentPerson.name ? null : currentPerson.name);
+  const toggleView = () => {
+    setIsTableView(!isTableView);
   };
 
-  const navigateToCard = (direction) => {
-    let newIndex = currentIndex + direction;
-    if (newIndex < 0) newIndex = globalData.length - 1;
-    if (newIndex >= globalData.length) newIndex = 0;
-    navigate(`/card/${globalData[newIndex].id}`);
+  const handleFooterGenerate = () => {
+    const currentPerson = globalData[currentIndex];
+    if (currentPerson) {
+      setSelectedPerson(currentPerson.name);
+      setIsHorizontal(!isHorizontal);
+    }
   };
 
-  const handleSwipe = (direction) => {
-    if (direction === "left") navigateToCard(1);
-    if (direction === "right") navigateToCard(-1);
+  // Handle the click to generate the family tree
+  const handleGenerateFamilyTree = (person) => {
+    setSelectedPerson(person.name);
+    setIsHorizontal(!isHorizontal); // Set orientation to horizontal
   };
 
-  const handleCompareClick = () => navigate("/compare");
+  const handleInfoClick = (family) => {
+    setInfoPopup(infoPopup === family.name ? null : family.name);
+  };
 
-  if (!currentPerson) return null;
+  // Scroll to the previous card with circular navigation
+  const scrollLeft = () => {
+    const newIndex =
+      currentIndex === 0 ? globalData.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+    scrollToCard(newIndex);
+  };
+
+  // Scroll to the next card with circular navigation
+  const scrollRight = () => {
+    const newIndex =
+      currentIndex === globalData.length - 1 ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+    scrollToCard(newIndex);
+  };
+
+  // Scroll to a specific card
+  const scrollToCard = (index) => {
+    if (containerRef.current) {
+      const cardWidth = containerRef.current.clientWidth;
+      containerRef.current.scrollTo({
+        left: cardWidth * index,
+        behavior: "auto",
+      });
+      // Add a visual effect to the container
+      containerRef.current.classList.add("animate-pulse");
+      setTimeout(() => {
+        containerRef.current.classList.remove("animate-pulse");
+      }, 300); // Remove the effect after 300ms
+    }
+  };
+
+  const handleSwipe = (direction, index) => {
+    if (direction === "left") {
+      scrollRight();
+    } else if (direction === "right") {
+      scrollLeft();
+    }
+  };
 
   return (
-    <div className="relative w-full h-full lg:w-2/5 lg:h-[90%] md:w-3/5 md:h-[80%]">
-      {/* View Toggle Switch */}
-      <div className="absolute top-4 right-4 z-50">
-        <label className="flex items-center cursor-pointer">
-          <div className="relative">
-            <input
-              type="checkbox"
-              className="sr-only"
-              checked={isTableView}
-              onChange={toggleView}
-            />
-            <div
-              className={`w-12 h-6 rounded-full shadow-inner transition-colors ${
-                isTableView ? "bg-blue-700" : "bg-gray-300"
-              }`}
-            ></div>
-            <div
-              className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${
-                isTableView ? "translate-x-6" : "translate-x-0"
-              }`}
-            ></div>
-          </div>
-          <span className="ml-2 text-white">
-            {isTableView ? "Table View" : "Card View"}
-          </span>
-        </label>
-      </div>
+    <div className="relative w-full h-full lg:w-2/5 lg:h-[90%] md:w-3/5 md:h-[80%] ">
+      <ToggleView isTableView={isTableView} toggleView={toggleView} />
 
       {/* Navigation Buttons */}
       <div
@@ -99,11 +110,12 @@ const CardView = () => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Scroll Left Button */}
         <button
-          className={`absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          } transition-opacity duration-300`}
-          onClick={() => navigateToCard(-1)}
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 
+    opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          onClick={scrollLeft}
+          onTouchEnd={scrollLeft}
         >
           <img
             className="w-6 h-6"
@@ -112,11 +124,12 @@ const CardView = () => {
           />
         </button>
 
+        {/* Scroll Right Button */}
         <button
-          className={`absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          } transition-opacity duration-300`}
-          onClick={() => navigateToCard(1)}
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 
+    opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          onClick={scrollRight}
+          onTouchEnd={scrollRight}
         >
           <img
             className="w-6 h-6"
@@ -126,180 +139,115 @@ const CardView = () => {
         </button>
       </div>
 
-      {/* Single Card */}
-      <TinderCard
-        className={`relative w-full h-full flex flex-col group ${
-          infoPopup ? "overflow-y-scroll" : "overflow-y-hidden"
-        }`}
-        preventSwipe={["up", "down"]}
-        onSwipe={handleSwipe}
+      {/* Card Container */}
+      <div
+        ref={containerRef}
+        id="container"
+        className="flex w-full h-full overflow-x-scroll snap-x snap-mandatory scrollbar-hide"
       >
-        <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
-          <img
-            src={currentPerson.photo_url || "https://via.placeholder.com/150"}
-            alt={currentPerson.name}
-            className="w-full h-full object-cover select-none"
-          />
+        {globalData.map((item, index) => (
+          <TinderCard
+            key={index}
+            className={`relative min-w-full h-full snap-center flex flex-col group ${
+              infoPopup === item.name
+                ? "overflow-y-scroll"
+                : "overflow-y-hidden"
+            }`}
+            preventSwipe={["up", "down"]}
+            onSwipe={(direction) => handleSwipe(direction, index)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {/* Image Section */}
+            <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
+              <img
+                src={item.photo_url || "https://via.placeholder.com/150"}
+                alt={item.name}
+                className="w-full h-full object-cover select-none"
+              />
 
-          <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
-            <button
-              onClick={handleGenerateFamilyTree}
-              className="absolute top-4 left-4 bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-white hover:text-purple-700"
-            >
-              Generate Family Tree
-            </button>
+              {/* Buttons Section */}
+              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+                {/* Scroll Left Button */}
+                <button
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  onClick={scrollLeft}
+                  onTouchEnd={scrollLeft}
+                >
+                  <img
+                    className="w-6 h-6"
+                    src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+                    alt="Scroll Left"
+                  />
+                </button>
 
-            <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
-              {currentPerson.name}
-            </h2>
-            <div className="flex justify-between items-center w-full mb-10">
-              <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
-                Pusta no. {currentPerson.pusta_number}
-              </div>
-              <button
-                className="pr-4 text-white text-xl"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleInfoClick();
-                }}
-              >
-                {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
-              </button>
-            </div>
-          </div>
-        </div>
+                {/* Scroll Right Button */}
+                <button
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  onClick={scrollRight}
+                  onTouchEnd={scrollRight}
+                >
+                  <img
+                    className="w-6 h-6"
+                    src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+                    alt="Scroll Right"
+                  />
+                </button>
 
-        {/* Info Section */}
-        {infoPopup === currentPerson.name && (
-          <div className="w-full bg-black/90 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="font-bold text-lg mb-2">Personal Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center border-b border-gray-600 pb-3">
-                  <FaUser className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    {currentPerson.name || "N/A"}
-                  </p>
-                </div>
-                <div className="flex items-center border-b border-gray-600 pb-3">
-                  <FaVenusMars className="mr-2 text-xl" />
-                  <p className="text-l mt-0 text-white">
-                    {currentPerson.gender || "N/A"}
-                  </p>
-                </div>
-                <div className="flex items-center border-b border-gray-600 pb-3">
-                  <FaBirthdayCake className="mr-2 text-xl" />
-                  <p className="text-l mt-0 text-white">
-                    {currentPerson.date_of_birth || "N/A"}
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <FaInfoCircle className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {currentPerson.status || "N/A"}
-                  </p>
-                </div>
-              </div>
-            </div>
+                {/* Generate Family Tree Button */}
+                <FamilyTreeCardButton
+                  onClick={() => handleGenerateFamilyTree(item)}
+                />
 
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="font-bold text-lg mb-2">Family Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center border-b border-gray-600 pb-3">
-                  <FaUser className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    {currentPerson.family_relations.father || "N/A"}
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <FaUser className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {currentPerson.family_relations.mother || "N/A"}
-                  </p>
+                <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
+                  {item.name}
+                </h2>
+                <div className="flex justify-between items-center w-full mb-10">
+                  <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
+                    Pusta no. {item.pusta_number}
+                  </div>
+                  <button
+                    className="pr-4 text-white text-xl"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleInfoClick(item);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.stopPropagation();
+                      handleInfoClick(item);
+                    }}
+                  >
+                    <button onClick={toggleExpand} className="expand-button">
+                      {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                    </button>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="font-bold text-m mb-4">Contact Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center border-b border-gray-600 pb-3">
-                  <FaPhone className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    {currentPerson.phone || "N/A"}
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <FaEnvelope className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {currentPerson.email || "N/A"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="font-bold text-m mb-4">
-                Professional Information
-              </h3>
-              <div className="flex items-center">
-                <FaBriefcase className="mr-2 text-xl" />
-                <p className="text-l text-white mt-0">
-                  {currentPerson.profession || "N/A"}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="font-bold text-m mb-4">Genealogy And Lineage</h3>
-              <div className="space-y-3">
-                <div className="flex items-center border-b border-gray-600 pb-3">
-                  <FaUsers className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {currentPerson.pusta_number || "N/A"}
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <FaUsers className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {currentPerson.same_vamsha_status || "N/A"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </TinderCard>
-
-      {/* Bottom Action Buttons */}
-      <div className="w-full flex justify-around my-1 p-4 text-white rounded-lg bg-gray-800">
-        <button
-          onClick={handleCompareClick}
-          className="flex justify-center items-center bg-purple-700/70 text-white text-base font-normal rounded-full h-10 w-28 ml-5 z-20"
-        >
-          Compare
-        </button>
-        <button
-          onClick={handleGenerateFamilyTree}
-          className="flex justify-center items-center py-5 px-10 bg-purple-700/70 text-white text-base font-normal rounded-full h-10 w-45 ml-5 z-20"
-        >
-          Generate Family Tree
-        </button>
+            {/* Info Section */}
+            {infoPopup === item.name && <InfoSection person={item} />}
+          </TinderCard>
+        ))}
       </div>
 
+      <FooterButtons onGenerateFamilyTree={handleFooterGenerate} />
       {/* Family Tree Modal */}
       {selectedPerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
             <button
-              onClick={() => setSelectedPerson(null)}
+              onClick={() => {
+                setSelectedPerson(null);
+                setIsHorizontal(false); // Reset orientation
+              }}
               className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
             >
               &#x2715;
             </button>
             <FamilyTreeGraph
               selectedPerson={selectedPerson}
-              isMobile={window.innerWidth < 764}
+              isMobile={isMobile}
             />
           </div>
         </div>
