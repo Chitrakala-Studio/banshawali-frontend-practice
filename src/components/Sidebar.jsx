@@ -44,7 +44,7 @@ const Sidebar = () => {
           <ul>
             <li className="py-2">
               <Link
-                to="/"
+                to="/1"
                 onClick={closeSidebar}
                 className="text-gray-300 hover:text-white"
               >

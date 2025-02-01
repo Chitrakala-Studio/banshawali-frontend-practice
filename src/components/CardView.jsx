@@ -9,26 +9,30 @@ import InfoSection from "./InfoSection";
 import ToggleView from "./ToggleView";
 import FamilyTreeCardButton from "./FamilyTreeCardButton";
 import FooterButtons from "./FooterButtons";
+import NavigationButtons from "./NavigationButtons";
 
 const CardView = () => {
   const { id } = useParams(); // Extract the id from URL params
   const containerRef = useRef(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0); // Track the current card index
   const isMobile = window.innerWidth < 764;
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isTableView, setIsTableView] = useState(false);
   const navigate = useNavigate();
   const [isHorizontal, setIsHorizontal] = useState(false);
+  const initialIndex = globalData.findIndex((item) => item.id === parseInt(id));
+  const [currentIndex, setCurrentIndex] = useState(
+    initialIndex !== -1 ? initialIndex : 0
+  );
 
   useEffect(() => {
     const index = globalData.findIndex((item) => item.id === parseInt(id));
     if (index !== -1) {
       setCurrentIndex(index);
       // Wait for the DOM to render before scrolling
-      setTimeout(() => scrollToCard(index), 100);
+      requestAnimationFrame(() => scrollToCard(index));
     } else {
       navigate("/table"); // Redirect if invalid `id`
     }
@@ -101,43 +105,11 @@ const CardView = () => {
   };
 
   return (
-    <div className="relative w-full h-full lg:w-2/5 lg:h-[90%] md:w-3/5 md:h-[80%] ">
+    <div className="relative w-full h-full lg:w-2/5 lg:h-[100%] md:w-3/5 md:h-[80%] ">
       <ToggleView isTableView={isTableView} toggleView={toggleView} />
 
       {/* Navigation Buttons */}
-      <div
-        className="group relative"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Scroll Left Button */}
-        <button
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 
-    opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          onClick={scrollLeft}
-          onTouchEnd={scrollLeft}
-        >
-          <img
-            className="w-6 h-6"
-            src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
-            alt="Scroll Left"
-          />
-        </button>
-
-        {/* Scroll Right Button */}
-        <button
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 
-    opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          onClick={scrollRight}
-          onTouchEnd={scrollRight}
-        >
-          <img
-            className="w-6 h-6"
-            src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
-            alt="Scroll Right"
-          />
-        </button>
-      </div>
+      <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} />
 
       {/* Card Container */}
       <div
@@ -145,93 +117,97 @@ const CardView = () => {
         id="container"
         className="flex w-full h-full overflow-x-scroll snap-x snap-mandatory scrollbar-hide"
       >
-        {globalData.map((item, index) => (
-          <TinderCard
-            key={index}
-            className={`relative min-w-full h-full snap-center flex flex-col group ${
-              infoPopup === item.name
-                ? "overflow-y-scroll"
-                : "overflow-y-hidden"
-            }`}
-            preventSwipe={["up", "down"]}
-            onSwipe={(direction) => handleSwipe(direction, index)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {/* Image Section */}
-            <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
-              <img
-                src={item.photo_url || "https://via.placeholder.com/150"}
-                alt={item.name}
-                className="w-full h-full object-cover select-none"
+        <TinderCard
+          className={`relative min-w-full h-full snap-center flex flex-col group ${
+            infoPopup === globalData[currentIndex].name
+              ? "overflow-y-scroll"
+              : "overflow-y-hidden"
+          }`}
+          preventSwipe={["up", "down"]}
+          onSwipe={(direction) => handleSwipe(direction)}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {/* Image Section */}
+          <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
+            <img
+              src={
+                globalData[currentIndex].photo_url ||
+                "https://via.placeholder.com/150"
+              }
+              alt={globalData[currentIndex].name}
+              className="w-full h-full object-cover select-none"
+            />
+
+            {/* Buttons Section */}
+            <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+              {/* Scroll Left Button */}
+              <button
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={scrollLeft}
+                onTouchEnd={scrollLeft}
+              >
+                <img
+                  className="w-6 h-6"
+                  src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+                  alt="Scroll Left"
+                />
+              </button>
+
+              {/* Scroll Right Button */}
+              <button
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={scrollRight}
+                onTouchEnd={scrollRight}
+              >
+                <img
+                  className="w-6 h-6"
+                  src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+                  alt="Scroll Right"
+                />
+              </button>
+
+              {/* Generate Family Tree Button */}
+              <FamilyTreeCardButton
+                onClick={() =>
+                  handleGenerateFamilyTree(globalData[currentIndex])
+                }
               />
 
-              {/* Buttons Section */}
-              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
-                {/* Scroll Left Button */}
-                <button
-                  className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  onClick={scrollLeft}
-                  onTouchEnd={scrollLeft}
-                >
-                  <img
-                    className="w-6 h-6"
-                    src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
-                    alt="Scroll Left"
-                  />
-                </button>
-
-                {/* Scroll Right Button */}
-                <button
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  onClick={scrollRight}
-                  onTouchEnd={scrollRight}
-                >
-                  <img
-                    className="w-6 h-6"
-                    src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
-                    alt="Scroll Right"
-                  />
-                </button>
-
-                {/* Generate Family Tree Button */}
-                <FamilyTreeCardButton
-                  onClick={() => handleGenerateFamilyTree(item)}
-                />
-
-                <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
-                  {item.name}
-                </h2>
-                <div className="flex justify-between items-center w-full mb-10">
-                  <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
-                    Pusta no. {item.pusta_number}
-                  </div>
-                  <button
-                    className="pr-4 text-white text-xl"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleInfoClick(item);
-                    }}
-                    onTouchEnd={(e) => {
-                      e.stopPropagation();
-                      handleInfoClick(item);
-                    }}
-                  >
-                    <button onClick={toggleExpand} className="expand-button">
-                      {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
-                    </button>
-                  </button>
+              <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
+                {globalData[currentIndex].name}
+              </h2>
+              <div className="flex justify-between items-center w-full mb-10">
+                <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
+                  Pusta no. {globalData[currentIndex].pusta_number}
                 </div>
+                <button
+                  className="pr-4 text-white text-xl"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleInfoClick(globalData[currentIndex]);
+                  }}
+                  onTouchEnd={(e) => {
+                    e.stopPropagation();
+                    handleInfoClick(globalData[currentIndex]);
+                  }}
+                >
+                  <button onClick={toggleExpand} className="expand-button">
+                    {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                  </button>
+                </button>
               </div>
             </div>
+          </div>
 
-            {/* Info Section */}
-            {infoPopup === item.name && <InfoSection person={item} />}
-          </TinderCard>
-        ))}
+          {/* Info Section */}
+          {infoPopup === globalData[currentIndex].name && (
+            <InfoSection person={globalData[currentIndex]} />
+          )}
+        </TinderCard>
       </div>
-
       <FooterButtons onGenerateFamilyTree={handleFooterGenerate} />
+
       {/* Family Tree Modal */}
       {selectedPerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

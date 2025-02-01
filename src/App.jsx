@@ -15,8 +15,7 @@ const App = () => {
         <Route path="/:id" element={<AdminDashboard />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/table" element={<TableView />} />
-        {/* Add a route for CardView with an id parameter */}
-        <Route path="/card/:id" element={<CardView />} />
+        <Route path="/card" element={<CardView />} />
       </Routes>
     </Router>
   );
