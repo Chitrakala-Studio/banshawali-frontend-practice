@@ -105,7 +105,7 @@ const CardView = () => {
   };
 
   return (
-    <div className="relative w-full h-full lg:w-2/5 lg:h-[100%] md:w-3/5 md:h-[80%] ">
+    <div className="absolute w-full h-full lg:w-2/5 lg:h-[89%] lg:top-0 md:w-3/5 md:h-[80%] md:top-0">
       <ToggleView isTableView={isTableView} toggleView={toggleView} />
 
       {/* Navigation Buttons */}
