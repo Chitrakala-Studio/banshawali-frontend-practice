@@ -3,7 +3,6 @@ import {
   FaInfoCircle,
   FaEdit,
   FaTrash,
-  FaSearch,
   FaCloudDownloadAlt,
   FaLightbulb,
   FaRegIdCard,
@@ -23,7 +22,8 @@ const TableView = ({ isAdmin = true }) => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
-
+  const [searchBy, setSearchBy] = useState(""); // To track selected search field
+  const [searchQuery, setSearchQuery] = useState(""); // To track search input
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterData, setFilterData] = useState({
     generation: "",
@@ -127,6 +127,53 @@ const TableView = ({ isAdmin = true }) => {
     });
   };
 
+  const filteredData = globalData.filter((row) => {
+    if (!searchQuery) return true; // No query, return all rows
+    if (
+      searchBy === "name" &&
+      row.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
+      return true;
+    }
+    if (
+      searchBy === "mother_name" &&
+      row.family_relations.mother
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    ) {
+      return true;
+    }
+    if (
+      searchBy === "father_name" &&
+      row.family_relations.father
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    ) {
+      return true;
+    }
+    if (
+      searchBy === "pusta_no" &&
+      row.pusta_number.toString().includes(searchQuery)
+    ) {
+      return true;
+    }
+    if (
+      searchBy === "phone" &&
+      row.phone_number &&
+      row.phone_number.includes(searchQuery)
+    ) {
+      return true;
+    }
+    if (
+      searchBy === "email" &&
+      row.email &&
+      row.email.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
+      return true;
+    }
+    return false;
+  });
+
   return (
     <div className="table-view h-full ml-0 lg:ml-64 transition-all duration-300">
       <ToggleView
@@ -134,17 +181,29 @@ const TableView = ({ isAdmin = true }) => {
         toggleView={() => setIsTableView(!isTableView)}
       />
       <div className="table-view-filters">
-        <div className="search-bar">
-          <FaSearch className="search-icon" />
-          <input type="text" placeholder="Search" className="search-input" />
-        </div>
         <div className="relative">
-          <button
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md shadow hover:bg-gray-300"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          <select
+            className="search-dropdown bg-white"
+            value={searchBy}
+            onChange={(e) => setSearchBy(e.target.value)}
           >
-            Filter
-          </button>
+            <option value="">Search By</option>
+            <option value="name">Name</option>
+            <option value="mother_name">Mother's Name</option>
+            <option value="father_name">Father's Name</option>
+            <option value="pusta_no">Pusta No.</option>
+            <option value="phone">Phone Number</option>
+            <option value="email">Email</option>
+          </select>
+          {searchBy && (
+            <input
+              type="text"
+              placeholder={`Search by ${searchBy.replace("_", " ")}`}
+              className="search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          )}
 
           {isFilterOpen && (
             <div
