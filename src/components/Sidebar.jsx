@@ -33,7 +33,7 @@ const Sidebar = () => {
       >
         {/* Banshawali with Link to "/" */}
         <Link
-          to="/table"
+          to="/"
           onClick={closeSidebar}
           className="px-4 py-6 text-2xl font-bold"
         >

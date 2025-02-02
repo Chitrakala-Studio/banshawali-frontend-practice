@@ -6,12 +6,16 @@ const ToggleView = ({ isTableView, toggleView }) => {
 
   const handleToggle = () => {
     toggleView();
-    navigate(isTableView ? "/" : "/table");
+    // If it's in table view, navigate to "/1", otherwise navigate to "/"
+    navigate(isTableView ? "/1" : "/");
   };
 
   return (
-    <div className="absolute top-4 right-4 z-50">
-      <label className="flex items-center cursor-pointer">
+    <div className="absolute top-4 left-4 z-50">
+      <button
+        onClick={handleToggle}
+        className="flex items-center bg-purple-700/70 p-2 rounded-full shadow-md cursor-pointer transition-all hover:bg-purple-700"
+      >
         <div className="relative">
           <input
             type="checkbox"
@@ -30,10 +34,10 @@ const ToggleView = ({ isTableView, toggleView }) => {
             }`}
           ></div>
         </div>
-        <span className="ml-2 text-white">
+        <span className="ml-3 text-white text-sm font-medium">
           {isTableView ? "Table View" : "Card View"}
         </span>
-      </label>
+      </button>
     </div>
   );
 };

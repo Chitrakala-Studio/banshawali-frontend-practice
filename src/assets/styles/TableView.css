@@ -1,6 +1,9 @@
 .table-view {
   flex: 1;
   padding: 1rem;
+  min-height: 100vh; /* Ensure the container stretches to the full viewport height */
+  padding-bottom: 20px; /* Add some space at the bottom to avoid black space */
+  margin-left: 20px; /* Shift the container a little to the left */
 }
 
 .table-view img {
@@ -17,6 +20,7 @@ table {
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #ddd;
+  margin-left: -20px; /* Move the table slightly left */
 }
 
 table th,
