@@ -181,13 +181,13 @@ const TableView = ({ isAdmin = true }) => {
         toggleView={() => setIsTableView(!isTableView)}
       />
       <div className="table-view-filters">
-        <div className="relative">
+        <div className="relative flex items-center gap-2">
+          {/* Search Dropdown */}
           <select
-            className="search-dropdown bg-white"
+            className="search-dropdown bg-white w-32"
             value={searchBy}
             onChange={(e) => setSearchBy(e.target.value)}
           >
-            <option value="">Search By</option>
             <option value="name">Name</option>
             <option value="mother_name">Mother's Name</option>
             <option value="father_name">Father's Name</option>
@@ -195,6 +195,7 @@ const TableView = ({ isAdmin = true }) => {
             <option value="phone">Phone Number</option>
             <option value="email">Email</option>
           </select>
+
           {searchBy && (
             <input
               type="text"
