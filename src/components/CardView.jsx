@@ -132,10 +132,10 @@ const CardView = () => {
             <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
               <img
                 src={
-                  globalData[currentIndex].photo_url ||
-                  "https://via.placeholder.com/150"
+                  globalData[currentIndex].photo ||
+                  "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                 }
-                alt={globalData[currentIndex].name}
+                alt={globalData[currentIndex].name_in_nepali}
                 className="w-full h-full object-cover select-none"
               />
 
@@ -175,11 +175,11 @@ const CardView = () => {
                 />
 
                 <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
-                  {globalData[currentIndex].name}
+                  {globalData[currentIndex].name_in_nepali}
                 </h2>
                 <div className="flex justify-between items-center w-full mb-10">
                   <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
-                    Pusta no. {globalData[currentIndex].pusta_number}
+                    {globalData[currentIndex].pusta_number}
                   </div>
                   <button
                     className="pr-4 text-white text-xl"

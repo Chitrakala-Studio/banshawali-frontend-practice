@@ -323,7 +323,7 @@ const TableView = ({ isAdmin = true }) => {
         className="ml-3
       "
       >
-        <thead>
+        <thead className="text-center">
           <tr>
             <th>Name</th>
             <th>Generation</th>
@@ -334,11 +334,11 @@ const TableView = ({ isAdmin = true }) => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="text-center" >
           {currentRows.map((row, index) => (
             <tr key={index}>
               <td>
-                <img src={row.photo_url} alt="Profile" />
+                <img src={row.photo_url || "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg" } alt="Profile" />
                 {row.name}
               </td>
               <td>
@@ -360,8 +360,8 @@ const TableView = ({ isAdmin = true }) => {
                   </div>
                 )}
               </td>
-              <td>{row.family_relations.mother}</td>
-              <td>{row.family_relations.father}</td>
+              <td>{row.mother ? row.mother.name : "-"}</td>
+              <td>{row.father ? row.father.name : "-"}</td>
               <td>{row.gender}</td>
               <td>{row.date_of_birth}</td>
               <td>
