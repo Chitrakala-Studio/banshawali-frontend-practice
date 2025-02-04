@@ -1,0 +1,17 @@
+/* #root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+} */
+ image{
+   
+    border-radius: 50%;
+    clip-path: circle(50%);
+ 
+ }
+@media (max-width: 764px) {
+  .tree{
+    transform: scale(0.5);
+  }
+}

@@ -192,9 +192,11 @@ const CardView = () => {
                       handleInfoClick(globalData[currentIndex]);
                     }}
                   >
-                    <button onClick={toggleExpand} className="expand-button">
+                    
+                    <div onClick={toggleExpand} className="expand-button">
                       {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
-                    </button>
+                    </div>
+                    
                   </button>
                 </div>
               </div>

@@ -1,72 +1,90 @@
 import React, { useState, useEffect, useRef } from "react";
-import PropTypes from "prop-types";
+import PropTypes, { node } from "prop-types";
 import ReactD3Tree from "react-d3-tree";
-import { Face, Face3 } from "@mui/icons-material"; // Import MUI icons
-
+// import {maleicon} from "src/assets/public/maleicon.png"; // Import MUI icons 
+// import {femaleicon} from "src/assets/public/femaleicon.jpg"; // Import MUI icons
+import "./App.css";
 // Dummy database data (simulated API response)
 const dummyDatabase = [
   {
+    id: "4",
     selectedPerson: "Ram Bahadur Kafle",
-    father: { name: "Pitashree", photo: "null", gender: "male", pusta: "10" },
-    mother: { name: "Matashree", photo: "src/assets/public/sample_6.jpg", gender: "female", pusta: "10" },
-    fathersSiblings: [
-      { name: "Uncle 1", spouse: { name: "Aunt-in-law 1", photo: null, gender: "female", pusta: "10" }, gender: "male", photo: null, pusta: "10" },
-      { name: "Aunt 1", spouse: null, gender: "female", photo: null, pusta: "10" }
-    ],
-    grandfather: { name: "Grandfather", photo: "src/assets/public/grandpa.jpg", gender: "male", pusta: "9" },
-    grandmother: { name: "Grandmother", photo: "src/assets/public/grandma.jpg", gender: "female", pusta: "9" },
-    siblings: [
-      { name: "Sibling 1", gender: "male", photo: null, pusta: "11" },
-      { name: "Sibling 2", gender: "female", photo: "src/assets/public/sample_3.jpg", pusta: "11" }
-    ],
+    father: {
+      name: "Pitashree",
+      photo: "null",
+      gender: "male",
+      pusta: "10",
+      children: [
+        { id: "10", name: "Sita Kumari", pusta: "11", gender: "female", photo:null},
+        { id: "4", name: "Ram Bahadur Kafle", pusta: "11", gender: "male" , photo: null}
+      ],
+      father: { // Grandfather (father's father)
+        name: "Grandfather of Ram",
+        photo: "src/assets/public/sample_2.jpg",
+        gender: "male",
+        pusta: "9",
+        father: {
+          name: "hello",
+          id: "7",
+          pusta: "8",
+          gender: "male"
+
+        },
+        children: [
+          { id: "4", name: "Pitashree", pusta: "10", gender: "male", photo: "src/assets/public/sample_1.jpg" }, // Father's child
+          { id: "5", name: "aunt 1", pusta: "10", gender: "female" }  // Father's sibling
+        ]
+      }
+    },
     gender: "male",
     photo: "src/assets/public/sample_1.jpg",
     pusta: "11",
-    spouse: { name: "Sita Devi Kafle", photo: null, gender: "female", pusta: "11" }
+    children: [
+      { id: "6", name: "children", pusta: "12", gender: "male", photo: "src/assets/public/sample_1.jpg" ,
+        children: [
+        {
+          id: "21",
+          name:"chora nati",
+          pusta: "13",
+          gender:"male", 
+        }
+      ]
+
+      }, // Father's child
+      { id: "7", name: "baby", pusta: "12", gender: "female" }  // Father's sibling
+    ]
+
   },
   {
+    id: "5",
     selectedPerson: "Sita Devi Kafle",
-    father: { name: "Pitashree", photo: null, gender: "male", pusta: "12" },
-    mother: { name: "Matashree", photo: "src/assets/public/sample_1.jpg", gender: "female", pusta: "12" },
-    // father: null,
-    // mother: null,
-    fathersSiblings: [
-      { name: "Uncle 1", spouse: { name: "Aunt-in-law 1", photo: "src/assets/public/sample_2.jpg", gender: "female", pusta: "12" }, gender: "male", photo: null, pusta: "12" },
-      { name: "Aunt 1", spouse: null, gender: "female", photo: null, pusta: "12" }
-    ],
-    grandfather: { name: "Grandfather", photo: "src/assets/public/grandpa.jpg", gender: "male", pusta: "11" },
-    grandmother: { name: "Grandmother", photo: "src/assets/public/grandma.jpg", gender: "female", pusta: "11" },
-    siblings: [],
-    spouse: { name: "Hari Kafle", gender: "male", photo: "src/assets/public/sample_4.jpg", pusta: "14" },  // Add spouse here
-    children: [ // Adding children to Sita Devi Kafle
-      {
-        name: "Child 1",
+    father: {
+      name: "Pitashree",
+      photo: null,
+      gender: "male",
+      pusta: "12",
+      children: [
+        { id: "6", name: "Child 1", pusta: "12", gender: "male" },
+        { id: "5", name: "Sita Devi Kafle", pusta: "12", gender: "female" }
+      ],
+      father: { // Grandfather (father's father)
+        name: "Grandfather of Sita",
+        photo: "src/assets/public/sample_1.jpg",
         gender: "male",
-        photo: "src/assets/public/sample_2.jpg",
-        pusta: "14",
-        spouse: { name: "Spouse 1", gender: "female", photo: "src/assets/public/sample_1.jpg", pusta: "14" },
-        children: [ // Adding grandchildren for Child 1
-          { name: "Grandchild 1", gender: "female", photo: null, pusta: "15" },
-          { name: "Grandchild 2", gender: "male", photo: null, pusta: "15" }
-        ]
-      },
-      {
-        name: "Child 2",
-        gender: "female",
-        photo: "src/assets/public/sample_6.jpg",
-        pusta: "14",
-        spouse: { name: "Spouse 2", gender: "male", photo: "null", pusta: "14" },
-        children: [ // Adding grandchildren for Child 2
-          { name: "Grandchild 3", gender: "male", photo: "src/assets/public/sample_3.jpg", pusta: "15" },
-          { name: "Grandchild 4", gender: "female", photo: "src/assets/public/sample_4.jpg", pusta: "15" }
+        
+        pusta: "11",
+        children: [
+          { id: "5", name: "Pitashree", pusta: "12", gender: "male" },
+          { id: "6", name: "Aunt 2", pusta: "12", gender: "female" }
         ]
       }
-    ],
+    },
     gender: "female",
-    photo: "src/assets/public/sample_3.jpg",
+    photo: "src/assets/public/sample_6.jpg",
     pusta: "13"
   }
 ];
+
 
 // Simulated API function to fetch family data
 const fetchFamilyData = async (selectedPerson) => {
@@ -77,92 +95,145 @@ const fetchFamilyData = async (selectedPerson) => {
     }, 1000); // Simulating API delay
   });
 };
+const fetchData = async () => {
+  const familyData = await fetchFamilyData(selectedPerson);
+
+  const hasFather = familyData.father !== null; // Check if father exists
+  const hasChildren = familyData.father && familyData.father.children && familyData.father.children.length > 0;
+
+  // If no father info but has children, default to the "below" generation
+  if (!hasFather && hasChildren) {
+    setGenerationLevel("below");  // Set to show children if no father
+  } else {
+    setGenerationLevel("current");  // Otherwise, keep the current generation view
+  }
+
+  setHasChildren(hasChildren);  // Update whether the selected person has children
+  setHasUpperGeneration(familyData.father || familyData.mother);  // If either parent exists, we can go "above"
+
+  // Transform family data to the appropriate generation level
+  const tree = transformToTreeData(familyData, generationLevel);
+  setTreeData(tree);
+};
 
 // Transforming API response to ReactD3Tree format
-const transformToTreeData = (familyData, generationLevel) => {
+ // Helper function to transform data into tree structure
+ const transformToTreeData = (familyData, generationLevel) => {
   if (!familyData) return null;
+
+  const hasFatherFather = familyData.father && familyData.father.father; // Check if grandfather exists
+
+  // Show "below" generation (children) if father is missing but there are children
   if (generationLevel === "below") {
     return {
-      name: `${familyData.selectedPerson} & ${familyData.spouse.name}`,  // Selected person and spouse at the top
-      photo: `${familyData.photo} & ${familyData.spouse.photo}`,
-      gender: `${familyData.gender} & ${familyData.spouse.gender}`,
-      pusta: `${familyData.pusta} & ${familyData.spouse.pusta}`,
+      name: familyData.selectedPerson,
+      photo: familyData.photo,
+      gender: familyData.gender,
+      pusta: familyData.pusta,
+      id: familyData.id,
+      children: familyData.children ? familyData.children.map((child) => ({
+        name: child.name,
+        photo: child.photo,
+        gender: child.gender,
+        pusta: child.pusta,
+        id: child.id,
+        children: child.children ? child.children.map((grandchild) => ({
+          name: grandchild.name,
+          photo: grandchild.photo,
+          gender: grandchild.gender,
+          pusta: grandchild.pusta,
+          id: grandchild.id
+        })) : [] // If no grandchildren, keep it empty
+      })) : [] // If no children, show empty children
+    };
+  }
+  
+
+  // Show "above" generation (father’s father) if grandfather exists
+  if (generationLevel === "upper" && hasFatherFather) {
+    return {
+      name: familyData.father.father.name,
+      photo: familyData.father.father.photo,
+      gender: familyData.father.father.gender,
+      pusta: familyData.father.father.pusta,
+      id: familyData.id,
       children: [
-        ...familyData.children.map((child) => ({
-          name: child.spouse ? `${child.name} & ${child.spouse.name}` : child.name,  // Add child + spouse if exists
-          photo: child.spouse ? `${child.photo} & ${child.spouse.photo}` : child.photo,
-          gender: child.spouse ? `${child.gender} & ${child.spouse.gender}` : child.gender,
-          pusta: child.spouse ? `${child.pusta} & ${child.spouse.pusta}` : child.pusta,
-          children: child.children.map((grandchild) => ({
-            name: grandchild.name,
-            photo: grandchild.photo,
-            gender: grandchild.gender,
-            pusta: grandchild.pusta
-          }))
-        }))
+        ...familyData.father.father.children.map((sibling) => {
+          if (sibling.name === familyData.father.name) {
+            return {
+              name: familyData.father.name,
+              photo: familyData.father.photo,
+              gender: familyData.father.gender,
+              pusta: familyData.father.pusta,
+              id: familyData.father.id,
+              children: familyData.father.children.map((child) => ({
+                name: child.name,
+                photo: child.photo,
+                gender: child.gender,
+                pusta: child.pusta,
+                id: child.id
+              }))
+            };
+          } else {
+            return {
+              name: sibling.name,
+              photo: sibling.photo,
+              gender: sibling.gender,
+              pusta: sibling.pusta,
+              id: sibling.id,
+              children: sibling.children
+            };
+          }
+        })
       ]
     };
   }
 
-  if (generationLevel === "upper") {
+  // If no grandfather, show just the father and his children
+  if (generationLevel === "upper" && !hasFatherFather) {
     return {
-      name: `${familyData.grandfather.name} - ${familyData.grandmother.name}`,
-      photo: `${familyData.grandfather.photo} - ${familyData.grandmother.photo}`,
-      gender: `${familyData.grandfather.gender} - ${familyData.grandmother.gender}`,
-      pusta: `${familyData.grandfather.pusta} - ${familyData.grandmother.pusta}`,
-      spouse: `${familyData.name} - ${familyData.spouse.name}`,
-      children: [
-        {
-          name: `${familyData.father.name} - ${familyData.mother.name}`,
-          photo: `${familyData.father.photo} - ${familyData.mother.photo}`,
-          gender: `${familyData.father.gender} - ${familyData.mother.gender}`,
-          pusta: `${familyData.father.pusta} - ${familyData.mother.pusta}`,
-          children: [
-            {
-              name: familyData.selectedPerson,
-              photo: familyData.photo,
-              gender: familyData.gender,
-              pusta: familyData.pusta
-            },
-            ...familyData.siblings.map((sibling) => ({
-              name: sibling.name,
-              photo: sibling.photo,
-              gender: sibling.gender,
-              pusta: sibling.pusta
-            }))
-          ]
-        },
-        ...familyData.fathersSiblings.map((sibling) => ({
-          name: sibling.spouse ? `${sibling.name} & ${sibling.spouse.name}` : sibling.name,
-          photo: sibling.spouse ? `${sibling.photo} & ${sibling.spouse.photo}` : sibling.photo,
-          gender: sibling.spouse ? `${sibling.gender} & ${sibling.spouse.gender}` : sibling.gender,
-          pusta: sibling.spouse ? `${sibling.pusta} & ${sibling.spouse.pusta}` : sibling.pusta
-        }))
-      ]
+      name: familyData.father.name,
+      photo: familyData.father.photo,
+      gender: familyData.father.gender,
+      pusta: familyData.father.pusta,
+      id: familyData.father.id,
+      children: familyData.father.children.map((child) => ({
+        name: child.name,
+        photo: child.photo,
+        gender: child.gender,
+        pusta: child.pusta,
+        id: child.id
+      }))
     };
-  };
-}
+  }
+};
+
+
 
 // Rendering the tree data with photos or icons
 const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
   const [treeData, setTreeData] = useState(null);
+  const [familyData, setFamilyData] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
   const treeContainerRef = useRef(null);
   const [generationLevel, setGenerationLevel] = useState("current");
   const [hasChildren, setHasChildren] = useState(false);
   const [hasUpperGeneration, setHasUpperGeneration] = useState(false);
+  
 
   useEffect(() => {
     const fetchData = async () => {
       const familyData = await fetchFamilyData(selectedPerson); // Simulated API call
+      setFamilyData(familyData); // Store familyData in state
       setHasChildren(familyData.children && familyData.children.length > 0);
-
+      
       // Checking if the selected person has a father or mother for "Upper Generation" button
-      setHasUpperGeneration(familyData.father || familyData.mother);
+      setHasUpperGeneration(familyData.father);
 
       // Only default to 'upper' generation if it's not explicitly set to 'below'
       if ((familyData.father || familyData.mother) && generationLevel !== "below") {
         setGenerationLevel("upper");
+        setHasUpperGeneration(true);
       }
 
       // Update tree data based on current generation level
@@ -171,13 +242,14 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
     };
 
     fetchData();
-  }, [selectedPerson, generationLevel]);  // Now depends on selectedPerson and generationLevel
-
+  }, [selectedPerson, generationLevel]);
 
 
   const handleGenerationChange = (direction) => {
-
     setGenerationLevel(direction);
+
+    // Re-fetch and transform the family data based on the new generation level
+    fetchData();
   };
 
   useEffect(() => {
@@ -200,144 +272,56 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
 
 
   const renderNode = (nodeDatum) => {
-    const isPair = nodeDatum.name.includes(" - ") || nodeDatum.name.includes(" & ");
-
-
-    // Blue for male, Pink for female
-
-    const circleRadius = 45;
-    const imageSize = circleRadius * 2;
-    if (!isPair) {
-      const photo = nodeDatum.photo; // Direct photo URL
-      const gender = nodeDatum.gender;
-      const iconColor = gender === "male" ? "#93d9d9" : "#fab3eb"; // Blue for male, Pink for female
-      const shouldDisplayIcon = !photo || photo === "null"; // Check for null, undefined, or "null" as string
-
-      return (
-        <g>
-          <circle
-            r={circleRadius}
-            fill={shouldDisplayIcon ? iconColor : "transparent"} // Use iconColor if no photo, else transparent
-            stroke={"white"} // Dark stroke if no photo
-          />
-          {shouldDisplayIcon ? (
-            <foreignObject x="-45" y="-45" width={imageSize} height={imageSize}>
-              <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                {gender === "male" ? (
-                  <Face style={{ fontSize: imageSize / 1.5 }} />
-                ) : (
-                  <Face3 style={{ fontSize: imageSize / 1.5 }} />
-                )}
-              </div>
-            </foreignObject>
-          ) : (
-            <image
-              x={-circleRadius}
-              y={-circleRadius}
-              width={imageSize}
-              height={imageSize}
-              href={photo}
-              clipPath="circle(50%)"
-            />
-          )}
-          <text fill="white" x="0" y="60" textAnchor="middle" fontSize={14}>
-            {nodeDatum.name}
-          </text>
-          <text fill="white" x="0" y="75" textAnchor="middle" fontSize={14}>
-            {nodeDatum.pusta}
-          </text>
-        </g>
-      );
-
-
-
-    }
-    // If the node is a pair (e.g., a couple), handle it separately
-    if (isPair) {
-      const delimiter = nodeDatum.name.includes(" - ") ? " - " : " & ";
-      const [firstName, secondName] = nodeDatum.name.split(delimiter);
-      const [photo1, photo2] = nodeDatum.photo.split(delimiter);
-      const [gender1, gender2] = nodeDatum.gender.split(delimiter);
-      const [pusta1, pusta2] = nodeDatum.pusta.split(delimiter);
-      const iconColor1 = gender1 === "male" ? "#93d9d9" : "#fab3eb";
-      const iconColor2 = gender2 === "male" ? "#93d9d9" : "#fab3eb";
-      return (
-        <g>
-          {/* First Circle */}
-          <circle
-            cx="-45"
-            cy="0"
-            r={circleRadius}
-            fill={photo1 === "null" ? iconColor1 : "transparent"} // Transparent if there's a photo, else color based on gender
-            stroke={"white"} // No stroke if photo exists
-          />
-          {photo1 === "null" ? (
-            <foreignObject x="-90" y="-45" width={imageSize} height={imageSize}>
-              <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                {gender1 === "male" ? (
-                  <Face style={{ fontSize: imageSize / 1.5 }} />
-                ) : (
-                  <Face3 style={{ fontSize: imageSize / 1.5 }} />
-                )}
-              </div>
-            </foreignObject>
-          ) : (
-            <image
-              x="-95"
-              y="-45"
-              width={imageSize}
-              height={imageSize}
-              href={photo1}
-              clipPath="circle(50%)"
-            />)}
-          <text fill="white" x="-50" y="58" textAnchor="middle" fontSize={14}>
-            {firstName}
-          </text>
-          <text fill="white" x="-50" y="72" textAnchor="middle" fontSize={14}>
-            {pusta1}
-          </text>
-
-          {/* Second Circle */}
-          <circle
-            cx= {isMobile? "22.5": "45"}
-            cy="0"
-            r={isMobile? circleRadius/1.5: circleRadius}
-            fill={photo2 === "null" ? iconColor2 : "transparent"} // Transparent if there's a photo, else color based on gender
-            stroke={"white"} // No stroke if photo exists
-          />
-          {photo2 === "null" ? (
-            <foreignObject x="0" y={isMobile?"-20": "-47"} width={isMobile?imageSize/3: imageSize} height={isMobile?imageSize/3: imageSize}>
-              <div style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                {gender2 === "male" ? (
-                  <Face style={{ fontSize: imageSize / 1.5 }} />
-                ) : (
-                  <Face3 style={{ fontSize: imageSize / 1.5 }} />
-                )}
-              </div>
-            </foreignObject>
-
-          ) : (
-            <image
-              x="0"
-              y="-45"
-              width={imageSize}
-              height={imageSize}
-              href={photo2}
-              clipPath="circle(50%)"
-            />
-          )}
-          <text fill="white" x="48" y="58" textAnchor="middle" fontSize={14}>
-            {secondName}
-          </text>
-          <text fill="white" x="48" y="72" textAnchor="middle" fontSize={14}>
-            {pusta2}
-          </text>
-        </g>
-      );
-    }
-
+    const circleRadius = 50;
+    const imageSize = circleRadius * 1.1;
+    const photo = nodeDatum.photo; // Direct photo URL
+    const gender = nodeDatum.gender;
+    const shouldDisplayIcon = !photo || photo === "null"; // Check for null, undefined, or "null" as string
     // Single person node rendering
+    return (
+      <g className="tree">
+        <rect
+          x="-50"
+          y="-50"
+          width="150"
+          height="60"
+          rx="30"
+          ry="30"
+          fill="#f2f3f4 "
+        />
+        {shouldDisplayIcon ? (
+               gender === "male" ? (
+                <image x="-48" y="-48" rx="0" ry="0" width={imageSize} height={imageSize} href="src/assets/public/maleicon.png" preserveAspectRatio="xMidYMid slice" />
+              ) : (
+                <image x="-48" y="-48" rx="0" ry="0" width={imageSize} height={imageSize} href={"src/assets/public/iconfemale.png"} preserveAspectRatio="xMidYMid slice" />
+              )
+           
+        ) : (
+          
+            <image x="-48" y="-48" rx="0" ry="0" width={imageSize} height={imageSize} href={nodeDatum.photo} preserveAspectRatio="xMidYMid slice" />
+        
+        )}
+        <text
+          x="60"
+          y="-30"
+          textAnchor="middle"
+          fontSize={14}
+          fontWeight="normal"
 
+        >
+          {nodeDatum.name}
+        </text>
+        <text
+          x="60"
+          y="0"
+          textAnchor="middle"
+          fontSize={12}
+
+        >
+          {nodeDatum.pusta}
+        </text>
+      </g>
+    )
   };
 
   if (!treeData) {
@@ -346,72 +330,86 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
 
   dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
   dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
-  const translateX = isMobile? dimensions.width/2 : dimensions.width / 1.25; // 
+  const translateX = isMobile ? dimensions.width / 2.35 : dimensions.width / 1.25; // 
   // Adjust for mobile and desktop
-  const translateY = isMobile ?  dimensions.height/1.7 :  50; // Adjust for mobile and desktop
-  const nodeSize = isMobile ? { x: 180, y: 120 } : { x: 185, y: 180 }; // Smaller nodes on mobile
-  const scale = isMobile ? 0.1 : 0.9; // Scale down the tree for mobile to fit
+  const translateY = isMobile ? dimensions.height / 1.6 : 80; // Adjust for mobile and desktop
+  const nodeSize = isMobile ? { x: 140, y: 100 } : { x: 200, y: 150 }; // Smaller nodes on mobile
+  const scale = 1; // Scale down the tree for mobile to fit
 
   return (
     <>
-       <div style={{ position: "relative", width: "100%", height: "100%" , zIndex:"100"}}>
-      <div
-        ref={treeContainerRef}
-        style={{
-          width: isMobile ? "80vh" : "100%",
-          height: isMobile ? "160vw": "32em",
-          display: "flex",
-          flexDirection:  "column", // Apply row when horizontal layout
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-          transform: isMobile ? "rotate(90deg)" : "none", // Apply rotation only for horizontal layout
-          transformOrigin: isMobile ? "down left" : "none", // Set the origin of the rotation when horizontal
-          overflow: isMobile ? "auto" : "hidden", // Apply overflow for horizontal layout
-          zIndex: "10"
-        }}
+      <div style={{ position: "relative", width: "100%", height: "100%", zIndex: "100" }}>
+        <div
+          className="tree"
+          ref={treeContainerRef}
+          style={{
+            width: isMobile ? "80vh" : "100%",
+            height: isMobile ? "160vw" : "32em",
+            display: "flex",
+            flexDirection: "column", // Apply row when horizontal layout
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+            transform: isMobile ? "rotate(90deg)" : "none", // Apply rotation only for horizontal layout
+            transformOrigin: isMobile ? "down left" : "none", // Set the origin of the rotation when horizontal
+            overflow: isMobile ? "auto" : "hidden", // Apply overflow for horizontal layout
+            zIndex: "10"
+          }}
 
-      >
+        >
 
-        
+
           <h2>{selectedPerson}'s Family Tree</h2>
           <ReactD3Tree
             data={treeData}
             orientation="vertical"
             nodeSize={nodeSize}
             pathFunc="step"
-            draggable= {isMobile? true:  false} // Disable dragging
+            draggable={false} // Disable dragging
             zoomable={true} // Disable zooming
             translate={{
               x: translateX,
               y: translateY,
+
             }}
+
             scale={scale} // Apply scaling for mobile view
             renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
           />
 
         </div>
-        <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "absolute",
+        <div style={{
+          display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "absolute",
           transform: isMobile ? "rotate(90deg)" : "none",
-           top: isMobile? "85%": "10px", 
-           right: isMobile? "-20px": "0px",
-            padding: "1em" }}>
-          <button className="bg-purple-700/70 text-white px-4 py-2 my-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("upper")} disabled={!hasUpperGeneration || generationLevel === "above"} style={{
-            opacity: (hasUpperGeneration && generationLevel !== "upper") ? 1 : 0.5,
-            cursor: (hasUpperGeneration && generationLevel !== "upper") ? "pointer" : "not-allowed"
+          top: isMobile ? "85%" : "10px",
+          right: isMobile ? "-20px" : "0px",
+          padding: "1em"
+        }}>
+          <button className="bg-purple-700/70 text-white px-4 py-2 my-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("upper")} onTouchStart={(e) => () => {
+            e.stopPropagation()
+            handleGenerationChange("upper")
+          }} disabled={!hasUpperGeneration || !familyData.father} style={{
+            opacity: (!hasUpperGeneration || !familyData.father) ? 1 : 0.5,
+            cursor: (!hasUpperGeneration || !familyData.father) ? "pointer" : "not-allowed"
 
           }}>
-           {isMobile ? "Above":" Above Generation"}
+            {isMobile ? "Above" : " Above Generation"}
           </button>
-          <button className="bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("below")} disabled={!hasChildren || generationLevel === "below"} style={{
-            opacity: (hasChildren && generationLevel !== "below") ? 1 : 0.5,
-            cursor: (hasChildren && generationLevel !== "below") ? "pointer" : "not-allowed"
-          }}>
-           {isMobile ? "Below":" Below Generation"}
+          <button className="bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("below")}
+            onTouchStart={(e) => {
+              e.stopPropagation()
+              handleGenerationChange("below")
+            }
+            }
+            disabled={!hasChildren|| generationLevel==="below"} style={{
+              opacity: (hasChildren && generationLevel!=="below") ? 1 : 0.5,
+              cursor: (hasChildren && generationLevel!=="below") ? "pointer" : "not-allowed"
+            }}>
+            {isMobile ? "Below" : " Below Generation"}
           </button>
 
         </div>
-      
+
       </div>
     </>
   );
