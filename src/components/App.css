@@ -12,6 +12,6 @@
  }
 @media (max-width: 764px) {
   .tree{
-    transform: scale(0.5);
+    transform: scale(0.65);
   }
 }

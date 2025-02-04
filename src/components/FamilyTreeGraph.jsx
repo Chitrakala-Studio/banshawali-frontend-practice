@@ -330,10 +330,10 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
 
   dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
   dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
-  const translateX = isMobile ? dimensions.width / 2.35 : dimensions.width / 1.25; // 
+  const translateX = isMobile ? dimensions.width / 2.5 : dimensions.width / 1.25; // 
   // Adjust for mobile and desktop
-  const translateY = isMobile ? dimensions.height / 1.6 : 80; // Adjust for mobile and desktop
-  const nodeSize = isMobile ? { x: 140, y: 100 } : { x: 200, y: 150 }; // Smaller nodes on mobile
+  const translateY = isMobile ? dimensions.height/1.5 : 80; // Adjust for mobile and desktop
+  const nodeSize = isMobile ? { x: 160, y: 80 } : { x: 200, y: 150 }; // Smaller nodes on mobile
   const scale = 1; // Scale down the tree for mobile to fit
 
   return (

@@ -219,6 +219,10 @@ const CardView = () => {
                   setSelectedPerson(null);
                   setIsHorizontal(false); // Reset orientation
                 }}
+                onTouchEnd={() => {
+                  setSelectedPerson(null);
+                  setIsHorizontal(false); // Reset orientation
+                }}
                 className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
               >
                 &#x2715;
