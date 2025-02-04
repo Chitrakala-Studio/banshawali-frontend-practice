@@ -180,13 +180,6 @@ const TableView = ({ isAdmin = true }) => {
       />
       <div className="table-view-filters p-4">
         <div className="flex items-center justify-between gap-4">
-          {" "}
-          {/* Flex container for alignment */}
-          {/* Toggle View */}
-          <ToggleView
-            isTableView={isTableView}
-            toggleView={() => setIsTableView(!isTableView)}
-          />
           {/* Search Input */}
           <div className="flex items-center gap-4">
             <input
@@ -517,8 +510,8 @@ const TableView = ({ isAdmin = true }) => {
             email: selectedRow.contact_details.email
               ? selectedRow.contact_details.email
               : "",
-            phone_numbers: selectedRow.contact_details.phone_numbers
-              ? selectedRow.contact_details.phone_numbers
+            phone: selectedRow.contact_details.phone
+              ? selectedRow.contact_details.phone
               : "",
             address: selectedRow.contact_details.address
               ? selectedRow.contact_details.address

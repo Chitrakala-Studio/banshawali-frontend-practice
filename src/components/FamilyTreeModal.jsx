@@ -9,18 +9,19 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
     pusta_number,
     contact_details = {},
     family_relations = {},
+    email,
+    phone,
     date_of_birth,
     status,
     profession,
     gender,
     photo_url,
+    father,
+    mother,
+    profileImage,
   } = familyData;
 
-  const {
-    current_address = {},
-    phone_numbers = [],
-    social_links = [],
-  } = contact_details;
+  const { current_address = {}, social_links = [] } = contact_details;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
@@ -36,7 +37,7 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
           <img
-            src={photo_url}
+            src={profileImage}
             alt={name}
             className="w-16 h-16 rounded-full border-2 border-gray-300"
           />
@@ -68,11 +69,10 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
           <div>
             <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
             <p>
-              <strong>Email:</strong> {contact_details.email || "N/A"}
+              <strong>Email:</strong> {email || "N/A"}
             </p>
             <p>
-              <strong>Phone:</strong>{" "}
-              {phone_numbers.length > 0 ? phone_numbers.join(", ") : "N/A"}
+              <strong>Phone:</strong> {phone || "N/A"}
             </p>
             <p>
               <strong>Address:</strong>
@@ -103,10 +103,10 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
           <div>
             <h3 className="text-lg font-semibold mb-2">Family Relations</h3>
             <p>
-              <strong>Father:</strong> {family_relations.father || "N/A"}
+              <strong>Father:</strong> {father || "N/A"}
             </p>
             <p>
-              <strong>Mother:</strong> {family_relations.mother || "N/A"}
+              <strong>Mother:</strong> {mother || "N/A"}
             </p>
           </div>
         </div>
