@@ -22,7 +22,7 @@ const TableView = ({ isAdmin = true }) => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
-  const [searchBy, setSearchBy] = useState(""); // To track selected search field
+  const [searchBy, setSearchBy] = useState(name); // To track selected search field
   const [searchQuery, setSearchQuery] = useState(""); // To track search input
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterData, setFilterData] = useState({
@@ -60,9 +60,9 @@ const TableView = ({ isAdmin = true }) => {
 
   const handleInfoClick = (row) => {
     setSelectedRow(row);
+    console.log("Selected Row Data:", row); // Debugging line
     setShowInfoPopup(true);
   };
-
   const handleSave = (updatedRow) => {
     console.log("Updated Row:", updatedRow);
     setIsEditing(false);
@@ -145,9 +145,7 @@ const TableView = ({ isAdmin = true }) => {
     }
     if (
       searchBy === "father_name" &&
-      row.family_relations.father
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      (row.mother?.name || "").toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       return true;
     }
@@ -180,32 +178,39 @@ const TableView = ({ isAdmin = true }) => {
         isTableView={isTableView}
         toggleView={() => setIsTableView(!isTableView)}
       />
-      <div className="table-view-filters">
-        <div className="relative flex items-center gap-2">
-          {/* Search Dropdown */}
-          <select
-            className="search-dropdown bg-white w-32"
-            value={searchBy}
-            onChange={(e) => setSearchBy(e.target.value)}
-          >
-            <option value="name">Name</option>
-            <option value="mother_name">Mother's Name</option>
-            <option value="father_name">Father's Name</option>
-            <option value="pusta_no">Pusta No.</option>
-            <option value="phone">Phone Number</option>
-            <option value="email">Email</option>
-          </select>
-
-          {searchBy && (
+      <div className="table-view-filters p-4">
+        <div className="flex items-center justify-between gap-4">
+          {" "}
+          {/* Flex container for alignment */}
+          {/* Toggle View */}
+          <ToggleView
+            isTableView={isTableView}
+            toggleView={() => setIsTableView(!isTableView)}
+          />
+          {/* Search Input */}
+          <div className="flex items-center gap-4">
             <input
               type="text"
-              placeholder={`Search by ${searchBy.replace("_", " ")}`}
-              className="search-input"
+              placeholder={`Search by ${searchBy.replace(/_/g, " ")}`}
+              className="search-input px-4 py-3 text-lg rounded-2xl"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          )}
 
+            {/* Search Dropdown */}
+            <select
+              className="search-dropdown bg-white px-4 py-3 text-lg rounded-2xl border border-gray-300"
+              value={searchBy}
+              onChange={(e) => setSearchBy(e.target.value)}
+            >
+              <option value="name">Name</option>
+              <option value="mother_name">Mother's Name</option>
+              <option value="father_name">Father's Name</option>
+              <option value="pusta_no">Pusta No.</option>
+              <option value="phone">Phone Number</option>
+              <option value="email">Email</option>
+            </select>
+          </div>
           {isFilterOpen && (
             <div
               className="absolute w-64 p-4 bg-white border border-gray-300 rounded-md shadow-md z-10"
@@ -302,6 +307,12 @@ const TableView = ({ isAdmin = true }) => {
 
         <button
           className="add-button"
+          style={{
+            borderRadius: "50px",
+            height: "45px",
+            lineHeight: "30px",
+            padding: "0 20px",
+          }}
           onClick={() => {
             setFormData({
               username: "",
@@ -334,34 +345,47 @@ const TableView = ({ isAdmin = true }) => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody className="text-center" >
+        <tbody className="text-center">
           {currentRows.map((row, index) => (
             <tr key={index}>
               <td>
-                <img src={row.photo_url || "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg" } alt="Profile" />
+                <img
+                  src={
+                    row.photo ||
+                    "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                  }
+                  alt="Profile"
+                />
                 {row.name}
               </td>
               <td>
-                {row.pusta_number % 2 === 1 ? ( // Check if the generation number is odd
-                  <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
-                    <span
-                      className="w-2 h-2 rounded-full mr-2"
-                      style={{ backgroundColor: "green" }}
-                    ></span>
-                    G{row.pusta_number}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
-                    <span
-                      className="w-2 h-2 rounded-full mr-2"
-                      style={{ backgroundColor: "red" }}
-                    ></span>
-                    G{row.pusta_number}
-                  </div>
-                )}
+                {(() => {
+                  const parsedPustaNumber = parseInt(
+                    row.pusta_number.replace(/\D/g, ""),
+                    10
+                  );
+                  return parsedPustaNumber % 2 === 1 ? (
+                    <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
+                      <span
+                        className="w-2 h-2 rounded-full mr-2"
+                        style={{ backgroundColor: "green" }}
+                      ></span>
+                      G{row.pusta_number}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
+                      <span
+                        className="w-2 h-2 rounded-full mr-2"
+                        style={{ backgroundColor: "red" }}
+                      ></span>
+                      G{row.pusta_number}
+                    </div>
+                  );
+                })()}
               </td>
-              <td>{row.mother ? row.mother.name : "-"}</td>
-              <td>{row.father ? row.father.name : "-"}</td>
+
+              <td>{row.mother?.name || "-"}</td>
+              <td>{row.father?.name || "-"}</td>
               <td>{row.gender}</td>
               <td>{row.date_of_birth}</td>
               <td>
@@ -454,14 +478,24 @@ const TableView = ({ isAdmin = true }) => {
       {isEditing && (
         <EditFormModal
           formData={{
+            profileImage: selectedRow.photo || "",
             username: selectedRow.name || "",
             pusta_number: selectedRow.pusta_number || "",
-            father_name: selectedRow.family_relations?.father || "",
-            mother_name: selectedRow.family_relations?.mother || "",
+            father_name: selectedRow.father?.name || "",
+            mother_name: selectedRow.mother?.name || "",
             dob: selectedRow.date_of_birth || "",
             status: selectedRow.status || "Alive",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
+            email: selectedRow.contact_details.email
+              ? selectedRow.contact_details.email
+              : "",
+            phone: selectedRow.contact_details.phone
+              ? selectedRow.contact_details.phone
+              : "",
+            address: selectedRow.contact_details.address
+              ? selectedRow.contact_details.address
+              : "",
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}
@@ -470,7 +504,26 @@ const TableView = ({ isAdmin = true }) => {
 
       {showInfoPopup && (
         <FamilyTreeModal
-          familyData={selectedRow}
+          familyData={{
+            profileImage: selectedRow.photo || "",
+            username: selectedRow.name || "",
+            pusta_number: selectedRow.pusta_number || "",
+            father: selectedRow.father?.name || "",
+            mother: selectedRow.mother?.name || "",
+            date_of_birth: selectedRow.date_of_birth || "",
+            status: selectedRow.status || "Alive",
+            profession: selectedRow.profession || "",
+            gender: selectedRow.gender || "",
+            email: selectedRow.contact_details.email
+              ? selectedRow.contact_details.email
+              : "",
+            phone_numbers: selectedRow.contact_details.phone_numbers
+              ? selectedRow.contact_details.phone_numbers
+              : "",
+            address: selectedRow.contact_details.address
+              ? selectedRow.contact_details.address
+              : "",
+          }}
           onClose={() => setShowInfoPopup(false)}
         />
       )}

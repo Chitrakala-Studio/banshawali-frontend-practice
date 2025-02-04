@@ -1,9 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
-  const [form, setForm] = useState(formData);
+  const [form, setForm] = useState(() => ({
+    pusta_number: formData.pusta_number || "",
+    username: formData.username || "",
+    gender: formData.gender || "",
+    dob: formData.dob || "",
+    status: formData.status || "",
+    death_date: formData.death_date || "",
+    father_name: formData.father_name || "",
+    father_dob: formData.father_dob || "",
+    mother_name: formData.mother_name || "",
+    mother_dob: formData.mother_dob || "",
+    vansha_status: formData.vansha_status || "",
+    email: formData.email || "",
+    phone: formData.phone || "",
+    address: formData.address || "",
+    profession: formData.profession || "",
+    profileImage: formData.profileImage || "",
+  }));
+
   const [suggestions, setSuggestions] = useState([]);
   const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -40,6 +58,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       mother_name: "Maya Devi",
     },
   ];
+
+  useEffect(() => {
+    setForm(formData);
+  }, [formData]);
 
   const fetchFatherSuggestions = (adjustedPustaNumber, query) => {
     return new Promise((resolve) => {
@@ -249,7 +271,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Pusta Number
               </label>
               <input
-                type="number"
+                type="string"
                 name="pusta_number"
                 required
                 value={form.pusta_number}
@@ -360,7 +382,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Father's Name
               </label>
               <input
-                type="text"
+                type="string"
                 name="father_name"
                 required
                 value={form.father_name}
@@ -389,7 +411,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Mother's Name
               </label>
               <input
-                type="text"
+                type="string"
                 name="mother_name"
                 required
                 value={form.mother_name}
@@ -457,7 +479,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Phone
               </label>
               <input
-                type="text"
+                type="string"
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
