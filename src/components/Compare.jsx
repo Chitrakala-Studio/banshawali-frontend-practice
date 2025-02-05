@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Sidebar from "./Sidebar";
 
 const Compare = () => {
   const [leftPerson, setLeftPerson] = useState({
@@ -15,6 +15,8 @@ const Compare = () => {
     fatherName: "",
     motherName: "",
   });
+
+  const navigate = useNavigate();
 
   const [isLeftConfirmed, setIsLeftConfirmed] = useState(false);
   const [isRightConfirmed, setIsRightConfirmed] = useState(false);
@@ -58,7 +60,12 @@ const Compare = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
+      <button
+        className="absolute top-4 left-4 bg-purple-700 text-white px-4 py-2 rounded-full"
+        onClick={() => navigate("/1")}
+      >
+        Go Back to Card
+      </button>
       <div className="flex flex-col items-center px-4 py-6 h-full w-full overflow-y-auto">
         {/* Heading */}
         <h1 className="text-center text-2xl md:text-3xl font-bold mb-6">

@@ -213,7 +213,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         <div className="absolute top-2 right-2">
           <button
             onClick={onClose}
-            className="sticky top-2 right-2 text-gray-700 font-bold text-2xl hover:text-red-500 "
+            className="sticky top-2 right-2 text-white font-bold text-2xl hover:text-red-500 "
           >
             {/* Circle with a cross */}
             <svg
@@ -239,13 +239,20 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         >
           {/* Profile Picture */}
           <div className="flex justify-center mt-4">
-            <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center">
-              <label htmlFor="profileImage" className="cursor-pointer">
+            <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+              <label
+                htmlFor="profileImage"
+                className="cursor-pointer w-full h-full flex items-center justify-center"
+              >
                 {form.profileImage ? (
                   <img
                     src={form.profileImage}
                     alt="Profile"
-                    className="w-full h-full object-cover rounded-full"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      objectFit: "cover",
+                    }}
                   />
                 ) : (
                   <span className="text-3xl text-gray-500">+</span>
@@ -282,7 +289,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
             <div className="w-full">
               <label className="block text-sm font-medium text-[#7091E6]">
-                Name
+                Name (in English)
               </label>
               <input
                 type="text"
@@ -296,7 +303,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
             <div className="w-full">
               <label className="block text-sm font-medium text-[#7091E6]">
-                Name
+                Name (in Nepali)
               </label>
               <input
                 type="text"
@@ -326,7 +333,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                 Date of Birth
               </label>
               <input
@@ -357,7 +364,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
             {form.status === "Dead" && (
               <div className="w-full">
-                <label className="block text-sm font-medium text-[#7091E6]">
+                <label className="block text-sm  pt-3 font-medium text-[#7091E6]">
                   Date of Death
                 </label>
                 <input

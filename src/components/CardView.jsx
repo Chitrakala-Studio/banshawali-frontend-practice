@@ -63,13 +63,14 @@ const CardView = () => {
   const handleInfoClick = (family) => {
     setInfoPopup(infoPopup === family.name ? null : family.name);
   };
-
   // Scroll to the previous card with circular navigation
   const scrollLeft = () => {
     const newIndex =
       currentIndex === 0 ? globalData.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
+    // Update the URL with the new id
+    navigate(`/${globalData[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to the next card with circular navigation
@@ -78,6 +79,8 @@ const CardView = () => {
       currentIndex === globalData.length - 1 ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
+    // Update the URL with the new id
+    navigate(`/${globalData[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to a specific card
@@ -192,11 +195,9 @@ const CardView = () => {
                       handleInfoClick(globalData[currentIndex]);
                     }}
                   >
-                    
                     <div onClick={toggleExpand} className="expand-button">
                       {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
                     </div>
-                    
                   </button>
                 </div>
               </div>

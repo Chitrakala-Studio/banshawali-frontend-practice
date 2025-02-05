@@ -6,6 +6,7 @@ import {
   FaCloudDownloadAlt,
   FaLightbulb,
   FaRegIdCard,
+  FaSearch,
 } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
 import { globalData } from "../data/globalData";
@@ -185,14 +186,14 @@ const TableView = ({ isAdmin = true }) => {
             <input
               type="text"
               placeholder={`Search by ${searchBy.replace(/_/g, " ")}`}
-              className="search-input px-4 py-3 text-lg rounded-2xl"
+              className="search-input px-4 py-3 text-lg rounded-full h-[45px] leading-[30px]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
 
             {/* Search Dropdown */}
             <select
-              className="search-dropdown bg-white px-4 py-3 text-lg rounded-2xl border border-gray-300"
+              className="search-dropdown bg-white h-[45px] leading-[30px] px-4 py-3 text-lg rounded-full border border-gray-300"
               value={searchBy}
               onChange={(e) => setSearchBy(e.target.value)}
             >
@@ -203,6 +204,13 @@ const TableView = ({ isAdmin = true }) => {
               <option value="phone">Phone Number</option>
               <option value="email">Email</option>
             </select>
+
+            <button
+              className="search-button text-white p-3 hover:bg-blue-600 rounded-full h-[35px] leading-[30px]"
+              onClick={() => console.log("Searching for:", searchQuery)}
+            >
+              <FaSearch />
+            </button>
           </div>
           {isFilterOpen && (
             <div
