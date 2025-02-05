@@ -4,6 +4,7 @@ import ReactD3Tree from "react-d3-tree";
 // import {maleicon} from "src/assets/public/maleicon.png"; // Import MUI icons 
 // import {femaleicon} from "src/assets/public/femaleicon.jpg"; // Import MUI icons
 import "./App.css";
+import { WrapText } from "@mui/icons-material";
 // Dummy database data (simulated API response)
 const dummyDatabase = [
   {
@@ -11,7 +12,7 @@ const dummyDatabase = [
     selectedPerson: "Ram Bahadur Kafle",
     father: {
       name: "Pitashree",
-      photo: "null",
+      photo:  "src/assets/public/sample_1.jpg",
       gender: "male",
       pusta: "10",
       children: [
@@ -31,8 +32,8 @@ const dummyDatabase = [
 
         },
         children: [
-          { id: "4", name: "Pitashree", pusta: "10", gender: "male", photo: "src/assets/public/sample_1.jpg" }, // Father's child
-          { id: "5", name: "aunt 1", pusta: "10", gender: "female" }  // Father's sibling
+          { id: "4", name: "Pitashree", pusta: "10", gender: "male"  }, // Father's child
+          { id: "5", name: "aunt 1", pusta: "10", gender: "female",photo: "src/assets/public/sample_1.jpg" }  // Father's sibling
         ]
       }
     },
@@ -273,50 +274,73 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
 
   const renderNode = (nodeDatum) => {
     const circleRadius = 50;
-    const imageSize = circleRadius * 1.1;
+    const imageSize = circleRadius * 1.35;
     const photo = nodeDatum.photo; // Direct photo URL
     const gender = nodeDatum.gender;
     const shouldDisplayIcon = !photo || photo === "null"; // Check for null, undefined, or "null" as string
+    // const nameLines = nodeDatum.name ? nodeDatum.name.split(' ') : [];
+    const wrapText = (text, width) => {
+      const words = text.split(" ")
+      const lines = []
+      let currentLine = words[0]
+
+      for (let i = 1; i < words.length; i++) {
+        if (currentLine.length + words[i].length < width) {
+          currentLine += " " + words[i]
+        } else {
+          lines.push(currentLine)
+          currentLine = words[i]
+        }
+      }
+      lines.push(currentLine)
+      return lines
+    }
+    const nameLines = wrapText(nodeDatum.name, 12)
     // Single person node rendering
     return (
       <g className="tree">
         <rect
           x="-50"
           y="-50"
-          width="150"
-          height="60"
+          width="165"
+          height="68"
           rx="30"
           ry="30"
           fill="#f2f3f4 "
         />
         {shouldDisplayIcon ? (
                gender === "male" ? (
-                <image x="-48" y="-48" rx="0" ry="0" width={imageSize} height={imageSize} href="src/assets/public/maleicon.png" preserveAspectRatio="xMidYMid slice" />
+                <image x="-50.3" y="-50" rx="0" ry="0" width={imageSize} height={imageSize} href="src/assets/public/maleicon.png" preserveAspectRatio="xMidYMid slice" />
               ) : (
-                <image x="-48" y="-48" rx="0" ry="0" width={imageSize} height={imageSize} href={"src/assets/public/iconfemale.png"} preserveAspectRatio="xMidYMid slice" />
+                <image x="-50.3" y="-50" rx="0" ry="0" width={imageSize} height={imageSize} href={"src/assets/public/iconfemale.png"} preserveAspectRatio="xMidYMid slice" />
               )
            
         ) : (
           
-            <image x="-48" y="-48" rx="0" ry="0" width={imageSize} height={imageSize} href={nodeDatum.photo} preserveAspectRatio="xMidYMid slice" />
+            <image x="-50.3" y="-50" rx="0" ry="0" width={imageSize} height={imageSize} href={nodeDatum.photo} preserveAspectRatio="xMidYMid slice" />
         
         )}
+       <text
+        x="55"
+        y={-27.5 + (nameLines.length > 1 ? -10 : 0)}
+        textAnchor="middle"
+        fontSize="14"
+        fontFamily="cursive"
+        fontWeight= "normal"
+        style={{ fontWeight: 400 }}
+      >
+        {nameLines.map((line, i) => (
+          <tspan key={i} x="55" dy={i === 0 ? 0 : 20}>
+            {line}
+          </tspan>
+        ))}
+      </text>
         <text
-          x="60"
-          y="-30"
-          textAnchor="middle"
-          fontSize={14}
-          fontWeight="normal"
-
-        >
-          {nodeDatum.name}
-        </text>
-        <text
-          x="60"
-          y="0"
+          x="50"
+          y="15"
           textAnchor="middle"
           fontSize={12}
-
+           fontWeight= "normal"
         >
           {nodeDatum.pusta}
         </text>
@@ -389,8 +413,8 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
             e.stopPropagation()
             handleGenerationChange("upper")
           }} disabled={!hasUpperGeneration || !familyData.father} style={{
-            opacity: (!hasUpperGeneration || !familyData.father) ? 1 : 0.5,
-            cursor: (!hasUpperGeneration || !familyData.father) ? "pointer" : "not-allowed"
+            opacity: (hasUpperGeneration || familyData.father) ? 1 : 0.5,
+            cursor: (hasUpperGeneration || familyData.father) ? "pointer" : "not-allowed"
 
           }}>
             {isMobile ? "Above" : " Above Generation"}
