@@ -34,6 +34,7 @@ const CardViewPopup = ({ selectedData, onClose }) => {
                         <button
                             className="mt-4 bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-white hover:text-purple-700"
                             onClick={() => setShowFamilyTree(true)}
+                            onTouchEnd={() => setShowFamilyTree(true)}
                         >
                             Generate Family Tree
                         </button>

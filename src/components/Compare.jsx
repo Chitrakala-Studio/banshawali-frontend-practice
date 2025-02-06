@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -21,6 +22,10 @@ const Compare = () => {
   const [isLeftConfirmed, setIsLeftConfirmed] = useState(false);
   const [isRightConfirmed, setIsRightConfirmed] = useState(false);
   const [relationship, setRelationship] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false); // For loading state
+  const [apiError, setApiError] = useState(""); // For error handling
+  const [familyTreeData, setFamilyTreeData] = useState(null); // API response data
 
   const handleCompare = () => {
     if (
@@ -74,24 +79,48 @@ const Compare = () => {
     });
   };
 
-  const handleGenerateFamilyTree = () => {
-    Swal.fire({
-      title: "Family Tree being Generated!",
-      icon: "success",
-      confirmButtonText: "Okay",
-    }).then(() => {
-      setIsLeftConfirmed(false);
-      setIsRightConfirmed(false);
-    });
+  const handleGenerateFamilyTree = async () => {
+    setIsLoading(true); // Set loading to true when the button is clicked
+    setApiError("");
+    try {
+      // Make an API call to generate the family tree (example URL)
+      const response = await axios.post("https://api.example.com/generate-tree", {
+        leftPerson,
+        rightPerson,
+      });
+      setFamilyTreeData(response.data);
+
+      Swal.fire({
+        title: "Family Tree being Generated!",
+        icon: "success",
+        confirmButtonText: "Okay",
+      }).then(() => {
+        setIsLeftConfirmed(false);
+        setIsRightConfirmed(false);
+      });
+    } catch (error) {
+      // Handle error
+      console.error("Error response:", error.response);  // This will help you debug the API error
+      setApiError("Failed to generate family tree. Please try again later.");
+      Swal.fire({
+        title: "Error",
+        text: "There was an issue generating the family tree. Please try again.",
+        icon: "error",
+        confirmButtonText: "Okay",
+      });
+    } finally {
+      setIsLoading(false); // Set loading to false after the request completes
+    }
+
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
       <button
         className="absolute top-4 left-4 bg-purple-700 text-white px-4 py-2 rounded-full"
-        onClick={() => navigate("/1")}
+        onClick={() => navigate("/")}
       >
-        Go Back to Card
+        Go Back to Table
       </button>
       <div className="flex flex-col items-center px-4 py-6 h-full w-full overflow-y-auto">
         {/* Heading */}
@@ -286,9 +315,21 @@ const Compare = () => {
           <button
             className="bg-green-600 text-white px-6 py-2 md:px-10 md:py-2 rounded text-base md:text-xl"
             onClick={handleGenerateFamilyTree}
+            disabled={isLoading}
           >
-            Generate Family Tree
+            {isLoading ? "Generating..." : "Generate Family Tree"}
           </button>
+          {apiError && (
+            <p className="text-red-500 text-sm mt-4">{apiError}</p>
+          )}
+          {/* Display Family Tree if available */}
+          {familyTreeData && (
+            <div className="mt-6">
+              <h2 className="text-xl font-bold">Generated Family Tree</h2>
+              <pre>{JSON.stringify(familyTreeData, null, 2)}</pre>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

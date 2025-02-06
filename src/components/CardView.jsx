@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { globalData } from "../data/globalData";
+
 import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
 import { useNavigate, useParams } from "react-router-dom";
@@ -21,32 +21,53 @@ const CardView = () => {
   const [isTableView, setIsTableView] = useState(false);
   const navigate = useNavigate();
   const [isHorizontal, setIsHorizontal] = useState(false);
-  const initialIndex = globalData.findIndex((item) => item.id === parseInt(id));
+  const [data, setData] = useState([]); // State for API data
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+
+ 
+  const initialIndex = data.findIndex((item) => item.id === parseInt(id));
   const [currentIndex, setCurrentIndex] = useState(
     initialIndex !== -1 ? initialIndex : 0
   );
 
   useEffect(() => {
-    const index = globalData.findIndex((item) => item.id === parseInt(id));
-    if (index !== -1) {
-      setCurrentIndex(index);
-      // Wait for the DOM to render before scrolling
-      requestAnimationFrame(() => scrollToCard(index));
-    } else {
-      navigate("/"); // Redirect if invalid `id`
-    }
+    // Simulating an API call
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Replace with your actual API endpoint
+        const response = await fetch("https://api.example.com/family-data");
+        const result = await response.json();
+
+        setData(result); // Set the fetched data
+        setLoading(false);
+
+        // Check if the id exists in the fetched data
+        const index = result.findIndex((item) => item.id === parseInt(id));
+        if (index !== -1) {
+          setCurrentIndex(index);
+          requestAnimationFrame(() => scrollToCard(index));
+        } else {
+          navigate("/"); // Redirect if invalid `id`
+        }
+      } catch (error) {
+        setError(error.message); // Set error if API call fails
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id, navigate]);
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
 
   const toggleView = () => {
     setIsTableView(!isTableView);
   };
 
   const handleFooterGenerate = () => {
-    const currentPerson = globalData[currentIndex];
+    const currentPerson = data[currentIndex];
+
     if (currentPerson) {
       setSelectedPerson(currentPerson.name);
       setIsHorizontal(!isHorizontal);
@@ -59,21 +80,21 @@ const CardView = () => {
   // Scroll to the previous card with circular navigation
   const scrollLeft = () => {
     const newIndex =
-      currentIndex === 0 ? globalData.length - 1 : currentIndex - 1;
+      currentIndex === 0 ? data.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
     // Update the URL with the new id
-    navigate(`/${globalData[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to the next card with circular navigation
   const scrollRight = () => {
     const newIndex =
-      currentIndex === globalData.length - 1 ? 0 : currentIndex + 1;
+      currentIndex === data.length - 1 ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
     // Update the URL with the new id
-    navigate(`/${globalData[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to a specific card
@@ -99,6 +120,13 @@ const CardView = () => {
       scrollLeft();
     }
   };
+  if (loading) {
+    return <div>Loading...</div>; // Show loading while data is being fetched
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>; // Show error if the API call fails
+  }
 
   return (
     <>
@@ -115,7 +143,7 @@ const CardView = () => {
         >
           <TinderCard
             className={`relative min-w-full h-full snap-center flex flex-col group ${
-              infoPopup === globalData[currentIndex].name
+              infoPopup === data[currentIndex].name
                 ? "overflow-y-scroll"
                 : "overflow-y-hidden"
             }`}
@@ -128,10 +156,10 @@ const CardView = () => {
             <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
               <img
                 src={
-                  globalData[currentIndex].photo ||
+                  data[currentIndex].photo ||
                   "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                 }
-                alt={globalData[currentIndex].name_in_nepali}
+                alt={data[currentIndex].name_in_nepali}
                 className="w-full h-full object-cover select-none"
               />
 
@@ -164,23 +192,31 @@ const CardView = () => {
                 </button>
 
                 {/* Generate Family Tree Button */}
+                <FamilyTreeCardButton
+                  onClick={() =>
+                    handleGenerateFamilyTree(data[currentIndex])
+                  }
+                  onTouchEnd={() =>
+                    handleGenerateFamilyTree(data[currentIndex])
+                  }
+                />
 
                 <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
-                  {globalData[currentIndex].name_in_nepali}
+                  {data[currentIndex].name_in_nepali}
                 </h2>
                 <div className="flex justify-between items-center w-full mb-10">
                   <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
-                    {globalData[currentIndex].pusta_number}
+                    {data[currentIndex].pusta_number}
                   </div>
                   <button
                     className="pr-4 text-white text-xl"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleInfoClick(globalData[currentIndex]);
+                      handleInfoClick(data[currentIndex]);
                     }}
                     onTouchEnd={(e) => {
                       e.stopPropagation();
-                      handleInfoClick(globalData[currentIndex]);
+                      handleInfoClick(data[currentIndex]);
                     }}
                   >
                     <div onClick={toggleExpand} className="expand-button">
@@ -192,8 +228,8 @@ const CardView = () => {
             </div>
 
             {/* Info Section */}
-            {infoPopup === globalData[currentIndex].name && (
-              <InfoSection person={globalData[currentIndex]} />
+            {infoPopup === data[currentIndex].name && (
+              <InfoSection person={data[currentIndex]} />
             )}
           </TinderCard>
         </div>

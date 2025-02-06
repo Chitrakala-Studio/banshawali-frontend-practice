@@ -5,117 +5,125 @@ import ReactD3Tree from "react-d3-tree";
 // import {femaleicon} from "src/assets/public/femaleicon.jpg"; // Import MUI icons
 import "./App.css";
 import { WrapText } from "@mui/icons-material";
+import axios from "axios";
 // Dummy database data (simulated API response)
-const dummyDatabase = [
-  {
-    id: "4",
-    selectedPerson: "Ram Bahadur Kafle",
-    father: {
-      name: "Pitashree",
-      photo:  "src/assets/public/sample_1.jpg",
-      gender: "male",
-      pusta: "10",
-      children: [
-        { id: "10", name: "Sita Kumari", pusta: "11", gender: "female", photo:null},
-        { id: "4", name: "Ram Bahadur Kafle", pusta: "11", gender: "male" , photo: null}
-      ],
-      father: { // Grandfather (father's father)
-        name: "Grandfather of Ram",
-        photo: "src/assets/public/sample_2.jpg",
-        gender: "male",
-        pusta: "9",
-        father: {
-          name: "hello",
-          id: "7",
-          pusta: "8",
-          gender: "male"
+// const dummyDatabase = [
+//   {
+//     id: "4",
+//     selectedPerson: "Ram Bahadur Kafle",
+//     father: {
+//       name: "Pitashree",
+//       photo:  "src/assets/public/sample_1.jpg",
+//       gender: "male",
+//       pusta: "10",
+//       children: [
+//         { id: "10", name: "Sita Kumari", pusta: "11", gender: "female", photo:null},
+//         { id: "4", name: "Ram Bahadur Kafle", pusta: "11", gender: "male" , photo: null}
+//       ],
+//       father: { // Grandfather (father's father)
+//         name: "Grandfather of Ram",
+//         photo: "src/assets/public/sample_2.jpg",
+//         gender: "male",
+//         pusta: "9",
+//         father: {
+//           name: "hello",
+//           id: "7",
+//           pusta: "8",
+//           gender: "male"
 
-        },
-        children: [
-          { id: "4", name: "Pitashree", pusta: "10", gender: "male"  }, // Father's child
-          { id: "5", name: "aunt 1", pusta: "10", gender: "female",photo: "src/assets/public/sample_1.jpg" }  // Father's sibling
-        ]
-      }
-    },
-    gender: "male",
-    photo: "src/assets/public/sample_1.jpg",
-    pusta: "11",
-    children: [
-      { id: "6", name: "children", pusta: "12", gender: "male", photo: "src/assets/public/sample_1.jpg" ,
-        children: [
-        {
-          id: "21",
-          name:"chora nati",
-          pusta: "13",
-          gender:"male", 
-        }
-      ]
+//         },
+//         children: [
+//           { id: "4", name: "Pitashree", pusta: "10", gender: "male"  }, // Father's child
+//           { id: "5", name: "aunt 1", pusta: "10", gender: "female",photo: "src/assets/public/sample_1.jpg" }  // Father's sibling
+//         ]
+//       }
+//     },
+//     gender: "male",
+//     photo: "src/assets/public/sample_1.jpg",
+//     pusta: "11",
+//     children: [
+//       { id: "6", name: "children", pusta: "12", gender: "male", photo: "src/assets/public/sample_1.jpg" ,
+//         children: [
+//         {
+//           id: "21",
+//           name:"chora nati",
+//           pusta: "13",
+//           gender:"male", 
+//         }
+//       ]
 
-      }, // Father's child
-      { id: "7", name: "baby", pusta: "12", gender: "female" }  // Father's sibling
-    ]
+//       }, // Father's child
+//       { id: "7", name: "baby", pusta: "12", gender: "female" }  // Father's sibling
+//     ]
 
-  },
-  {
-    id: "5",
-    selectedPerson: "Sita Devi Kafle",
-    father: {
-      name: "Pitashree",
-      photo: null,
-      gender: "male",
-      pusta: "12",
-      children: [
-        { id: "6", name: "Child 1", pusta: "12", gender: "male" },
-        { id: "5", name: "Sita Devi Kafle", pusta: "12", gender: "female" }
-      ],
-      father: { // Grandfather (father's father)
-        name: "Grandfather of Sita",
-        photo: "src/assets/public/sample_1.jpg",
-        gender: "male",
+//   },
+//   {
+//     id: "5",
+//     selectedPerson: "Sita Devi Kafle",
+//     father: {
+//       name: "Pitashree",
+//       photo: null,
+//       gender: "male",
+//       pusta: "12",
+//       children: [
+//         { id: "6", name: "Child 1", pusta: "12", gender: "male" },
+//         { id: "5", name: "Sita Devi Kafle", pusta: "12", gender: "female" }
+//       ],
+//       father: { // Grandfather (father's father)
+//         name: "Grandfather of Sita",
+//         photo: "src/assets/public/sample_1.jpg",
+//         gender: "male",
         
-        pusta: "11",
-        children: [
-          { id: "5", name: "Pitashree", pusta: "12", gender: "male" },
-          { id: "6", name: "Aunt 2", pusta: "12", gender: "female" }
-        ]
-      }
-    },
-    gender: "female",
-    photo: "src/assets/public/sample_6.jpg",
-    pusta: "13"
-  }
-];
+//         pusta: "11",
+//         children: [
+//           { id: "5", name: "Pitashree", pusta: "12", gender: "male" },
+//           { id: "6", name: "Aunt 2", pusta: "12", gender: "female" }
+//         ]
+//       }
+//     },
+//     gender: "female",
+//     photo: "src/assets/public/sample_6.jpg",
+//     pusta: "13"
+//   }
+// ];
 
 
 // Simulated API function to fetch family data
 const fetchFamilyData = async (selectedPerson) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const familyData = dummyDatabase.find((data) => data.selectedPerson === selectedPerson);
-      resolve(familyData);
-    }, 1000); // Simulating API delay
-  });
-};
-const fetchData = async () => {
-  const familyData = await fetchFamilyData(selectedPerson);
-
-  const hasFather = familyData.father !== null; // Check if father exists
-  const hasChildren = familyData.father && familyData.father.children && familyData.father.children.length > 0;
-
-  // If no father info but has children, default to the "below" generation
-  if (!hasFather && hasChildren) {
-    setGenerationLevel("below");  // Set to show children if no father
-  } else {
-    setGenerationLevel("current");  // Otherwise, keep the current generation view
+  try {
+    // Replace with your actual API endpoint
+    const response = await axios.get(`/api/family-data/${selectedPerson}`);
+    return response.data;  // Assuming the API response contains the family data
+  } catch (error) {
+    console.error("Error fetching family data:", error);
+    throw new Error("Failed to fetch family data");  // You can handle the error as needed
   }
-
-  setHasChildren(hasChildren);  // Update whether the selected person has children
-  setHasUpperGeneration(familyData.father || familyData.mother);  // If either parent exists, we can go "above"
-
-  // Transform family data to the appropriate generation level
-  const tree = transformToTreeData(familyData, generationLevel);
-  setTreeData(tree);
 };
+// const fetchData = async () => {
+//   try {
+//     const familyData = await fetchFamilyData(selectedPerson); // API call using axios
+//     const hasFather = familyData.father !== null; // Check if father exists
+//     const hasChildren = familyData.father && familyData.father.children && familyData.father.children.length > 0;
+
+//     // If no father info but has children, default to the "below" generation
+//     if (!hasFather && hasChildren) {
+//       setGenerationLevel("below");  // Set to show children if no father
+//     } else {
+//       setGenerationLevel("current");  // Otherwise, keep the current generation view
+//     }
+
+//     setHasChildren(hasChildren);  // Update whether the selected person has children
+//     setHasUpperGeneration(familyData.father || familyData.mother);  // If either parent exists, we can go "above"
+
+//     // Transform family data to the appropriate generation level
+//     const tree = transformToTreeData(familyData, generationLevel);
+//     setTreeData(tree);
+
+//   } catch (error) {
+//     console.error("Error in fetchData:", error);
+//   }
+// };
+
 
 // Transforming API response to ReactD3Tree format
  // Helper function to transform data into tree structure
@@ -220,30 +228,36 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
   const [generationLevel, setGenerationLevel] = useState("current");
   const [hasChildren, setHasChildren] = useState(false);
   const [hasUpperGeneration, setHasUpperGeneration] = useState(false);
-  
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const familyData = await fetchFamilyData(selectedPerson); // Simulated API call
-      setFamilyData(familyData); // Store familyData in state
-      setHasChildren(familyData.children && familyData.children.length > 0);
-      
-      // Checking if the selected person has a father or mother for "Upper Generation" button
-      setHasUpperGeneration(familyData.father);
-
-      // Only default to 'upper' generation if it's not explicitly set to 'below'
-      if ((familyData.father || familyData.mother) && generationLevel !== "below") {
-        setGenerationLevel("upper");
-        setHasUpperGeneration(true);
-      }
-
-      // Update tree data based on current generation level
-      const tree = transformToTreeData(familyData, generationLevel);
+  const [error, setError] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
+ 
+  // Data fetching effect
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setIsFetching(true);
+      const data = await fetchFamilyData(selectedPerson);
+      setFamilyData(data);
+      setHasChildren(data.children && data.children.length > 0);
+      setHasUpperGeneration(data.father);
+      const tree = transformToTreeData(data, generationLevel);
       setTreeData(tree);
-    };
+    } catch (error) {
+      setError("Failed to fetch family data");
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
-    fetchData();
-  }, [selectedPerson, generationLevel]);
+  fetchData();  // Fetch data when selectedPerson or generationLevel change
+}, [selectedPerson, generationLevel]);
+
+// Cleanup effect for resetting isFetching on unmount
+useEffect(() => {
+  return () => {
+    setIsFetching(false);  // Reset fetching state when the component unmounts
+  };
+}, []);
 
 
   const handleGenerationChange = (direction) => {
@@ -321,16 +335,18 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
         
         )}
        <text
-        x="55"
+        x="60"
         y={-27.5 + (nameLines.length > 1 ? -10 : 0)}
         textAnchor="middle"
         fontSize="14"
         fontFamily="cursive"
-        fontWeight= "normal"
-        style={{ fontWeight: 400 }}
+        dominantBaseline="middle"
+        fill="black"
+        fontWeight= "200"
       >
         {nameLines.map((line, i) => (
-          <tspan key={i} x="55" dy={i === 0 ? 0 : 20}>
+          <tspan key={i} x="60" dy={i === 0 ? 0 : 20}
+            fontWeight="200">
             {line}
           </tspan>
         ))}
@@ -348,10 +364,17 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
     )
   };
 
-  if (!treeData) {
+  if (isFetching) {
     return <div>Loading...</div>;
   }
 
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!treeData) {
+    return <div>No data available</div>;
+  }
   dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
   dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
   const translateX = isMobile ? dimensions.width / 2.5 : dimensions.width / 1.25; // 
@@ -409,18 +432,18 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile }) => {
           right: isMobile ? "-20px" : "0px",
           padding: "1em"
         }}>
-          <button className="bg-purple-700/70 text-white px-4 py-2 my-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("upper")} onTouchStart={(e) => () => {
+          <button className="bg-purple-700/70 text-white px-4 py-2 my-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("upper")} onTouchEnd={(e) => () => {
             e.stopPropagation()
             handleGenerationChange("upper")
-          }} disabled={!hasUpperGeneration || !familyData.father} style={{
-            opacity: (hasUpperGeneration || familyData.father) ? 1 : 0.5,
-            cursor: (hasUpperGeneration || familyData.father) ? "pointer" : "not-allowed"
+          }} disabled={!hasUpperGeneration && generationLevel==="upper"} style={{
+            opacity: ((hasUpperGeneration|| familyData.father) && generationLevel!=="upper" ) ? 1 : 0.5,
+            cursor: ((hasUpperGeneration|| familyData.father) && generationLevel!=="upper") ? "pointer" : "not-allowed"
 
           }}>
             {isMobile ? "Above" : " Above Generation"}
           </button>
           <button className="bg-purple-700/70 text-white px-4 py-2 rounded-lg text-sm cursor-pointer z-20 hover:bg-slate-500 hover:text-white hover:opacity-75" onClick={() => handleGenerationChange("below")}
-            onTouchStart={(e) => {
+            onTouchEnd={(e) => {
               e.stopPropagation()
               handleGenerationChange("below")
             }
