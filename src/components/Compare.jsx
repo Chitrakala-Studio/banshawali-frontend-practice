@@ -23,13 +23,40 @@ const Compare = () => {
   const [relationship, setRelationship] = useState("");
 
   const handleCompare = () => {
+    if (
+      !leftPerson.fullName ||
+      !leftPerson.generation ||
+      !rightPerson.fullName ||
+      !rightPerson.generation
+    ) {
+      Swal.fire({
+        title: "Missing Information",
+        text: "Both Name and Generation fields are required for comparison.",
+        icon: "warning",
+        confirmButtonText: "Okay",
+      });
+      return;
+    }
     setRelationship(`${leftPerson.fullName} and ${rightPerson.fullName}`);
   };
 
   const handleConfirm = (side) => {
+    if (
+      (side === "left" && (!leftPerson.fullName || !leftPerson.generation)) ||
+      (side === "right" && (!rightPerson.fullName || !rightPerson.generation))
+    ) {
+      Swal.fire({
+        title: "Missing Information",
+        text: "Both Name and Generation fields are required for confirmation.",
+        icon: "warning",
+        confirmButtonText: "Okay",
+      });
+      return;
+    }
+
     Swal.fire({
       title: "Are you sure?",
-      text: "Once confirmed, form can't be edited.",
+      text: "Once confirmed, this form can't be edited.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -38,11 +65,11 @@ const Compare = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         if (side === "left") {
-          setIsLeftConfirmed(true);
-        } else {
-          setIsRightConfirmed(true);
+          setIsLeftConfirmed(true); // Disable left side
+        } else if (side === "right") {
+          setIsRightConfirmed(true); // Disable right side
         }
-        Swal.fire("Confirmed!", "success");
+        Swal.fire("Confirmed!", "The information is now locked.", "success");
       }
     });
   };
@@ -73,14 +100,9 @@ const Compare = () => {
         </h1>
 
         {/* Flex Container for Left and Right Person */}
-        <div className="flex flex-col lg:flex-row lg:justify-center lg:space-x-8 space-y-8 lg:space-y-0 w-full max-w-4xl">
+        <div className="flex flex-col lg:flex-row lg:justify-center pt-10 lg:space-x-8 space-y-8 lg:space-y-0 w-full max-w-4xl">
           {/* Left Person */}
           <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
-            {/* Image Placeholder */}
-            <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-xl md:text-2xl text-gray-500">+</span>
-            </div>
-
             {/* Input Fields */}
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">Name</label>
@@ -165,11 +187,6 @@ const Compare = () => {
 
           {/* Right Person */}
           <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
-            {/* Image Placeholder */}
-            <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-xl md:text-2xl text-gray-500">+</span>
-            </div>
-
             {/* Input Fields */}
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">Name</label>

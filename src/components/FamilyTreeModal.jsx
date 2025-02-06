@@ -25,7 +25,7 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
-      <div className="bg-white w-full max-w-4xl p-6 rounded-lg relative overflow-y-auto max-h-[90vh] flex">
+      <div className="bg-white w-full max-w-2xl p-6 rounded-lg relative overflow-y-auto max-h-[90vh] flex">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -51,7 +51,7 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
           </div>
 
           {/* Details Section */}
-          <div className="w-2/3 pl-6">
+          <div className="w-2/3 pl-14">
             {/* Header */}
             <div className="text-center md:text-left">
               <h2 className="text-2xl font-bold mb-2">{name}</h2>

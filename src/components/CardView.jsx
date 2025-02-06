@@ -7,7 +7,6 @@ import FamilyTreeGraph from "./FamilyTreeGraph";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa"; // Import icons
 import InfoSection from "./InfoSection";
 import ToggleView from "./ToggleView";
-import FamilyTreeCardButton from "./FamilyTreeCardButton";
 import FooterButtons from "./FooterButtons";
 import NavigationButtons from "./NavigationButtons";
 
@@ -52,12 +51,6 @@ const CardView = () => {
       setSelectedPerson(currentPerson.name);
       setIsHorizontal(!isHorizontal);
     }
-  };
-
-  // Handle the click to generate the family tree
-  const handleGenerateFamilyTree = (person) => {
-    setSelectedPerson(person.name);
-    setIsHorizontal(!isHorizontal); // Set orientation to horizontal
   };
 
   const handleInfoClick = (family) => {
@@ -171,11 +164,6 @@ const CardView = () => {
                 </button>
 
                 {/* Generate Family Tree Button */}
-                <FamilyTreeCardButton
-                  onClick={() =>
-                    handleGenerateFamilyTree(globalData[currentIndex])
-                  }
-                />
 
                 <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
                   {globalData[currentIndex].name_in_nepali}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
@@ -27,41 +28,31 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [errors, setErrors] = useState({});
-
-  const familyMembers = [
-    {
-      name: "Ram Bahadur",
-      father_dob: "1970-05-15",
-      mother_dob: "1975-06-25",
-      pusta_number: "2",
-      mother_name: "Sita Devi",
-    },
-    {
-      name: "Shyam Lal",
-      father_dob: "1965-11-20",
-      mother_dob: "1970-01-10",
-      pusta_number: "3",
-      mother_name: "Radha Devi",
-    },
-    {
-      name: "Hari Krishna",
-      father_dob: "1975-02-10",
-      mother_dob: "1980-04-05",
-      pusta_number: "1",
-      mother_name: "Gita Devi",
-    },
-    {
-      name: "Gopal Prasad",
-      father_dob: "1980-08-25",
-      mother_dob: "1985-02-15",
-      pusta_number: "2",
-      mother_name: "Maya Devi",
-    },
-  ];
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setForm(formData);
   }, [formData]);
+
+  const fetchUserDetails = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:8080/user/${formData.id}`
+      );
+      setForm(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (formData.id) {
+      fetchUserDetails();
+    }
+  }, [formData.id]);
 
   const fetchFatherSuggestions = (adjustedPustaNumber, query) => {
     return new Promise((resolve) => {
@@ -85,7 +76,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             member.mother_name.toLowerCase().includes(query.toLowerCase())
         );
         resolve(suggestions);
-      }, 500); // Simulate API delay
+      }, 500);
     });
   };
   const handleImageChange = (e) => {
@@ -153,57 +144,28 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setShowMotherSuggestions(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newErrors = {};
-    const requiredFields = [
-      "pusta_number",
-      "username",
-      "gender",
-      "dob",
-      "status",
-      "father_name",
-      "mother_name",
-      "vansha_status",
-    ];
-
-    requiredFields.forEach((field) => {
-      if (!form[field]?.toString().trim()) {
-        newErrors[field] = true;
-      }
-    });
-    if (form.status === "Dead" && !form.death_date) {
-      newErrors.death_date = true;
-    }
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) {
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        `http://localhost:8080/user/${formData.id}`,
+        form
+      );
+      onSave(response.data);
+      Swal.fire("Saved!", "Your changes have been saved.", "success");
+      onClose();
+    } catch (error) {
+      console.error("Error saving data:", error);
       Swal.fire({
         icon: "error",
-        title: "Missing Information",
-        text: "Please fill all required fields",
-        confirmButtonColor: "#3085d6",
+        title: "Failed to save",
+        text: error.response?.data?.message || "Something went wrong!",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to save these changes?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#28a745",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, save it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        onSave(form); // Pass updated data back to parent
-        Swal.fire("Saved!", "Your changes have been saved.", "success");
-        window.location.reload(); // Reload the page
-        onClose(); // Close modal
-      }
-    });
   };
 
   return (
@@ -238,6 +200,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           className="space-y-4 flex flex-col h-full w-full items-center "
         >
           {/* Profile Picture */}
+
           <div className="flex justify-center mt-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
               <label
@@ -248,11 +211,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   <img
                     src={form.profileImage}
                     alt="Profile"
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      objectFit: "cover",
-                    }}
+                    className="w-full h-full object-cover" // This ensures the image fills the container, maintaining aspect ratio
                   />
                 ) : (
                   <span className="text-3xl text-gray-500">+</span>
@@ -391,7 +350,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="string"
                 name="father_name"
-                required
                 value={form.father_name}
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -420,7 +378,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="string"
                 name="mother_name"
-                required
                 value={form.mother_name}
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -548,6 +505,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
 EditFormModal.propTypes = {
   formData: PropTypes.shape({
+    id: PropTypes.number,
     username: PropTypes.string,
     gender: PropTypes.string,
     dob: PropTypes.string,

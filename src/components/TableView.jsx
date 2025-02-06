@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   FaInfoCircle,
   FaEdit,
@@ -9,7 +10,6 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
-import { globalData } from "../data/globalData";
 import EditFormModal from "./EditFormModal";
 import CardViewPopup from "./CardViewPopup";
 import FamilyTreeModal from "./FamilyTreeModal";
@@ -23,7 +23,8 @@ const TableView = ({ isAdmin = true }) => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
-  const [searchBy, setSearchBy] = useState(name); // To track selected search field
+  const [data, setData] = useState([]);
+  const [searchBy, setSearchBy] = useState("name");
   const [searchQuery, setSearchQuery] = useState(""); // To track search input
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterData, setFilterData] = useState({
@@ -46,9 +47,22 @@ const TableView = ({ isAdmin = true }) => {
     profession: "",
     gender: "Male",
   });
+  const API_URL = "http://localhost:8080";
 
+  useEffect(() => {
+    fetchData();
+  }, [searchQuery, searchBy]);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/data`);
+      setData(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
   const offset = currentPage * rowsPerPage;
-  const currentRows = globalData.slice(offset, offset + rowsPerPage);
+  const currentRows = data.slice(offset, offset + rowsPerPage);
 
   const handlePageChange = ({ selected }) => {
     setCurrentPage(selected);
@@ -64,15 +78,24 @@ const TableView = ({ isAdmin = true }) => {
     console.log("Selected Row Data:", row); // Debugging line
     setShowInfoPopup(true);
   };
-  const handleSave = (updatedRow) => {
-    console.log("Updated Row:", updatedRow);
-    setIsEditing(false);
+  const handleSave = async (updatedRow) => {
+    try {
+      await axios.put(`${API_URL}/data/${updatedRow.id}`, updatedRow);
+      fetchData(); // Refresh the data after update
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
   };
 
-  const handleSaveNew = (newData) => {
-    console.log("New Data:", newData);
-    globalData.push(newData);
-    setIsAdding(false);
+  const handleSaveNew = async (newData) => {
+    try {
+      await axios.post(`${API_URL}/data`, newData);
+      fetchData(); // Refresh the data after adding
+      setIsAdding(false);
+    } catch (error) {
+      console.error("Error adding data:", error);
+    }
   };
 
   const applyFilter = () => {
@@ -80,7 +103,7 @@ const TableView = ({ isAdmin = true }) => {
     setIsFilterOpen(false);
   };
 
-  const handleDelete = (row) => {
+  const handleDelete = async (row) => {
     Swal.fire({
       title: "Are you sure?",
       text: `Do you want to delete ${row.name}? This action cannot be undone.`,
@@ -89,10 +112,15 @@ const TableView = ({ isAdmin = true }) => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        console.log("Deleted row:", row);
-        Swal.fire("Deleted!", `${row.name} has been deleted.`, "success");
+        try {
+          await axios.delete(`${API_URL}/data/${row.id}`);
+          fetchData(); // Refresh after deletion
+          Swal.fire("Deleted!", `${row.name} has been deleted.`, "success");
+        } catch (error) {
+          console.error("Error deleting data:", error);
+        }
       }
     });
   };
@@ -128,7 +156,7 @@ const TableView = ({ isAdmin = true }) => {
     });
   };
 
-  const filteredData = globalData.filter((row) => {
+  const filteredData = data.filter((row) => {
     if (!searchQuery) return true; // No query, return all rows
     if (
       searchBy === "name" &&
@@ -206,10 +234,11 @@ const TableView = ({ isAdmin = true }) => {
             </select>
 
             <button
-              className="search-button text-white p-3 hover:bg-blue-600 rounded-full h-[35px] leading-[30px]"
+              className="search-button text-white p-3 hover:bg-blue-600 rounded-full flex items-center"
               onClick={() => console.log("Searching for:", searchQuery)}
             >
-              <FaSearch />
+              <FaSearch className="mr-2" />
+              Search
             </button>
           </div>
           {isFilterOpen && (
@@ -466,7 +495,7 @@ const TableView = ({ isAdmin = true }) => {
               </button>
             }
             breakLabel={"..."}
-            pageCount={Math.ceil(globalData.length / rowsPerPage)}
+            pageCount={Math.ceil(data.length / rowsPerPage)}
             onPageChange={handlePageChange}
             containerClassName={"flex items-center space-x-2"}
             activeClassName={
