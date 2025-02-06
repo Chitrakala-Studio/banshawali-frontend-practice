@@ -13,7 +13,7 @@ const App = () => {
         <Route path="/admin" element={<AdminDashboard />} /> */}
 
         <Route path="/:id" element={<AdminDashboard />} />
-        <Route path="/compare" element={<Compare />} />
+        <Route path="/compare/:id" element={<Compare />} />
         <Route path="/" element={<TableView />} />
         <Route path="/card" element={<CardView />} />
       </Routes>

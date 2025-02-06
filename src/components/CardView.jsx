@@ -9,6 +9,7 @@ import InfoSection from "./InfoSection";
 import ToggleView from "./ToggleView";
 import FooterButtons from "./FooterButtons";
 import NavigationButtons from "./NavigationButtons";
+import FamilyTreeCardButton from "./FamilyTreeCardButton"; // Import FamilyTreeCardButton
 
 const CardView = () => {
   const { id } = useParams(); // Extract the id from URL params
@@ -37,7 +38,7 @@ const CardView = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint
-        const response = await fetch("https://api.example.com/family-data");
+        const response = await fetch("http://localhost:8000/people/");
         const result = await response.json();
 
         setData(result); // Set the fetched data
@@ -219,7 +220,7 @@ const CardView = () => {
                       handleInfoClick(data[currentIndex]);
                     }}
                   >
-                    <div onClick={toggleExpand} className="expand-button">
+                    <div className="expand-button">
                       {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
                     </div>
                   </button>

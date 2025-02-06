@@ -47,7 +47,7 @@ const TableView = ({ isAdmin = true }) => {
     profession: "",
     gender: "Male",
   });
-  const API_URL = "http://localhost:8080";
+  const API_URL = "http://127.0.0.1:8000";
 
   useEffect(() => {
     fetchData();
@@ -55,12 +55,19 @@ const TableView = ({ isAdmin = true }) => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/data`);
-      setData(response.data);
+      const response = await fetch("http://localhost:8000/people/", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      console.log("Fetched data:", data);
+      setData(data);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Fetch error:", error);
     }
   };
+  
+  
   const offset = currentPage * rowsPerPage;
   const currentRows = data.slice(offset, offset + rowsPerPage);
 

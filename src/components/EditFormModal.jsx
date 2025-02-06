@@ -16,12 +16,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     mother_name: formData.mother_name || "",
     mother_dob: formData.mother_dob || "",
     vansha_status: formData.vansha_status || "",
-    email: formData.email || "",
-    phone: formData.phone || "",
-    address: formData.address || "",
+    contact: {
+      email: formData.email || "",
+      phone: formData.phone || "",
+      address: formData.address || ""
+    },
     profession: formData.profession || "",
     profileImage: formData.profileImage || "",
   }));
+  
+  
+
 
   const [suggestions, setSuggestions] = useState([]);
   const [motherSuggestions, setMotherSuggestions] = useState([]);
@@ -149,9 +154,24 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       setLoading(true);
-      const response = await axios.put(
-        `http://localhost:8080/user/${formData.id}`,
-        form
+      const response = await axios.post(
+        `http://127.0.0.1:8000/people/`,
+        {
+          name: form.username,
+          name_in_nepali: form.username,
+          pusta_number: form.pusta_number,
+          contact_details: JSON.stringify(form.contact),
+          father_name: form.father_name,
+          father_dob: form.father_dob,
+          mother: form.mother_name,
+          date_of_birth: form.dob,
+          status: form.status,
+          date_of_death: form.death_date,
+          photo: form.profileImage,
+          profession: form.profession,
+          gender: form.gender,
+          same_vamsha_status: form.vansha_status
+        }
       );
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");

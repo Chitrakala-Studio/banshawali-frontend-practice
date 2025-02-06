@@ -5,4 +5,13 @@ import react from '@vitejs/plugin-react-swc'
 export default defineConfig({
   plugins: [react()],
   base: '/Banshali-app/',
+  server: {
+    host: '0.0.0.0',  // Allows external access
+    port: 5173,       // Ensure this port is open
+    allowedHosts: ['gautamfamily.org.np'],
+    hmr: {
+      protocol: 'wss',
+      host: 'gautamfamily.org.np',
+    },
+  },
 })

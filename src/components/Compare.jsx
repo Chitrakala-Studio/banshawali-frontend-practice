@@ -1,18 +1,20 @@
 import axios from "axios";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const Compare = () => {
+  const { id } = useParams();
+  
   const [leftPerson, setLeftPerson] = useState({
-    fullName: "",
-    generation: "",
+    name: "",
+    pusta_number: "",
     fatherName: "",
     motherName: "",
   });
   const [rightPerson, setRightPerson] = useState({
-    fullName: "",
-    generation: "",
+    name: "",
+    pusta_number: "",
     fatherName: "",
     motherName: "",
   });
@@ -29,30 +31,30 @@ const Compare = () => {
 
   const handleCompare = () => {
     if (
-      !leftPerson.fullName ||
-      !leftPerson.generation ||
-      !rightPerson.fullName ||
-      !rightPerson.generation
+      !leftPerson.name ||
+      !leftPerson.pusta_number ||
+      !rightPerson.name ||
+      !rightPerson.pusta_number
     ) {
       Swal.fire({
         title: "Missing Information",
-        text: "Both Name and Generation fields are required for comparison.",
+        text: "Both Name and pusta_number fields are required for comparison.",
         icon: "warning",
         confirmButtonText: "Okay",
       });
       return;
     }
-    setRelationship(`${leftPerson.fullName} and ${rightPerson.fullName}`);
+    setRelationship(`${leftPerson.name} and ${rightPerson.name}`);
   };
 
   const handleConfirm = (side) => {
     if (
-      (side === "left" && (!leftPerson.fullName || !leftPerson.generation)) ||
-      (side === "right" && (!rightPerson.fullName || !rightPerson.generation))
+      (side === "left" && (!leftPerson.name || !leftPerson.pusta_number)) ||
+      (side === "right" && (!rightPerson.name || !rightPerson.pusta_number))
     ) {
       Swal.fire({
         title: "Missing Information",
-        text: "Both Name and Generation fields are required for confirmation.",
+        text: "Both Name and pusta_number fields are required for confirmation.",
         icon: "warning",
         confirmButtonText: "Okay",
       });
@@ -78,41 +80,65 @@ const Compare = () => {
       }
     });
   };
+  useEffect(() => {
+    const fetchLeftPersonData = async () => {
+      setIsLoading(true);
+      try {
+        // Replace with your API endpoint for fetching the person's details
+        const response = await axios.get(`http://localhost:8000/people/${id}`);
+        console.log(response.data);
+        setLeftPerson(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setApiError("Failed to fetch left person's data. Please try again later.");
+        Swal.fire({
+          title: "Error",
+          text: "There was an issue fetching the left person's data.",
+          icon: "error",
+          confirmButtonText: "Okay",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleGenerateFamilyTree = async () => {
-    setIsLoading(true); // Set loading to true when the button is clicked
-    setApiError("");
-    try {
-      // Make an API call to generate the family tree (example URL)
-      const response = await axios.post("https://api.example.com/generate-tree", {
-        leftPerson,
-        rightPerson,
-      });
-      setFamilyTreeData(response.data);
+    fetchLeftPersonData();
+  }, [id]);
 
-      Swal.fire({
-        title: "Family Tree being Generated!",
-        icon: "success",
-        confirmButtonText: "Okay",
-      }).then(() => {
-        setIsLeftConfirmed(false);
-        setIsRightConfirmed(false);
-      });
-    } catch (error) {
-      // Handle error
-      console.error("Error response:", error.response);  // This will help you debug the API error
-      setApiError("Failed to generate family tree. Please try again later.");
-      Swal.fire({
-        title: "Error",
-        text: "There was an issue generating the family tree. Please try again.",
-        icon: "error",
-        confirmButtonText: "Okay",
-      });
-    } finally {
-      setIsLoading(false); // Set loading to false after the request completes
-    }
+    const handleGenerateFamilyTree = async () => {
+    //   setIsLoading(true); // Set loading to true when the button is clicked
+    //   setApiError("");
+    //   try {
+    //     // Make an API call to generate the family tree (example URL)
+    //     const response = await axios.get(`https://api.example.com/persons/${id}`);
+    //       setLeftPerson(response.data);
+    //   }
+    //     setFamilyTreeData(response.data);
 
-  };
+        Swal.fire({
+          title: "Family Tree being Generated!",
+          icon: "success",
+          confirmButtonText: "Okay",
+        }).then(() => {
+          setIsLeftConfirmed(false);
+          setIsRightConfirmed(false);
+        });
+      }
+      // } catch (error) {
+      //   // Handle error
+      //   console.error("Error response:", error.response);  // This will help you debug the API error
+      //   setApiError("Failed to generate family tree. Please try again later.");
+      //   Swal.fire({
+      //     title: "Error",
+      //     text: "There was an issue generating the family tree. Please try again.",
+      //     icon: "error",
+      //     confirmButtonText: "Okay",
+      //   });
+      // } finally {
+      //   setIsLoading(false); // Set loading to false after the request completes
+      // }
+
+  // };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -139,11 +165,11 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Full Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.fullName}
+                value={leftPerson.name}
                 onChange={(e) =>
                   setLeftPerson((prev) => ({
                     ...prev,
-                    fullName: e.target.value,
+                    name: e.target.value,
                   }))
                 }
                 disabled={isLeftConfirmed}
@@ -151,17 +177,17 @@ const Compare = () => {
             </div>
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">
-                Generation
+                pusta_number
               </label>
               <input
                 type="text"
-                placeholder="Enter Generation"
+                placeholder="Enter Pusta Number"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.generation}
+                value={leftPerson.pusta_number}
                 onChange={(e) =>
                   setLeftPerson((prev) => ({
                     ...prev,
-                    generation: e.target.value,
+                    pusta_number: e.target.value,
                   }))
                 }
                 disabled={isLeftConfirmed}
@@ -223,11 +249,11 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Full Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.fullName}
+                value={rightPerson.name}
                 onChange={(e) =>
                   setRightPerson((prev) => ({
                     ...prev,
-                    fullName: e.target.value,
+                    name: e.target.value,
                   }))
                 }
                 disabled={isRightConfirmed}
@@ -235,17 +261,17 @@ const Compare = () => {
             </div>
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">
-                Generation
+                pusta_number
               </label>
               <input
                 type="text"
-                placeholder="Enter Generation"
+                placeholder="Enter pusta_number"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.generation}
+                value={rightPerson.pusta_number}
                 onChange={(e) =>
                   setRightPerson((prev) => ({
                     ...prev,
-                    generation: e.target.value,
+                    pusta_number: e.target.value,
                   }))
                 }
                 disabled={isRightConfirmed}
@@ -322,13 +348,13 @@ const Compare = () => {
           {apiError && (
             <p className="text-red-500 text-sm mt-4">{apiError}</p>
           )}
-          {/* Display Family Tree if available */}
+          {/* Display Family Tree if available
           {familyTreeData && (
             <div className="mt-6">
               <h2 className="text-xl font-bold">Generated Family Tree</h2>
               <pre>{JSON.stringify(familyTreeData, null, 2)}</pre>
             </div>
-          )}
+          )} */}
 
         </div>
       </div>
