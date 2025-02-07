@@ -26,7 +26,7 @@ const CardView = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
 
- 
+
   const initialIndex = data.findIndex((item) => item.id === parseInt(id));
   const [currentIndex, setCurrentIndex] = useState(
     initialIndex !== -1 ? initialIndex : 0
@@ -132,7 +132,7 @@ const CardView = () => {
   return (
     <>
       <ToggleView isTableView={isTableView} toggleView={toggleView} />
-      <div className="absolute w-full h-full lg:w-2/5 lg:h-[89%] lg:top-0 md:w-3/5 md:h-[80%] md:top-0">
+      <div className="absolute w-full h-full lg:w-2/5 lg:h-[100%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
         {/* Navigation Buttons */}
         <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} />
 
@@ -140,101 +140,104 @@ const CardView = () => {
         <div
           ref={containerRef}
           id="container"
-          className="flex w-full h-full overflow-x-scroll snap-x snap-mandatory scrollbar-hide"
+          className="flex flex-col w-full h-full rounded-2xl overflow-x-scroll  mt-2 snap-x snap-mandatory scrollbar-hide"
         >
-          <TinderCard
-            className={`relative min-w-full h-full snap-center flex flex-col group ${
-              infoPopup === data[currentIndex].name
-                ? "overflow-y-scroll"
-                : "overflow-y-hidden"
-            }`}
-            preventSwipe={["up", "down"]}
-            onSwipe={(direction) => handleSwipe(direction)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {/* Image Section */}
-            <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
-              <img
-                src={
-                  data[currentIndex].photo ||
-                  "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
-                }
-                alt={data[currentIndex].name_in_nepali}
-                className="w-full h-full object-cover select-none"
-              />
-
-              {/* Buttons Section */}
-              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
-                {/* Scroll Left Button */}
-                <button
-                  className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  onClick={scrollLeft}
-                  onTouchEnd={scrollLeft}
-                >
-                  <img
-                    className="w-6 h-6"
-                    src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
-                    alt="Scroll Left"
-                  />
-                </button>
-
-                {/* Scroll Right Button */}
-                <button
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  onClick={scrollRight}
-                  onTouchEnd={scrollRight}
-                >
-                  <img
-                    className="w-6 h-6"
-                    src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
-                    alt="Scroll Right"
-                  />
-                </button>
-
-                {/* Generate Family Tree Button */}
-                <FamilyTreeCardButton
-                  onClick={() =>
-                    handleGenerateFamilyTree(data[currentIndex])
+            <TinderCard
+              className={`relative min-w-full h-full snap-center flex flex-col group ${infoPopup === data[currentIndex].name
+                  ? "overflow-y-scroll"
+                  : "overflow-y-hidden"
+                }`}
+              preventSwipe={["up", "down"]}
+              onSwipe={(direction) => handleSwipe(direction)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              {/* Image Section */}
+              <div className="flex items-center justify-center w-full h-full rounded-lg shadow-lg bg-white relative">
+                <img
+                  src={
+                    data[currentIndex].photo ||
+                    "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                   }
-                  onTouchEnd={() =>
-                    handleGenerateFamilyTree(data[currentIndex])
-                  }
+                  alt={data[currentIndex].name_in_nepali}
+                  className="w-full h-full object-cover select-none"
                 />
 
-                <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
-                  {data[currentIndex].name_in_nepali}
-                </h2>
-                <div className="flex justify-between items-center w-full mb-10">
-                  <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
-                    {data[currentIndex].pusta_number}
-                  </div>
+                {/* Buttons Section */}
+                <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+                  {/* Scroll Left Button */}
                   <button
-                    className="pr-4 text-white text-xl"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleInfoClick(data[currentIndex]);
-                    }}
-                    onTouchEnd={(e) => {
-                      e.stopPropagation();
-                      handleInfoClick(data[currentIndex]);
-                    }}
+                    className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    onClick={scrollLeft}
+                    onTouchEnd={scrollLeft}
                   >
-                    <div className="expand-button">
-                      {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
-                    </div>
+                    <img
+                      className="w-6 h-6"
+                      src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+                      alt="Scroll Left"
+                    />
                   </button>
+
+                  {/* Scroll Right Button */}
+                  <button
+                    className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    onClick={scrollRight}
+                    onTouchEnd={scrollRight}
+                  >
+                    <img
+                      className="w-6 h-6"
+                      src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+                      alt="Scroll Right"
+                    />
+                  </button>
+
+                  {/* Generate Family Tree Button
+                  <FamilyTreeCardButton
+                    onClick={() =>
+                      handleGenerateFamilyTree(data[currentIndex])
+                    }
+                    onTouchEnd={() =>
+                      handleGenerateFamilyTree(data[currentIndex])
+                    }
+                  /> */}
+
+                  <h2 className="text-2xl font-bold ml-5 mb-4 z-20">
+                    {data[currentIndex].name_in_nepali}
+                  </h2>
+                  <div className="flex justify-between items-center w-full mb-10">
+                    <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
+                      {data[currentIndex].pusta_number}
+                    </div>
+                    <button
+                      className="pr-4 text-white text-xl"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleInfoClick(data[currentIndex]);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.stopPropagation();
+                        handleInfoClick(data[currentIndex]);
+                      }}
+                    >
+                      <div className="expand-button">
+                        {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Info Section */}
-            {infoPopup === data[currentIndex].name && (
-              <InfoSection person={data[currentIndex]} />
-            )}
-          </TinderCard>
+              {/* Info Section */}
+              {infoPopup === data[currentIndex].name && (
+                <InfoSection person={data[currentIndex]} />
+              )}
+            </TinderCard>
+          
+        <div className="footer mt-0 sticky bottom-0 left-0 w-full bg-white z-20">
+            <FooterButtons  id ={id} onGenerateFamilyTree={handleFooterGenerate} />
+          </div>
+          
         </div>
-        <FooterButtons onGenerateFamilyTree={handleFooterGenerate} />
 
         {/* Family Tree Modal */}
         {selectedPerson && (
