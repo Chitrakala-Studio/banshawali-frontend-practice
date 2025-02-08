@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
+import { FaArrowDown } from "react-icons/fa";
 import axios from "axios";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
@@ -297,9 +298,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <button
                 type="button"
                 onClick={translateToNepali}
-                className="mt-2 ml-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                className="flex items-center text-[#7091E6] p-5"
               >
-                Translate to Nepali
+                <FaArrowDown size={24} />
+                <span className="ml-1 text-[#7091E6]">Translate</span>
               </button>
             </div>
             <div className="w-full">
