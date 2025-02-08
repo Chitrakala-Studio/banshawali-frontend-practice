@@ -7,6 +7,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
     pusta_number: formData.pusta_number || "",
     username: formData.username || "",
+    usernameNepali: "",
     gender: formData.gender || "",
     dob: formData.dob || "",
     status: formData.status || "",
@@ -19,14 +20,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     contact: {
       email: formData.email || "",
       phone: formData.phone || "",
-      address: formData.address || ""
+      address: formData.address || "",
     },
     profession: formData.profession || "",
     profileImage: formData.profileImage || "",
   }));
-  
-  
-
 
   const [suggestions, setSuggestions] = useState([]);
   const [motherSuggestions, setMotherSuggestions] = useState([]);
@@ -120,6 +118,26 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   };
 
+  const translateToNepali = async () => {
+    try {
+      const response = await fetch(
+        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ne&dt=t&q=${encodeURIComponent(
+          form.username
+        )}`
+      );
+      const data = await response.json();
+
+      const translatedText = data[0].map((t) => t[0]).join("");
+
+      setForm((prevForm) => ({
+        ...prevForm,
+        usernameNepali: translatedText,
+      }));
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+  };
+
   const fetchSuggestions = async (adjustedPustaNumber, query) => {
     try {
       const results = await fetchFatherSuggestions(adjustedPustaNumber, query);
@@ -154,25 +172,22 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        `http://127.0.0.1:8000/people/`,
-        {
-          name: form.username,
-          name_in_nepali: form.username,
-          pusta_number: form.pusta_number,
-          contact_details: JSON.stringify(form.contact),
-          father_name: form.father_name,
-          father_dob: form.father_dob,
-          mother: form.mother_name,
-          date_of_birth: form.dob,
-          status: form.status,
-          date_of_death: form.death_date,
-          photo: form.profileImage,
-          profession: form.profession,
-          gender: form.gender,
-          same_vamsha_status: form.vansha_status
-        }
-      );
+      const response = await axios.post(`http://127.0.0.1:8000/people/`, {
+        name: form.username,
+        name_in_nepali: form.username,
+        pusta_number: form.pusta_number,
+        contact_details: JSON.stringify(form.contact),
+        father_name: form.father_name,
+        father_dob: form.father_dob,
+        mother: form.mother_name,
+        date_of_birth: form.dob,
+        status: form.status,
+        date_of_death: form.death_date,
+        photo: form.profileImage,
+        profession: form.profession,
+        gender: form.gender,
+        same_vamsha_status: form.vansha_status,
+      });
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");
       onClose();
@@ -279,6 +294,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your name (in English)"
               />
+              <button
+                type="button"
+                onClick={translateToNepali}
+                className="mt-2 ml-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+              >
+                Translate to Nepali
+              </button>
             </div>
             <div className="w-full">
               <label className="block text-sm font-medium text-[#7091E6]">
@@ -286,9 +308,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </label>
               <input
                 type="text"
-                name="username"
-                required
-                value={form.username}
+                name="usernameNepali"
+                value={form.usernameNepali}
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your name (in Nepali)"
