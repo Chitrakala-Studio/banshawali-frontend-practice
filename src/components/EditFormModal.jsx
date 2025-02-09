@@ -42,7 +42,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:8080/user/${formData.id}`
+        `https://gautamfamily.org.np/user/${formData.id}`
       );
       setForm(response.data);
       setLoading(false);

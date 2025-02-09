@@ -55,7 +55,7 @@ const TableView = ({ isAdmin = true }) => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:8000/people/", {
+      const response = await fetch("https://gautamfamily.org.np/people/", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });

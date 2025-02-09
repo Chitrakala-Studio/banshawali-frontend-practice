@@ -85,7 +85,7 @@ const Compare = () => {
       setIsLoading(true);
       try {
         // Replace with your API endpoint for fetching the person's details
-        const response = await axios.get(`http://localhost:8000/people/${id}`);
+        const response = await axios.get(`https://gautamfamily.org.np/people/${id}`);
         console.log(response.data);
         setLeftPerson(response.data);
       } catch (error) {

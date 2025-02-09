@@ -38,7 +38,7 @@ const CardView = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint
-        const response = await fetch("http://localhost:8000/people/");
+        const response = await fetch("https://gautamfamily.org.np/people/");
         const result = await response.json();
 
         setData(result); // Set the fetched data
