@@ -173,7 +173,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post(`http://127.0.0.1:8000/people/`, {
+      const response = await axios.post(`https://gautamfamily.org.np/people/`, {
         name: form.username,
         name_in_nepali: form.username,
         pusta_number: form.pusta_number,
