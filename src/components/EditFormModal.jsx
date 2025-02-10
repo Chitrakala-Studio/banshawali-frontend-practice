@@ -19,9 +19,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     mother_dob: formData.mother_dob || "",
     vansha_status: formData.vansha_status || "",
     contact: {
-      email: formData.contact.email || "",
-      phone: formData.contact.phone || "",
-      address: formData.contact.address || "",
+      email: formData.contact?.email || "",
+      phone: formData.contact?.phone || "",
+      address: formData.contact?.address || "",
     },
     profession: formData.profession || "",
     profileImage: formData.profileImage || "",
@@ -93,6 +93,16 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       }));
     }
   };
+  const handleContactChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      contact: {
+        ...prev.contact, // Preserve other values
+        [name]: value,   // Update only the changed field
+      },
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -100,6 +110,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       ...prev,
       [name]: value,
     }));
+  
 
     if (name === "father_name" && value.trim()) {
       const adjustedPustaNumber = form.pusta_number - 1;
@@ -475,7 +486,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 type="email"
                 name="email"
                 value={form.contact?.email || ""}
-                onChange={handleChange}
+                onChange={handleContactChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter email address"
               />
