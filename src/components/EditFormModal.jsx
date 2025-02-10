@@ -6,9 +6,10 @@ import axios from "axios";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
+    id: formData.id || null,
     pusta_number: formData.pusta_number || "",
-    username: formData.username || "",
-    usernameNepali: "",
+    name: formData.name || "",
+    name_in_nepali: formData.name_in_nepali || "",
     gender: formData.gender || "",
     dob: formData.dob || "",
     status: formData.status || "",
@@ -19,9 +20,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     mother_dob: formData.mother_dob || "",
     vansha_status: formData.vansha_status || "",
     contact: {
-      email: formData.email || "",
-      phone: formData.phone || "",
-      address: formData.address || "",
+      email: formData.contact?.email || "",
+      phone: formData.contact?.phone || "",
+      address: formData.contact?.address || "",
     },
     profession: formData.profession || "",
     profileImage: formData.profileImage || "",
@@ -93,6 +94,16 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       }));
     }
   };
+  const handleContactChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      contact: {
+        ...prev.contact, // Preserve other values
+        [name]: value, // Update only the changed field
+      },
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -123,7 +134,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     try {
       const response = await fetch(
         `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ne&dt=t&q=${encodeURIComponent(
-          form.username
+          form.name
         )}`
       );
       const data = await response.json();
@@ -132,7 +143,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       setForm((prevForm) => ({
         ...prevForm,
-        usernameNepali: translatedText,
+        name_in_nepali: translatedText,
       }));
     } catch (error) {
       console.error("Translation error:", error);
@@ -173,25 +184,52 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post(`http://127.0.0.1:8000/people/`, {
-        name: form.username,
-        name_in_nepali: form.username,
-        pusta_number: form.pusta_number,
-        contact_details: JSON.stringify(form.contact),
-        father_name: form.father_name,
-        father_dob: form.father_dob,
-        mother: form.mother_name,
-        date_of_birth: form.dob,
-        status: form.status,
-        date_of_death: form.death_date,
-        photo: form.profileImage,
-        profession: form.profession,
-        gender: form.gender,
-        same_vamsha_status: form.vansha_status,
-      });
+      if (form.id) {
+        const response = await axios.post(
+          `https://gautamfamily.org.np/people/${form.id}`,
+          {
+            name: form.name,
+            name_in_nepali: form.name_in_nepali,
+            pusta_number: form.pusta_number,
+            contact_details: JSON.stringify(form.contact),
+            father_name: form.father_name,
+            father_dob: form.father_dob,
+            mother: form.mother_name,
+            date_of_birth: form.dob,
+            status: form.status,
+            date_of_death: form.death_date,
+            photo: form.profileImage,
+            profession: form.profession,
+            gender: form.gender,
+            same_vamsha_status: form.vansha_status,
+          }
+        );
+      } else {
+        const response = await axios.post(
+          `https://gautamfamily.org.np/people/`,
+          {
+            name: form.name,
+            name_in_nepali: form.name_in_nepali,
+            pusta_number: form.pusta_number,
+            contact_details: JSON.stringify(form.contact),
+            father_name: form.father_name,
+            father_dob: form.father_dob,
+            mother: form.mother_name,
+            date_of_birth: form.dob,
+            status: form.status,
+            date_of_death: form.death_date,
+            photo: form.profileImage,
+            profession: form.profession,
+            gender: form.gender,
+            same_vamsha_status: form.vansha_status,
+          }
+        );
+      }
+
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");
       onClose();
+      window.location.reload();
     } catch (error) {
       console.error("Error saving data:", error);
       Swal.fire({
@@ -288,9 +326,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </label>
               <input
                 type="text"
-                name="username"
+                name="name"
                 required
-                value={form.username}
+                value={form.name}
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your name (in English)"
@@ -310,8 +348,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </label>
               <input
                 type="text"
-                name="usernameNepali"
-                value={form.usernameNepali}
+                name="name_in_nepali"
+                value={form.name_in_nepali}
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your name (in Nepali)"
@@ -474,8 +512,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="email"
                 name="email"
-                value={form.email}
-                onChange={handleChange}
+                value={form.contact?.email || ""}
+                onChange={handleContactChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter email address"
               />
@@ -549,11 +587,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 EditFormModal.propTypes = {
   formData: PropTypes.shape({
     id: PropTypes.number,
-    username: PropTypes.string,
-    gender: PropTypes.string,
-    dob: PropTypes.string,
+    name: PropTypes.string,
+    name_in_nepali: PropTypes.string,
+    gender: PropTypes.bool,
+    dob: PropTypes.date,
     status: PropTypes.string,
-    death_date: PropTypes.string,
+    death_date: PropTypes.date,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,
     email: PropTypes.string,

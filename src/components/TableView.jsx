@@ -520,7 +520,8 @@ const TableView = ({ isAdmin = true }) => {
         <EditFormModal
           formData={{
             profileImage: selectedRow.photo || "",
-            username: selectedRow.name || "",
+            name: selectedRow.name || "",
+            name_in_nepali: selectedRow.name_in_nepali || "",
             pusta_number: selectedRow.pusta_number || "",
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
@@ -546,6 +547,7 @@ const TableView = ({ isAdmin = true }) => {
       {showInfoPopup && (
         <FamilyTreeModal
           familyData={{
+            id : selectedRow.id || "",
             profileImage: selectedRow.photo || "",
             username: selectedRow.name || "",
             pusta_number: selectedRow.pusta_number || "",
