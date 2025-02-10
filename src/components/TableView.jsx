@@ -67,6 +67,9 @@ const TableView = ({ isAdmin = true }) => {
     }
   };
 
+  const sortedData = [...data].sort((a, b) => Number(a.id) - Number(b.id));
+  const availableId = sortedData.length > 0 ? sortedData[0].id : null;
+
   const offset = currentPage * rowsPerPage;
   const currentRows = data.slice(offset, offset + rowsPerPage);
 
@@ -212,7 +215,9 @@ const TableView = ({ isAdmin = true }) => {
       <ToggleView
         isTableView={isTableView}
         toggleView={() => setIsTableView(!isTableView)}
+        availableId={availableId}
       />
+
       <div className="table-view-filters p-4">
         <div className="flex items-center justify-between gap-4">
           {/* Search Input */}

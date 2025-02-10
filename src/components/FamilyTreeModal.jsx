@@ -16,8 +16,8 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
     profession,
     gender,
     photo_url,
-    father,
-    mother,
+    father_name,
+    mother_name,
     profileImage,
   } = familyData;
 
@@ -117,10 +117,10 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
               <div>
                 <h3 className="text-lg font-semibold mb-2">Family Relations</h3>
                 <p>
-                  <strong>Father:</strong> {father || "N/A"}
+                  <strong>Father:</strong> {father_name || "N/A"}
                 </p>
                 <p>
-                  <strong>Mother:</strong> {mother || "N/A"}
+                  <strong>Mother:</strong> {mother_name || "N/A"}
                 </p>
               </div>
             </div>

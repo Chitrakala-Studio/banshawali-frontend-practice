@@ -1,15 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const ToggleView = ({ isTableView, toggleView }) => {
+const ToggleView = ({ isTableView, toggleView, availableId }) => {
   const navigate = useNavigate();
 
   const handleToggle = () => {
     toggleView();
-    // If it's in table view, navigate to "/1", otherwise navigate to "/"
-    navigate(isTableView ? "/1" : "/");
+    if (isTableView && availableId) {
+      navigate(`/${availableId}`);
+    } else {
+      navigate("/");
+    }
   };
-
   return (
     <div className="absolute top-4 left-4 z-50">
       <button

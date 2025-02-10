@@ -42,7 +42,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `https://gautamfamily.org.np/people/${formData.id}`
+        `http://localhost:8080/user/${formData.id}`
       );
       setForm(response.data);
       setLoading(false);
@@ -173,7 +173,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post(`https://gautamfamily.org.np/people/`, {
+      const response = await axios.post(`http://127.0.0.1:8000/people/`, {
         name: form.username,
         name_in_nepali: form.username,
         pusta_number: form.pusta_number,
