@@ -66,8 +66,7 @@ const TableView = ({ isAdmin = true }) => {
       console.error("Fetch error:", error);
     }
   };
-  
-  
+
   const offset = currentPage * rowsPerPage;
   const currentRows = data.slice(offset, offset + rowsPerPage);
 
@@ -88,7 +87,7 @@ const TableView = ({ isAdmin = true }) => {
   const handleSave = async (updatedRow) => {
     try {
       await axios.put(`${API_URL}/data/${updatedRow.id}`, updatedRow);
-      fetchData(); // Refresh the data after update
+      fetchData();
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating data:", error);
@@ -97,8 +96,8 @@ const TableView = ({ isAdmin = true }) => {
 
   const handleSaveNew = async (newData) => {
     try {
-      await axios.post(`${API_URL}/data`, newData);
-      fetchData(); // Refresh the data after adding
+      await axios.post(`${API_URL}/people/`, newData);
+      fetchData();
       setIsAdding(false);
     } catch (error) {
       console.error("Error adding data:", error);
@@ -122,16 +121,16 @@ const TableView = ({ isAdmin = true }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`${API_URL}/data/${row.id}`);
-          fetchData(); // Refresh after deletion
+          await axios.delete(`${API_URL}/people/${row.id}/`);
+          fetchData();
           Swal.fire("Deleted!", `${row.name} has been deleted.`, "success");
         } catch (error) {
           console.error("Error deleting data:", error);
+          Swal.fire("Error!", "Failed to delete record.", "error");
         }
       }
     });
   };
-
   const handleSuggestionClick = () => {
     Swal.fire({
       title: "Submit Suggestion",
@@ -481,11 +480,11 @@ const TableView = ({ isAdmin = true }) => {
                 setRowsPerPage(parseInt(e.target.value, 10));
               }}
             >
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
               <option value={5}>5</option>
+              <option value={8}>8</option>
+              <option value={10}>10</option>
+              <option value={12}>12</option>
+              <option value={15}>15</option>
             </select>
             <span> Rows</span>
           </div>
