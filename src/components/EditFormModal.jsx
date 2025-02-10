@@ -19,9 +19,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     mother_dob: formData.mother_dob || "",
     vansha_status: formData.vansha_status || "",
     contact: {
-      email: formData.email || "",
-      phone: formData.phone || "",
-      address: formData.address || "",
+      email: formData.contact.email || "",
+      phone: formData.contact.phone || "",
+      address: formData.contact.address || "",
     },
     profession: formData.profession || "",
     profileImage: formData.profileImage || "",
@@ -474,7 +474,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="email"
                 name="email"
-                value={form.email}
+                value={form.contact?.email || ""}
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter email address"
