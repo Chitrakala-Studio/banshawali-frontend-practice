@@ -519,6 +519,7 @@ const TableView = ({ isAdmin = true }) => {
       {isEditing && (
         <EditFormModal
           formData={{
+            id: selectedRow.id || "",
             profileImage: selectedRow.photo || "",
             name: selectedRow.name || "",
             name_in_nepali: selectedRow.name_in_nepali || "",

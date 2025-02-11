@@ -179,68 +179,50 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setShowMotherSuggestions(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      setLoading(true);
-      if (form.id) {
-        const response = await axios.post(
-          `https://gautamfamily.org.np/people/${form.id}`,
-          {
-            name: form.name,
-            name_in_nepali: form.name_in_nepali,
-            pusta_number: form.pusta_number,
-            contact_details: JSON.stringify(form.contact),
-            father_name: form.father_name,
-            father_dob: form.father_dob,
-            mother: form.mother_name,
-            date_of_birth: form.dob,
-            status: form.status,
-            date_of_death: form.death_date,
-            photo: form.profileImage,
-            profession: form.profession,
-            gender: form.gender,
-            same_vamsha_status: form.vansha_status,
-          }
-        );
-      } else {
-        const response = await axios.post(
-          `https://gautamfamily.org.np/people/`,
-          {
-            name: form.name,
-            name_in_nepali: form.name_in_nepali,
-            pusta_number: form.pusta_number,
-            contact_details: JSON.stringify(form.contact),
-            father_name: form.father_name,
-            father_dob: form.father_dob,
-            mother: form.mother_name,
-            date_of_birth: form.dob,
-            status: form.status,
-            date_of_death: form.death_date,
-            photo: form.profileImage,
-            profession: form.profession,
-            gender: form.gender,
-            same_vamsha_status: form.vansha_status,
-          }
-        );
-      }
+  if (loading) return; // Prevent double execution
 
-      onSave(response.data);
-      Swal.fire("Saved!", "Your changes have been saved.", "success");
-      onClose();
-      window.location.reload();
-    } catch (error) {
-      console.error("Error saving data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Failed to save",
-        text: error.response?.data?.message || "Something went wrong!",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true); // Disable button and prevent multiple submissions
+  try {
+    const payload = {
+      name: form.name,
+      name_in_nepali: form.name_in_nepali,
+      pusta_number: form.pusta_number,
+      contact_details: JSON.stringify(form.contact),
+      father_name: form.father_name,
+      father_dob: form.father_dob,
+      mother: form.mother_name,
+      date_of_birth: form.dob,
+      status: form.status,
+      date_of_death: form.death_date,
+      photo: form.profileImage,
+      profession: form.profession,
+      gender: form.gender,
+      same_vamsha_status: form.vansha_status,
+    };
+
+    const response = form.id
+      ? await axios.put(`https://gautamfamily.org.np/people/${form.id}/`, payload)
+      : await axios.post(`https://gautamfamily.org.np/people/`, payload);
+
+    onSave(response.data);
+    Swal.fire("Saved!", "Your changes have been saved.", "success");
+    onClose();
+    window.location.reload();
+  } catch (error) {
+    console.error("Error saving data:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Failed to save",
+      text: error.response?.data?.message || "Something went wrong!",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
@@ -570,12 +552,16 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           </div>
 
           {/* Save Button */}
+          
+
+
           <div className="flex justify-center w-full">
-            <button
-              type="submit"
-              className="mb-4 bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className={`mt-4 bg-blue-500 text-white px-4 py-2 rounded-md ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              Save Changes
+              {loading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>
