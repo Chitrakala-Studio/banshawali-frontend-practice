@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 
 const Compare = () => {
   const { id } = useParams();
-  
+
   const [leftPerson, setLeftPerson] = useState({
     name: "",
     pusta_number: "",
@@ -85,12 +85,16 @@ const Compare = () => {
       setIsLoading(true);
       try {
         // Replace with your API endpoint for fetching the person's details
-        const response = await axios.get(`https://gautamfamily.org.np/people/${id}`);
+        const response = await axios.get(
+          `https://gautamfamily.org.np/people/${id}`
+        );
         console.log(response.data);
         setLeftPerson(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setApiError("Failed to fetch left person's data. Please try again later.");
+        setApiError(
+          "Failed to fetch left person's data. Please try again later."
+        );
         Swal.fire({
           title: "Error",
           text: "There was an issue fetching the left person's data.",
@@ -105,7 +109,7 @@ const Compare = () => {
     fetchLeftPersonData();
   }, [id]);
 
-    const handleGenerateFamilyTree = async () => {
+  const handleGenerateFamilyTree = async () => {
     //   setIsLoading(true); // Set loading to true when the button is clicked
     //   setApiError("");
     //   try {
@@ -115,28 +119,28 @@ const Compare = () => {
     //   }
     //     setFamilyTreeData(response.data);
 
-        Swal.fire({
-          title: "Family Tree being Generated!",
-          icon: "success",
-          confirmButtonText: "Okay",
-        }).then(() => {
-          setIsLeftConfirmed(false);
-          setIsRightConfirmed(false);
-        });
-      }
-      // } catch (error) {
-      //   // Handle error
-      //   console.error("Error response:", error.response);  // This will help you debug the API error
-      //   setApiError("Failed to generate family tree. Please try again later.");
-      //   Swal.fire({
-      //     title: "Error",
-      //     text: "There was an issue generating the family tree. Please try again.",
-      //     icon: "error",
-      //     confirmButtonText: "Okay",
-      //   });
-      // } finally {
-      //   setIsLoading(false); // Set loading to false after the request completes
-      // }
+    Swal.fire({
+      title: "Family Tree being Generated!",
+      icon: "success",
+      confirmButtonText: "Okay",
+    }).then(() => {
+      setIsLeftConfirmed(false);
+      setIsRightConfirmed(false);
+    });
+  };
+  // } catch (error) {
+  //   // Handle error
+  //   console.error("Error response:", error.response);  // This will help you debug the API error
+  //   setApiError("Failed to generate family tree. Please try again later.");
+  //   Swal.fire({
+  //     title: "Error",
+  //     text: "There was an issue generating the family tree. Please try again.",
+  //     icon: "error",
+  //     confirmButtonText: "Okay",
+  //   });
+  // } finally {
+  //   setIsLoading(false); // Set loading to false after the request completes
+  // }
 
   // };
 
@@ -144,10 +148,11 @@ const Compare = () => {
     <div className="flex min-h-screen bg-gray-100">
       <button
         className="absolute top-4 left-4 bg-purple-700 text-white px-4 py-2 rounded-full"
-        onClick={() => navigate("/")}
+        onClick={() => navigate(`/${id}`)}
       >
-        Go Back to Table
+        Go Back to Card
       </button>
+
       <div className="flex flex-col items-center px-4 py-6 h-full w-full overflow-y-auto">
         {/* Heading */}
         <h1 className="text-center text-2xl md:text-3xl font-bold mb-6">
@@ -345,9 +350,7 @@ const Compare = () => {
           >
             {isLoading ? "Generating..." : "Generate Family Tree"}
           </button>
-          {apiError && (
-            <p className="text-red-500 text-sm mt-4">{apiError}</p>
-          )}
+          {apiError && <p className="text-red-500 text-sm mt-4">{apiError}</p>}
           {/* Display Family Tree if available
           {familyTreeData && (
             <div className="mt-6">
@@ -355,7 +358,6 @@ const Compare = () => {
               <pre>{JSON.stringify(familyTreeData, null, 2)}</pre>
             </div>
           )} */}
-
         </div>
       </div>
     </div>

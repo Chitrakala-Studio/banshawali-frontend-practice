@@ -70,9 +70,6 @@ const TableView = ({ isAdmin = true }) => {
   const sortedData = [...data].sort((a, b) => Number(a.id) - Number(b.id));
   const availableId = sortedData.length > 0 ? sortedData[0].id : null;
 
-  const offset = currentPage * rowsPerPage;
-  const currentRows = data.slice(offset, offset + rowsPerPage);
-
   const handlePageChange = ({ selected }) => {
     setCurrentPage(selected);
   };
@@ -210,6 +207,9 @@ const TableView = ({ isAdmin = true }) => {
     return false;
   });
 
+  const offset = currentPage * rowsPerPage;
+  const currentRows = filteredData.slice(offset, offset + rowsPerPage);
+
   return (
     <div className="table-view h-full ml-0 lg:ml-64 transition-all duration-300">
       <ToggleView
@@ -237,8 +237,8 @@ const TableView = ({ isAdmin = true }) => {
               onChange={(e) => setSearchBy(e.target.value)}
             >
               <option value="name">Name</option>
-              <option value="mother_name">Mother's Name</option>
-              <option value="father_name">Father's Name</option>
+              {/* <option value="mother_name">Mother's Name</option>
+              <option value="father_name">Father's Name</option> */}
               <option value="pusta_no">Pusta No.</option>
               <option value="phone">Phone Number</option>
               <option value="email">Email</option>
@@ -506,7 +506,7 @@ const TableView = ({ isAdmin = true }) => {
               </button>
             }
             breakLabel={"..."}
-            pageCount={Math.ceil(data.length / rowsPerPage)}
+            pageCount={Math.ceil(filteredData.length / rowsPerPage)} // Updated here
             onPageChange={handlePageChange}
             containerClassName={"flex items-center space-x-2"}
             activeClassName={
@@ -515,6 +515,14 @@ const TableView = ({ isAdmin = true }) => {
           />
         </div>
       </div>
+
+      {isAdding && (
+        <EditFormModal
+          formData={formData}
+          onClose={() => setIsAdding(false)}
+          onSave={handleSaveNew}
+        />
+      )}
 
       {isEditing && (
         <EditFormModal
@@ -548,12 +556,13 @@ const TableView = ({ isAdmin = true }) => {
       {showInfoPopup && (
         <FamilyTreeModal
           familyData={{
-            id : selectedRow.id || "",
+            id: selectedRow.id || "",
             profileImage: selectedRow.photo || "",
-            username: selectedRow.name || "",
+            name: selectedRow.name || "",
+            name_in_nepali: selectedRow.name_in_nepali || "",
             pusta_number: selectedRow.pusta_number || "",
-            father: selectedRow.father?.name || "",
-            mother: selectedRow.mother?.name || "",
+            father_name: selectedRow.father?.name || "",
+            mother_name: selectedRow.mother?.name || "",
             date_of_birth: selectedRow.date_of_birth || "",
             status: selectedRow.status || "Alive",
             profession: selectedRow.profession || "",
@@ -569,14 +578,6 @@ const TableView = ({ isAdmin = true }) => {
               : "",
           }}
           onClose={() => setShowInfoPopup(false)}
-        />
-      )}
-
-      {isAdding && (
-        <EditFormModal
-          formData={formData}
-          onClose={() => setIsAdding(false)}
-          onSave={handleSaveNew}
         />
       )}
     </div>

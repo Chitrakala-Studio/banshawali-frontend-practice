@@ -16,7 +16,6 @@ const CardView = () => {
   const containerRef = useRef(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
-  const isMobile = window.innerWidth < 764;
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isTableView, setIsTableView] = useState(false);
@@ -26,10 +25,20 @@ const CardView = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 764);
+
   const initialIndex = data.findIndex((item) => item.id === parseInt(id));
   const [currentIndex, setCurrentIndex] = useState(
     initialIndex !== -1 ? initialIndex : 0
   );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 764);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     // Simulating an API call
@@ -127,7 +136,9 @@ const CardView = () => {
 
   return (
     <>
-      <ToggleView isTableView={isTableView} toggleView={toggleView} />
+      {!isMobile && (
+        <ToggleView isTableView={isTableView} toggleView={toggleView} />
+      )}
       <div className="absolute w-full h-full lg:w-2/5 lg:h-[100%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
         {/* Navigation Buttons */}
         <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} />
