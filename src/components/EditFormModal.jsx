@@ -34,6 +34,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState([]);
+
+  setFamilyMembers(formData.familyData);
 
   useEffect(() => {
     setForm(formData);
@@ -572,10 +575,11 @@ const handleSubmit = async (e) => {
 
 EditFormModal.propTypes = {
   formData: PropTypes.shape({
+    familyData: PropTypes.array,
     id: PropTypes.number,
     name: PropTypes.string,
     name_in_nepali: PropTypes.string,
-    gender: PropTypes.bool,
+    gender: PropTypes.string,
     dob: PropTypes.date,
     status: PropTypes.string,
     death_date: PropTypes.date,
