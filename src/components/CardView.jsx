@@ -245,6 +245,7 @@ const CardView = () => {
             <FooterButtons
               id={id}
               onGenerateFamilyTree={handleFooterGenerate}
+              infoPopup={infoPopup}
             />
           </div>
         </div>

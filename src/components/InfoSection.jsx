@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 
 const InfoSection = ({ person }) => {
   return (
+    <div className="pb-12 bg-black">
     <div className="w-full bg-black/90 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
       {/* Personal Information Box */}
       <div className="bg-gray-700 p-4 rounded-lg">
@@ -141,6 +142,7 @@ const InfoSection = ({ person }) => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
