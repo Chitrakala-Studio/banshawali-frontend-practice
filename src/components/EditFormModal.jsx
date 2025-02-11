@@ -36,12 +36,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
 
-  setFamilyMembers(formData.familyData);
-  const [familyMembers, setFamilyMembers] = useState([]);
+  // setFamilyMembers(formData.familyData);
+  // // const [familyMembers, setFamilyMembers] = useState([]);
 
-  useEffect(() => {
-    setForm(formData);
-  }, [formData]);
+  // useEffect(() => {
+  //   setForm(formData);
+  // }, [formData]);
 
   const fetchUserDetails = async () => {
     try {
@@ -57,11 +57,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   };
 
-  useEffect(() => {
-    if (formData.id) {
-      fetchUserDetails();
-    }
-  }, [formData.id]);
+  // useEffect(() => {
+  //   if (formData.id) {
+  //     fetchUserDetails();
+  //   }
+  // }, [formData.id]);
 
   const fetchFamilyMembers = async () => {
     try {
@@ -73,9 +73,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   };
 
-  useEffect(() => {
-    fetchFamilyMembers().then((data) => setFamilyMembers(data));
-  }, []);
+  // useEffect(() => {
+  //   fetchFamilyMembers().then((data) => setFamilyMembers(data));
+  // }, []);
 
   const fetchFatherSuggestions = (parentGeneration, query) => {
     return new Promise((resolve) => {
@@ -92,7 +92,50 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       }, 500);
     });
   };
-
+  useEffect(() => {
+    // Update form only if it has changed
+    setForm((prevForm) =>
+      JSON.stringify(prevForm) !== JSON.stringify(formData) ? formData : prevForm
+    );
+  
+    // Update family members only if new data is available
+    if (formData.familyData) {
+      setFamilyMembers(formData.familyData);
+    }
+  
+    // Fetch user details only if formData has an ID
+    if (formData.id) {
+      const fetchUserDetails = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.get(`http://localhost:8080/user/${formData.id}`);
+          setForm(response.data);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchUserDetails();
+    }
+  
+    // Fetch family members only if it's not already set
+    if (!familyMembers.length) {
+      const fetchFamilyMembers = async () => {
+        try {
+          const response = await fetch(`https://gautamfamily.org.np/people/`);
+          const data = await response.json();
+          setFamilyMembers(data);
+        } catch (error) {
+          console.error("Error fetching family members:", error);
+        }
+      };
+  
+      fetchFamilyMembers();
+    }
+  }, [formData, familyMembers.length]);
+  
   const fetchMotherSuggestions = (parentGeneration, query) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -632,7 +675,7 @@ EditFormModal.propTypes = {
     name: PropTypes.string,
     name_in_nepali: PropTypes.string,
     gender: PropTypes.string,
-    dob: PropTypes.date,
+    dob: PropTypes.string,
     status: PropTypes.string,
     death_date: PropTypes.string,
     father_name: PropTypes.string,
