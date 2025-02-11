@@ -164,6 +164,7 @@ const TableView = ({ isAdmin = true }) => {
 
   const filteredData = data.filter((row) => {
     if (!searchQuery) return true; // No query, return all rows
+
     if (
       searchBy === "name" &&
       row.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -190,17 +191,20 @@ const TableView = ({ isAdmin = true }) => {
     ) {
       return true;
     }
+    // Updated conditions for phone and email:
     if (
       searchBy === "phone" &&
-      row.phone_number &&
-      row.phone_number.includes(searchQuery)
+      row.contact_details?.phone &&
+      row.contact_details.phone.includes(searchQuery)
     ) {
       return true;
     }
     if (
       searchBy === "email" &&
-      row.email &&
-      row.email.toLowerCase().includes(searchQuery.toLowerCase())
+      row.contact_details?.email &&
+      row.contact_details.email
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
     ) {
       return true;
     }
