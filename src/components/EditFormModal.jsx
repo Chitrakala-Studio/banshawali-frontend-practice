@@ -37,6 +37,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [familyMembers, setFamilyMembers] = useState([]);
 
   setFamilyMembers(formData.familyData);
+  const [familyMembers, setFamilyMembers] = useState([]);
 
   useEffect(() => {
     setForm(formData);
@@ -62,31 +63,52 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   }, [formData.id]);
 
-  const fetchFatherSuggestions = (adjustedPustaNumber, query) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const suggestions = familyMembers.filter(
-          (member) =>
-            member.pusta_number === adjustedPustaNumber.toString() &&
-            member.name.toLowerCase().includes(query.toLowerCase())
-        );
-        resolve(suggestions);
-      }, 500); // Simulate API delay
-    });
+  const fetchFamilyMembers = async () => {
+    try {
+      const response = await fetch(`https://gautamfamily.org.np/people/`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching family members:", error);
+    }
   };
 
-  const fetchMotherSuggestions = (adjustedPustaNumber, query) => {
+  useEffect(() => {
+    fetchFamilyMembers().then((data) => setFamilyMembers(data));
+  }, []);
+
+  const fetchFatherSuggestions = (parentGeneration, query) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const suggestions = familyMembers.filter(
-          (member) =>
-            member.pusta_number === adjustedPustaNumber.toString() &&
-            member.mother_name.toLowerCase().includes(query.toLowerCase())
-        );
+        const suggestions = familyMembers.filter((member) => {
+          const isRightGeneration =
+            member.pusta_number === parentGeneration.toString();
+          const matchesQuery =
+            query.trim() === "" ||
+            member.name.toLowerCase().includes(query.toLowerCase());
+          return isRightGeneration && matchesQuery;
+        });
         resolve(suggestions);
       }, 500);
     });
   };
+
+  const fetchMotherSuggestions = (parentGeneration, query) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const suggestions = familyMembers.filter((member) => {
+          const isRightGeneration =
+            member.pusta_number === parentGeneration.toString();
+          const matchesQuery =
+            query.trim() === "" ||
+            member.name.toLowerCase().includes(query.toLowerCase());
+          return isRightGeneration && matchesQuery;
+        });
+        resolve(suggestions);
+      }, 500);
+    });
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -97,17 +119,20 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       }));
     }
   };
+
+  // Use this handler to update the nested contact object
   const handleContactChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
       contact: {
-        ...prev.contact, // Preserve other values
-        [name]: value, // Update only the changed field
+        ...prev.contact,
+        [name]: value,
       },
     }));
   };
 
+  // This handler updates other form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -115,21 +140,28 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       [name]: value,
     }));
 
-    if (name === "father_name" && value.trim()) {
-      const adjustedPustaNumber = form.pusta_number - 1;
-      fetchSuggestions(adjustedPustaNumber, value);
-    } else if (name === "father_name" && !value.trim()) {
-      setSuggestions([]);
+    const parentGeneration = form.pusta_number - 1;
+
+    if (name === "father_name") {
+      fetchFatherSuggestions(parentGeneration, value)
+        .then((results) => {
+          setSuggestions(results);
+          setShowSuggestions(true);
+        })
+        .catch((error) =>
+          console.error("Error fetching father suggestions:", error)
+        );
     }
 
-    if (name === "mother_name" && value.trim()) {
-      const adjustedPustaNumber = form.pusta_number - 1;
-      fetchMotherSuggestions(adjustedPustaNumber, value).then((results) => {
-        setMotherSuggestions(results);
-        setShowMotherSuggestions(true);
-      });
-    } else if (name === "mother_name" && !value.trim()) {
-      setMotherSuggestions([]);
+    if (name === "mother_name") {
+      fetchMotherSuggestions(parentGeneration, value)
+        .then((results) => {
+          setMotherSuggestions(results);
+          setShowMotherSuggestions(true);
+        })
+        .catch((error) =>
+          console.error("Error fetching mother suggestions:", error)
+        );
     }
   };
 
@@ -182,50 +214,53 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setShowMotherSuggestions(false);
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (loading) return; // Prevent double execution
+    if (loading) return;
 
-  setLoading(true); // Disable button and prevent multiple submissions
-  try {
-    const payload = {
-      name: form.name,
-      name_in_nepali: form.name_in_nepali,
-      pusta_number: form.pusta_number,
-      contact_details: JSON.stringify(form.contact),
-      father_name: form.father_name,
-      father_dob: form.father_dob,
-      mother: form.mother_name,
-      date_of_birth: form.dob,
-      status: form.status,
-      date_of_death: form.death_date,
-      photo: form.profileImage,
-      profession: form.profession,
-      gender: form.gender,
-      same_vamsha_status: form.vansha_status,
-    };
+    setLoading(true);
+    try {
+      const payload = {
+        name: form.name,
+        name_in_nepali: form.name_in_nepali,
+        pusta_number: form.pusta_number,
+        contact_details: form.contact,
+        father_name: form.father_name,
+        father_dob: form.father_dob,
+        mother_name: form.mother_name, // Use 'mother_name' for clarity
+        mother_dob: form.mother_dob, // Added mother's date of birth
+        date_of_birth: form.dob,
+        status: form.status,
+        date_of_death: form.death_date,
+        photo: form.profileImage,
+        profession: form.profession,
+        gender: form.gender,
+        same_vamsha_status: form.vansha_status,
+      };
 
-    const response = form.id
-      ? await axios.put(`https://gautamfamily.org.np/people/${form.id}/`, payload)
-      : await axios.post(`https://gautamfamily.org.np/people/`, payload);
+      const response = form.id
+        ? await axios.put(
+            `https://gautamfamily.org.np/people/${form.id}/`,
+            payload
+          )
+        : await axios.post(`https://gautamfamily.org.np/people/`, payload);
 
-    onSave(response.data);
-    Swal.fire("Saved!", "Your changes have been saved.", "success");
-    onClose();
-    window.location.reload();
-  } catch (error) {
-    console.error("Error saving data:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Failed to save",
-      text: error.response?.data?.message || "Something went wrong!",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
+      onSave(response.data);
+      Swal.fire("Saved!", "Your changes have been saved.", "success");
+      onClose();
+      window.location.reload();
+    } catch (error) {
+      console.error("Error saving data:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to save",
+        text: error.response?.data?.message || "Something went wrong!",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
@@ -234,7 +269,7 @@ const handleSubmit = async (e) => {
         <div className="absolute top-2 right-2">
           <button
             onClick={onClose}
-            className="sticky top-2 right-2 text-white font-bold text-2xl hover:text-red-500 "
+            className="sticky top-2 right-2 text-white font-bold text-2xl hover:text-red-500"
           >
             {/* Circle with a cross */}
             <svg
@@ -256,10 +291,9 @@ const handleSubmit = async (e) => {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 flex flex-col h-full w-full items-center "
+          className="space-y-4 flex flex-col h-full w-full items-center"
         >
           {/* Profile Picture */}
-
           <div className="flex justify-center mt-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
               <label
@@ -270,7 +304,12 @@ const handleSubmit = async (e) => {
                   <img
                     src={form.profileImage}
                     alt="Profile"
-                    className="w-full h-full object-cover" // This ensures the image fills the container, maintaining aspect ratio
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
                   />
                 ) : (
                   <span className="text-3xl text-gray-500">+</span>
@@ -389,7 +428,7 @@ const handleSubmit = async (e) => {
 
             {form.status === "Dead" && (
               <div className="w-full">
-                <label className="block text-sm  pt-3 font-medium text-[#7091E6]">
+                <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                   Date of Death
                 </label>
                 <input
@@ -409,20 +448,26 @@ const handleSubmit = async (e) => {
               Family Information
             </h3>
 
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
-                Father's Name
-              </label>
-              <input
-                type="string"
-                name="father_name"
-                value={form.father_name}
-                onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter father's name"
-              />
-            </div>
-
+            <input
+              type="text"
+              name="father_name"
+              value={form.father_name}
+              onChange={handleChange}
+              onFocus={() => {
+                const parentGeneration = form.pusta_number - 1;
+                // Fetch suggestions with an empty query to display all names from the parent generation
+                fetchFatherSuggestions(parentGeneration, "")
+                  .then((results) => {
+                    setSuggestions(results);
+                    setShowSuggestions(true);
+                  })
+                  .catch((error) =>
+                    console.error("Error fetching father suggestions:", error)
+                  );
+              }}
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Enter father's name"
+            />
             {showSuggestions && suggestions.length > 0 && (
               <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
                 {suggestions.map((suggestion, index) => (
@@ -431,25 +476,32 @@ const handleSubmit = async (e) => {
                     onClick={() => handleSuggestionClick(suggestion)}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion.name} ({suggestion.father_dob})
+                    {suggestion.name}
+                    {suggestion.father_dob && `(${suggestion.father_dob})`}
                   </li>
                 ))}
               </ul>
             )}
 
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
-                Mother's Name
-              </label>
-              <input
-                type="string"
-                name="mother_name"
-                value={form.mother_name}
-                onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter mother's name"
-              />
-            </div>
+            <input
+              type="text"
+              name="mother_name"
+              value={form.mother_name}
+              onChange={handleChange}
+              onFocus={() => {
+                const parentGeneration = form.pusta_number - 1;
+                fetchMotherSuggestions(parentGeneration, "")
+                  .then((results) => {
+                    setMotherSuggestions(results);
+                    setShowMotherSuggestions(true);
+                  })
+                  .catch((error) =>
+                    console.error("Error fetching mother suggestions:", error)
+                  );
+              }}
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Enter mother's name"
+            />
 
             {showMotherSuggestions && motherSuggestions.length > 0 && (
               <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
@@ -459,7 +511,8 @@ const handleSubmit = async (e) => {
                     onClick={() => handleMotherSuggestionClick(suggestion)}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion.mother_name} ({suggestion.mother_dob})
+                    {suggestion.mother_name}{" "}
+                    {suggestion.mother_dob && `(${suggestion.mother_dob})`}
                   </li>
                 ))}
               </ul>
@@ -511,8 +564,8 @@ const handleSubmit = async (e) => {
               <input
                 type="string"
                 name="phone"
-                value={form.phone}
-                onChange={handleChange}
+                value={form.contact?.phone || ""}
+                onChange={handleContactChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter phone number"
               />
@@ -525,8 +578,8 @@ const handleSubmit = async (e) => {
               <input
                 type="text"
                 name="address"
-                value={form.address}
-                onChange={handleChange}
+                value={form.contact?.address || ""}
+                onChange={handleContactChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter address"
               />
@@ -555,14 +608,13 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Save Button */}
-          
-
-
           <div className="flex justify-center w-full">
-            <button 
-              type="submit" 
-              disabled={loading} 
-              className={`mt-4 bg-blue-500 text-white px-4 py-2 rounded-md ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`mt-4 bg-blue-500 text-white px-4 py-2 rounded-md ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               {loading ? "Saving..." : "Save"}
             </button>
@@ -582,13 +634,15 @@ EditFormModal.propTypes = {
     gender: PropTypes.string,
     dob: PropTypes.date,
     status: PropTypes.string,
-    death_date: PropTypes.date,
+    death_date: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,
-    email: PropTypes.string,
-    phone: PropTypes.string,
-    address: PropTypes.string,
     profession: PropTypes.string,
+    contact_details: PropTypes.shape({
+      email: PropTypes.string,
+      phone: PropTypes.string,
+      address: PropTypes.string,
+    }),
   }).isRequired,
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
