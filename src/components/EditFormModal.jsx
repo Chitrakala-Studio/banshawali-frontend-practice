@@ -38,47 +38,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
 
-  // setFamilyMembers(formData.familyData);
-  // // const [familyMembers, setFamilyMembers] = useState([]);
-
-  // useEffect(() => {
-  //   setForm(formData);
-  // }, [formData]);
-
-  const fetchUserDetails = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `http://localhost:8080/user/${formData.id}`
-      );
-      setForm(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      setLoading(false);
-    }
-  };
-
-  // useEffect(() => {
-  //   if (formData.id) {
-  //     fetchUserDetails();
-  //   }
-  // }, [formData.id]);
-
-  const fetchFamilyMembers = async () => {
-    try {
-      const response = await fetch(`https://gautamfamily.org.np/people/`);
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching family members:", error);
-    }
-  };
-
-  // useEffect(() => {
-  //   fetchFamilyMembers().then((data) => setFamilyMembers(data));
-  // }, []);
-
+  
   const handleSuggestionClick = (suggestion) => {
     setForm((prev) => ({
       ...prev,
@@ -156,7 +116,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         try {
           setLoading(true);
           const response = await axios.get(
-            `http://localhost:8080/user/${formData.id}`
+            `https://gautamfamily.org.np/people/${formData.id}`
           );
           setForm(response.data);
         } catch (error) {
@@ -269,16 +229,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   };
 
-  const fetchSuggestions = async (adjustedPustaNumber, query) => {
-    try {
-      const results = await fetchFatherSuggestions(adjustedPustaNumber, query);
-      setSuggestions(results);
-      setShowSuggestions(true);
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-      setSuggestions([]);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -293,9 +243,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         pusta_number: form.pusta_number,
         contact_details: form.contact,
         father_name: form.father_id ? form.father_id : form.father_name,
-        father_dob: form.father_dob,
         mother_name: form.mother_id ? form.mother_id : form.mother_name,
-        mother_dob: form.mother_dob,
         date_of_birth: form.dob,
         status: form.status,
         date_of_death: form.death_date,
