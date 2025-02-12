@@ -82,8 +82,14 @@ const CardView = () => {
     }
   };
 
-  const handleInfoClick = (family) => {
-    setInfoPopup(infoPopup === family.name ? null : family.name);
+  const handleToggleInfo = (family) => {
+    if (infoPopup === family.name) {
+      setInfoPopup(null);
+      setIsExpanded(false);
+    } else {
+      setInfoPopup(family.name);
+      setIsExpanded(true);
+    }
   };
   // Scroll to the previous card with circular navigation
   const scrollLeft = () => {
@@ -220,11 +226,11 @@ const CardView = () => {
                     className="pr-4 text-white text-xl"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleInfoClick(data[currentIndex]);
+                      handleToggleInfo(data[currentIndex]);
                     }}
                     onTouchEnd={(e) => {
                       e.stopPropagation();
-                      handleInfoClick(data[currentIndex]);
+                      handleToggleInfo(data[currentIndex]);
                     }}
                   >
                     <div className="expand-button">

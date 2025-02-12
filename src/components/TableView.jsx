@@ -38,16 +38,14 @@ const TableView = ({ isAdmin = true }) => {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({
-    name : "",
-    name_in_nepali : "",
-    pusta_number : "",
-    father_name : "",
-    mother_name : "",
-    dob : "",
-    status : "",
-    profession : "",
-    gender : "Male",
-    vansha_status : "True",
+    username: "",
+    pusta_number: "",
+    father_name: "",
+    mother_name: "",
+    dob: "",
+    status: "Alive",
+    profession: "",
+    gender: "Male",
   });
   const API_URL = "https://gautamfamily.org.np";
 
@@ -533,7 +531,6 @@ const TableView = ({ isAdmin = true }) => {
       {isEditing && (
         <EditFormModal
           formData={{
-            familyData: data,
             id: selectedRow.id || "",
             profileImage: selectedRow.photo || "",
             name: selectedRow.name || "",

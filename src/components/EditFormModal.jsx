@@ -15,8 +15,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     status: formData.status || "",
     death_date: formData.death_date || "",
     father_name: formData.father_name || "",
+    father_id: formData.father_id || null,
     father_dob: formData.father_dob || "",
     mother_name: formData.mother_name || "",
+    mother_id: formData.mother_id || null,
     mother_dob: formData.mother_dob || "",
     vansha_status: formData.vansha_status || "",
     contact: {
@@ -77,6 +79,26 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   //   fetchFamilyMembers().then((data) => setFamilyMembers(data));
   // }, []);
 
+  const handleSuggestionClick = (suggestion) => {
+    setForm((prev) => ({
+      ...prev,
+      father_name: suggestion.name,
+      father_id: suggestion.id,
+      father_dob: suggestion.father_dob,
+    }));
+    setShowSuggestions(false);
+  };
+
+  const handleMotherSuggestionClick = (suggestion) => {
+    setForm((prev) => ({
+      ...prev,
+      mother_name: suggestion.name,
+      mother_id: suggestion.id,
+      mother_dob: suggestion.mother_dob,
+    }));
+    setShowMotherSuggestions(false);
+  };
+
   const fetchFatherSuggestions = (parentGeneration, query) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -95,20 +117,24 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   useEffect(() => {
     // Update form only if it has changed
     setForm((prevForm) =>
-      JSON.stringify(prevForm) !== JSON.stringify(formData) ? formData : prevForm
+      JSON.stringify(prevForm) !== JSON.stringify(formData)
+        ? formData
+        : prevForm
     );
-  
+
     // Update family members only if new data is available
     if (formData.familyData) {
       setFamilyMembers(formData.familyData);
     }
-  
+
     // Fetch user details only if formData has an ID
     if (formData.id) {
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(`http://localhost:8080/user/${formData.id}`);
+          const response = await axios.get(
+            `http://localhost:8080/user/${formData.id}`
+          );
           setForm(response.data);
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -116,10 +142,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           setLoading(false);
         }
       };
-  
+
       fetchUserDetails();
     }
-  
+
     // Fetch family members only if it's not already set
     if (!familyMembers.length) {
       const fetchFamilyMembers = async () => {
@@ -131,11 +157,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           console.error("Error fetching family members:", error);
         }
       };
-  
+
       fetchFamilyMembers();
     }
   }, [formData, familyMembers.length]);
-  
+
   const fetchMotherSuggestions = (parentGeneration, query) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -186,6 +212,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     const parentGeneration = form.pusta_number - 1;
 
     if (name === "father_name") {
+      setForm((prev) => ({
+        ...prev,
+        father_id: null,
+      }));
       fetchFatherSuggestions(parentGeneration, value)
         .then((results) => {
           setSuggestions(results);
@@ -197,6 +227,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
 
     if (name === "mother_name") {
+      setForm((prev) => ({
+        ...prev,
+        mother_id: null,
+      }));
       fetchMotherSuggestions(parentGeneration, value)
         .then((results) => {
           setMotherSuggestions(results);
@@ -239,24 +273,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      father_name: suggestion.name,
-      father_dob: suggestion.father_dob,
-    }));
-    setShowSuggestions(false);
-  };
-
-  const handleMotherSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      mother_name: suggestion.mother_name,
-      mother_dob: suggestion.mother_dob,
-    }));
-    setShowMotherSuggestions(false);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -269,10 +285,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         name_in_nepali: form.name_in_nepali,
         pusta_number: form.pusta_number,
         contact_details: form.contact,
-        father_name: form.father_name,
+        father_name: form.father_id ? form.father_id : form.father_name,
         father_dob: form.father_dob,
-        mother_name: form.mother_name, // Use 'mother_name' for clarity
-        mother_dob: form.mother_dob, // Added mother's date of birth
+        mother_name: form.mother_id ? form.mother_id : form.mother_name,
+        mother_dob: form.mother_dob,
         date_of_birth: form.dob,
         status: form.status,
         date_of_death: form.death_date,
@@ -281,7 +297,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         gender: form.gender,
         same_vamsha_status: form.vansha_status,
       };
-
       const response = form.id
         ? await axios.put(
             `https://gautamfamily.org.np/people/${form.id}/`,
@@ -554,7 +569,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                     onClick={() => handleMotherSuggestionClick(suggestion)}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion.mother_name}{" "}
+                    {suggestion.name}{" "}
                     {suggestion.mother_dob && `(${suggestion.mother_dob})`}
                   </li>
                 ))}
