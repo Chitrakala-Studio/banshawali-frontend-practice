@@ -7,7 +7,6 @@ import {
   FaCloudDownloadAlt,
   FaLightbulb,
   FaRegIdCard,
-  FaSearch,
 } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
 import EditFormModal from "./EditFormModal";
@@ -19,6 +18,7 @@ import ToggleView from "./ToggleView";
 import { useNavigate } from "react-router-dom";
 
 const TableView = ({ isAdmin = true }) => {
+  //const [isAdminLocal, setIsAdminLocal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isTableView, setIsTableView] = useState(true);
@@ -52,6 +52,20 @@ const TableView = ({ isAdmin = true }) => {
   useEffect(() => {
     fetchData();
   }, [searchQuery, searchBy]);
+
+  // useEffect(() => {
+  //   const userStr = localStorage.getItem("user");
+  //   if (userStr) {
+  //     const user = JSON.parse(userStr);
+  //     if (user && user.token) {
+  //       setIsAdminLocal(user.role === "admin");
+  //     } else {
+  //       navigate("/login");
+  //     }
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // }, [navigate]);
 
   const fetchData = async () => {
     try {
@@ -247,14 +261,6 @@ const TableView = ({ isAdmin = true }) => {
               <option value="phone">Phone Number</option>
               <option value="email">Email</option>
             </select>
-
-            <button
-              className="search-button text-white p-3 hover:bg-blue-600 rounded-full flex items-center"
-              onClick={() => console.log("Searching for:", searchQuery)}
-            >
-              <FaSearch className="mr-2" />
-              Search
-            </button>
           </div>
           {isFilterOpen && (
             <div

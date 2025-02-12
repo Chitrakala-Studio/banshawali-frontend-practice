@@ -108,12 +108,35 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           const matchesQuery =
             query.trim() === "" ||
             member.name.toLowerCase().includes(query.toLowerCase());
-          return isRightGeneration && matchesQuery;
+          // Filter to only include male members
+          const isMale =
+            member.gender && member.gender.toLowerCase() === "male";
+          return isRightGeneration && matchesQuery && isMale;
         });
         resolve(suggestions);
       }, 500);
     });
   };
+
+  const fetchMotherSuggestions = (parentGeneration, query) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const suggestions = familyMembers.filter((member) => {
+          const isRightGeneration =
+            member.pusta_number === parentGeneration.toString();
+          const matchesQuery =
+            query.trim() === "" ||
+            member.name.toLowerCase().includes(query.toLowerCase());
+          // Filter to only include female members
+          const isFemale =
+            member.gender && member.gender.toLowerCase() === "female";
+          return isRightGeneration && matchesQuery && isFemale;
+        });
+        resolve(suggestions);
+      }, 500);
+    });
+  };
+
   useEffect(() => {
     // Update form only if it has changed
     setForm((prevForm) =>
@@ -161,22 +184,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       fetchFamilyMembers();
     }
   }, [formData, familyMembers.length]);
-
-  const fetchMotherSuggestions = (parentGeneration, query) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration =
-            member.pusta_number === parentGeneration.toString();
-          const matchesQuery =
-            query.trim() === "" ||
-            member.name.toLowerCase().includes(query.toLowerCase());
-          return isRightGeneration && matchesQuery;
-        });
-        resolve(suggestions);
-      }, 500);
-    });
-  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -307,7 +314,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");
       onClose();
-      window.location.reload();
+      //window.location.reload();
     } catch (error) {
       console.error("Error saving data:", error);
       Swal.fire({
@@ -527,7 +534,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               placeholder="Enter father's name"
             />
             {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
+              <ul
+                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-11/12"
+                style={{ left: "4%" }} // optional: adjust position to center relative to input if needed
+              >
                 {suggestions.map((suggestion, index) => (
                   <li
                     key={index}
@@ -562,14 +572,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             />
 
             {showMotherSuggestions && motherSuggestions.length > 0 && (
-              <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
+              <ul
+                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-11/12"
+                style={{ left: "4%" }} // adjust as needed
+              >
                 {motherSuggestions.map((suggestion, index) => (
                   <li
                     key={index}
                     onClick={() => handleMotherSuggestionClick(suggestion)}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion.name}{" "}
+                    {suggestion.name}
                     {suggestion.mother_dob && `(${suggestion.mother_dob})`}
                   </li>
                 ))}
