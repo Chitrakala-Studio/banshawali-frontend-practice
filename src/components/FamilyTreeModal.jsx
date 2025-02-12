@@ -10,6 +10,7 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
     contact_details = {},
     family_relations = {},
     email,
+    address,
     phone,
     date_of_birth,
     status,
@@ -90,13 +91,7 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
                 </p>
                 <p>
                   <strong>Address:</strong>
-                  {current_address?.street ||
-                  current_address?.city ||
-                  current_address?.country
-                    ? `${current_address.street || "N/A"}, ${
-                        current_address.city || "N/A"
-                      }, ${current_address.country || "N/A"}`
-                    : "Address not available"}
+                  {address || "N/A"}
                 </p>
                 {social_links.length > 0 && (
                   <p>

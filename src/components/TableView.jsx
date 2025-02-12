@@ -387,13 +387,13 @@ const TableView = ({ isAdmin = true }) => {
       >
         <thead className="text-center">
           <tr>
-            <th>Name</th>
-            <th>Generation</th>
-            <th>Mother&apos;s name</th>
-            <th>Father&apos;s name</th>
-            <th>Gender</th>
-            <th>DOB</th>
-            <th>Actions</th>
+            <th className="text-center">Name</th>
+            <th className="text-center">Generation</th>
+            <th className="text-center">Father Name</th>
+            <th className="text-center">Mother Name</th>
+            <th className="text-center">Gender</th>
+            <th className="text-center">DOB</th>
+            <th className="text-center">Actions</th>
           </tr>
         </thead>
         <tbody className="text-center">
@@ -435,8 +435,8 @@ const TableView = ({ isAdmin = true }) => {
                 })()}
               </td>
 
-              <td>{row.mother?.name || "-"}</td>
               <td>{row.father?.name || "-"}</td>
+              <td>{row.mother?.name || "-"}</td>
               <td>{row.gender}</td>
               <td>{row.date_of_birth}</td>
               <td>
@@ -548,15 +548,11 @@ const TableView = ({ isAdmin = true }) => {
             status: selectedRow.status || "Alive",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
-            email: selectedRow.contact_details.email
-              ? selectedRow.contact_details.email
-              : "",
-            phone: selectedRow.contact_details.phone
-              ? selectedRow.contact_details.phone
-              : "",
-            address: selectedRow.contact_details.address
-              ? selectedRow.contact_details.address
-              : "",
+            contact: {
+              email: selectedRow.contact_details?.email || "",
+              phone: selectedRow.contact_details?.phone || "",
+              address: selectedRow.contact_details?.address || "",
+            },
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}
@@ -577,15 +573,9 @@ const TableView = ({ isAdmin = true }) => {
             status: selectedRow.status || "Alive",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
-            email: selectedRow.contact_details.email
-              ? selectedRow.contact_details.email
-              : "",
-            phone: selectedRow.contact_details.phone
-              ? selectedRow.contact_details.phone
-              : "",
-            address: selectedRow.contact_details.address
-              ? selectedRow.contact_details.address
-              : "",
+            email: selectedRow.contact_details?.email || "",
+            phone: selectedRow.contact_details?.phone || "",
+            address: selectedRow.contact_details?.address || "",
           }}
           onClose={() => setShowInfoPopup(false)}
         />

@@ -38,7 +38,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
 
-  
   const handleSuggestionClick = (suggestion) => {
     setForm((prev) => ({
       ...prev,
@@ -118,7 +117,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           const response = await axios.get(
             `https://gautamfamily.org.np/people/${formData.id}`
           );
-          setForm(response.data);
+          const data = response.data;
+          // Transform the data: assign contact_details to contact
+          const transformedData = {
+            ...data,
+            contact: data.contact_details || {
+              email: "",
+              phone: "",
+              address: "",
+            },
+          };
+          setForm(transformedData);
         } catch (error) {
           console.error("Error fetching user data:", error);
         } finally {
@@ -228,7 +237,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       console.error("Translation error:", error);
     }
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -657,7 +665,7 @@ EditFormModal.propTypes = {
     father_name: PropTypes.string,
     mother_name: PropTypes.string,
     profession: PropTypes.string,
-    contact_details: PropTypes.shape({
+    contact: PropTypes.shape({
       email: PropTypes.string,
       phone: PropTypes.string,
       address: PropTypes.string,
