@@ -21,7 +21,7 @@ const Compare = () => {
 
   const navigate = useNavigate();
 
-  const [isLeftConfirmed, setIsLeftConfirmed] = useState(false);
+  const [isLeftConfirmed, setIsLeftConfirmed] = useState(true);
   const [isRightConfirmed, setIsRightConfirmed] = useState(false);
   const [relationship, setRelationship] = useState("");
 
@@ -29,7 +29,7 @@ const Compare = () => {
   const [apiError, setApiError] = useState(""); // For error handling
   const [familyTreeData, setFamilyTreeData] = useState(null); // API response data
 
-  const handleCompare = () => {
+  const handleCompare = async () => {
     if (
       !leftPerson.name ||
       !leftPerson.pusta_number ||
@@ -44,7 +44,29 @@ const Compare = () => {
       });
       return;
     }
-    setRelationship(`${leftPerson.name} and ${rightPerson.name}`);
+
+    // Compare the two persons and set the relationship
+    // Call the API to compare the two persons
+    const leftPersonId = leftPerson.id;
+    const rightPerson_name = rightPerson.name;
+    const rightPerson_pusta_number = rightPerson.pusta_number;
+    const rightPerson_fatherName = rightPerson.fatherName;
+    const rightPerson_motherName = rightPerson.motherName;
+
+    // Replace with your API endpoint for comparing the two persons
+    const response = await axios.post(`https://gautamfamily.org.np/compare/`, {
+      leftPersonId,
+      rightPerson_name,
+      rightPerson_pusta_number,
+      rightPerson_fatherName,
+      rightPerson_motherName,
+    });
+
+    console.log(response.data);
+    console.log(response.data.message);
+
+    setRelationship(response.data.message);
+
   };
 
   const handleConfirm = (side) => {
@@ -182,7 +204,7 @@ const Compare = () => {
             </div>
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">
-                pusta_number
+                Pusta Number
               </label>
               <input
                 type="text"
@@ -206,7 +228,7 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Father's Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.fatherName}
+                value={leftPerson.father?.name || ""}
                 onChange={(e) =>
                   setLeftPerson((prev) => ({
                     ...prev,
@@ -224,7 +246,7 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Mother's Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.motherName}
+                value={leftPerson.mother?.name || ""}
                 onChange={(e) =>
                   setLeftPerson((prev) => ({
                     ...prev,
@@ -236,13 +258,13 @@ const Compare = () => {
             </div>
 
             {/* Confirm Button */}
-            <button
+            {/* <button
               className="bg-purple-700 text-white px-6 py-1 md:px-10 md:py-2 rounded-lg text-base md:text-xl"
               onClick={() => handleConfirm("left")}
               disabled={isLeftConfirmed}
             >
               Confirm
-            </button>
+            </button> */}
           </div>
 
           {/* Right Person */}
@@ -266,7 +288,7 @@ const Compare = () => {
             </div>
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">
-                pusta_number
+                Pusta Number
               </label>
               <input
                 type="text"

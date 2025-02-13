@@ -92,7 +92,7 @@ import axios from "axios";
 const fetchFamilyData = async (selectedPerson) => {
   try {
     // Replace with your actual API endpoint
-    const response = await axios.get(`/api/family-data/${selectedPerson}`);
+    const response = await axios.get(`https://gautamfamily.org.np/familytree/${selectedPerson}/`);
     return response.data;  // Assuming the API response contains the family data
   } catch (error) {
     console.error("Error fetching family data:", error);
