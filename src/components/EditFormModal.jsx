@@ -528,7 +528,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             {showSuggestions && suggestions.length > 0 && (
               <ul
                 className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-8/12"
-                style={{ left: "4%" }} // optional: adjust position to center relative to input if needed
+                style={{ left: "10%" }} // optional: adjust position to center relative to input if needed
               >
                 {suggestions.map((suggestion, index) => (
                   <li

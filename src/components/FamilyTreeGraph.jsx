@@ -4,6 +4,7 @@ import ReactD3Tree from "react-d3-tree";
 import axios from "axios";
 import "./App.css";
 
+
 // Fetch family data
 const fetchFamilyData = async (id) => {
   try {
@@ -14,6 +15,7 @@ const fetchFamilyData = async (id) => {
     console.log(`Fetching data for ID: ${id}`);
     const response = await axios.get(`https://gautamfamily.org.np/familytree/${id}/`);
     console.log("Fetched Data:", response.data);
+    // setCurrentData(response.data)
     return response.data;
   } catch (error) {
     console.error("Error fetching family data:", error);
@@ -101,19 +103,22 @@ const transformToTreeData = (familyData, newGenLevel) => {
 // FamilyTreeGraph Component
 const FamilyTreeGraph = ({ selectedPerson, isMobile, id }) => {
   const [treeData, setTreeData] = useState(null);
-  const [generationLevel, setGenerationLevel] = useState("below");
+  const [generationLevel, setGenerationLevel] = useState("upper");
   const [hasChildren, setHasChildren] = useState(false);
   const [hasUpperGeneration, setHasUpperGeneration] = useState(false);
   const [error, setError] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
   const treeContainerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
+  const[currentData,setCurrentData] = useState();
+
 
   // Fetch Data and Determine Generation Level
   const fetchData = async (id, genLevel = null) => {
     try {
       setIsFetching(true);
       const data = await fetchFamilyData(id);
+      setCurrentData(data);
       if (!data) {
         setTreeData(null);
         return;
@@ -149,7 +154,11 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile, id }) => {
   }, [id]);
 
   const handleGenerationChange = async (direction) => {
-    await fetchData(id, direction);
+    setGenerationLevel(direction); // Explicitly update the state
+    console.log("Selected Person",selectedPerson)
+    console.log("ID:",currentData.father.id)
+    fetchData(currentData.father.id);
+
   };
   const renderNode = (nodeDatum) => {
     const circleRadius = 50;
@@ -242,7 +251,7 @@ const FamilyTreeGraph = ({ selectedPerson, isMobile, id }) => {
   }
   dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
   dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
-  const translateX = isMobile ? dimensions.width / 2.5 : dimensions.width / 1.25; // 
+  const translateX = isMobile ? dimensions.width  : dimensions.width / 1.25; // 
   // Adjust for mobile and desktop
   const translateY = isMobile ? dimensions.height/1.5 : 80; // Adjust for mobile and desktop
   const nodeSize = isMobile ? { x: 160, y: 80 } : { x: 200, y: 150 }; // Smaller nodes on mobile
