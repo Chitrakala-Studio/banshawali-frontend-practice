@@ -302,7 +302,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");
       onClose();
-      //window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error("Error saving data:", error);
       Swal.fire({

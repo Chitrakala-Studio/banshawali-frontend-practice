@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 const TableView = () => {
   const [isAdminLocal, setIsAdminLocal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(7);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -356,7 +356,8 @@ const TableView = () => {
             </div>
           )}
         </div>
-
+        {/* if not is Admin then no button to add  */}
+        {isAdminLocal ? (
         <button
           className="add-button"
           style={{
@@ -381,6 +382,7 @@ const TableView = () => {
         >
           + Add New
         </button>
+        ) : null}
       </div>
       <table
         className="ml-3
@@ -499,7 +501,7 @@ const TableView = () => {
                 setRowsPerPage(parseInt(e.target.value, 10));
               }}
             >
-              <option value={8}>8</option>
+              <option value={7}>7</option>
               <option value={10}>10</option>
               <option value={12}>12</option>
               <option value={15}>15</option>
@@ -549,6 +551,7 @@ const TableView = () => {
             mother_name: selectedRow.mother?.name || "",
             dob: selectedRow.date_of_birth || "",
             status: selectedRow.status || "Alive",
+            death_date: selectedRow.date_of_death || "",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
             contact: {
@@ -556,6 +559,8 @@ const TableView = () => {
               phone: selectedRow.contact_details?.phone || "",
               address: selectedRow.contact_details?.address || "",
             },
+            vansha_status: selectedRow.vansha ? "True" : "False"
+
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}
