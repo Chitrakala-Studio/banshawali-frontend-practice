@@ -1,24 +1,34 @@
 import { useState } from "react";
 import login_img from "/src/assets/public/admin-log.png";
 import "./../../assets/styles/AdminLogin.css";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
 
     if (username === "admin" && password === "admin") {
-      // Save the user information in local storage
+      // Save the user information in local storage as admin
       const user = { username, token: "dummyToken123", role: "admin" };
       localStorage.setItem("user", JSON.stringify(user));
       // Redirect to the protected route or dashboard
-      window.location.href = "/table"; // Change this to your desired route
+      navigate("/table");
     } else {
       setError("Invalid credentials. Please try again.");
     }
+  };
+
+  const handleContinueWithoutLogin = () => {
+    // Save the user information in local storage as normal user
+    const user = { username: "guest", token: "dummyToken123", role: "user" };
+    localStorage.setItem("user", JSON.stringify(user));
+    // Redirect to the table view
+    navigate("/table");
   };
 
   return (
@@ -59,7 +69,12 @@ const AdminLogin = () => {
           </button>
         </form>
         <p>
-          Don&apos;t have an account? <a href="/signup">Sign Up</a>
+          <button
+            className="continue-without-login"
+            onClick={handleContinueWithoutLogin}
+          >
+            Continue without login
+          </button>
         </p>
       </div>
     </div>

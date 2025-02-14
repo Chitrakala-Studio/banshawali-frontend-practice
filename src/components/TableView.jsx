@@ -447,30 +447,32 @@ const TableView = () => {
                 >
                   <FaInfoCircle />
                 </button>
-                {isAdminLocal ? (
-                  <>
-                    <button
-                      className="icon-button edit-button"
-                      onClick={() => handleEditClick(row)}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      className="icon-button delete-button"
-                      onClick={() => handleDelete(row)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    className="icon-button suggestion-button"
-                    onClick={handleSuggestionClick}
-                  >
-                    <FaLightbulb />
-                  </button>
-                )}
-
+                {
+                  isAdminLocal ? (
+                    <>
+                      <button
+                        className="icon-button edit-button"
+                        onClick={() => handleEditClick(row)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="icon-button delete-button"
+                        onClick={() => handleDelete(row)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </>
+                  ) : null
+                  // ) : (
+                  //   <button
+                  //     className="icon-button suggestion-button"
+                  //     onClick={handleSuggestionClick}
+                  //   >
+                  //     <FaLightbulb />
+                  //   </button>
+                  // )
+                }
                 <button
                   className="icon-button card-button"
                   onClick={() => navigate(`/${row.id}`)}

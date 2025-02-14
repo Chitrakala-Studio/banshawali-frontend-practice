@@ -7,8 +7,6 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
     name,
     name_in_nepali,
     pusta_number,
-    contact_details = {},
-    family_relations = {},
     email,
     address,
     phone,
@@ -16,17 +14,14 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
     status,
     profession,
     gender,
-    photo_url,
     father_name,
     mother_name,
     profileImage,
   } = familyData;
 
-  const { current_address = {}, social_links = [] } = contact_details;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
-      <div className="bg-white w-full max-w-2xl p-6 rounded-lg relative overflow-y-auto max-h-[90vh] flex">
+      <div className="bg-white w-full max-w-2xl p-6 rounded-lg relative overflow-y-auto max-h-[90vh]">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -35,10 +30,12 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
           &#x2715;
         </button>
 
-        {/* Image and Details Section */}
-        <div className="flex flex-row items-center w-full">
-          {/* Image Section */}
-          <div className="w-1/3 flex justify-center items-center">
+        {/* Main Content */}
+        <div className="flex gap-6">
+          {/* Left Section: Name and Image */}
+          <div className="w-1/3 flex flex-col items-center">
+            <h2 className="text-2xl font-bold">{name}</h2>
+            <p className="text-sm text-gray-500 mb-2">{name_in_nepali}</p>
             <img
               src={profileImage}
               alt={name}
@@ -51,72 +48,36 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
             />
           </div>
 
-          {/* Details Section */}
-          <div className="w-2/3 pl-14">
-            {/* Header */}
-            <div className="text-center md:text-left">
-              <h2 className="text-2xl font-bold mb-2">{name}</h2>
-              <p className="text-sm text-gray-500">{name_in_nepali}</p>
-            </div>
-
-            {/* Details Section */}
-            <div className="space-y-4 text-sm md:text-base mt-6">
+          {/* Right Section: All Other Details */}
+          <div className="w-2/3">
+            <div className="space-y-4 text-sm md:text-base">
+              {/* Personal Information */}
               <h3 className="text-lg font-semibold mb-2">
                 Personal Information
               </h3>
-              <p>
-                <strong>Pusta Number:</strong> {pusta_number || "N/A"}
-              </p>
-              <p>
-                <strong>Profession:</strong> {profession || "N/A"}
-              </p>
-              <p>
-                <strong>Gender:</strong> {gender || "N/A"}
-              </p>
-              <p>
-                <strong>Date of Birth:</strong> {date_of_birth || "N/A"}
-              </p>
-              <p>
-                <strong>Status:</strong> {status || "N/A"}
-              </p>
-
-              {/* Contact Details */}
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
-                <p>
-                  <strong>Email:</strong> {email || "N/A"}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {phone || "N/A"}
-                </p>
-                <p>
-                  <strong>Address:</strong>
-                  {address || "N/A"}
-                </p>
-                {social_links.length > 0 && (
-                  <p>
-                    <strong>Social Links:</strong>{" "}
-                    <a
-                      href={social_links[0]}
-                      className="text-blue-500 underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Facebook
-                    </a>
-                  </p>
-                )}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <strong>Pusta Number:</strong>{" "}
+                <span>{pusta_number || "N/A"}</span>
+                <strong>Profession:</strong> <span>{profession || "N/A"}</span>
+                <strong>Gender:</strong> <span>{gender || "N/A"}</span>
+                <strong>Date of Birth:</strong>{" "}
+                <span>{date_of_birth || "N/A"}</span>
+                <strong>Status:</strong> <span>{status || "N/A"}</span>
               </div>
 
               {/* Family Relations */}
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Family Relations</h3>
-                <p>
-                  <strong>Father:</strong> {father_name || "N/A"}
-                </p>
-                <p>
-                  <strong>Mother:</strong> {mother_name || "N/A"}
-                </p>
+              <h3 className="text-lg font-semibold mb-2">Family Relations</h3>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <strong>Father:</strong> <span>{father_name || "N/A"}</span>
+                <strong>Mother:</strong> <span>{mother_name || "N/A"}</span>
+              </div>
+
+              {/* Contact Details */}
+              <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <strong>Email:</strong> <span>{email || "N/A"}</span>
+                <strong>Phone:</strong> <span>{phone || "N/A"}</span>
+                <strong>Address:</strong> <span>{address || "N/A"}</span>
               </div>
             </div>
           </div>
@@ -131,25 +92,16 @@ FamilyTreeModal.propTypes = {
     name: PropTypes.string.isRequired,
     name_in_nepali: PropTypes.string,
     pusta_number: PropTypes.string,
-    contact_details: PropTypes.shape({
-      email: PropTypes.string,
-      phone_numbers: PropTypes.arrayOf(PropTypes.string),
-      current_address: PropTypes.shape({
-        street: PropTypes.string,
-        city: PropTypes.string,
-        country: PropTypes.string,
-      }),
-      social_links: PropTypes.arrayOf(PropTypes.string),
-    }),
-    family_relations: PropTypes.shape({
-      father: PropTypes.string,
-      mother: PropTypes.string,
-    }),
+    email: PropTypes.string,
+    phone: PropTypes.string,
+    address: PropTypes.string,
     date_of_birth: PropTypes.string,
     status: PropTypes.string,
     profession: PropTypes.string,
     gender: PropTypes.string,
-    photo_url: PropTypes.string,
+    father_name: PropTypes.string,
+    mother_name: PropTypes.string,
+    profileImage: PropTypes.string,
   }).isRequired,
   onClose: PropTypes.func.isRequired,
 };
