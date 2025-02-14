@@ -38,6 +38,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
 
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
+  const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
+
   const handleSuggestionClick = (suggestion) => {
     setForm((prev) => ({
       ...prev,
@@ -62,16 +65,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         const suggestions = familyMembers.filter((member) => {
+          console.log("Checking member:", member);
           const isRightGeneration =
             member.pusta_number === parentGeneration.toString();
           const matchesQuery =
             query.trim() === "" ||
             member.name.toLowerCase().includes(query.toLowerCase());
-          // Filter to only include male members
           const isMale =
             member.gender && member.gender.toLowerCase() === "male";
           return isRightGeneration && matchesQuery && isMale;
         });
+
         resolve(suggestions);
       }, 500);
     });
@@ -154,14 +158,39 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   }, [formData, familyMembers.length]);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file); // Create a preview URL
+    if (!file) return;
+
+    // 1. (Optional) Local preview
+    const previewUrl = URL.createObjectURL(file);
+    setForm((prevForm) => ({
+      ...prevForm,
+      profileImage: previewUrl,
+    }));
+
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", preset);
+
+    console.log("Uploading with preset:", preset);
+    console.log("Using cloud name:", cloudName);
+
+    try {
+      // 3. Upload to Cloudinary
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        data
+      );
+      console.log("Cloudinary response:", response.data);
+      // 4. Replace preview URL with the Cloudinary URL
+      const cloudinaryUrl = response.data.secure_url;
       setForm((prevForm) => ({
         ...prevForm,
-        profileImage: imageUrl, // Store the URL in form state
+        profileImage: cloudinaryUrl,
       }));
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
     }
   };
 
@@ -491,7 +520,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             />
             {showSuggestions && suggestions.length > 0 && (
               <ul
-                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-11/12"
+                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-8/12"
                 style={{ left: "4%" }} // optional: adjust position to center relative to input if needed
               >
                 {suggestions.map((suggestion, index) => (
@@ -529,7 +558,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
             {showMotherSuggestions && motherSuggestions.length > 0 && (
               <ul
-                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-11/12"
+                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-8/12"
                 style={{ left: "4%" }} // adjust as needed
               >
                 {motherSuggestions.map((suggestion, index) => (

@@ -17,8 +17,8 @@ import Swal from "sweetalert2";
 import ToggleView from "./ToggleView";
 import { useNavigate } from "react-router-dom";
 
-const TableView = ({ isAdmin = true }) => {
-  //const [isAdminLocal, setIsAdminLocal] = useState(false);
+const TableView = () => {
+  const [isAdminLocal, setIsAdminLocal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isTableView, setIsTableView] = useState(true);
@@ -53,19 +53,19 @@ const TableView = ({ isAdmin = true }) => {
     fetchData();
   }, [searchQuery, searchBy]);
 
-  // useEffect(() => {
-  //   const userStr = localStorage.getItem("user");
-  //   if (userStr) {
-  //     const user = JSON.parse(userStr);
-  //     if (user && user.token) {
-  //       setIsAdminLocal(user.role === "admin");
-  //     } else {
-  //       navigate("/login");
-  //     }
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // }, [navigate]);
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user && user.token) {
+        setIsAdminLocal(user.role === "admin");
+      } else {
+        navigate("/login");
+      }
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const fetchData = async () => {
     try {
@@ -229,14 +229,15 @@ const TableView = ({ isAdmin = true }) => {
   const currentRows = filteredData.slice(offset, offset + rowsPerPage);
 
   return (
-    <div className="table-view h-full ml-0 lg:ml-64 transition-all duration-300">
+    <div className="table-view transition-all duration-300">
       <ToggleView
         isTableView={isTableView}
         toggleView={() => setIsTableView(!isTableView)}
         availableId={availableId}
+        className=""
       />
 
-      <div className="table-view-filters p-4">
+      <div className="table-view-filters mt-10 p-4">
         <div className="flex items-center justify-between gap-4">
           {/* Search Input */}
           <div className="flex items-center gap-4">
@@ -446,7 +447,7 @@ const TableView = ({ isAdmin = true }) => {
                 >
                   <FaInfoCircle />
                 </button>
-                {isAdmin ? (
+                {isAdminLocal ? (
                   <>
                     <button
                       className="icon-button edit-button"
@@ -469,6 +470,7 @@ const TableView = ({ isAdmin = true }) => {
                     <FaLightbulb />
                   </button>
                 )}
+
                 <button
                   className="icon-button card-button"
                   onClick={() => navigate(`/${row.id}`)}

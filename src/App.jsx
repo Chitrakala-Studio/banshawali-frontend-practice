@@ -10,8 +10,8 @@ const App = () => {
     <Router basename="/Banshali-app">
       <Routes>
         {/* Uncomment these if needed */}
-        {/* <Route path="/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminDashboard />} /> */}
+        <Route path="/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/:id" element={<AdminDashboard />} />
         <Route path="/compare/:id" element={<Compare />} />
         <Route path="/" element={<TableView />} />
