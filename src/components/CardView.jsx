@@ -274,7 +274,8 @@ const CardView = () => {
                 &#x2715;
               </button>
               <FamilyTreeGraph
-                selectedPerson={id}
+                id={id}
+                selectedPerson={selectedPerson}
                 isMobile={isMobile}
               />
             </div>
