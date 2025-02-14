@@ -422,7 +422,7 @@ const TableView = () => {
                         className="w-2 h-2 rounded-full mr-2"
                         style={{ backgroundColor: "green" }}
                       ></span>
-                      G{row.pusta_number}
+                      {row.pusta_number}
                     </div>
                   ) : (
                     <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
@@ -430,7 +430,7 @@ const TableView = () => {
                         className="w-2 h-2 rounded-full mr-2"
                         style={{ backgroundColor: "red" }}
                       ></span>
-                      G{row.pusta_number}
+                      {row.pusta_number}
                     </div>
                   );
                 })()}
@@ -483,9 +483,9 @@ const TableView = () => {
         </tbody>
       </table>
       <div className="table-footer">
-        <button className="import-button">
+        {/* <button className="import-button">
           Import <FaCloudDownloadAlt className="import-icon" />
-        </button>
+        </button> */}
         <div className="flex items-center justify-between w-full mt-4">
           <div className="flex items-center space-x-2">
             <span>Show </span>
@@ -497,7 +497,6 @@ const TableView = () => {
                 setRowsPerPage(parseInt(e.target.value, 10));
               }}
             >
-              <option value={5}>5</option>
               <option value={8}>8</option>
               <option value={10}>10</option>
               <option value={12}>12</option>

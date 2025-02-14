@@ -41,6 +41,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
 
+  
+  const today = new Date().toISOString().split('T')[0];
+
   const handleSuggestionClick = (suggestion) => {
     setForm((prev) => ({
       ...prev,
@@ -449,13 +452,14 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             <div className="w-full">
               <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                 Date of Birth
-              </label>
+              </label>              
               <input
                 type="date"
                 name="dob"
                 required
                 value={form.dob}
                 onChange={handleChange}
+                max={today}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
               />
             </div>
@@ -486,6 +490,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   name="death_date"
                   value={form.death_date}
                   onChange={handleChange}
+                  min={form.dob}
+                  max={today}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
                 />
               </div>
@@ -497,6 +503,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             <h3 className="text-lg font-bold py-3 text-[#7091E6]">
               Family Information
             </h3>
+            
 
             <input
               type="text"
@@ -588,8 +595,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               onChange={handleChange}
               className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
+              <option value="True">Yes</option>
+              <option value="False">No</option>
             </select>
           </div>
 
@@ -664,7 +671,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           </div>
 
           {/* Save Button */}
-          <div className="flex justify-center w-full">
+          <div className="flex justify-center w-full mb-4">
             <button
               type="submit"
               disabled={loading}
