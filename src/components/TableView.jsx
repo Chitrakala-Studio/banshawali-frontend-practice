@@ -8,35 +8,29 @@ import {
   FaLightbulb,
   FaRegIdCard,
 } from "react-icons/fa";
-import ReactPaginate from "react-paginate";
+//import ReactPaginate from "react-paginate";
 import EditFormModal from "./EditFormModal";
-import CardViewPopup from "./CardViewPopup";
+//import CardViewPopup from "./CardViewPopup";
 import FamilyTreeModal from "./FamilyTreeModal";
 import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
 import ToggleView from "./ToggleView";
+import SearchForm from "./SearchForm";
 import { useNavigate } from "react-router-dom";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const TableView = () => {
   const [isAdminLocal, setIsAdminLocal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(7);
+  // const [currentPage, setCurrentPage] = useState(0);
+  // const [rowsPerPage, setRowsPerPage] = useState(7);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [searchBy, setSearchBy] = useState("name");
-  const [searchQuery, setSearchQuery] = useState(""); // To track search input
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterData, setFilterData] = useState({
-    generation: "",
-    fatherName: "",
-    motherName: "",
-  });
-
   const [selectedRow, setSelectedRow] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [displayCount, setDisplayCount] = useState(20);
   const [formData, setFormData] = useState({
     username: "",
     pusta_number: "",
@@ -47,11 +41,20 @@ const TableView = () => {
     profession: "",
     gender: "Male",
   });
+  const [searchCriteria, setSearchCriteria] = useState({
+    name: "",
+    pustaNumber: "",
+    phone: "",
+    email: "",
+    father_name: "",
+    mother_name: "",
+  });
+  const [showSearchForm, setShowSearchForm] = useState(false);
   const API_URL = "https://gautamfamily.org.np";
 
   useEffect(() => {
     fetchData();
-  }, [searchQuery, searchBy]);
+  }, []);
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
@@ -84,13 +87,24 @@ const TableView = () => {
   const sortedData = [...data].sort((a, b) => Number(a.id) - Number(b.id));
   const availableId = sortedData.length > 0 ? sortedData[0].id : null;
 
-  const handlePageChange = ({ selected }) => {
-    setCurrentPage(selected);
-  };
-
   const handleEditClick = (row) => {
     setSelectedRow(row);
     setIsEditing(true);
+  };
+  const calculateAge = (dob) => {
+    if (!dob) return "-";
+    const birthDate = new Date(dob);
+    if (isNaN(birthDate)) return "-";
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
   };
 
   const handleInfoClick = (row) => {
@@ -116,11 +130,6 @@ const TableView = () => {
     } catch (error) {
       console.error("Error adding data:", error);
     }
-  };
-
-  const applyFilter = () => {
-    console.log("Filters Applied:", filterData);
-    setIsFilterOpen(false);
   };
 
   const handleDelete = async (row) => {
@@ -176,322 +185,235 @@ const TableView = () => {
     });
   };
 
-  const filteredData = data.filter((row) => {
-    if (!searchQuery) return true; // No query, return all rows
+  const fetchAllData = async () => {
+    try {
+      const response = await fetch(`${API_URL}/people/`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const allData = await response.json();
+      setData(allData);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
 
-    if (
-      searchBy === "name" &&
-      row.name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return true;
+  const filteredData = data.filter((row) => {
+    const { name, pustaNumber, phone, email, father_name, mother_name } =
+      searchCriteria;
+    let matches = true;
+    if (name) {
+      matches = matches && row.name.toLowerCase().includes(name.toLowerCase());
     }
-    if (
-      searchBy === "mother_name" &&
-      row.family_relations.mother
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-    ) {
-      return true;
+    if (pustaNumber) {
+      matches = matches && row.pusta_number.toString().includes(pustaNumber);
     }
-    if (
-      searchBy === "father_name" &&
-      (row.mother?.name || "").toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return true;
+    if (phone) {
+      matches =
+        matches &&
+        row.contact_details?.phone &&
+        row.contact_details.phone.includes(phone);
     }
-    if (
-      searchBy === "pusta_no" &&
-      row.pusta_number.toString().includes(searchQuery)
-    ) {
-      return true;
+    if (email) {
+      matches =
+        matches &&
+        row.contact_details?.email &&
+        row.contact_details.email.toLowerCase().includes(email.toLowerCase());
     }
-    // Updated conditions for phone and email:
-    if (
-      searchBy === "phone" &&
-      row.contact_details?.phone &&
-      row.contact_details.phone.includes(searchQuery)
-    ) {
-      return true;
+    if (father_name) {
+      matches =
+        matches &&
+        row.father?.name &&
+        row.father.name.toLowerCase().includes(father_name.toLowerCase());
     }
-    if (
-      searchBy === "email" &&
-      row.contact_details?.email &&
-      row.contact_details.email
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-    ) {
-      return true;
+    if (mother_name) {
+      matches =
+        matches &&
+        row.mother?.name &&
+        row.mother.name.toLowerCase().includes(mother_name.toLowerCase());
     }
-    return false;
+
+    return matches;
   });
 
-  const offset = currentPage * rowsPerPage;
-  const currentRows = filteredData.slice(offset, offset + rowsPerPage);
+  const visibleData = filteredData.slice(0, displayCount);
+
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => prev + 20);
+  };
 
   return (
     <div className="table-view transition-all duration-300">
       <ToggleView
         isTableView={isTableView}
         toggleView={() => setIsTableView(!isTableView)}
-        availableId={availableId}
+        availableId={visibleData.length > 0 ? visibleData[0].id : null}
         className=""
       />
 
       <div className="table-view-filters mt-10 p-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Search Input */}
-          <div className="flex items-center gap-4">
-            <input
-              type="text"
-              placeholder={`Search by ${searchBy.replace(/_/g, " ")}`}
-              className="search-input px-4 py-3 text-lg rounded-full h-[45px] leading-[30px]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-
-            {/* Search Dropdown */}
-            <select
-              className="search-dropdown bg-white h-[45px] leading-[30px] px-4 py-3 text-lg rounded-full border border-gray-300"
-              value={searchBy}
-              onChange={(e) => setSearchBy(e.target.value)}
-            >
-              <option value="name">Name</option>
-              {/* <option value="mother_name">Mother's Name</option>
-              <option value="father_name">Father's Name</option> */}
-              <option value="pusta_no">Pusta No.</option>
-              <option value="phone">Phone Number</option>
-              <option value="email">Email</option>
-            </select>
-          </div>
-          {isFilterOpen && (
-            <div
-              className="absolute w-64 p-4 bg-white border border-gray-300 rounded-md shadow-md z-10"
-              style={{
-                top: "50%",
-                left:
-                  window.innerWidth -
-                    (document.querySelector(".table-view")?.offsetWidth || 0) <
-                  300
-                    ? "auto"
-                    : "0",
-                right:
-                  window.innerWidth -
-                    (document.querySelector(".table-view")?.offsetWidth || 0) <
-                  300
-                    ? "0"
-                    : "auto",
-              }}
-            >
-              <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                Filter
-              </h3>
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Generation
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter generation"
-                  value={filterData.generation}
-                  onChange={(e) =>
-                    setFilterData({
-                      ...filterData,
-                      generation: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Father's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter father's name"
-                  value={filterData.fatherName}
-                  onChange={(e) =>
-                    setFilterData({
-                      ...filterData,
-                      fatherName: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Mother's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-white px-3 py-2 border rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter mother's name"
-                  value={filterData.motherName}
-                  onChange={(e) =>
-                    setFilterData({
-                      ...filterData,
-                      motherName: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
-                  onClick={() => setIsFilterOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600"
-                  onClick={applyFilter}
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-        {/* if not is Admin then no button to add  */}
-        {isAdminLocal ? (
         <button
-          className="add-button"
+          className="search-button"
           style={{
             borderRadius: "50px",
             height: "45px",
             lineHeight: "30px",
             padding: "0 20px",
           }}
-          onClick={() => {
-            setFormData({
-              username: "",
-              pusta_number: "",
-              father_name: "",
-              mother_name: "",
-              dob: "",
-              status: "Alive",
-              profession: "",
-              gender: "Male",
-            });
-            setIsAdding(true);
-          }}
+          onClick={() => setShowSearchForm(true)}
         >
-          + Add New
+          Search
         </button>
+        {/* if not is Admin then no button to add  */}
+        {isAdminLocal ? (
+          <button
+            className="add-button"
+            style={{
+              borderRadius: "50px",
+              height: "45px",
+              lineHeight: "30px",
+              padding: "0 20px",
+            }}
+            onClick={() => {
+              setFormData({
+                username: "",
+                pusta_number: "",
+                father_name: "",
+                mother_name: "",
+                dob: "",
+                status: "Alive",
+                profession: "",
+                gender: "Male",
+              });
+              setIsAdding(true);
+            }}
+          >
+            + Add New
+          </button>
         ) : null}
       </div>
-      <table
-        className="ml-3
-      "
+      <InfiniteScroll
+        dataLength={visibleData.length}
+        next={handleLoadMore}
+        hasMore={displayCount < filteredData.length}
+        loader={<h4>Loading more data...</h4>}
+        endMessage={
+          <p style={{ textAlign: "center" }}>
+            <b>All data has been loaded</b>
+          </p>
+        }
       >
-        <thead className="text-center">
-          <tr>
-            <th className="text-center">Name</th>
-            <th className="text-center">Generation</th>
-            <th className="text-center">Father Name</th>
-            <th className="text-center">Mother Name</th>
-            <th className="text-center">Gender</th>
-            <th className="text-center">DOB</th>
-            <th className="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="text-center">
-          {currentRows.map((row, index) => (
-            <tr key={index}>
-              <td>
-                <img
-                  src={
-                    row.photo ||
-                    "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
-                  }
-                  alt="Profile"
-                />
-                {row.name}
-              </td>
-              <td>
-                {(() => {
-                  const parsedPustaNumber = parseInt(
-                    row.pusta_number.replace(/\D/g, ""),
-                    10
-                  );
-                  return parsedPustaNumber % 2 === 1 ? (
-                    <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
-                      <span
-                        className="w-2 h-2 rounded-full mr-2"
-                        style={{ backgroundColor: "green" }}
-                      ></span>
-                      {row.pusta_number}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
-                      <span
-                        className="w-2 h-2 rounded-full mr-2"
-                        style={{ backgroundColor: "red" }}
-                      ></span>
-                      {row.pusta_number}
-                    </div>
-                  );
-                })()}
-              </td>
-
-              <td>{row.father?.name || "-"}</td>
-              <td>{row.mother?.name || "-"}</td>
-              <td>{row.gender}</td>
-              <td>{row.date_of_birth}</td>
-              <td>
-                <button
-                  className="icon-button info-button"
-                  onClick={() => handleInfoClick(row)}
-                >
-                  <FaInfoCircle />
-                </button>
-                {
-                  isAdminLocal ? (
-                    <>
-                      <button
-                        className="icon-button edit-button"
-                        onClick={() => handleEditClick(row)}
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="icon-button delete-button"
-                        onClick={() => handleDelete(row)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </>
-                  ) : null
-                  // ) : (
-                  //   <button
-                  //     className="icon-button suggestion-button"
-                  //     onClick={handleSuggestionClick}
-                  //   >
-                  //     <FaLightbulb />
-                  //   </button>
-                  // )
-                }
-                <button
-                  className="icon-button card-button"
-                  onClick={() => navigate(`/${row.id}`)}
-                >
-                  <FaRegIdCard />
-                </button>
-              </td>
+        <table
+          className="ml-3
+      "
+        >
+          <thead className="text-center">
+            <tr>
+              <th className="text-center">Name</th>
+              <th className="text-center">Generation</th>
+              <th className="text-center">Father Name</th>
+              <th className="text-center">Mother Name</th>
+              <th className="text-center">Gender</th>
+              <th className="text-center">Age</th>
+              <th className="text-center">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="text-center">
+            {visibleData.map((row, index) => (
+              <tr key={index}>
+                <td className="text-center">
+                  <img
+                    src={
+                      row.photo ||
+                      "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                    }
+                    alt="Profile"
+                  />
+                  {row.name}
+                </td>
+                <td className="text-center">
+                  {(() => {
+                    const parsedPustaNumber = parseInt(
+                      row.pusta_number.replace(/\D/g, ""),
+                      10
+                    );
+                    return parsedPustaNumber % 2 === 1 ? (
+                      <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
+                        <span
+                          className="w-2 h-2 rounded-full mr-2"
+                          style={{ backgroundColor: "green" }}
+                        ></span>
+                        {row.pusta_number}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
+                        <span
+                          className="w-2 h-2 rounded-full mr-2"
+                          style={{ backgroundColor: "red" }}
+                        ></span>
+                        {row.pusta_number}
+                      </div>
+                    );
+                  })()}
+                </td>
+
+                <td className="text-center">{row.father?.name || "-"}</td>
+                <td className="text-center">{row.mother?.name || "-"}</td>
+                <td className="text-center">{row.gender}</td>
+                <td className="text-center">
+                  {calculateAge(row.date_of_birth)}
+                </td>
+                <td className="text-center">
+                  <button
+                    className="icon-button info-button"
+                    onClick={() => handleInfoClick(row)}
+                  >
+                    <FaInfoCircle />
+                  </button>
+                  {
+                    isAdminLocal ? (
+                      <>
+                        <button
+                          className="icon-button edit-button"
+                          onClick={() => handleEditClick(row)}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="icon-button delete-button"
+                          onClick={() => handleDelete(row)}
+                        >
+                          <FaTrash />
+                        </button>
+                      </>
+                    ) : null
+                    // ) : (
+                    //   <button
+                    //     className="icon-button suggestion-button"
+                    //     onClick={handleSuggestionClick}
+                    //   >
+                    //     <FaLightbulb />
+                    //   </button>
+                    // )
+                  }
+                  <button
+                    className="icon-button card-button"
+                    onClick={() => navigate(`/${row.id}`)}
+                  >
+                    <FaRegIdCard />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </InfiniteScroll>
       <div className="table-footer">
         {/* <button className="import-button">
           Import <FaCloudDownloadAlt className="import-icon" />
         </button> */}
         <div className="flex items-center justify-between w-full mt-4">
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <span>Show </span>
             <select
               className="border bg-white rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -507,9 +429,9 @@ const TableView = () => {
               <option value={15}>15</option>
             </select>
             <span> Rows</span>
-          </div>
+          </div> */}
 
-          <ReactPaginate
+          {/* <ReactPaginate
             previousLabel={
               <button className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
                 {"<"}
@@ -527,9 +449,20 @@ const TableView = () => {
             activeClassName={
               "bg-blue-500 text-white px-3 py-1 rounded-full cursor-pointer"
             }
-          />
+          /> */}
         </div>
       </div>
+
+      {showSearchForm && (
+        <SearchForm
+          initialCriteria={searchCriteria}
+          onSearch={(criteria) => {
+            setSearchCriteria(criteria);
+            setShowSearchForm(false);
+          }}
+          onClose={() => setShowSearchForm(false)}
+        />
+      )}
 
       {isAdding && (
         <EditFormModal
@@ -559,8 +492,7 @@ const TableView = () => {
               phone: selectedRow.contact_details?.phone || "",
               address: selectedRow.contact_details?.address || "",
             },
-            vansha_status: selectedRow.vansha ? "True" : "False"
-
+            vansha_status: selectedRow.vansha ? "True" : "False",
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}

@@ -43,7 +43,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const today = new Date().toISOString().split("T")[0];
+  //const today = new Date().toISOString().split("T")[0];
 
   const fetchSuggestions = (parentGeneration, query, gender) => {
     return new Promise((resolve) => {
@@ -427,7 +427,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="date"
                 name="dob"
-                required
                 value={form.dob}
                 onChange={handleChange}
                 max={today}
