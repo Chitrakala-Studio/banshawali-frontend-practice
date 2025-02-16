@@ -18,64 +18,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const handleSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      father_name: suggestion.name,
-      father_id: suggestion.id,
-      father_dob: suggestion.father_dob,
-    }));
-    setShowSuggestions(false);
-  };
-
-  const handleMotherSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      mother_name: suggestion.name,
-      mother_id: suggestion.id,
-      mother_dob: suggestion.mother_dob,
-    }));
-    setShowMotherSuggestions(false);
-  };
-
-  const fetchFatherSuggestions = (parentGeneration, query) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const suggestions = familyMembers.filter((member) => {
-          console.log("Checking member:", member);
-          const isRightGeneration =
-            member.pusta_number === parentGeneration.toString();
-          const matchesQuery =
-            query.trim() === "" ||
-            member.name.toLowerCase().includes(query.toLowerCase());
-          const isMale =
-            member.gender && member.gender.toLowerCase() === "male";
-          return isRightGeneration && matchesQuery && isMale;
-        });
-
-        resolve(suggestions);
-      }, 500);
-    });
-  };
-
-  const fetchMotherSuggestions = (parentGeneration, query) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration =
-            member.pusta_number === parentGeneration.toString();
-          const matchesQuery =
-            query.trim() === "" ||
-            member.name.toLowerCase().includes(query.toLowerCase());
-          // Filter to only include female members
-          const isFemale =
-            member.gender && member.gender.toLowerCase() === "female";
-          return isRightGeneration && matchesQuery && isFemale;
-        });
-        resolve(suggestions);
-      }, 500);
-    });
-  };
 
   useEffect(() => {
     // Update form only if formData.id has changed
