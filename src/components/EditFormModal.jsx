@@ -41,38 +41,38 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
 
-  
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
-const fetchSuggestions = (parentGeneration, query, gender) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const suggestions = familyMembers.filter((member) => {
-        const isRightGeneration =
-          Number(member.pusta_number) === Number(parentGeneration);
-        const matchesQuery =
-          query.trim() === "" ||
-          member.name.toLowerCase().includes(query.toLowerCase());
-        const isGenderMatch =
-          member.gender && member.gender.toLowerCase() === gender;
-        return isRightGeneration && matchesQuery && isGenderMatch;
-      });
-      resolve(suggestions);
-    }, 100);
-  });
-};
+  const today = new Date().toISOString().split("T")[0];
 
-const handleSuggestionClick = (suggestion, type) => {
-  setForm((prev) => ({
-    ...prev,
-    [`${type}_name`]: suggestion.name,
-    [`${type}_id`]: suggestion.id,
-    [`${type}_dob`]: suggestion[`${type}_dob`],
-  }));
-  if (type === "father") setShowSuggestions(false);
-  else setShowMotherSuggestions(false);
-};
+  const fetchSuggestions = (parentGeneration, query, gender) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const suggestions = familyMembers.filter((member) => {
+          const isRightGeneration =
+            Number(member.pusta_number) === Number(parentGeneration);
+          const matchesQuery =
+            query.trim() === "" ||
+            member.name.toLowerCase().includes(query.toLowerCase());
+          const isGenderMatch =
+            member.gender && member.gender.toLowerCase() === gender;
+          return isRightGeneration && matchesQuery && isGenderMatch;
+        });
+        resolve(suggestions);
+      }, 100);
+    });
+  };
 
+  const handleSuggestionClick = (suggestion, type) => {
+    setForm((prev) => ({
+      ...prev,
+      [`${type}_name`]: suggestion.name,
+      [`${type}_id`]: suggestion.id,
+      [`${type}_dob`]: suggestion[`${type}_dob`],
+    }));
+    if (type === "father") setShowSuggestions(false);
+    else setShowMotherSuggestions(false);
+  };
 
   useEffect(() => {
     // Update form only if it has changed
@@ -423,7 +423,7 @@ const handleSuggestionClick = (suggestion, type) => {
             <div className="w-full">
               <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                 Date of Birth
-              </label>              
+              </label>
               <input
                 type="date"
                 name="dob"
@@ -474,77 +474,81 @@ const handleSuggestionClick = (suggestion, type) => {
             <h3 className="text-lg font-bold py-3 text-[#7091E6]">
               Family Information
             </h3>
-            
 
-{/* Father Input */}
-<input
-  type="text"
-  name="father_name"
-  value={form.father_name}
-  onChange={handleChange}
-  onFocus={() => {
-    const parentGeneration = form.pusta_number - 1;
-    fetchSuggestions(parentGeneration, "", "male").then((results) => {
-      setSuggestions(results);
-      setShowSuggestions(true);
-    });
-  }}
-  onBlur={() => setShowSuggestions(false)}
-  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 transition-all"
-  placeholder="Enter father's name"
-/>
-{showSuggestions && suggestions.length > 0 && (
-  <ul
-    className="absolute left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-7/12"
-    onMouseDown={(e) => e.preventDefault()} // Prevent blur when clicking suggestions
-  >
-    {suggestions.map((suggestion, index) => (
-      <li
-        key={index}
-        onClick={() => handleSuggestionClick(suggestion, "father")}
-        className="p-2 hover:bg-gray-100 cursor-pointer"
-      >
-        {suggestion.name} {suggestion.father_dob && `(${suggestion.father_dob})`}
-      </li>
-    ))}
-  </ul>
-)}
+            <input
+              type="text"
+              name="father_name"
+              value={form.father_name}
+              onChange={handleChange}
+              onFocus={() => {
+                const parentGeneration = form.pusta_number - 1;
+                // Fetch suggestions with an empty query to display all names from the parent generation
+                fetchFatherSuggestions(parentGeneration, "")
+                  .then((results) => {
+                    setSuggestions(results);
+                    setShowSuggestions(true);
+                  })
+                  .catch((error) =>
+                    console.error("Error fetching father suggestions:", error)
+                  );
+              }}
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Enter father's name"
+            />
+            {showSuggestions && suggestions.length > 0 && (
+              <ul
+                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-8/12"
+                style={{ left: "10%" }} // optional: adjust position to center relative to input if needed
+              >
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {suggestion.name}
+                    {suggestion.father_dob && `(${suggestion.father_dob})`}
+                  </li>
+                ))}
+              </ul>
+            )}
 
-{/* Mother Input */}
-<input
-  type="text"
-  name="mother_name"
-  value={form.mother_name}
-  onChange={handleChange}
-  onFocus={() => {
-    const parentGeneration = form.pusta_number - 1;
-    fetchSuggestions(parentGeneration, "", "female").then((results) => {
-      setMotherSuggestions(results);
-      setShowMotherSuggestions(true);
-    });
-  }}
-  onBlur={() =>  setShowMotherSuggestions(false)}
-  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 transition-all"
-  placeholder="Enter mother's name"
-/>
-{showMotherSuggestions && motherSuggestions.length > 0 && (
-  <ul
-    className="absolute left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-7/12"
-    onMouseDown={(e) => e.preventDefault()} // Prevent blur when clicking suggestions
-  >
-    {motherSuggestions.map((suggestion, index) => (
-      <li
-        key={index}
-        onClick={() => handleSuggestionClick(suggestion, "mother")}
-        className="p-2 hover:bg-gray-100 cursor-pointer"
-      >
-        {suggestion.name} {suggestion.mother_dob && `(${suggestion.mother_dob})`}
-      </li>
-    ))}
-  </ul>
-)}
-
-
+            {/* Mother Input */}
+            <input
+              type="text"
+              name="mother_name"
+              value={form.mother_name}
+              onChange={handleChange}
+              onFocus={() => {
+                const parentGeneration = form.pusta_number - 1;
+                fetchSuggestions(parentGeneration, "", "female").then(
+                  (results) => {
+                    setMotherSuggestions(results);
+                    setShowMotherSuggestions(true);
+                  }
+                );
+              }}
+              onBlur={() => setShowMotherSuggestions(false)}
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 transition-all"
+              placeholder="Enter mother's name"
+            />
+            {showMotherSuggestions && motherSuggestions.length > 0 && (
+              <ul
+                className="absolute left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-7/12"
+                onMouseDown={(e) => e.preventDefault()} // Prevent blur when clicking suggestions
+              >
+                {motherSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion, "mother")}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {suggestion.name}{" "}
+                    {suggestion.mother_dob && `(${suggestion.mother_dob})`}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div className="w-full">
             <h3 className="text-lg font-semibold py-3 text-[#7091E6]">
