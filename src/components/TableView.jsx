@@ -7,6 +7,8 @@ import {
   FaCloudDownloadAlt,
   FaLightbulb,
   FaRegIdCard,
+  FaMale,
+  FaFemale,
 } from "react-icons/fa";
 //import ReactPaginate from "react-paginate";
 import EditFormModal from "./EditFormModal";
@@ -37,7 +39,7 @@ const TableView = () => {
     father_name: "",
     mother_name: "",
     dob: "",
-    status: "Alive",
+    lifestatus: "Alive",
     profession: "",
     gender: "Male",
   });
@@ -91,7 +93,8 @@ const TableView = () => {
     setSelectedRow(row);
     setIsEditing(true);
   };
-  const calculateAge = (dob) => {
+  const calculateAge = (dob, lifestatus) => {
+    if (lifestatus && lifestatus.toLowerCase() === "Dead") return "Dead";
     if (!dob) return "-";
     const birthDate = new Date(dob);
     if (isNaN(birthDate)) return "-";
@@ -104,6 +107,7 @@ const TableView = () => {
     ) {
       age--;
     }
+    if (age === 0) return "-";
     return age;
   };
 
@@ -281,7 +285,7 @@ const TableView = () => {
                 father_name: "",
                 mother_name: "",
                 dob: "",
-                status: "Alive",
+                lifestatus: "Alive",
                 profession: "",
                 gender: "Male",
               });
@@ -359,10 +363,30 @@ const TableView = () => {
 
                 <td className="text-center">{row.father?.name || "-"}</td>
                 <td className="text-center">{row.mother?.name || "-"}</td>
-                <td className="text-center">{row.gender}</td>
                 <td className="text-center">
-                  {calculateAge(row.date_of_birth)}
+                  <div className="flex items-center justify-center space-x-2">
+                    {row.gender?.toLowerCase() === "male" ? (
+                      <>
+                        <FaMale style={{ color: "blue", fontSize: "1.5rem" }} />
+                        <span>Male</span>
+                      </>
+                    ) : row.gender?.toLowerCase() === "female" ? (
+                      <>
+                        <FaFemale
+                          style={{ color: "pink", fontSize: "1.5rem" }}
+                        />
+                        <span>Female</span>
+                      </>
+                    ) : (
+                      <span>{row.gender}</span>
+                    )}
+                  </div>
                 </td>
+
+                <td className="text-center">
+                  {calculateAge(row.date_of_birth, row.lifestatus)}
+                </td>
+
                 <td className="text-center">
                   <button
                     className="icon-button info-button"
@@ -483,7 +507,7 @@ const TableView = () => {
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
             dob: selectedRow.date_of_birth || "",
-            status: selectedRow.status || "Alive",
+            lifestatus: selectedRow.lifestatus || "Alive",
             death_date: selectedRow.date_of_death || "",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
@@ -510,7 +534,7 @@ const TableView = () => {
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
             date_of_birth: selectedRow.date_of_birth || "",
-            status: selectedRow.status || "Alive",
+            lifestatus: selectedRow.lifestatus || "Alive",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
             email: selectedRow.contact_details?.email || "",

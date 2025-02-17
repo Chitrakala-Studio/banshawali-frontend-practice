@@ -3,11 +3,12 @@ import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import { FaArrowDown } from "react-icons/fa";
 import axios from "axios";
+import handleBackendError from "./handleBackendError";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(formData);
-  const [suggestions, setSuggestions] = useState();
-  const [motherSuggestions, setMotherSuggestions] = useState();
+  const [suggestions, setSuggestions] = useState([]);
+  const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [errors, setErrors] = useState({});
@@ -18,25 +19,15 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const handleSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      father_name: suggestion.name,
-      father_id: suggestion.id,
-      father_dob: suggestion.father_dob,
-    }));
-    setShowSuggestions(false);
-  };
-
-  const handleMotherSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      mother_name: suggestion.name,
-      mother_id: suggestion.id,
-      mother_dob: suggestion.mother_dob,
-    }));
-    setShowMotherSuggestions(false);
-  };
+  // const handleMotherSuggestionClick = (suggestion) => {
+  //   setForm((prev) => ({
+  //     ...prev,
+  //     mother_name: suggestion.name,
+  //     mother_id: suggestion.id,
+  //     mother_dob: suggestion.mother_dob,
+  //   }));
+  //   setShowMotherSuggestions(false);
+  // };
 
   const fetchFatherSuggestions = (parentGeneration, query) => {
     return new Promise((resolve) => {
@@ -98,7 +89,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           setSuggestions(fatherSuggestions);
           setMotherSuggestions(motherSuggestions);
         } catch (error) {
-          console.error("Error fetching suggestions:", error);
+          handleBackendError(
+            error,
+            "Error fetching suggestions",
+            "Error fetching suggestions.",
+            false
+          );
         }
       }
     };
@@ -118,13 +114,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           const data = response.data;
           setForm(data); // Assuming the API returns data in the correct format
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          // Optionally display an error message to the user
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to fetch user details",
-          });
+          handleBackendError(
+            error,
+            "Error fetching user data",
+            "Failed to fetch user details."
+          );
         } finally {
           setLoading(false);
         }
@@ -171,13 +165,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         profileImage: cloudinaryUrl,
       }));
     } catch (error) {
-      console.error("Error uploading image to Cloudinary:", error);
-      // Optionally display an error message to the user
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to upload image",
-      });
+      handleBackendError(
+        error,
+        "Error uploading image",
+        "Failed to upload image."
+      );
     }
   };
 
@@ -251,7 +243,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         father_name: form.father_id || null, // Send null if no father is selected
         mother_name: form.mother_id || null, // Send null if no mother is selected
         date_of_birth: form.dob,
-        status: form.status,
+        lifestatus: form.lifestatus,
         date_of_death: form.death_date,
         photo: form.profileImage,
         profession: form.profession,
@@ -271,12 +263,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       // Consider using a more controlled way to update the family tree instead of reloading the page
       // For example, you could pass a callback function to update the data in the parent component
     } catch (error) {
-      console.error("Error saving data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Failed to save",
-        text: error.response?.data?.message || "Something went wrong!",
-      });
+      handleBackendError(error, "Failed to save", "Something went wrong!");
     } finally {
       setLoading(false);
     }
@@ -435,8 +422,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Status
               </label>
               <select
-                name="status"
-                value={form.status}
+                name="lifestatus"
+                value={form.lifestatus}
                 required
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -446,7 +433,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </select>
             </div>
 
-            {form.status === "Dead" && (
+            {form.lifestatus === "Dead" && (
               <div className="w-full">
                 <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                   Date of Death
@@ -653,7 +640,7 @@ EditFormModal.propTypes = {
     name_in_nepali: PropTypes.string,
     gender: PropTypes.string,
     dob: PropTypes.string,
-    status: PropTypes.string,
+    lifestatus: PropTypes.string,
     death_date: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,

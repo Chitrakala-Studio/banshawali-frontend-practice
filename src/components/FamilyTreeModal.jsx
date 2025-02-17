@@ -11,7 +11,7 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
     address,
     phone,
     date_of_birth,
-    status,
+    lifestatus,
     profession,
     gender,
     father_name,
@@ -62,7 +62,7 @@ const FamilyTreeModal = ({ familyData, onClose }) => {
                 <strong>Gender:</strong> <span>{gender || "N/A"}</span>
                 <strong>Date of Birth:</strong>{" "}
                 <span>{date_of_birth || "N/A"}</span>
-                <strong>Status:</strong> <span>{status || "N/A"}</span>
+                <strong>Status:</strong> <span>{lifestatus || "N/A"}</span>
               </div>
 
               {/* Family Relations */}
@@ -96,7 +96,7 @@ FamilyTreeModal.propTypes = {
     phone: PropTypes.string,
     address: PropTypes.string,
     date_of_birth: PropTypes.string,
-    status: PropTypes.string,
+    lifestatus: PropTypes.string,
     profession: PropTypes.string,
     gender: PropTypes.string,
     father_name: PropTypes.string,
