@@ -18,6 +18,7 @@ import ToggleView from "./ToggleView";
 import SearchForm from "./SearchForm";
 import { useNavigate } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
+import UserProfileModal from "./UserProfileModal";
 
 const TableView = () => {
   const [isAdminLocal, setIsAdminLocal] = useState(false);
@@ -500,25 +501,27 @@ const TableView = () => {
       )}
 
       {showInfoPopup && (
-        <FamilyTreeModal
-          familyData={{
-            id: selectedRow.id || "",
-            profileImage: selectedRow.photo || "",
-            name: selectedRow.name || "",
-            name_in_nepali: selectedRow.name_in_nepali || "",
-            pusta_number: selectedRow.pusta_number || "",
-            father_name: selectedRow.father?.name || "",
-            mother_name: selectedRow.mother?.name || "",
-            date_of_birth: selectedRow.date_of_birth || "",
-            status: selectedRow.status || "Alive",
-            profession: selectedRow.profession || "",
-            gender: selectedRow.gender || "",
-            email: selectedRow.contact_details?.email || "",
-            phone: selectedRow.contact_details?.phone || "",
-            address: selectedRow.contact_details?.address || "",
-          }}
-          onClose={() => setShowInfoPopup(false)}
-        />
+        // <FamilyTreeModal
+        //   familyData={{
+        //     id: selectedRow.id || "",
+        //     profileImage: selectedRow.photo || "",
+        //     name: selectedRow.name || "",
+        //     name_in_nepali: selectedRow.name_in_nepali || "",
+        //     pusta_number: selectedRow.pusta_number || "",
+        //     father_name: selectedRow.father?.name || "",
+        //     mother_name: selectedRow.mother?.name || "",
+        //     date_of_birth: selectedRow.date_of_birth || "",
+        //     status: selectedRow.status || "Alive",
+        //     profession: selectedRow.profession || "",
+        //     gender: selectedRow.gender || "",
+        //     email: selectedRow.contact_details?.email || "",
+        //     phone: selectedRow.contact_details?.phone || "",
+        //     address: selectedRow.contact_details?.address || "",
+        //   }}
+        //   onClose={() => setShowInfoPopup(false)}
+        // />
+
+        <UserProfileModal user={selectedRow} onClose={() => setShowInfoPopup(false)} />
       )}
     </div>
   );

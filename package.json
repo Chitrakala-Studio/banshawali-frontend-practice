@@ -1,160 +1,163 @@
 {
-  
+  
   "name": "banshali-app",
-  
+  
   "private": true,
-  
+  
   "version": "0.0.0",
-  
+  
   "type": "module",
-  
+  
   "scripts": {
-  
-    
+  
+    
   "dev": "vite --host",
-  
-    
+  
+    
   "lint": "eslint .",
-  
-    
+  
+    
   "build": "vite build",
-  
-    
+  
+    
   "preview": "vite preview",
-  
-    
+  
+    
   "predeploy": "npm run build",
-  
-    
+  
+    
   "deploy": "gh-pages -d dist"
-  
+  
   },
-  
+  
   "dependencies": {
-  
-    
+  
+    
   "@emotion/react": "^11.14.0",
-  
-    
+  
+    
   "@emotion/styled": "^11.14.0",
-  
-    
+  
+    
   "@mui/icons-material": "^6.4.1",
-  
-    
+  
+    
   "@mui/material": "^6.4.1",
-  
-    
+  
+    
   "@mui/styled-engine-sc": "^6.4.0",
-  
-    
+  
+    
   "@react-spring/web": "^9.7.5",
-  
-    
+  
+    
   "axios": "^1.7.9",
-  
-    
+  
+    
   "d3-hierarchy": "^3.1.2",
-  
-    
+  
+    
   "d3-selection": "^3.0.0",
-  
-    
+  
+    
   "graph": "^0.2.0",
-  
-    
+  
+    
+  "lucide-react": "^0.475.0",
+  
+    
   "prop-types": "^15.8.1",
-  
-    
+  
+    
   "qs": "^6.14.0",
-  
-    
+  
+    
   "react": "^18.3.1",
-  
-    
+  
+    
   "react-d3-tree": "^3.6.2",
-  
-    
+  
+    
   "react-dom": "^18.3.1",
-  
-    
+  
+    
   "react-family-tree": "^3.2.0",
-  
-    
+  
+    
   "react-hierarchy": "^0.2.0",
-  
-    
+  
+    
   "react-icons": "^5.4.0",
-  
-    
+  
+    
   "react-infinite-scroll-component": "^6.1.0",
-  
-    
+  
+    
   "react-organizational-chart": "^2.2.1",
-  
-    
+  
+    
   "react-paginate": "^8.2.0",
-  
-    
+  
+    
   "react-router-dom": "^7.1.1",
-  
-    
+  
+    
   "react-tinder-card": "^1.6.4",
-  
-    
+  
+    
   "sanscript": "^0.0.2",
-  
-    
+  
+    
   "styled-components": "^6.1.14",
-  
-    
+  
+    
   "sweetalert2": "^11.6.13"
-  
+  
   },
-  
+  
   "devDependencies": {
-  
-    
+  
+    
   "@eslint/js": "^9.17.0",
-  
-    
+  
+    
   "@types/react": "^18.3.18",
-  
-    
+  
+    
   "@types/react-dom": "^18.3.5",
-  
-    
+  
+    
   "@vitejs/plugin-react-swc": "^3.5.0",
-  
-    
+  
+    
   "autoprefixer": "^10.4.20",
-  
-    
+  
+    
   "eslint": "^9.17.0",
-  
-    
+  
+    
   "eslint-plugin-react": "^7.37.2",
-  
-    
+  
+    
   "eslint-plugin-react-hooks": "^5.0.0",
-  
-    
+  
+    
   "eslint-plugin-react-refresh": "^0.4.16",
-  
-    
+  
+    
   "gh-pages": "^6.3.0",
-  
-    
+  
+    
   "globals": "^15.14.0",
-  
-    
+  
+    
   "postcss": "^8.5.1",
-  
-    
+  
+    
   "tailwindcss": "^3.4.17",
-  
-    
+  
+    
   "vite": "^6.0.5"
-  
+  
   }
 }
