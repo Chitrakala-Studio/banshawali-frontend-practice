@@ -190,6 +190,11 @@ table tr:last-child {
   gap: 10rem;
 }
 
+.blurred {
+  filter: blur(5px);
+  pointer-events: none; /* Optionally disable interactions */
+}
+
 .rows-per-page {
   height: 2rem;
   background-color: #fff;

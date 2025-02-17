@@ -62,9 +62,19 @@ const Compare = () => {
   };
 
   // Suggestion function for right person's father's name
-  const fetchRightFatherSuggestions = (parentGeneration, query) => {
+  const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
       setTimeout(() => {
+        const person = familyMembers.find((member) => member.id === personId);
+        if (!person) {
+          console.log("Person not found in familyMembers");
+          resolve([]);
+          return;
+        }
+
+        const fatherName = person.father?.name || "";
+        console.log("Father's name from database:", fatherName);
+
         const suggestions = familyMembers.filter((member) => {
           const isRightGeneration =
             member.pusta_number === parentGeneration.toString();
@@ -73,17 +83,32 @@ const Compare = () => {
             member.name.toLowerCase().includes(query.toLowerCase());
           const isMale =
             member.gender && member.gender.toLowerCase() === "male";
-          return isRightGeneration && matchesQuery && isMale;
+          const matchesFatherName = member.name === fatherName;
+          return (
+            isRightGeneration && matchesQuery && isMale && matchesFatherName
+          );
         });
+
+        console.log("Father suggestions:", suggestions);
         resolve(suggestions);
       }, 500);
     });
   };
 
   // Suggestion function for right person's mother's name
-  const fetchRightMotherSuggestions = (parentGeneration, query) => {
+  const fetchRightMotherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
       setTimeout(() => {
+        const person = familyMembers.find((member) => member.id === personId);
+        if (!person) {
+          console.log("Person not found in familyMembers");
+          resolve([]);
+          return;
+        }
+
+        const motherName = person.mother?.name || "";
+        console.log("Mother's name from database:", motherName);
+
         const suggestions = familyMembers.filter((member) => {
           const isRightGeneration =
             member.pusta_number === parentGeneration.toString();
@@ -92,8 +117,13 @@ const Compare = () => {
             member.name.toLowerCase().includes(query.toLowerCase());
           const isFemale =
             member.gender && member.gender.toLowerCase() === "female";
-          return isRightGeneration && matchesQuery && isFemale;
+          const matchesMotherName = member.name === motherName;
+          return (
+            isRightGeneration && matchesQuery && isFemale && matchesMotherName
+          );
         });
+
+        console.log("Mother suggestions:", suggestions);
         resolve(suggestions);
       }, 500);
     });
@@ -331,6 +361,7 @@ const Compare = () => {
                 disabled={isRightConfirmed}
               />
             </div>
+
             <div className="w-full relative">
               <label className="block mb-2 text-sm md:text-base">Name</label>
               <input
@@ -389,68 +420,82 @@ const Compare = () => {
                         setRightPerson((prev) => ({
                           ...prev,
                           name: sugg.name,
+                          id: sugg.id, // Store selected person's ID
+                          pusta_number: sugg.pusta_number,
+                          fatherName: sugg.father?.name || "", // Auto-fill father's name
+                          motherName: sugg.mother?.name || "", // Auto-fill mother's name
                         }));
                         setShowRightNameSuggestions(false);
                         setRightNameSuggestions([]);
+
+                        // Fetch father's and mother's suggestions based on selected person
+                        if (sugg.father?.name) {
+                          const parentGeneration = sugg.pusta_number - 1;
+                          fetchRightFatherSuggestions(
+                            parentGeneration,
+                            sugg.father.name,
+                            sugg.id
+                          )
+                            .then((suggestions) => {
+                              setRightFatherSuggestions(suggestions);
+                              setShowRightFatherSuggestions(true);
+                            })
+                            .catch((error) =>
+                              console.error(
+                                "Error fetching father suggestions:",
+                                error
+                              )
+                            );
+                        }
+
+                        if (sugg.mother?.name) {
+                          const parentGeneration = sugg.pusta_number - 1;
+                          fetchRightMotherSuggestions(
+                            parentGeneration,
+                            sugg.mother.name,
+                            sugg.id
+                          )
+                            .then((suggestions) => {
+                              setRightMotherSuggestions(suggestions);
+                              setShowRightMotherSuggestions(true);
+                            })
+                            .catch((error) =>
+                              console.error(
+                                "Error fetching mother suggestions:",
+                                error
+                              )
+                            );
+                        }
                       }}
                     >
-                      {sugg.name}
+                      {sugg.name}{" "}
+                      <span className="text-sm text-gray-600">
+                        {sugg.father?.name && sugg.mother?.name
+                          ? `- ${sugg.father.name} | ${sugg.mother.name}`
+                          : sugg.father?.name
+                          ? `- ${sugg.father.name}`
+                          : sugg.mother?.name
+                          ? `- ${sugg.mother.name}`
+                          : ""}
+                      </span>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
+
             <div className="w-full relative">
               <label className="block mb-2 text-sm md:text-base">
                 Father's Name
               </label>
-              <input
-                type="text"
-                placeholder="Enter Father's Name"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.fatherName}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setRightPerson((prev) => ({ ...prev, fatherName: value }));
-                  if (rightPerson.pusta_number) {
-                    const parentGeneration = rightPerson.pusta_number - 1;
-                    fetchRightFatherSuggestions(parentGeneration, value)
-                      .then((suggestions) => {
-                        setRightFatherSuggestions(suggestions);
-                        setShowRightFatherSuggestions(true);
-                      })
-                      .catch((error) =>
-                        console.error(
-                          "Error fetching father suggestions:",
-                          error
-                        )
-                      );
-                  }
-                }}
-                onFocus={() => {
-                  if (rightPerson.pusta_number) {
-                    const parentGeneration = rightPerson.pusta_number - 1;
-                    fetchRightFatherSuggestions(
-                      parentGeneration,
-                      rightPerson.fatherName
-                    )
-                      .then((suggestions) => {
-                        setRightFatherSuggestions(suggestions);
-                        setShowRightFatherSuggestions(true);
-                      })
-                      .catch((error) =>
-                        console.error(
-                          "Error fetching father suggestions:",
-                          error
-                        )
-                      );
-                  }
-                }}
-                onBlur={() => {
-                  setTimeout(() => setShowRightFatherSuggestions(false), 150);
-                }}
-                disabled={isRightConfirmed}
-              />
+              <div
+                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base cursor-pointer"
+                onClick={() =>
+                  setShowRightFatherSuggestions(!showRightFatherSuggestions)
+                }
+              >
+                {rightPerson.fatherName || "Select Father's Name"}
+              </div>
               {showRightFatherSuggestions &&
                 rightFatherSuggestions.length > 0 && (
                   <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
@@ -478,53 +523,14 @@ const Compare = () => {
               <label className="block mb-2 text-sm md:text-base">
                 Mother's Name
               </label>
-              <input
-                type="text"
-                placeholder="Enter Mother's Name"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.motherName}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setRightPerson((prev) => ({ ...prev, motherName: value }));
-                  if (rightPerson.pusta_number) {
-                    const parentGeneration = rightPerson.pusta_number - 1;
-                    fetchRightMotherSuggestions(parentGeneration, value)
-                      .then((suggestions) => {
-                        setRightMotherSuggestions(suggestions);
-                        setShowRightMotherSuggestions(true);
-                      })
-                      .catch((error) =>
-                        console.error(
-                          "Error fetching mother suggestions:",
-                          error
-                        )
-                      );
-                  }
-                }}
-                onFocus={() => {
-                  if (rightPerson.pusta_number) {
-                    const parentGeneration = rightPerson.pusta_number - 1;
-                    fetchRightMotherSuggestions(
-                      parentGeneration,
-                      rightPerson.motherName
-                    )
-                      .then((suggestions) => {
-                        setRightMotherSuggestions(suggestions);
-                        setShowRightMotherSuggestions(true);
-                      })
-                      .catch((error) =>
-                        console.error(
-                          "Error fetching mother suggestions:",
-                          error
-                        )
-                      );
-                  }
-                }}
-                onBlur={() => {
-                  setTimeout(() => setShowRightMotherSuggestions(false), 150);
-                }}
-                disabled={isRightConfirmed}
-              />
+              <div
+                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base cursor-pointer"
+                onClick={() =>
+                  setShowRightMotherSuggestions(!showRightMotherSuggestions)
+                }
+              >
+                {rightPerson.motherName || "Select Mother's Name"}
+              </div>
               {showRightMotherSuggestions &&
                 rightMotherSuggestions.length > 0 && (
                   <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
@@ -548,13 +554,6 @@ const Compare = () => {
                   </ul>
                 )}
             </div>
-            <button
-              className="bg-purple-700 text-white px-6 py-1 md:px-10 md:py-2 rounded-lg text-base md:text-xl"
-              onClick={() => handleConfirm("right")}
-              disabled={isRightConfirmed}
-            >
-              Confirm
-            </button>
           </div>
         </div>
 

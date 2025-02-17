@@ -3,28 +3,48 @@ import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import { FaArrowDown } from "react-icons/fa";
 import axios from "axios";
+import qs from "qs";
+import Sanscript from "sanscript";
+import handleBackendError from "./handleBackendError";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
-  const [form, setForm] = useState(formData);
-  const [suggestions, setSuggestions] = useState();
-  const [motherSuggestions, setMotherSuggestions] = useState();
+  const [form, setForm] = useState(() => ({
+    id: formData.id || null,
+    pusta_number: formData.pusta_number || "",
+    name: formData.name || "",
+    name_in_nepali: formData.name_in_nepali || "",
+    gender: formData.gender || "",
+    dob: formData.dob || "",
+    status: formData.status || "",
+    death_date: formData.death_date || "",
+    father_name: formData.father_name || "",
+    father_id: formData.father_id || null,
+    mother_name: formData.mother_name || "",
+    mother_id: formData.mother_id || null,
+    vansha_status: formData.vansha_status || "",
+    contact: {
+      email: formData.contact?.email || "",
+      phone: formData.contact?.phone || "",
+      address: formData.contact?.address || "",
+    },
+    profession: formData.profession || "",
+    profileImage: formData.profileImage || "",
+  }));
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState([]);
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
 
   const today = new Date().toISOString().split("T")[0];
 
-
   useEffect(() => {
-    // Update form only if formData.id has changed
-    if (formData.id !== form.id) {
-      setForm(formData);
-    }
-
     // Fetch suggestions when pusta_number changes
     const fetchSuggestions = async () => {
       if (form.pusta_number) {
@@ -46,6 +66,39 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     };
 
     fetchSuggestions();
+  }, [form.id, form.pusta_number]);
+  useEffect(() => {
+    // Update form only if formData.id has changed
+    if (formData.id !== form.id) {
+      setForm(formData);
+    }
+
+    // Fetch suggestions when pusta_number changes
+    const fetchSuggestions = async () => {
+      if (form.pusta_number) {
+        try {
+          const response = await axios.get(
+            `https://gautamfamily.org.np/people/familyrelations?pusta_number=${form.pusta_number}`
+          );
+          console.log(response.data);
+          console.log(response.data.father_pusta);
+          const fatherSuggestions = response.data.father_pusta;
+          const motherSuggestions = response.data.mother_pusta;
+
+          setSuggestions(fatherSuggestions);
+          setMotherSuggestions(motherSuggestions);
+        } catch (error) {
+          handleBackendError(
+            error,
+            "Error fetching suggestions",
+            "Error fetching suggestions.",
+            false
+          );
+        }
+      }
+    };
+
+    fetchSuggestions();
   }, [formData.id, form.pusta_number]);
 
   useEffect(() => {
@@ -60,13 +113,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           const data = response.data;
           setForm(data); // Assuming the API returns data in the correct format
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          // Optionally display an error message to the user
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to fetch user details",
-          });
+          handleBackendError(
+            error,
+            "Error fetching user data",
+            "Failed to fetch user details."
+          );
         } finally {
           setLoading(false);
         }
@@ -94,35 +145,106 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setShowMotherSuggestions(false);
   };
 
+  useEffect(() => {
+    // Update form only if it has changed
+    setForm((prevForm) =>
+      JSON.stringify(prevForm) !== JSON.stringify(formData)
+        ? formData
+        : prevForm
+    );
+
+    // Update family members only if new data is available
+    if (formData.familyData) {
+      setFamilyMembers(formData.familyData);
+    }
+
+    // Fetch user details only if formData has an ID
+    if (formData.id) {
+      const fetchUserDetails = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.get(
+            `https://gautamfamily.org.np/people/${formData.id}`
+          );
+          const data = response.data;
+          // Transform the data: assign contact_details to contact
+          const transformedData = {
+            ...data,
+            contact: data.contact_details || {
+              email: "",
+              phone: "",
+              address: "",
+            },
+          };
+          setForm(transformedData);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchUserDetails();
+    }
+
+    // Fetch family members only if it's not already set
+    if (!familyMembers.length) {
+      const fetchFamilyMembers = async () => {
+        try {
+          const response = await fetch(`https://gautamfamily.org.np/people/`);
+          const data = await response.json();
+          setFamilyMembers(data);
+        } catch (error) {
+          console.error("Error fetching family members:", error);
+        }
+      };
+
+      fetchFamilyMembers();
+    }
+  }, [formData, familyMembers.length]);
+
   const handleImageChange = async (e) => {
-    const file = e.target.files;
+    const file = e.target.files[0];
     if (!file) return;
+
+    // 1. (Optional) Local preview
+    const previewUrl = URL.createObjectURL(file);
+    setForm((prevForm) => ({
+      ...prevForm,
+      profileImage: previewUrl,
+    }));
 
     const data = new FormData();
     data.append("file", file);
     data.append("upload_preset", preset);
 
+    console.log("Uploading with preset:", preset);
+    console.log("Using cloud name:", cloudName);
+
     try {
+      // 3. Upload to Cloudinary
       const response = await axios.post(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         data
       );
+      console.log("Cloudinary response:", response.data);
+      // 4. Replace preview URL with the Cloudinary URL
       const cloudinaryUrl = response.data.secure_url;
       setForm((prevForm) => ({
         ...prevForm,
         profileImage: cloudinaryUrl,
       }));
     } catch (error) {
+      handleBackendError(
+        error,
+        "Error uploading image",
+        "Failed to upload image."
+      );
       console.error("Error uploading image to Cloudinary:", error);
-      // Optionally display an error message to the user
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to upload image",
-      });
     }
   };
 
+  // Use this handler to update the nested contact object
   const handleContactChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -134,34 +256,63 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }));
   };
 
+  // This handler updates other form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    const parentGeneration = form.pusta_number - 1;
+
+    if (name === "father_name") {
+      setForm((prev) => ({
+        ...prev,
+        father_id: null,
+      }));
+      fetchFatherSuggestions(parentGeneration, value)
+        .then((results) => {
+          setSuggestions(results);
+          setShowSuggestions(true);
+        })
+        .catch((error) =>
+          console.error("Error fetching father suggestions:", error)
+        );
+    }
+
+    if (name === "mother_name") {
+      setForm((prev) => ({
+        ...prev,
+        mother_id: null,
+      }));
+      fetchMotherSuggestions(parentGeneration, value)
+        .then((results) => {
+          setMotherSuggestions(results);
+          setShowMotherSuggestions(true);
+        })
+        .catch((error) =>
+          console.error("Error fetching mother suggestions:", error)
+        );
+    }
   };
 
   const translateToNepali = async () => {
     try {
-      const response = await fetch(
-        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ne&dt=t&q=${encodeURIComponent(
-          form.name
-        )}`
-      );
-      const data = await response.json();
-      const translatedText = data.map((t) => t).join("");
+      const text = form.name.toLowerCase();
+      const convertedtext = Sanscript.t(text, "itrans", "devanagari");
+      console.log(convertedtext);
       setForm((prevForm) => ({
         ...prevForm,
-        name_in_nepali: translatedText,
+        name_in_nepali: convertedtext,
       }));
     } catch (error) {
-      console.error("Translation error:", error);
+      console.error("Error converting text:", error);
       // Optionally display an error message to the user
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to translate name",
+        text: "Failed to convert text",
       });
     }
   };
@@ -171,18 +322,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     if (loading) return;
 
-    // Basic input validation
-    const validationErrors = {};
-    if (!form.name) validationErrors.name = "Name is required";
-    if (!form.pusta_number)
-      validationErrors.pusta_number = "Pusta Number is required";
-    // Add more validation rules as needed
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
     setLoading(true);
     try {
       const payload = {
@@ -190,10 +329,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         name_in_nepali: form.name_in_nepali,
         pusta_number: form.pusta_number,
         contact_details: form.contact,
-        father_name: form.father_id || null, // Send null if no father is selected
-        mother_name: form.mother_id || null, // Send null if no mother is selected
+        father_name: form.father_id ? form.father_id : form.father_name,
+        mother_name: form.mother_id ? form.mother_id : form.mother_name,
         date_of_birth: form.dob,
-        status: form.status,
+        lifestatus: form.lifestatus,
         date_of_death: form.death_date,
         photo: form.profileImage,
         profession: form.profession,
@@ -210,15 +349,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");
       onClose();
-      // Consider using a more controlled way to update the family tree instead of reloading the page
-      // For example, you could pass a callback function to update the data in the parent component
+      window.location.reload();
     } catch (error) {
-      console.error("Error saving data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Failed to save",
-        text: error.response?.data?.message || "Something went wrong!",
-      });
+      handleBackendError(error, "Failed to save", "Something went wrong!");
     } finally {
       setLoading(false);
     }
@@ -365,6 +498,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="date"
                 name="dob"
+                required
                 value={form.dob}
                 onChange={handleChange}
                 max={today}
@@ -377,8 +511,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Status
               </label>
               <select
-                name="status"
-                value={form.status}
+                name="lifestatus"
+                value={form.lifestatus}
                 required
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -388,7 +522,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </select>
             </div>
 
-            {form.status === "Dead" && (
+            {form.lifestatus === "Dead" && (
               <div className="w-full">
                 <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                   Date of Death
@@ -420,6 +554,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               onFocus={() => {
                 setShowSuggestions(true);
               }}
+              onBlur={() => {
+                setTimeout(() => {
+                  setShowSuggestions(false);
+                }, 200);
+              }}
               className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter father's name"
             />
@@ -435,46 +574,46 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
                     {suggestion.name}
-                    {suggestion.father_dob && `(${suggestion.father_dob})`}
+                    {suggestion.father && `- ${suggestion.father}`}
+                    {suggestion.father?.father &&
+                      ` - ${suggestion.father.father_dob} `}
                   </li>
                 ))}
               </ul>
             )}
 
-            {/* Mother Input */}
             <input
               type="text"
               name="mother_name"
               value={form.mother_name}
               onChange={handleChange}
               onFocus={() => {
-                const parentGeneration = form.pusta_number - 1;
-                fetchMotherSuggestions(parentGeneration, "")
-                  .then((results) => {
-                    setMotherSuggestions(results);
-                    setShowMotherSuggestions(true);
-                  })
-                  .catch((error) =>
-                    console.error("Error fetching mother suggestions:", error)
-                  );
+                setShowMotherSuggestions(true);
               }}
-              onBlur={() => setShowMotherSuggestions(false)}
-              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 transition-all"
+              onBlur={() => {
+                setTimeout(() => {
+                  setShowMotherSuggestions(false);
+                }, 200);
+              }}
+              className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter mother's name"
             />
+
             {showMotherSuggestions && motherSuggestions.length > 0 && (
               <ul
-                className="absolute left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-7/12"
-                onMouseDown={(e) => e.preventDefault()} // Prevent blur when clicking suggestions
+                className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-8/12"
+                style={{ left: "4%" }} // adjust as needed
               >
                 {motherSuggestions.map((suggestion, index) => (
                   <li
                     key={index}
-                    onClick={() => handleSuggestionClick(suggestion, "mother")}
+                    onClick={() => handleMotherSuggestionClick(suggestion)}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion.name}{" "}
-                    {suggestion.mother_dob && `(${suggestion.mother_dob})`}
+                    {suggestion.name}
+                    {suggestion.father && `- ${suggestion.father}`}
+                    {suggestion.father?.father &&
+                      ` - ${suggestion.father.father_dob} `}
                   </li>
                 ))}
               </ul>
@@ -595,7 +734,7 @@ EditFormModal.propTypes = {
     name_in_nepali: PropTypes.string,
     gender: PropTypes.string,
     dob: PropTypes.string,
-    status: PropTypes.string,
+    lifestatus: PropTypes.string,
     death_date: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,

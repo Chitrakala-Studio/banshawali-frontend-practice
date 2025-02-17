@@ -7,6 +7,8 @@ import {
   FaCloudDownloadAlt,
   FaLightbulb,
   FaRegIdCard,
+  FaMale,
+  FaFemale,
 } from "react-icons/fa";
 //import ReactPaginate from "react-paginate";
 import EditFormModal from "./EditFormModal";
@@ -18,6 +20,7 @@ import ToggleView from "./ToggleView";
 import SearchForm from "./SearchForm";
 import { useNavigate } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
+import UserProfileModal from "./UserProfileModal";
 
 const TableView = () => {
   const [isAdminLocal, setIsAdminLocal] = useState(false);
@@ -31,13 +34,15 @@ const TableView = () => {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [displayCount, setDisplayCount] = useState(20);
+  const [showSearchForm, setShowSearchForm] = useState(false);
+  const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
     username: "",
     pusta_number: "",
     father_name: "",
     mother_name: "",
     dob: "",
-    status: "Alive",
+    lifestatus: "Alive",
     profession: "",
     gender: "Male",
   });
@@ -49,7 +54,7 @@ const TableView = () => {
     father_name: "",
     mother_name: "",
   });
-  const [showSearchForm, setShowSearchForm] = useState(false);
+
   const API_URL = "https://gautamfamily.org.np";
 
   useEffect(() => {
@@ -91,7 +96,8 @@ const TableView = () => {
     setSelectedRow(row);
     setIsEditing(true);
   };
-  const calculateAge = (dob) => {
+  const calculateAge = (dob, lifestatus) => {
+    if (lifestatus && lifestatus.toLowerCase() === "Dead") return "Dead";
     if (!dob) return "-";
     const birthDate = new Date(dob);
     if (isNaN(birthDate)) return "-";
@@ -104,6 +110,7 @@ const TableView = () => {
     ) {
       age--;
     }
+    if (age === 0) return "-";
     return age;
   };
 
@@ -244,170 +251,190 @@ const TableView = () => {
 
   return (
     <div className="table-view transition-all duration-300">
-      <ToggleView
-        isTableView={isTableView}
-        toggleView={() => setIsTableView(!isTableView)}
-        availableId={visibleData.length > 0 ? visibleData[0].id : null}
-        className=""
-      />
+      <div className={isModalOpen ? "blurred" : ""}>
+        <ToggleView
+          isTableView={isTableView}
+          toggleView={() => setIsTableView(!isTableView)}
+          availableId={visibleData.length > 0 ? visibleData[0].id : null}
+          className=""
+        />
 
-      <div className="table-view-filters mt-10 p-4">
-        <button
-          className="search-button"
-          style={{
-            borderRadius: "50px",
-            height: "45px",
-            lineHeight: "30px",
-            padding: "0 20px",
-          }}
-          onClick={() => setShowSearchForm(true)}
-        >
-          Search
-        </button>
-        {/* if not is Admin then no button to add  */}
-        {isAdminLocal ? (
+        <div className="table-view-filters mt-10 p-4">
           <button
-            className="add-button"
+            className="search-button"
             style={{
               borderRadius: "50px",
               height: "45px",
               lineHeight: "30px",
               padding: "0 20px",
             }}
-            onClick={() => {
-              setFormData({
-                username: "",
-                pusta_number: "",
-                father_name: "",
-                mother_name: "",
-                dob: "",
-                status: "Alive",
-                profession: "",
-                gender: "Male",
-              });
-              setIsAdding(true);
-            }}
+            onClick={() => setShowSearchForm(true)}
           >
-            + Add New
+            Search
           </button>
-        ) : null}
-      </div>
-      <InfiniteScroll
-        dataLength={visibleData.length}
-        next={handleLoadMore}
-        hasMore={displayCount < filteredData.length}
-        loader={<h4>Loading more data...</h4>}
-        endMessage={
-          <p style={{ textAlign: "center" }}>
-            <b>All data has been loaded</b>
-          </p>
-        }
-      >
-        <table
-          className="ml-3
-      "
+          {/* if not is Admin then no button to add  */}
+          {isAdminLocal ? (
+            <button
+              className="add-button"
+              style={{
+                borderRadius: "50px",
+                height: "45px",
+                lineHeight: "30px",
+                padding: "0 20px",
+              }}
+              onClick={() => {
+                setFormData({
+                  username: "",
+                  pusta_number: "",
+                  father_name: "",
+                  mother_name: "",
+                  dob: "",
+                  lifestatus: "Alive",
+                  profession: "",
+                  gender: "Male",
+                });
+                setIsAdding(true);
+              }}
+            >
+              + Add New
+            </button>
+          ) : null}
+        </div>
+        <InfiniteScroll
+          dataLength={visibleData.length}
+          next={handleLoadMore}
+          hasMore={displayCount < filteredData.length}
+          loader={<h4>Loading more data...</h4>}
+          style={{ overflow: "hidden" }}
         >
-          <thead className="text-center">
-            <tr>
-              <th className="text-center">Name</th>
-              <th className="text-center">Generation</th>
-              <th className="text-center">Father Name</th>
-              <th className="text-center">Mother Name</th>
-              <th className="text-center">Gender</th>
-              <th className="text-center">Age</th>
-              <th className="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-center">
-            {visibleData.map((row, index) => (
-              <tr key={index}>
-                <td className="text-center">
-                  <img
-                    src={
-                      row.photo ||
-                      "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
-                    }
-                    alt="Profile"
-                  />
-                  {row.name}
-                </td>
-                <td className="text-center">
-                  {(() => {
-                    const parsedPustaNumber = parseInt(
-                      row.pusta_number.replace(/\D/g, ""),
-                      10
-                    );
-                    return parsedPustaNumber % 2 === 1 ? (
-                      <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
-                        <span
-                          className="w-2 h-2 rounded-full mr-2"
-                          style={{ backgroundColor: "green" }}
-                        ></span>
-                        {row.pusta_number}
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
-                        <span
-                          className="w-2 h-2 rounded-full mr-2"
-                          style={{ backgroundColor: "red" }}
-                        ></span>
-                        {row.pusta_number}
-                      </div>
-                    );
-                  })()}
-                </td>
-
-                <td className="text-center">{row.father?.name || "-"}</td>
-                <td className="text-center">{row.mother?.name || "-"}</td>
-                <td className="text-center">{row.gender}</td>
-                <td className="text-center">
-                  {calculateAge(row.date_of_birth)}
-                </td>
-                <td className="text-center">
-                  <button
-                    className="icon-button info-button"
-                    onClick={() => handleInfoClick(row)}
-                  >
-                    <FaInfoCircle />
-                  </button>
-                  {
-                    isAdminLocal ? (
-                      <>
-                        <button
-                          className="icon-button edit-button"
-                          onClick={() => handleEditClick(row)}
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="icon-button delete-button"
-                          onClick={() => handleDelete(row)}
-                        >
-                          <FaTrash />
-                        </button>
-                      </>
-                    ) : null
-                    // ) : (
-                    //   <button
-                    //     className="icon-button suggestion-button"
-                    //     onClick={handleSuggestionClick}
-                    //   >
-                    //     <FaLightbulb />
-                    //   </button>
-                    // )
-                  }
-                  <button
-                    className="icon-button card-button"
-                    onClick={() => navigate(`/${row.id}`)}
-                  >
-                    <FaRegIdCard />
-                  </button>
-                </td>
+          <table
+            className="ml-3
+      "
+          >
+            <thead className="text-center">
+              <tr>
+                <th className="text-center">Name</th>
+                <th className="text-center">Generation</th>
+                <th className="text-center">Father Name</th>
+                <th className="text-center">Mother Name</th>
+                <th className="text-center">Gender</th>
+                <th className="text-center">Age</th>
+                <th className="text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </InfiniteScroll>
+            </thead>
+            <tbody className="text-center">
+              {visibleData.map((row, index) => (
+                <tr key={index}>
+                  <td className="text-center">
+                    <img
+                      src={
+                        row.photo ||
+                        "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                      }
+                      alt="Profile"
+                    />
+                    {row.name}
+                  </td>
+                  <td className="text-center">
+                    {(() => {
+                      const parsedPustaNumber = parseInt(
+                        row.pusta_number.replace(/\D/g, ""),
+                        10
+                      );
+                      return parsedPustaNumber % 2 === 1 ? (
+                        <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
+                          <span
+                            className="w-2 h-2 rounded-full mr-2"
+                            style={{ backgroundColor: "green" }}
+                          ></span>
+                          {row.pusta_number}
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
+                          <span
+                            className="w-2 h-2 rounded-full mr-2"
+                            style={{ backgroundColor: "red" }}
+                          ></span>
+                          {row.pusta_number}
+                        </div>
+                      );
+                    })()}
+                  </td>
+
+                  <td className="text-center">{row.father?.name || "-"}</td>
+                  <td className="text-center">{row.mother?.name || "-"}</td>
+                  <td className="text-center">
+                    <div className="flex items-center justify-center space-x-2">
+                      {row.gender?.toLowerCase() === "male" ? (
+                        <>
+                          <FaMale
+                            style={{ color: "blue", fontSize: "1.5rem" }}
+                          />
+                          <span>Male</span>
+                        </>
+                      ) : row.gender?.toLowerCase() === "female" ? (
+                        <>
+                          <FaFemale
+                            style={{ color: "pink", fontSize: "1.5rem" }}
+                          />
+                          <span>Female</span>
+                        </>
+                      ) : (
+                        <span>{row.gender}</span>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="text-center">
+                    {calculateAge(row.date_of_birth, row.lifestatus)}
+                  </td>
+
+                  <td className="text-center">
+                    <button
+                      className="icon-button info-button"
+                      onClick={() => handleInfoClick(row)}
+                    >
+                      <FaInfoCircle />
+                    </button>
+                    {
+                      isAdminLocal ? (
+                        <>
+                          <button
+                            className="icon-button edit-button"
+                            onClick={() => handleEditClick(row)}
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            className="icon-button delete-button"
+                            onClick={() => handleDelete(row)}
+                          >
+                            <FaTrash />
+                          </button>
+                        </>
+                      ) : null
+                      // ) : (
+                      //   <button
+                      //     className="icon-button suggestion-button"
+                      //     onClick={handleSuggestionClick}
+                      //   >
+                      //     <FaLightbulb />
+                      //   </button>
+                      // )
+                    }
+                    <button
+                      className="icon-button card-button"
+                      onClick={() => navigate(`/${row.id}`)}
+                    >
+                      <FaRegIdCard />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </InfiniteScroll>
+      </div>
       <div className="table-footer">
         {/* <button className="import-button">
           Import <FaCloudDownloadAlt className="import-icon" />
@@ -483,7 +510,7 @@ const TableView = () => {
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
             dob: selectedRow.date_of_birth || "",
-            status: selectedRow.status || "Alive",
+            lifestatus: selectedRow.lifestatus || "Alive",
             death_date: selectedRow.date_of_death || "",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
@@ -523,5 +550,4 @@ const TableView = () => {
     </div>
   );
 };
-
 export default TableView;
