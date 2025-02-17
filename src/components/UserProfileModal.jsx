@@ -143,19 +143,19 @@ const UserProfileModal = ({ user, onClose }) => {
 
   const renderContact = () => (
     <div className="space-y-3 text-gray-800">
-      {user.contact.email && (
+      {user.contact?.email && (
       <p className="flex items-center">
         <Mail className="w-5 h-5 mr-2" />{" "}
         <span className="font-semibold">Email:</span> {user.contact.email}
       </p>
       )}
-      {user.contact.phone && (
+      {user.contact?.phone && (
       <p className="flex items-center">
         <Phone className="w-5 h-5 mr-2" />{" "}
         <span className="font-semibold">Phone:</span> {user.contact.phone}
       </p>
       )}
-      {user.contact.address && (
+      {user.contact?.address && (
       <p className="flex items-center">
         <MapPin className="w-5 h-5 mr-2" />{" "}
         <span className="font-semibold">Address:</span> {user.contact.address}
