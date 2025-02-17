@@ -26,7 +26,11 @@ const InfoSection = ({ person }) => {
               <p className="text-l text-white mt-1">{person.name || "N/A"}</p>
             </div>
             <div className="flex items-center border-b border-gray-600 pb-3">
-              <FaVenusMars className="mr-2 text-xl" />
+              {person.gender === "Male" ? (
+                <FaMale className="mr-2 text-xl" />
+              ) : (
+                <FaFemale className="mr-2 text-xl" />
+              )}
               <p className="text-l mt-0 text-white">{person.gender || "N/A"}</p>
             </div>
             <div
@@ -49,45 +53,113 @@ const InfoSection = ({ person }) => {
         </div>
 
         {/* Family Information Box */}
-        {(person.father || person.mother) && (
+        {(person.father?.name || person.mother?.name || person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0) && (
           <div className="bg-gray-700 p-4 rounded-lg">
             <h3 className="font-bold text-lg mb-2">Family</h3>
             <div className="space-y-3">
-              {person.father && (
+              {(person.father?.name || person.mother?.name) && (
                 <div
                   className={`flex items-center ${
-                    person.mother ? "border-b border-gray-600 pb-3" : ""
+                    person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
                   }`}
                 >
-                  <FaMale className="mr-2 text-xl" />
+                  {/* Parents */}
+                  <FaUser className="mr-2 text-xl" />
                   <p className="text-l text-white mt-1">
-                    {person.father.name && person.father.name !== "N/A" ? (
-                      <Link
-                        to={`/${person.father.id}`}
-                        className="text-blue-500 hover:underline"
-                      >
-                        {person.father.name}
-                      </Link>
-                    ) : (
-                      "N/A"
+                    {person.father?.name && person.father.name !== "N/A" && (
+                      <>
+                        Father:{" "}
+                        <Link
+                          to={`/${person.father.id}`}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {person.father.name}
+                        </Link>
+                      </>
+                    )}
+                    {person.mother?.name && person.mother.name !== "N/A" && (
+                      <>
+                        Mother:{" "}
+                        <Link
+                          to={`/${person.mother.id}`}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {person.mother.name}
+                        </Link>
+                      </>
                     )}
                   </p>
                 </div>
               )}
-              {person.mother && (
-                <div className="flex items-center">
-                  <FaFemale className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {person.mother.name && person.mother.name !== "N/A" ? (
+        
+              {/* Grandparents */}
+              {(person.grandfather?.name || person.grandmother?.name) && (
+                <div className={`flex items-center ${
+                  person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                }`}>
+                  <FaUser className="mr-2 text-xl" />
+                  <p className="text-l text-white mt-1">
+                    {person.grandfather?.name && person.grandfather.name !== "N/A" && (
+                      <>
+                      Spouse:{" "}
                       <Link
-                        to={`/${person.mother.id}`}
+                        to={`/${person.grandfather.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.mother.name}
+                        {person.grandfather.name} (Grandfather)
                       </Link>
-                    ) : (
-                      "N/A"
+                      </>
                     )}
+                    {person.grandmother?.name && person.grandmother.name !== "N/A" && (
+                      <Link
+                        to={`/${person.grandmother.id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        {person.grandmother.name} (Grandmother)
+                      </Link>
+                    )}
+                  </p>
+                </div>
+              )}
+        
+              {/* Spouse */}
+              {person.spouse?.name && (
+                <div className={`flex items-center ${
+                  person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                }`}>
+                  <FaUser className="mr-2 text-xl" />
+                  <p className="text-l text-white mt-1">
+                    {person.spouse.name && person.spouse.name !== "N/A" && (
+                      <>
+                      Spouse:{" "}
+                      <Link
+                        to={`/${person.spouse.id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        {person.spouse.name} (Spouse)
+                      </Link>
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
+        
+              {/* Children */}
+              {person.children?.length > 0 && (
+                <div className="flex items-center">
+                  <FaUser className="mr-2 text-xl" />
+                  <p className="text-l text-white mt-1">
+                    Children:{" "}
+                    {person.children.map((child, index) => (
+                      <Link
+                        key={index}
+                        to={`/${child.id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        {child.name}
+                        {index < person.children.length - 1 ? ", " : ""}
+                      </Link>
+                    ))}
                   </p>
                 </div>
               )}
