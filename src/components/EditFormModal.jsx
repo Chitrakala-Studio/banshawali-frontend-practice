@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import { FaArrowDown } from "react-icons/fa";
 import axios from "axios";
-import qs from "qs";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
 
@@ -45,7 +44,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    // Fetch suggestions when pusta_number changes
     const fetchSuggestions = async () => {
       if (form.pusta_number) {
         try {
@@ -68,7 +66,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     fetchSuggestions();
   }, [form.id, form.pusta_number]);
   useEffect(() => {
-    // Update form only if formData.id has changed
     if (formData.id !== form.id) {
       setForm(formData);
     }
