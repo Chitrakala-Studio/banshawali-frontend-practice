@@ -4,6 +4,7 @@ import {
   FaInfoCircle,
   FaEdit,
   FaTrash,
+  FaSearch,
   FaCloudDownloadAlt,
   FaLightbulb,
   FaRegIdCard,
@@ -223,20 +224,22 @@ const TableView = () => {
 
         <div className="table-view-filters mt-10 p-4">
           {selectedParentName && (
-            <button
-              onClick={() => setSelectedParentName(null)}
-              style={{
-                borderRadius: "20px",
-                height: "45px",
-                lineHeight: "30px",
-                padding: "0 20px",
-              }}
-            >
-              Go back
-            </button>
+            <div style={{ width: "100%", textAlign: "left" }}>
+              <button
+                onClick={() => setSelectedParentName(null)}
+                style={{
+                  borderRadius: "20px",
+                  height: "45px",
+                  lineHeight: "30px",
+                  padding: "0 20px",
+                }}
+              >
+                Go back
+              </button>
+            </div>
           )}
           <button
-            className="search-button"
+            className="search-button flex items-center justify-center space-x-2"
             style={{
               borderRadius: "20px",
               height: "45px",
@@ -246,7 +249,8 @@ const TableView = () => {
             }}
             onClick={() => setShowSearchForm(true)}
           >
-            Search
+            <FaSearch className="text-white" />
+            <span className="text-white">Search</span>
           </button>
           {isAdminLocal && (
             <button
