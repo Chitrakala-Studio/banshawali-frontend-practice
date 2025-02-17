@@ -34,6 +34,7 @@ const TableView = () => {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [displayCount, setDisplayCount] = useState(20);
+  const [selectedParentName, setSelectedParentName] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
@@ -243,6 +244,12 @@ const TableView = () => {
     return matches;
   });
 
+  const finalData = selectedParentName
+    ? data.filter(
+        (row) => row.name.toLowerCase() === selectedParentName.toLowerCase()
+      )
+    : filteredData;
+
   const visibleData = filteredData.slice(0, displayCount);
 
   const handleLoadMore = () => {
@@ -260,13 +267,22 @@ const TableView = () => {
         />
 
         <div className="table-view-filters mt-10 p-4">
+          {selectedParentName && (
+            <button
+              onClick={() => setSelectedParentName(null)}
+              className="bg-gray-200 px-3 py-1 rounded mr-4"
+            >
+              Clear Parent Filter
+            </button>
+          )}
           <button
             className="search-button"
             style={{
-              borderRadius: "50px",
+              borderRadius: "20px",
               height: "45px",
               lineHeight: "30px",
               padding: "0 20px",
+              backgroundColor: "lightcoral",
             }}
             onClick={() => setShowSearchForm(true)}
           >
@@ -277,7 +293,7 @@ const TableView = () => {
             <button
               className="add-button"
               style={{
-                borderRadius: "50px",
+                borderRadius: "20px",
                 height: "45px",
                 lineHeight: "30px",
                 padding: "0 20px",
@@ -527,23 +543,27 @@ const TableView = () => {
       )}
 
       {showInfoPopup && (
-        <FamilyTreeModal
-          familyData={{
-            id: selectedRow.id || "",
-            profileImage: selectedRow.photo || "",
-            name: selectedRow.name || "",
-            name_in_nepali: selectedRow.name_in_nepali || "",
-            pusta_number: selectedRow.pusta_number || "",
-            father_name: selectedRow.father?.name || "",
-            mother_name: selectedRow.mother?.name || "",
-            date_of_birth: selectedRow.date_of_birth || "",
-            status: selectedRow.status || "Alive",
-            profession: selectedRow.profession || "",
-            gender: selectedRow.gender || "",
-            email: selectedRow.contact_details?.email || "",
-            phone: selectedRow.contact_details?.phone || "",
-            address: selectedRow.contact_details?.address || "",
-          }}
+        // <FamilyTreeModal
+        //   familyData={{
+        //     id: selectedRow.id || "",
+        //     profileImage: selectedRow.photo || "",
+        //     name: selectedRow.name || "",
+        //     name_in_nepali: selectedRow.name_in_nepali || "",
+        //     pusta_number: selectedRow.pusta_number || "",
+        //     father_name: selectedRow.father?.name || "",
+        //     mother_name: selectedRow.mother?.name || "",
+        //     date_of_birth: selectedRow.date_of_birth || "",
+        //     status: selectedRow.status || "Alive",
+        //     profession: selectedRow.profession || "",
+        //     gender: selectedRow.gender || "",
+        //     email: selectedRow.contact_details?.email || "",
+        //     phone: selectedRow.contact_details?.phone || "",
+        //     address: selectedRow.contact_details?.address || "",
+        //   }}
+        //   onClose={() => setShowInfoPopup(false)}
+        // />
+        <UserProfileModal
+          user={selectedRow}
           onClose={() => setShowInfoPopup(false)}
         />
       )}
