@@ -5,6 +5,13 @@ image {
   border-radius: 50%;
   clip-path: circle(50%);
 }
+.rd3-node,.rd3-leaf-node{
+  font-weight: 400;
+  font-family:sans-serif
+}
+.tree{
+  line-height: 1.5;
+}
 @media (max-width: 764px) {
   #root {
     overflow: scroll;
@@ -12,4 +19,5 @@ image {
   .tree {
     transform: scale(0.65);
   }
+  
 }

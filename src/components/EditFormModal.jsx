@@ -495,7 +495,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="date"
                 name="dob"
-                required
+                // required
                 value={form.dob}
                 onChange={handleChange}
                 max={today}
