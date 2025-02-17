@@ -35,7 +35,9 @@ const Compare = () => {
     name: "",
     pusta_number: "",
     fatherName: "",
+    fatherId: "",
     motherName: "",
+    motherId: "",
   });
 
   const [isLeftConfirmed, setIsLeftConfirmed] = useState(true);
@@ -193,6 +195,8 @@ const Compare = () => {
     const rightPerson_pusta_number = rightPerson.pusta_number;
     const rightPerson_fatherName = rightPerson.fatherName;
     const rightPerson_motherName = rightPerson.motherName;
+    const rightPerson_fatherId = rightPerson.fatherId;
+    const rightPerson_motherId = rightPerson.motherId;
 
     const response = await axios.post(`https://gautamfamily.org.np/compare/`, {
       leftPersonId,
@@ -200,6 +204,8 @@ const Compare = () => {
       rightPerson_pusta_number,
       rightPerson_fatherName,
       rightPerson_motherName,
+      rightPerson_fatherId,
+      rightPerson_motherId,
     });
 
     console.log(response.data);
@@ -422,8 +428,10 @@ const Compare = () => {
                           name: sugg.name,
                           id: sugg.id, // Store selected person's ID
                           pusta_number: sugg.pusta_number,
-                          fatherName: sugg.father?.name || "", // Auto-fill father's name
-                          motherName: sugg.mother?.name || "", // Auto-fill mother's name
+                          fatherName: sugg.father?.name || "",
+                          motherName: sugg.mother?.name || "",
+                          fatherId: sugg.father?.id || "",
+                          motherId: sugg.mother?.id || "",
                         }));
                         setShowRightNameSuggestions(false);
                         setRightNameSuggestions([]);
@@ -492,37 +500,11 @@ const Compare = () => {
                 type="text"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
                 value={rightPerson.fatherName}
-                onChange={(e) => {
-                  setRightPerson((prev) => ({
-                    ...prev,
-                    fatherName: e.target.value,
-                  }));
-                }}
+                disabled
                 placeholder="Father's Name"
               />
-              {showRightFatherSuggestions &&
-                rightFatherSuggestions.length > 0 && (
-                  <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
-                    {rightFatherSuggestions.map((sugg, index) => (
-                      <li
-                        key={index}
-                        className="p-2 hover:bg-gray-100 cursor-pointer"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          setRightPerson((prev) => ({
-                            ...prev,
-                            fatherName: sugg.name,
-                          }));
-                          setShowRightFatherSuggestions(false);
-                          setRightFatherSuggestions([]);
-                        }}
-                      >
-                        {sugg.name}
-                      </li>
-                    ))}
-                  </ul>
-                )}
             </div>
+
             <div className="w-full relative">
               <label className="block mb-2 text-sm md:text-base">
                 Mother's Name
@@ -531,44 +513,10 @@ const Compare = () => {
                 type="text"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
                 value={rightPerson.motherName}
-                onChange={(e) => {
-                  setRightPerson((prev) => ({
-                    ...prev,
-                    motherName: e.target.value,
-                  }));
-                }}
+                disabled
                 placeholder="Mother's Name"
               />
-              {showRightMotherSuggestions &&
-                rightMotherSuggestions.length > 0 && (
-                  <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
-                    {rightMotherSuggestions.map((sugg, index) => (
-                      <li
-                        key={index}
-                        className="p-2 hover:bg-gray-100 cursor-pointer"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          setRightPerson((prev) => ({
-                            ...prev,
-                            motherName: sugg.name,
-                          }));
-                          setShowRightMotherSuggestions(false);
-                          setRightMotherSuggestions([]);
-                        }}
-                      >
-                        {sugg.name}
-                      </li>
-                    ))}
-                  </ul>
-                )}
             </div>
-            <button
-              className="bg-purple-700 text-white px-6 py-1 md:px-10 md:py-2 rounded-lg text-base md:text-xl"
-              onClick={() => handleConfirm("right")}
-              disabled={isRightConfirmed}
-            >
-              Confirm
-            </button>
           </div>
         </div>
 
