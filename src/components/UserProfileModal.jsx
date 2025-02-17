@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   X,
-  User,
   Mail,
   Phone,
   MapPin,
@@ -12,6 +11,8 @@ import {
   Globe,
   UserCircle,
 } from "lucide-react";
+import { FaBirthdayCake, FaFemale, FaHeart, FaMale, FaSkullCrossbones, FaUser} from "react-icons/fa";
+import { Link } from 'react-router-dom';
 
 const UserProfileModal = ({ user, onClose }) => {
   console.log(user);
@@ -26,26 +27,38 @@ const UserProfileModal = ({ user, onClose }) => {
   const renderPersonalInfo = () => (
     <div className="space-y-3 text-gray-800">
       <p className="flex items-center">
-        <Briefcase className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Profession:</span> {user.profession}
-      </p>
-      <p className="flex items-center">
-        <Globe className="w-5 h-5 mr-2" />{" "}
+        {user.gender === "Male" ? (
+          <FaMale className="w-5 h-5 mr-2" />
+        ) : (
+          <FaFemale className="w-5 h-5 mr-2" />
+        )}
         <span className="font-semibold">Gender:</span> {user.gender}
       </p>
-      <p className="flex items-center">
-        <Calendar className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Date of Birth:</span> {user.dateOfBirth}
-      </p>
-      <p className="flex items-center">
-        <Heart className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Status:</span> {user.status}
-      </p>
-      {user.dateOfDeath && (
+      {/* if user.dateofbirth */}
+      {user.dateOfBirth && (
         <p className="flex items-center">
-          <Calendar className="w-5 h-5 mr-2" />{" "}
+          <FaBirthdayCake className="w-5 h-5 mr-2" />{" "}
+          <span className="font-semibold">Date of Birth:</span> {user.dateOfBirth}
+        </p>
+      )}
+      {user.lifestatus && (
+        <p className="flex items-center">
+          <FaHeart className="w-5 h-5 mr-2" />{" "}
+          <span className="font-semibold">Life Status:</span> {user.lifestatus}
+        </p>
+      )}
+
+      {user.date_of_death && (
+        <p className="flex items-center">
+          <FaSkullCrossbones className="w-5 h-5 mr-2" />{" "}
           <span className="font-semibold">Date of Death:</span>{" "}
-          {user.dateOfDeath}
+          {user.date_of_death}
+        </p>
+      )}
+      { user.profession && (
+        <p className="flex items-center">
+          <Briefcase className="w-5 h-5 mr-2" />{" "}
+          <span className="font-semibold">Profession:</span> {user.profession}
         </p>
       )}
     </div>
@@ -53,30 +66,101 @@ const UserProfileModal = ({ user, onClose }) => {
 
   const renderFamilyRelations = () => (
     <div className="space-y-3 text-gray-800">
-      <p className="font-semibold">Father:</p> {user.father}
-      <p className="font-semibold">Mother:</p> {user.mother}
-      <p className="font-semibold">Spouse:</p> {user.spouse}
-      <p className="font-semibold">Children:</p> {user.children.join(", ")}
-      <p className="font-semibold">Grandfather:</p> {user.grandfather}
-      <p className="font-semibold">Grandmother:</p> {user.grandmother}
-      <p className="font-semibold">Cousins:</p> {user.cousins.join(", ")}
+      {user.grandfather.name && (
+        <p className="flex items-center">
+          <FaMale className="w-5 h-5 mr-2 text-blue-500" />{" "}
+          <span className="font-semibold">Grandfather:</span>{" "}
+          {user.grandfather.name}
+        </p>
+      )}
+      {user.grandmother.name && (
+        <p className="flex items-center">
+          <FaFemale className="w-5 h-5 mr-2 text-pink-500" />{" "}
+          <span className="font-semibold">Grandmother:</span>{" "}
+          {user.grandmother.name}
+        </p>
+      )}
+      {user.father.name && (
+        <p className="flex items-center">
+          <FaMale className="w-5 h-5 mr-2 text-blue-500" />{" "}
+          <span className="font-semibold">Father:</span> 
+          <Link to={`/${user.father.id}`} className="text-blue-500 hover:underline">
+            {user.father.name}
+          </Link>
+        </p>
+      )}
+      {user.mother.name && (
+        <p className="flex items-center">
+          <FaFemale className="w-5 h-5 mr-2 text-pink-500" />{" "}
+          <span className="font-semibold">Mother:</span>
+          <Link to={`/${user.mother.id}`} className="text-blue-500 hover:underline">
+           {user.mother.name}
+          </Link>
+        </p>
+      )}
+      {user.spouse.name && (
+        <p className="flex items-center">
+          <Fa className="w-5 h-5 mr-2" />{" "}
+          <span className="font-semibold">Spouse:</span> 
+          <Link to={`/${user.spouse.id}`} className="text-blue-500 hover:underline">
+            {user.spouse.name}
+          </Link>
+        </p>
+      )}
+      {user.siblings && user.siblings.length > 0 && (
+        <div className="mb-3">
+          <p className="flex items-center font-semibold">
+            <FaUser className="w-5 h-5 mr-2" /> Siblings:
+          </p>
+          {user.siblings.map((sibling) => (
+            <p key={sibling.id} className="flex items-center ml-7">
+              <FaUser className="w-4 h-4 mr-2" />
+              <Link to={`/${sibling.id}`} className="text-blue-500 hover:underline">
+                {sibling.name}
+              </Link>
+            </p>
+          ))}
+        </div>
+      )}
+
+      {user.children && user.children.length > 0 && (
+        <div>
+          <p className="flex items-center font-semibold">
+            <Users className="w-5 h-5 mr-2" /> Children:
+          </p>
+          {user.children.map((child) => (
+            <p key={child.id} className="flex items-center ml-7">
+              <FaUser className="w-4 h-4 mr-2" />
+              <Link to={`/${child.id}`} className="text-blue-500 hover:underline">
+                {child.name}
+              </Link>
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   );
 
   const renderContact = () => (
     <div className="space-y-3 text-gray-800">
+      {user.contact?.email && (
       <p className="flex items-center">
         <Mail className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Email:</span> {user.email}
+        <span className="font-semibold">Email:</span> {user.contact.email}
       </p>
+      )}
+      {user.contact?.phone && (
       <p className="flex items-center">
         <Phone className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Phone:</span> {user.phone}
+        <span className="font-semibold">Phone:</span> {user.contact.phone}
       </p>
+      )}
+      {user.contact?.address && (
       <p className="flex items-center">
         <MapPin className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Address:</span> {user.address}
+        <span className="font-semibold">Address:</span> {user.contact.address}
       </p>
+      )}
     </div>
   );
 
