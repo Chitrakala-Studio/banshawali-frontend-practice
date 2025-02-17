@@ -14,7 +14,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     name_in_nepali: formData.name_in_nepali || "",
     gender: formData.gender || "",
     dob: formData.dob || "",
-    status: formData.status || "",
+    lifestatus: formData.lifestatus || "",
     death_date: formData.death_date || "",
     father_name: formData.father_name || "",
     father_id: formData.father_id || null,
@@ -542,75 +542,83 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             <h3 className="text-lg font-bold py-3 text-[#7091E6]">
               Family Information
             </h3>
-
+            {/* Father Name Input */}
             <input
               type="text"
               name="father_name"
               value={form.father_name}
               onChange={handleChange}
-              onFocus={() => {
-                setShowSuggestions(true);
-              }}
-              onBlur={() => {
-                setTimeout(() => {
-                  setShowSuggestions(false);
-                }, 200);
-              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter father's name"
             />
+
+            {/* Father Suggestions List */}
             {showSuggestions && suggestions.length > 0 && (
               <ul
                 className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-8/12"
-                style={{ left: "10%" }} // optional: adjust position to center relative to input if needed
+                style={{ left: "10%" }}
               >
                 {suggestions.map((suggestion, index) => (
                   <li
                     key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSuggestionClick(suggestion);
+                    }}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion.name}
-                    {suggestion.father && `- ${suggestion.father}`}
-                    {suggestion.father?.father &&
-                      ` - ${suggestion.father.father_dob} `}
+                    {suggestion.name}{" "}
+                    {suggestion.father?.name && suggestion.mother?.name
+                      ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
+                      : suggestion.father?.name
+                      ? `- ${suggestion.father.name}`
+                      : suggestion.mother?.name
+                      ? `- ${suggestion.mother.name}`
+                      : ""}
                   </li>
                 ))}
               </ul>
             )}
 
+            {/* Mother Name Input */}
             <input
               type="text"
               name="mother_name"
               value={form.mother_name}
               onChange={handleChange}
-              onFocus={() => {
-                setShowMotherSuggestions(true);
-              }}
-              onBlur={() => {
-                setTimeout(() => {
-                  setShowMotherSuggestions(false);
-                }, 200);
-              }}
+              onFocus={() => setShowMotherSuggestions(true)}
+              onBlur={() =>
+                setTimeout(() => setShowMotherSuggestions(false), 200)
+              }
               className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter mother's name"
             />
 
+            {/* Mother Suggestions List */}
             {showMotherSuggestions && motherSuggestions.length > 0 && (
               <ul
                 className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-8/12"
-                style={{ left: "4%" }} // adjust as needed
+                style={{ left: "4%" }}
               >
                 {motherSuggestions.map((suggestion, index) => (
                   <li
                     key={index}
-                    onClick={() => handleMotherSuggestionClick(suggestion)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleMotherSuggestionClick(suggestion);
+                    }}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion.name}
-                    {suggestion.father && `- ${suggestion.father}`}
-                    {suggestion.father?.father &&
-                      ` - ${suggestion.father.father_dob} `}
+                    {suggestion.name}{" "}
+                    {suggestion.father?.name && suggestion.mother?.name
+                      ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
+                      : suggestion.father?.name
+                      ? `- ${suggestion.father.name}`
+                      : suggestion.mother?.name
+                      ? `- ${suggestion.mother.name}`
+                      : ""}
                   </li>
                 ))}
               </ul>

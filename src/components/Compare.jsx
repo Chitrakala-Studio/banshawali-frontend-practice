@@ -488,14 +488,18 @@ const Compare = () => {
               <label className="block mb-2 text-sm md:text-base">
                 Father's Name
               </label>
-              <div
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base cursor-pointer"
-                onClick={() =>
-                  setShowRightFatherSuggestions(!showRightFatherSuggestions)
-                }
-              >
-                {rightPerson.fatherName || "Select Father's Name"}
-              </div>
+              <input
+                type="text"
+                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
+                value={rightPerson.fatherName}
+                onChange={(e) => {
+                  setRightPerson((prev) => ({
+                    ...prev,
+                    fatherName: e.target.value,
+                  }));
+                }}
+                placeholder="Father's Name"
+              />
               {showRightFatherSuggestions &&
                 rightFatherSuggestions.length > 0 && (
                   <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
@@ -523,14 +527,18 @@ const Compare = () => {
               <label className="block mb-2 text-sm md:text-base">
                 Mother's Name
               </label>
-              <div
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base cursor-pointer"
-                onClick={() =>
-                  setShowRightMotherSuggestions(!showRightMotherSuggestions)
-                }
-              >
-                {rightPerson.motherName || "Select Mother's Name"}
-              </div>
+              <input
+                type="text"
+                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
+                value={rightPerson.motherName}
+                onChange={(e) => {
+                  setRightPerson((prev) => ({
+                    ...prev,
+                    motherName: e.target.value,
+                  }));
+                }}
+                placeholder="Mother's Name"
+              />
               {showRightMotherSuggestions &&
                 rightMotherSuggestions.length > 0 && (
                   <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
@@ -554,6 +562,13 @@ const Compare = () => {
                   </ul>
                 )}
             </div>
+            <button
+              className="bg-purple-700 text-white px-6 py-1 md:px-10 md:py-2 rounded-lg text-base md:text-xl"
+              onClick={() => handleConfirm("right")}
+              disabled={isRightConfirmed}
+            >
+              Confirm
+            </button>
           </div>
         </div>
 
