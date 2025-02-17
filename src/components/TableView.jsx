@@ -20,6 +20,7 @@ import ToggleView from "./ToggleView";
 import SearchForm from "./SearchForm";
 import { useNavigate } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
+import UserProfileModal from "./UserProfileModal";
 
 const TableView = () => {
   const [isAdminLocal, setIsAdminLocal] = useState(false);
@@ -536,7 +537,7 @@ const TableView = () => {
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
             date_of_birth: selectedRow.date_of_birth || "",
-            lifestatus: selectedRow.lifestatus || "Alive",
+            status: selectedRow.status || "Alive",
             profession: selectedRow.profession || "",
             gender: selectedRow.gender || "",
             email: selectedRow.contact_details?.email || "",
