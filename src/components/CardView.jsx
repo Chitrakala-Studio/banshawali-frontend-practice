@@ -142,9 +142,12 @@ const CardView = () => {
 
   return (
     <>
-      {!isMobile && (
-        <ToggleView isTableView={isTableView} toggleView={toggleView} />
-      )}
+      <ToggleView
+        isTableView={isTableView}
+        toggleView={toggleView}
+        availableId={data[currentIndex]?.id}
+      />
+
       <div className="absolute w-full h-full lg:w-2/5 lg:h-[100%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
         {/* Navigation Buttons */}
         <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} />
