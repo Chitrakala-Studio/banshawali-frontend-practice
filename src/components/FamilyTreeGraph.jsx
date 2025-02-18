@@ -63,22 +63,21 @@ const transformToTreeData = (familyData) => {
 
 const findNodeById = (tree, id) => {
   if (!tree) return null;
+
+  // Direct match
   if (tree.id === id) return tree;
-  console.log("TRee ", tree.children);
-  if (!tree.children) return null;
 
-
-
-
-  for (const child of tree.children) {
-    console.log("Child",child );
-    console.log("ID:",id);
-    const found = findNodeById(child, id);
-    console.log("Found",found);
-    if (found) return found;
+  // If children exist, search through them
+  if (tree.children && tree.children.length > 0) {
+    for (const child of tree.children) {
+      const found = findNodeById(child, id);
+      if (found) return found; // Return the found node immediately
+    }
   }
-  return null;
+
+  return null; // If not found in this branch
 };
+
 
 
 
@@ -86,6 +85,8 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
   const [treeData, setTreeData] = useState(null)
   const [familyData, setFamilyData] = useState(null)
   const treeContainerRef = useRef(null)
+  const [expandfather,setexpandfather] = useState(false);
+  const [expandchild, setexpandchild] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,21 +104,66 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
   
   const handleNodeClick = async (nodeDatum) => {
     console.log("Node clicked:", nodeDatum);
+
+    console.log("COLLAPASABLE", nodeDatum.isCollapsible);
   
-    // If a real person (not "Father" or "Children") is clicked, update the selected person
+    // If it's a real person (not "Father" or "Children"), expand instead of resetting the tree
     if (!nodeDatum.isCollapsible) {
-      console.log(`Updating selected person to: ${nodeDatum.name}`);
+      console.log(`Fetching additional data for: ${nodeDatum.name}`);
       const newData = await fetchFamilyData(nodeDatum.real_id);
       if (newData) {
-        console.log("Family Data: ", familyData);
-        setFamilyData(newData);
-        console.log("new Data: ", newData);
-        setTreeData(transformToTreeData(newData)); // Reset tree with new person
+        setTreeData((prevTree) => {
+          if (!prevTree) return null;
+  
+          const newTree = JSON.parse(JSON.stringify(prevTree)); // Deep copy
+          const targetNode = findNodeById(newTree, nodeDatum.id);
+  
+          if (targetNode) {
+            targetNode.children = targetNode.children || [];
+
+            console.log("IDDDD",nodeDatum.id)
+
+            
+            // Expand father if available
+            if (nodeDatum.id.startsWith("father-")){
+            if (newData.father && !targetNode.children.some(child => child.id === `father-${newData.father.id}`)) {
+              targetNode.children.push({
+                name: newData.father.name,
+                id: `father-${newData.father.id}`,
+                real_id: newData.father.id,
+                photo: newData.father.photo || null,
+                gender: newData.father.gender || "Male",
+                pusta: newData.father.pusta || "",
+                children: []
+              });
+            }
+          }
+          if (nodeDatum.id.startsWith("child-")){
+            // Expand children if available
+            if (newData.children && newData.children.length > 0) {
+              newData.children.forEach(child => {
+                if (!targetNode.children.some(c => c.id === `child-${child.id}`)) {
+                  targetNode.children.push({
+                    name: child.name,
+                    id: `child-${child.id}`,
+                    real_id: child.id,
+                    photo: child.photo || null,
+                    gender: child.gender || "Male",
+                    pusta: child.pusta || "",
+                    children: []
+                  });
+                }
+              });
+            }
+          }
+        }
+          return newTree;
+        });
       }
-      return; // Prevent further processing
+      return;
     }
   
-    // If it's a group node, toggle expansion and load data dynamically
+    // If it's a "Father" or "Children" group, toggle expansion
     setTreeData((prevTree) => {
       if (!prevTree) return null;
   
@@ -128,12 +174,11 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
         targetNode.collapsed = !targetNode.collapsed;
         console.log(`Toggled collapsed state: ${targetNode.collapsed}`);
   
-        // If expanding the "Father" group, check if the father exists and show only the father
         if (!targetNode.collapsed && nodeDatum.name === "Father") {
           console.log("Expanding father group");
-  
-          // Only expand if the father exists (i.e. father is not an empty string or null)
+          // setexpandfather(true);
           if (familyData.father && familyData.father.id) {
+            // setexpandfather(true);
             targetNode.children = [
               {
                 name: familyData.father.name,
@@ -142,21 +187,19 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
                 photo: familyData.father.photo || null,
                 gender: familyData.father.gender || "Male",
                 pusta: familyData.father.pusta || "",
-                // father: familyData.father.father||"",
-                children: [], // Keep this empty as we don't want to show the children here
+                children: [],
               },
             ];
+            setexpandfather(true);
           } else {
-            console.log("Father does not exist, not expanding.");
-            targetNode.children = []; // Don't expand, no father exists
+            console.log("Father does not exist.");
+            targetNode.children = [];
           }
-        } 
-        // If expanding the "Children" group, show only the children and not the father
-        else if (!targetNode.collapsed && nodeDatum.name === "Children") {
+        } else if (!targetNode.collapsed && nodeDatum.name === "Children") {
           console.log("Expanding children group");
-  
-          // Show the children if there are any
+          
           if (familyData.children && familyData.children.length > 0) {
+            // setexpandchild(true);
             targetNode.children = familyData.children.map((child) => ({
               name: child.name,
               id: `child-${child.id}`,
@@ -164,15 +207,14 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
               photo: child.photo || null,
               gender: child.gender || "Male",
               pusta: child.pusta || "",
-              children: [], // Keep this empty as we don't want to show the father
+              children: [],
             }));
+            setexpandchild(true);
           } else {
             console.log("No children to expand.");
-            targetNode.children = []; // Don't expand, no children available
+            targetNode.children = [];
           }
-        }
-        // If collapsing, clear the children (whether it's father or children group)
-        else {
+        } else {
           console.log("Collapsing, clearing children.");
           targetNode.children = [];
         }
@@ -181,9 +223,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
       return newTree;
     });
   };
-  
-  
-  
+
   
   
   
