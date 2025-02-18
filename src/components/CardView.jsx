@@ -96,8 +96,10 @@ const CardView = () => {
     const newIndex = currentIndex === 0 ? data.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
+    setInfoPopup(false);
+    setIsExpanded(false);
     // Update the URL with the new id
-    navigate(`/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/card/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to the next card with circular navigation
@@ -105,8 +107,10 @@ const CardView = () => {
     const newIndex = currentIndex === data.length - 1 ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
+    setInfoPopup(false);
+    setIsExpanded(false);
     // Update the URL with the new id
-    navigate(`/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/card/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to a specific card
@@ -150,7 +154,7 @@ const CardView = () => {
 
       <div className="absolute w-full h-full my-auto rounded-xl lg:w-2/5 lg:h-[97%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
         {/* Navigation Buttons */}
-        <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} />
+        {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
 
         {/* Card Container */}
         <div
