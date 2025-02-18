@@ -5,19 +5,16 @@ import {
   FaEdit,
   FaTrash,
   FaSearch,
-  FaCloudDownloadAlt,
-  FaLightbulb,
   FaRegIdCard,
   FaMale,
   FaFemale,
 } from "react-icons/fa";
 import EditFormModal from "./EditFormModal";
-import FamilyTreeModal from "./FamilyTreeModal";
 import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
 import ToggleView from "./ToggleView";
 import SearchForm from "./SearchForm";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
 
@@ -46,7 +43,7 @@ const TableView = () => {
   });
   const [searchCriteria, setSearchCriteria] = useState({
     name: "",
-    pustaNumber: "",
+    pusta_number: "",
     phone: "",
     email: "",
     father_name: "",
@@ -75,10 +72,21 @@ const TableView = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${API_URL}/people/`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      // Check in param if there is id and fetch data for that id
+      const id = window.location.pathname.split("/")[2];
+      console.log("ID:", id);
+      let response = null;
+      if (id) {
+        response = await fetch(`${API_URL}/people/${id}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        response = await fetch(`${API_URL}/people/`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+      }
       const fetchedData = await response.json();
       console.log("Fetched data:", fetchedData);
       setData(fetchedData);
@@ -86,9 +94,6 @@ const TableView = () => {
       console.error("Fetch error:", error);
     }
   };
-
-  const sortedData = [...data].sort((a, b) => Number(a.id) - Number(b.id));
-  const availableId = sortedData.length > 0 ? sortedData[0].id : null;
 
   const handleEditClick = (row) => {
     setSelectedRow(row);
@@ -161,57 +166,17 @@ const TableView = () => {
     });
   };
 
-  const filteredData = data.filter((row) => {
-    const { name, pustaNumber, phone, email, father_name, mother_name } =
-      searchCriteria;
-    let matches = true;
-    if (name) {
-      matches = matches && row.name.toLowerCase().includes(name.toLowerCase());
-    }
-    if (pustaNumber) {
-      matches = matches && row.pusta_number.toString().includes(pustaNumber);
-    }
-    if (phone) {
-      matches =
-        matches &&
-        row.contact_details?.phone &&
-        row.contact_details.phone.includes(phone);
-    }
-    if (email) {
-      matches =
-        matches &&
-        row.contact_details?.email &&
-        row.contact_details.email.toLowerCase().includes(email.toLowerCase());
-    }
-    if (father_name) {
-      matches =
-        matches &&
-        row.father?.name &&
-        row.father.name.toLowerCase().includes(father_name.toLowerCase());
-    }
-    if (mother_name) {
-      matches =
-        matches &&
-        row.mother?.name &&
-        row.mother.name.toLowerCase().includes(mother_name.toLowerCase());
-    }
-    return matches;
-  });
-
-  // If a parent is selected, override the filtered data with only that person's data.
-  const finalData = selectedParentName
-    ? data.filter(
-        (row) => row.name.toLowerCase() === selectedParentName.toLowerCase()
-      )
-    : filteredData;
+  const finalData = data;
 
   // IMPORTANT: Use finalData for the visible rows.
-  const visibleData = finalData.slice(0, displayCount);
+  const visibleData = Array.isArray(finalData)
+    ? finalData.slice(0, displayCount)
+    : [finalData];
 
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + 20);
   };
-
+  console.log("Visible Data:", visibleData);
   return (
     <div className="table-view transition-all duration-300">
       <div className={isModalOpen ? "blurred" : ""}>
@@ -238,29 +203,18 @@ const TableView = () => {
               </button>
             </div>
           )}
+
           <button
-            className="search-button flex items-center justify-center space-x-2"
-            style={{
-              borderRadius: "20px",
-              height: "45px",
-              lineHeight: "30px",
-              padding: "0 20px",
-              backgroundColor: "lightcoral",
-            }}
+            className="bg-teal-500 text-white px-6 py-2 rounded-md hover:bg-teal-600 transition-all shadow-md flex items-center space-x-2"
             onClick={() => setShowSearchForm(true)}
           >
             <FaSearch className="text-white" />
-            <span className="text-white">Search</span>
+            <span>Search</span>
           </button>
+
           {isAdminLocal && (
             <button
-              className="add-button"
-              style={{
-                borderRadius: "20px",
-                height: "45px",
-                lineHeight: "30px",
-                padding: "0 20px",
-              }}
+              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all shadow-md"
               onClick={() => {
                 setFormData({
                   username: "",
@@ -287,50 +241,66 @@ const TableView = () => {
           style={{ overflow: "hidden" }}
         >
           <table className="ml-3 w-full">
-            <thead className="text-center border-b-2 border-gray-700">
+            <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
               <tr>
-                <th className="text-center">Name</th>
-                <th className="text-center">Generation</th>
-                <th className="text-center">Father Name</th>
-                <th className="text-center">Mother Name</th>
-                <th className="text-center">Gender</th>
-                <th className="text-center">Age</th>
-                <th className="text-center">Actions</th>
+                <th className="text-center p-3 font-semibold text-lg">Name</th>
+                <th className="text-center p-3 font-semibold text-lg">
+                  Pusta Number
+                </th>
+                <th className="text-center p-3 font-semibold text-lg">
+                  Father Name
+                </th>
+                <th className="text-center p-3 font-semibold text-lg">
+                  Mother Name
+                </th>
+                <th className="text-center p-3 font-semibold text-lg">
+                  Gender
+                </th>
+                <th className="text-center p-3 font-semibold text-lg">Age</th>
+                <th className="text-center p-3 font-semibold text-lg">
+                  Actions
+                </th>
               </tr>
             </thead>
+
             <tbody className="text-center">
               {visibleData.map((row, index) => (
-                <tr key={index} className="border-b-2 border-gray-700">
-                  <td className="text-center">
+                <tr
+                  key={index}
+                  className="border-b-2 border-gray-700 hover:bg-gray-200 transition-all duration-200"
+                >
+                  <td className="text-center ">
                     <img
                       src={
                         row.photo ||
                         "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                       }
                       alt="Profile"
+                      className="w-10 h-10 rounded-full object-cover"
                     />
+
                     {row.name}
                   </td>
-                  <td className="text-center">
+                  <td className="text-center items-center justify-center">
                     {(() => {
-                      const parsedPustaNumber = parseInt(
-                        row.pusta_number.replace(/\D/g, ""),
-                        10
-                      );
-                      return parsedPustaNumber % 2 === 1 ? (
-                        <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-green-200 text-green-700">
-                          <span
-                            className="w-2 h-2 rounded-full mr-2"
-                            style={{ backgroundColor: "green" }}
-                          ></span>
-                          {row.pusta_number}
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center w-3/4 h-6 p-2 rounded-full bg-red-200 text-red-700">
-                          <span
-                            className="w-2 h-2 rounded-full mr-2"
-                            style={{ backgroundColor: "red" }}
-                          ></span>
+                      // If the pusta_number is red then first green  else orange
+                      const genColorClass =
+                        row.pusta_number % 2 === 0
+                          ? {
+                              bg: "bg-green-300 text-green-700",
+                              label: "Even Generation",
+                            }
+                          : {
+                              bg: "bg-orange-300 text-orange-700",
+                              label: "Odd Generation",
+                            };
+
+                      return (
+                        <div
+                          className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                          title={genColorClass.label}
+                        >
+                          <span className="w-2 h-2 rounded-full mr-2"></span>
                           {row.pusta_number}
                         </div>
                       );
@@ -339,81 +309,84 @@ const TableView = () => {
 
                   <td className="text-center">
                     {row.father?.name ? (
-                      <span
-                        onClick={() => setSelectedParentName(row.father.name)}
-                        className="cursor-pointer text-blue-500 "
-                      >
+                      <Link to={`/${row.father.id}`} className="text-blue-500">
                         {row.father.name}
-                      </span>
+                      </Link>
                     ) : (
                       "-"
                     )}
                   </td>
                   <td className="text-center">
                     {row.mother?.name ? (
-                      <span
-                        onClick={() => setSelectedParentName(row.mother.name)}
-                        className="cursor-pointer text-blue-500 "
-                      >
+                      <Link to={`/${row.mother.id}`} className="text-blue-500">
                         {row.mother.name}
-                      </span>
+                      </Link>
                     ) : (
                       "-"
                     )}
                   </td>
+                  {row.gender?.toLowerCase() === "male" ? (
+                    <>
+                      <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
+                        <FaMale className="text-blue-500 text-lg" />
+                        <span className="font-medium">Male</span>
+                      </td>
+                    </>
+                  ) : row.gender?.toLowerCase() === "female" ? (
+                    <>
+                      <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
+                        <FaFemale className="text-pink-500 text-lg" />
+                        <span className="font-medium">Female</span>
+                      </td>
+                    </>
+                  ) : (
+                    <span>-</span>
+                  )}
                   <td className="text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      {row.gender?.toLowerCase() === "male" ? (
-                        <>
-                          <FaMale
-                            style={{ color: "blue", fontSize: "1.5rem" }}
-                          />
-                          <span>Male</span>
-                        </>
-                      ) : row.gender?.toLowerCase() === "female" ? (
-                        <>
-                          <FaFemale
-                            style={{ color: "pink", fontSize: "1.5rem" }}
-                          />
-                          <span>Female</span>
-                        </>
-                      ) : (
-                        <span>{row.gender}</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="text-center">
-                    {calculateAge(row.date_of_birth, row.lifestatus)}
-                  </td>
-                  <td className="text-center">
-                    <button
-                      className="icon-button info-button"
-                      onClick={() => handleInfoClick(row)}
-                    >
-                      <FaInfoCircle />
-                    </button>
-                    {isAdminLocal && (
-                      <>
-                        <button
-                          className="icon-button edit-button"
-                          onClick={() => handleEditClick(row)}
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="icon-button delete-button"
-                          onClick={() => handleDelete(row)}
-                        >
-                          <FaTrash />
-                        </button>
-                      </>
+                    {row.lifestatus.toLowerCase() === "dead" ? (
+                      <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
+                        Dead
+                      </span>
+                    ) : (
+                      calculateAge(row.date_of_birth, row.lifestatus)
                     )}
-                    <button
-                      className="icon-button card-button"
-                      onClick={() => navigate(`/${row.id}`)}
-                    >
-                      <FaRegIdCard />
-                    </button>
+                  </td>
+
+                  <td className="text-center">
+                    <div className="flex space-x-3 items-center justify-center">
+                      <button
+                        className="icon-button text-gray-500 hover:text-blue-500"
+                        title="View Info"
+                        onClick={() => handleInfoClick(row)}
+                      >
+                        <FaInfoCircle />
+                      </button>
+                      {isAdminLocal && (
+                        <>
+                          <button
+                            className="icon-button text-gray-500 hover:text-green-500"
+                            title="Edit"
+                            onClick={() => handleEditClick(row)}
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            className="icon-button text-gray-500 hover:text-red-500"
+                            title="Delete"
+                            onClick={() => handleDelete(row)}
+                          >
+                            <FaTrash />
+                          </button>
+                        </>
+                      )}
+                      <button
+                        className="icon-button card-button text-gray-500 hover:text-blue-500"
+                        title="View Card"
+                        onClick={() => navigate(`/card/${row.id}`)}
+                      >
+                        <FaRegIdCard />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

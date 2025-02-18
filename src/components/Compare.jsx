@@ -193,8 +193,8 @@ const Compare = () => {
     const leftPersonId = leftPerson.id;
     const rightPerson_name = rightPerson.name;
     const rightPerson_pusta_number = rightPerson.pusta_number;
-    const rightPerson_fatherName = rightPerson.fatherName;
-    const rightPerson_motherName = rightPerson.motherName;
+    const rightPerson_fatherName = rightPerson.fatherId;
+    const rightPerson_motherName = rightPerson.motherId;
     const rightPerson_fatherId = rightPerson.fatherId;
     const rightPerson_motherId = rightPerson.motherId;
 
@@ -204,8 +204,6 @@ const Compare = () => {
       rightPerson_pusta_number,
       rightPerson_fatherName,
       rightPerson_motherName,
-      rightPerson_fatherId,
-      rightPerson_motherId,
     });
 
     console.log(response.data);

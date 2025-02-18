@@ -8,10 +8,25 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
     const { name, value } = e.target;
     setCriteria((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(criteria);
+    const queryParams = new URLSearchParams(criteria).toString();
+    const url = `https://gautamfamily.org.np/people/search/?${queryParams}`;
+  
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Search results:', data);
+        onSearch(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching search results:', error);
+      });
   };
 
   return (
@@ -65,8 +80,8 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
               </label>
               <input
                 type="text"
-                name="pustaNumber"
-                value={criteria.pustaNumber}
+                name="pusta_number"
+                value={criteria.pusta_number}
                 onChange={handleChange}
                 placeholder="Enter Pusta Number"
                 className="w-full px-2 py-1 border border-gray-600 rounded 
@@ -142,6 +157,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
               type="submit"
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 
                          rounded-md text-sm transition-colors"
+              onClick={handleSubmit}
             >
               Search
             </button>
@@ -155,7 +171,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
 SearchForm.propTypes = {
   initialCriteria: PropTypes.shape({
     name: PropTypes.string,
-    pustaNumber: PropTypes.string,
+    pusta_number: PropTypes.string,
     phone: PropTypes.string,
     email: PropTypes.string,
     father_name: PropTypes.string,
