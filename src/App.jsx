@@ -9,6 +9,7 @@ const App = () => {
   return (
     <Router basename="/Banshali-app">
       <Routes>
+        {/* Uncomment these if needed */}
         <Route path="/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="card/:id" element={<AdminDashboard />} />
