@@ -187,7 +187,6 @@ const TableView = () => {
       return;
     }
 
-
     setFilteredData(criteria);
     setSearchApplied(true);
     setShowSearchForm(false);
