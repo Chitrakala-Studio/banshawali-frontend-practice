@@ -84,7 +84,7 @@ const CardView = () => {
 
   const handleToggleInfo = (family) => {
     if (infoPopup === family.name) {
-      setInfoPopup(false);
+      setInfoPopup(null);
       setIsExpanded(false);
     } else {
       setInfoPopup(family.name);
@@ -96,10 +96,8 @@ const CardView = () => {
     const newIndex = currentIndex === 0 ? data.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
-    setInfoPopup(false);
-    setIsExpanded(false);
     // Update the URL with the new id
-    navigate(`/card/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to the next card with circular navigation
@@ -107,10 +105,8 @@ const CardView = () => {
     const newIndex = currentIndex === data.length - 1 ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
     scrollToCard(newIndex);
-    setInfoPopup(false);
-    setIsExpanded(false);
     // Update the URL with the new id
-    navigate(`/card/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to a specific card
@@ -152,14 +148,9 @@ const CardView = () => {
         availableId={data[currentIndex]?.id}
       />
 
-      <div className="absolute w-full h-full lg:w-2/5 lg:h-[100%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
-    
-      {!isMobile && (
-        <ToggleView isTableView={isTableView} toggleView={toggleView} />
-      )}
-      <div className="absolute w-full h-full rounded-xl my-auto lg:w-2/5 lg:h-[96%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
+      <div className="absolute w-full h-full my-auto rounded-xl lg:w-2/5 lg:h-[97%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
         {/* Navigation Buttons */}
-        {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
+        <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} />
 
         {/* Card Container */}
         <div
@@ -190,7 +181,7 @@ const CardView = () => {
               />
 
               {/* Buttons Section */}
-              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-2  bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+              <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
                 {/* Scroll Left Button */}
                 <button
                   className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -259,12 +250,11 @@ const CardView = () => {
             )}
           </TinderCard>
 
-          <div className="footer mt-0 sticky bottom-10 m-2 left-0 w-full bg-white z-20">
+          <div className="footer mt-0 sticky bottom-0 left-0 w-full bg-white z-20">
             <FooterButtons
               id={id}
               onGenerateFamilyTree={handleFooterGenerate}
               infoPopup={infoPopup}
-              
             />
           </div>
         </div>
@@ -272,7 +262,7 @@ const CardView = () => {
         {/* Family Tree Modal */}
         {selectedPerson && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white w-[90vw] max-w-screen-lg h-[90vh]  max-h-screen-lg p-6 rounded-lg relative">
+            <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
               <button
                 onClick={() => {
                   setSelectedPerson(null);
@@ -290,12 +280,10 @@ const CardView = () => {
                 id={id}
                 selectedPerson={selectedPerson}
                 isMobile={isMobile}
-                isHorizontal={isHorizontal}
               />
             </div>
           </div>
         )}
-      </div>
       </div>
     </>
   );
