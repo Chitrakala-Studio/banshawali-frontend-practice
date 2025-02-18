@@ -137,7 +137,13 @@ const CardView = () => {
     }
   };
   if (loading) {
-    return <div>Loading...</div>; // Show loading while data is being fetched
+    return <div >
+      
+      Loading...
+      
+     
+      
+      </div>; // Show loading while data is being fetched
   }
 
   if (error) {
@@ -146,13 +152,14 @@ const CardView = () => {
 
   return (
     <>
+    <div className="bg-gradient-to-t from-black via-black/60 to-transparent w-[100vw] h-[100vh] overflow-hidden  snap-y snap-mandatory scrollbar-hide">
       <ToggleView
         isTableView={isTableView}
         toggleView={toggleView}
         availableId={data[currentIndex]?.id}
       />
 
-      <div className="absolute w-full h-full my-auto rounded-2xl lg:w-2/5 lg:h-[97%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
+      <div className="w-full h-full m-auto rounded-2xl lg:w-2/5 lg:h-[97%] lg:top-0 md:w-3/5 md:h-[90%] md:top-0 overflow-hidden">
         {/* Navigation Buttons */}
         {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
 
@@ -266,7 +273,7 @@ const CardView = () => {
         {/* Family Tree Modal */}
         {selectedPerson && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white w- max-w-4xl p-6 rounded-lg relative">
+            <div className="bg-white w-[70vw] h-[70vh] max-w-4xl p-6 rounded-lg relative">
               <button
                 onClick={() => {
                   setSelectedPerson(null);
@@ -288,6 +295,7 @@ const CardView = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </>
   );
