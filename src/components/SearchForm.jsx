@@ -14,7 +14,24 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(criteria);
+    const queryParams = new URLSearchParams(criteria).toString();
+    const url = `https://gautamfamily.org.np/people/search/?${queryParams}`;
+  
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Search results:', data);
+        onSearch(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching search results:', error);
+      });
+    // onSearch(criteria);
   };
 
   return (
@@ -131,14 +148,14 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
             <div className="flex items-center space-x-2">
               <span className="text-white text-sm">Same Vansha Status</span>
               <label
-                htmlFor="same_vansha_status"
+                htmlFor="same_vamsha_status"
                 className="relative inline-flex items-center cursor-pointer"
               >
                 <input
                   type="checkbox"
-                  id="same_vansha_status"
-                  name="same_vansha_status"
-                  checked={criteria.same_vansha_status}
+                  id="same_vamsha_status"
+                  name="same_vamsha_status"
+                  checked={criteria.same_vamsha_status}
                   onChange={handleChange}
                   className="sr-only peer"
                 />
@@ -176,7 +193,7 @@ SearchForm.propTypes = {
     email: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,
-    same_vansha_status: PropTypes.bool,
+    same_vamsha_status: PropTypes.bool,
   }).isRequired,
   onSearch: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
