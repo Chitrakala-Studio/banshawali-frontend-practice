@@ -211,40 +211,6 @@ const Compare = () => {
     setRelationship(response.data.message);
   };
 
-  const handleConfirm = (side) => {
-    if (
-      (side === "left" && (!leftPerson.name || !leftPerson.pusta_number)) ||
-      (side === "right" && (!rightPerson.name || !rightPerson.pusta_number))
-    ) {
-      Swal.fire({
-        title: "Missing Information",
-        text: "Both Name and pusta_number fields are required for confirmation.",
-        icon: "warning",
-        confirmButtonText: "Okay",
-      });
-      return;
-    }
-
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Once confirmed, this form can't be edited.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, confirm it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        if (side === "left") {
-          setIsLeftConfirmed(true);
-        } else if (side === "right") {
-          setIsRightConfirmed(true);
-        }
-        Swal.fire("Confirmed!", "The information is now locked.", "success");
-      }
-    });
-  };
-
   const handleGenerateFamilyTree = async () => {
     Swal.fire({
       title: "Family Tree being Generated!",
@@ -260,9 +226,9 @@ const Compare = () => {
     <div className="flex min-h-screen bg-gray-100">
       <button
         className="absolute top-4 left-4 bg-purple-700 text-white px-4 py-2 rounded-full"
-        onClick={() => navigate(`/${id}`)}
+        onClick={() => navigate(`/`)}
       >
-        Go Back to Card
+        Go Back to Table
       </button>
 
       <div className="flex flex-col items-center px-4 py-6 h-full w-full overflow-y-auto">

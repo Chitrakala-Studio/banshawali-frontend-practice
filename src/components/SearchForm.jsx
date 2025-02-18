@@ -5,28 +5,16 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
   const [criteria, setCriteria] = useState(initialCriteria);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCriteria((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setCriteria((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const queryParams = new URLSearchParams(criteria).toString();
-    const url = `https://gautamfamily.org.np/people/search/?${queryParams}`;
-  
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Search results:', data);
-        onSearch(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching search results:', error);
-      });
+    onSearch(criteria);
   };
 
   return (
@@ -58,8 +46,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Right-aligned grid with minimal spacing */}
-          <div className="ml-auto grid grid-cols-2 gap-x-4 gap-y-2">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
             {/* Row 1: Name & Pusta Number */}
             <div>
               <label className="block text-xs text-gray-300 mb-1">Name</label>
@@ -69,9 +56,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.name}
                 onChange={handleChange}
                 placeholder="Enter name"
-                className="w-full px-2 py-1 border border-gray-600 rounded 
-                           focus:outline-none focus:ring-1 focus:ring-blue-500 
-                           bg-gray-700 text-white text-sm"
+                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 text-white text-sm"
               />
             </div>
             <div>
@@ -84,9 +69,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.pusta_number}
                 onChange={handleChange}
                 placeholder="Enter Pusta Number"
-                className="w-full px-2 py-1 border border-gray-600 rounded 
-                           focus:outline-none focus:ring-1 focus:ring-blue-500 
-                           bg-gray-700 text-white text-sm"
+                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 text-white text-sm"
               />
             </div>
 
@@ -99,9 +82,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.phone}
                 onChange={handleChange}
                 placeholder="Enter phone number"
-                className="w-full px-2 py-1 border border-gray-600 rounded 
-                           focus:outline-none focus:ring-1 focus:ring-blue-500 
-                           bg-gray-700 text-white text-sm"
+                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 text-white text-sm"
               />
             </div>
             <div>
@@ -112,9 +93,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                className="w-full px-2 py-1 border border-gray-600 rounded 
-                           focus:outline-none focus:ring-1 focus:ring-blue-500 
-                           bg-gray-700 text-white text-sm"
+                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 text-white text-sm"
               />
             </div>
 
@@ -129,9 +108,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.father_name}
                 onChange={handleChange}
                 placeholder="Enter father name"
-                className="w-full px-2 py-1 border border-gray-600 rounded 
-                           focus:outline-none focus:ring-1 focus:ring-blue-500 
-                           bg-gray-700 text-white text-sm"
+                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 text-white text-sm"
               />
             </div>
             <div>
@@ -144,20 +121,43 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.mother_name}
                 onChange={handleChange}
                 placeholder="Enter mother name"
-                className="w-full px-2 py-1 border border-gray-600 rounded 
-                           focus:outline-none focus:ring-1 focus:ring-blue-500 
-                           bg-gray-700 text-white text-sm"
+                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 text-white text-sm"
               />
             </div>
           </div>
 
-          {/* Centered Search Button */}
-          <div className="flex justify-center">
+          {/* Bottom row: Toggle switch on left and Search button on right */}
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-white text-sm">Same Vansha Status</span>
+              <label
+                htmlFor="same_vansha_status"
+                className="relative inline-flex items-center cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  id="same_vansha_status"
+                  name="same_vansha_status"
+                  checked={criteria.same_vansha_status}
+                  onChange={handleChange}
+                  className="sr-only peer"
+                />
+                <div
+                  className="w-11 h-6 bg-gray-200 rounded-full peer 
+                             peer-focus:outline-none peer-focus:ring-4 
+                             peer-focus:ring-blue-300 dark:bg-gray-700 
+                             peer-checked:bg-blue-600 
+                             after:content-[''] after:absolute after:top-0.5 after:left-[2px]
+                             after:bg-white after:border-gray-300 after:border after:rounded-full 
+                             after:h-5 after:w-5 after:transition-all
+                             dark:border-gray-600 peer-checked:after:translate-x-full 
+                             peer-checked:after:border-white"
+                ></div>
+              </label>
+            </div>
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 
-                         rounded-md text-sm transition-colors"
-              onClick={handleSubmit}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm transition-colors"
             >
               Search
             </button>
@@ -176,6 +176,7 @@ SearchForm.propTypes = {
     email: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,
+    same_vansha_status: PropTypes.bool,
   }).isRequired,
   onSearch: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,

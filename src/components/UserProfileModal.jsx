@@ -11,8 +11,15 @@ import {
   Globe,
   UserCircle,
 } from "lucide-react";
-import { FaBirthdayCake, FaFemale, FaHeart, FaMale, FaSkullCrossbones, FaUser} from "react-icons/fa";
-import { Link } from 'react-router-dom';
+import {
+  FaBirthdayCake,
+  FaFemale,
+  FaHeart,
+  FaMale,
+  FaSkullCrossbones,
+  FaUser,
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const UserProfileModal = ({ user, onClose }) => {
   console.log(user);
@@ -25,113 +32,206 @@ const UserProfileModal = ({ user, onClose }) => {
   ];
 
   const renderPersonalInfo = () => (
-    <div className="space-y-3 text-gray-800">
-      <p className="flex items-center">
+    <div style={{ color: "#1F2937", lineHeight: "1.6" }}>
+      <p style={{ display: "flex", alignItems: "center" }}>
         {user.gender === "Male" ? (
-          <FaMale className="w-5 h-5 mr-2" />
+          <FaMale
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
         ) : (
-          <FaFemale className="w-5 h-5 mr-2" />
+          <FaFemale
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
         )}
-        <span className="font-semibold">Gender:</span> {user.gender}
+        <strong style={{ marginRight: "4px" }}>Gender:</strong> {user.gender}
       </p>
-      {/* if user.dateofbirth */}
       {user.dateOfBirth && (
-        <p className="flex items-center">
-          <FaBirthdayCake className="w-5 h-5 mr-2" />{" "}
-          <span className="font-semibold">Date of Birth:</span> {user.dateOfBirth}
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaBirthdayCake
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
+          <strong style={{ marginRight: "4px" }}>Date of Birth:</strong>{" "}
+          {user.dateOfBirth}
         </p>
       )}
       {user.lifestatus && (
-        <p className="flex items-center">
-          <FaHeart className="w-5 h-5 mr-2" />{" "}
-          <span className="font-semibold">Life Status:</span> {user.lifestatus}
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaHeart
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
+          <strong style={{ marginRight: "4px" }}>Life Status:</strong>{" "}
+          {user.lifestatus}
         </p>
       )}
-
       {user.date_of_death && (
-        <p className="flex items-center">
-          <FaSkullCrossbones className="w-5 h-5 mr-2" />{" "}
-          <span className="font-semibold">Date of Death:</span>{" "}
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaSkullCrossbones
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
+          <strong style={{ marginRight: "4px" }}>Date of Death:</strong>{" "}
           {user.date_of_death}
         </p>
       )}
-      { user.profession && (
-        <p className="flex items-center">
-          <Briefcase className="w-5 h-5 mr-2" />{" "}
-          <span className="font-semibold">Profession:</span> {user.profession}
+      {user.profession && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <Briefcase
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
+          <strong style={{ marginRight: "4px" }}>Profession:</strong>{" "}
+          {user.profession}
         </p>
       )}
     </div>
   );
 
   const renderFamilyRelations = () => (
-    <div className="space-y-3 text-gray-800">
-      {user.grandfather.name && (
-        <p className="flex items-center">
-          <FaMale className="w-5 h-5 mr-2 text-blue-500" />{" "}
-          <span className="font-semibold">Grandfather:</span>{" "}
+    <div style={{ color: "#1F2937", lineHeight: "1.6" }}>
+      {user.grandfather?.name && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaMale
+            style={{
+              width: "20px",
+              height: "20px",
+              marginRight: "8px",
+              color: "#3B82F6",
+            }}
+          />
+          <strong style={{ marginRight: "4px" }}>Grandfather:</strong>{" "}
           {user.grandfather.name}
         </p>
       )}
-      {user.grandmother.name && (
-        <p className="flex items-center">
-          <FaFemale className="w-5 h-5 mr-2 text-pink-500" />{" "}
-          <span className="font-semibold">Grandmother:</span>{" "}
+      {user.grandmother?.name && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaFemale
+            style={{
+              width: "20px",
+              height: "20px",
+              marginRight: "8px",
+              color: "#EC4899",
+            }}
+          />
+          <strong style={{ marginRight: "4px" }}>Grandmother:</strong>{" "}
           {user.grandmother.name}
         </p>
       )}
-      {user.father.name && (
-        <p className="flex items-center">
-          <FaMale className="w-5 h-5 mr-2 text-blue-500" />{" "}
-          <span className="font-semibold">Father:</span> 
-          <Link to={`/${user.father.id}`} className="text-blue-500 hover:underline">
+      {user.father?.name && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaMale
+            style={{
+              width: "20px",
+              height: "20px",
+              marginRight: "8px",
+              color: "#3B82F6",
+            }}
+          />
+          <strong style={{ marginRight: "4px" }}>Father:</strong>
+          <Link
+            to={`/${user.father.id}`}
+            style={{ color: "#3B82F6", marginLeft: "4px" }}
+          >
             {user.father.name}
           </Link>
         </p>
       )}
-      {user.mother.name && (
-        <p className="flex items-center">
-          <FaFemale className="w-5 h-5 mr-2 text-pink-500" />{" "}
-          <span className="font-semibold">Mother:</span>
-          <Link to={`/${user.mother.id}`} className="text-blue-500 hover:underline">
-           {user.mother.name}
+      {user.mother?.name && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaFemale
+            style={{
+              width: "20px",
+              height: "20px",
+              marginRight: "8px",
+              color: "#EC4899",
+            }}
+          />
+          <strong style={{ marginRight: "4px" }}>Mother:</strong>
+          <Link
+            to={`/${user.mother.id}`}
+            style={{ color: "#3B82F6", marginLeft: "4px" }}
+          >
+            {user.mother.name}
           </Link>
         </p>
       )}
-      {user.spouse.name && (
-        <p className="flex items-center">
-          <Fa className="w-5 h-5 mr-2" />{" "}
-          <span className="font-semibold">Spouse:</span> 
-          <Link to={`/${user.spouse.id}`} className="text-blue-500 hover:underline">
+      {user.spouse?.name && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <FaUser
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
+          <strong style={{ marginRight: "4px" }}>Spouse:</strong>
+          <Link
+            to={`/${user.spouse.id}`}
+            style={{ color: "#3B82F6", marginLeft: "4px" }}
+          >
             {user.spouse.name}
           </Link>
         </p>
       )}
       {user.siblings && user.siblings.length > 0 && (
-        <div className="mb-3">
-          <p className="flex items-center font-semibold">
-            <FaUser className="w-5 h-5 mr-2" /> Siblings:
+        <div style={{ marginBottom: "1rem" }}>
+          <p
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontWeight: "bold",
+            }}
+          >
+            <FaUser
+              style={{ width: "20px", height: "20px", marginRight: "8px" }}
+            />{" "}
+            Siblings:
           </p>
           {user.siblings.map((sibling) => (
-            <p key={sibling.id} className="flex items-center ml-7">
-              <FaUser className="w-4 h-4 mr-2" />
-              <Link to={`/${sibling.id}`} className="text-blue-500 hover:underline">
+            <p
+              key={sibling.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "1.75rem",
+              }}
+            >
+              <FaUser
+                style={{ width: "16px", height: "16px", marginRight: "4px" }}
+              />
+              <Link
+                to={`/${sibling.id}`}
+                style={{ color: "#3B82F6", marginLeft: "4px" }}
+              >
                 {sibling.name}
               </Link>
             </p>
           ))}
         </div>
       )}
-
       {user.children && user.children.length > 0 && (
         <div>
-          <p className="flex items-center font-semibold">
-            <Users className="w-5 h-5 mr-2" /> Children:
+          <p
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontWeight: "bold",
+            }}
+          >
+            <Users
+              style={{ width: "20px", height: "20px", marginRight: "8px" }}
+            />{" "}
+            Children:
           </p>
           {user.children.map((child) => (
-            <p key={child.id} className="flex items-center ml-7">
-              <FaUser className="w-4 h-4 mr-2" />
-              <Link to={`/${child.id}`} className="text-blue-500 hover:underline">
+            <p
+              key={child.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "1.75rem",
+              }}
+            >
+              <FaUser
+                style={{ width: "16px", height: "16px", marginRight: "4px" }}
+              />
+              <Link
+                to={`/${child.id}`}
+                style={{ color: "#3B82F6", marginLeft: "4px" }}
+              >
                 {child.name}
               </Link>
             </p>
@@ -142,64 +242,141 @@ const UserProfileModal = ({ user, onClose }) => {
   );
 
   const renderContact = () => (
-    <div className="space-y-3 text-gray-800">
-      {user.contact?.email && (
-      <p className="flex items-center">
-        <Mail className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Email:</span> {user.contact.email}
-      </p>
+    <div style={{ color: "#1F2937", lineHeight: "1.6" }}>
+      {user.contact_details?.email && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <Mail style={{ width: "20px", height: "20px", marginRight: "8px" }} />
+          <strong style={{ marginRight: "4px" }}>Email:</strong>{" "}
+          {user.contact_details.email}
+        </p>
       )}
-      {user.contact?.phone && (
-      <p className="flex items-center">
-        <Phone className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Phone:</span> {user.contact.phone}
-      </p>
+      {user.contact_details?.phone && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <Phone
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
+          <strong style={{ marginRight: "4px" }}>Phone:</strong>{" "}
+          {user.contact_details.phone}
+        </p>
       )}
-      {user.contact?.address && (
-      <p className="flex items-center">
-        <MapPin className="w-5 h-5 mr-2" />{" "}
-        <span className="font-semibold">Address:</span> {user.contact.address}
-      </p>
+      {user.contact_details?.address && (
+        <p style={{ display: "flex", alignItems: "center" }}>
+          <MapPin
+            style={{ width: "20px", height: "20px", marginRight: "8px" }}
+          />
+          <strong style={{ marginRight: "4px" }}>Address:</strong>{" "}
+          {user.contact_details.address}
+        </p>
       )}
     </div>
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-lg">
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "#fff",
+          padding: "24px",
+          borderRadius: "8px",
+          maxWidth: "520px",
+          width: "100%",
+          maxHeight: "80vh",
+          overflowY: "auto",
+          boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
+        }}
+      >
         <button
-          className="float-right text-gray-600 hover:text-gray-900"
           onClick={onClose}
+          style={{
+            float: "right",
+            color: "#4B5563",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+          }}
         >
-          <X className="w-6 h-6" />
+          <X style={{ width: "24px", height: "24px" }} />
         </button>
-        <div className="text-center mb-6">
+
+        {/* Header section with image on the left */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "24px",
+          }}
+        >
           <img
             src={user.photo}
             alt={user.name}
-            className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-2 border-gray-300"
+            style={{
+              width: "150px",
+              height: "150px",
+              borderRadius: "0", // Square shape
+              objectFit: "cover",
+              marginRight: "16px",
+              border: "2px solid #D1D5DB",
+            }}
           />
-          <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
-          <p className="text-gray-600 italic">{user.name_in_nepali}</p>
-          <p className="text-gray-600 italic">{user.bio}</p>
+          <div>
+            <h2
+              style={{ fontSize: "24px", fontWeight: "bold", color: "#1F2937" }}
+            >
+              {user.name}
+            </h2>
+            <p
+              style={{ color: "#4B5563", fontStyle: "italic", margin: "4px 0" }}
+            >
+              {user.name_in_nepali}
+            </p>
+            <p style={{ color: "#4B5563", fontStyle: "italic" }}>{user.bio}</p>
+          </div>
         </div>
-        <div className="flex justify-around mb-6 border-b pb-2">
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-around",
+            marginBottom: "24px",
+            borderBottom: "1px solid #E5E7EB",
+            paddingBottom: "8px",
+          }}
+        >
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              className={`flex items-center px-4 py-2 transition ${
-                activeTab === id
-                  ? "border-b-2 border-blue-500 text-blue-500 font-semibold"
-                  : "text-gray-600"
-              }`}
               onClick={() => setActiveTab(id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "8px 16px",
+                transition: "all 0.3s",
+                borderBottom: activeTab === id ? "2px solid #3B82F6" : "none",
+                color: activeTab === id ? "#3B82F6" : "#4B5563",
+                fontWeight: activeTab === id ? "bold" : "normal",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
             >
-              <Icon className="w-5 h-5 mr-2" />
+              <Icon
+                style={{ width: "20px", height: "20px", marginRight: "8px" }}
+              />
               {label}
             </button>
           ))}
         </div>
-        <div className="tab-content">
+
+        <div>
           {activeTab === "personal" && renderPersonalInfo()}
           {activeTab === "family" && renderFamilyRelations()}
           {activeTab === "contact" && renderContact()}

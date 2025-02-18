@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import axios from "axios";
 import {
   FaInfoCircle,
@@ -14,15 +14,18 @@ import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
 import ToggleView from "./ToggleView";
 import SearchForm from "./SearchForm";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
 
 const TableView = () => {
+  const { id } = useParams();
+  const [searchApplied, setSearchApplied] = useState(false);
   const [isAdminLocal, setIsAdminLocal] = useState(false);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
@@ -48,6 +51,7 @@ const TableView = () => {
     email: "",
     father_name: "",
     mother_name: "",
+    same_vansha_status: false,
   });
 
   const API_URL = "https://gautamfamily.org.np";
@@ -55,6 +59,10 @@ const TableView = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
@@ -72,10 +80,8 @@ const TableView = () => {
 
   const fetchData = async () => {
     try {
-      // Check in param if there is id and fetch data for that id
-      const id = window.location.pathname.split("/")[2];
-      console.log("ID:", id);
       let response = null;
+      // Check in param if there is id and fetch data for that id
       if (id) {
         response = await fetch(`${API_URL}/people/${id}`, {
           method: "GET",
@@ -90,8 +96,80 @@ const TableView = () => {
       const fetchedData = await response.json();
       console.log("Fetched data:", fetchedData);
       setData(fetchedData);
+      setFilteredData(fetchedData);
     } catch (error) {
       console.error("Fetch error:", error);
+    }
+  };
+
+  const handleSearch = (criteria) => {
+    const hasAnyCriteria = Object.values(criteria).some(
+      (val) => val !== "" && val !== false
+    );
+    if (!hasAnyCriteria) {
+      setFilteredData(data);
+      setSearchApplied(false);
+      setShowSearchForm(false);
+      return;
+    }
+
+    const filtered = data.filter((item) => {
+      const matchesName =
+        criteria.name &&
+        item.name.toLowerCase().includes(criteria.name.toLowerCase());
+      const matchesPustaNumber =
+        criteria.pusta_number &&
+        item.pusta_number.toString().includes(criteria.pusta_number);
+      const matchesPhone =
+        criteria.phone &&
+        item.contact_details &&
+        item.contact_details.phone &&
+        item.contact_details.phone
+          .toLowerCase()
+          .includes(criteria.phone.toLowerCase());
+      const matchesEmail =
+        criteria.email &&
+        item.contact_details &&
+        item.contact_details.email &&
+        item.contact_details.email
+          .toLowerCase()
+          .includes(criteria.email.toLowerCase());
+      const matchesFather =
+        criteria.father_name &&
+        item.father &&
+        item.father.name &&
+        item.father.name
+          .toLowerCase()
+          .includes(criteria.father_name.toLowerCase());
+      const matchesMother =
+        criteria.mother_name &&
+        item.mother &&
+        item.mother.name &&
+        item.mother.name
+          .toLowerCase()
+          .includes(criteria.mother_name.toLowerCase());
+
+      return (
+        matchesName ||
+        matchesPustaNumber ||
+        matchesPhone ||
+        matchesEmail ||
+        matchesFather ||
+        matchesMother
+      );
+    });
+
+    setFilteredData(filtered);
+    setSearchApplied(true);
+    setShowSearchForm(false);
+  };
+
+  const handleGoBack = () => {
+    if (id) {
+      navigate("/");
+    } else if (searchApplied) {
+      setFilteredData(data);
+      setSearchApplied(false);
     }
   };
 
@@ -166,7 +244,7 @@ const TableView = () => {
     });
   };
 
-  const finalData = data;
+  const finalData = filteredData;
 
   // IMPORTANT: Use finalData for the visible rows.
   const visibleData = Array.isArray(finalData)
@@ -188,51 +266,58 @@ const TableView = () => {
         />
 
         <div className="table-view-filters mt-10 p-4">
-          {selectedParentName && (
-            <div style={{ width: "100%", textAlign: "left" }}>
-              <button
-                onClick={() => setSelectedParentName(null)}
-                style={{
-                  borderRadius: "20px",
-                  height: "45px",
-                  lineHeight: "30px",
-                  padding: "0 20px",
-                }}
-              >
-                Go back
-              </button>
+          {/* Parent flex container with space-between */}
+          <div className="flex items-center justify-between w-full">
+            {/* Left side (Go back button) */}
+            <div>
+              {(id || searchApplied) && (
+                <button
+                  onClick={handleGoBack}
+                  className="border border-gray-300 px-4 py-2 rounded-md 
+                     hover:bg-gray-100 transition-all shadow-md"
+                >
+                  Go back
+                </button>
+              )}
             </div>
-          )}
 
-          <button
-            className="bg-teal-500 text-white px-6 py-2 rounded-md hover:bg-teal-600 transition-all shadow-md flex items-center space-x-2"
-            onClick={() => setShowSearchForm(true)}
-          >
-            <FaSearch className="text-white" />
-            <span>Search</span>
-          </button>
+            {/* Right side (Search & + Add New) */}
+            <div className="flex items-center gap-4">
+              <button
+                className="bg-teal-500 text-white px-6 py-2 rounded-md 
+                   hover:bg-teal-600 transition-all shadow-md 
+                   flex items-center space-x-2"
+                onClick={() => setShowSearchForm(true)}
+              >
+                <FaSearch className="text-white" />
+                <span>Search</span>
+              </button>
 
-          {isAdminLocal && (
-            <button
-              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all shadow-md"
-              onClick={() => {
-                setFormData({
-                  username: "",
-                  pusta_number: "",
-                  father_name: "",
-                  mother_name: "",
-                  dob: "",
-                  lifestatus: "Alive",
-                  profession: "",
-                  gender: "Male",
-                });
-                setIsAdding(true);
-              }}
-            >
-              + Add New
-            </button>
-          )}
+              {isAdminLocal && (
+                <button
+                  className="bg-blue-500 text-white px-6 py-2 rounded-md 
+                     hover:bg-blue-600 transition-all shadow-md"
+                  onClick={() => {
+                    setFormData({
+                      username: "",
+                      pusta_number: "",
+                      father_name: "",
+                      mother_name: "",
+                      dob: "",
+                      lifestatus: "Alive",
+                      profession: "",
+                      gender: "Male",
+                    });
+                    setIsAdding(true);
+                  }}
+                >
+                  + Add New
+                </button>
+              )}
+            </div>
+          </div>
         </div>
+
         <InfiniteScroll
           dataLength={visibleData.length}
           next={handleLoadMore}
@@ -406,10 +491,7 @@ const TableView = () => {
       {showSearchForm && (
         <SearchForm
           initialCriteria={searchCriteria}
-          onSearch={(criteria) => {
-            setSearchCriteria(criteria);
-            setShowSearchForm(false);
-          }}
+          onSearch={handleSearch}
           onClose={() => setShowSearchForm(false)}
         />
       )}
@@ -451,7 +533,7 @@ const TableView = () => {
 
       {showInfoPopup && (
         <UserProfileModal
-          user={selectedRow}
+          user={{ ...selectedRow, contact: selectedRow.contact_details }}
           onClose={() => setShowInfoPopup(false)}
         />
       )}
