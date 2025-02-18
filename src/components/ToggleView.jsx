@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { FaTable, FaRegIdCard } from "react-icons/fa";
 
 const ToggleView = ({ isTableView, toggleView, availableId }) => {
   const navigate = useNavigate();
@@ -12,34 +13,49 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
       navigate("/");
     }
   };
+
   return (
     <div className="absolute top-4 left-4 z-50">
-      <button
-        onClick={handleToggle}
-        className="flex items-center bg-purple-700/70 p-2 rounded-full shadow-md cursor-pointer transition-all hover:bg-purple-700"
-      >
-        <div className="relative">
-          <input
-            type="checkbox"
-            className="sr-only"
-            checked={isTableView}
-            onChange={handleToggle}
-          />
-          <div
-            className={`w-12 h-6 rounded-full shadow-inner transition-colors ${
-              isTableView ? "bg-blue-700" : "bg-gray-300"
-            }`}
-          ></div>
-          <div
-            className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${
-              isTableView ? "translate-x-6" : "translate-x-0"
-            }`}
-          ></div>
-        </div>
-        <span className="ml-3 text-white text-sm font-medium">
-          {isTableView ? "Table View" : "Card View"}
+      <div className="flex items-center">
+        <span
+          className={`text-base font-bold mr-4 ${
+            isTableView ? "text-black" : "text-gray-400"
+          }`}
+        >
+          Table
         </span>
-      </button>
+
+        <div
+          className="relative w-32 h-10 cursor-pointer"
+          onClick={handleToggle}
+        >
+          <div
+            className={`absolute inset-0 rounded-[20px] transition-colors ${
+              isTableView ? "bg-green-200" : "bg-yellow-200"
+            }`}
+          />
+
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-md
+              flex items-center justify-center transition-transform duration-300
+              ${isTableView ? "left-1" : "left-24"}`}
+          >
+            {isTableView ? (
+              <FaTable className="text-gray-800" />
+            ) : (
+              <FaRegIdCard className="text-gray-800" />
+            )}
+          </div>
+        </div>
+
+        <span
+          className={`text-base font-bold ml-4 ${
+            isTableView ? "text-gray-400" : "text-black"
+          }`}
+        >
+          Card
+        </span>
+      </div>
     </div>
   );
 };

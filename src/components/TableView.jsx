@@ -7,6 +7,7 @@ import {
   FaSearch,
   FaRegIdCard,
   FaMale,
+  FaLightbulb,
   FaFemale,
 } from "react-icons/fa";
 import EditFormModal from "./EditFormModal";
@@ -31,7 +32,7 @@ const TableView = () => {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [displayCount, setDisplayCount] = useState(20);
-  const [selectedParentName, setSelectedParentName] = useState(null);
+  // const [selectedParentName, setSelectedParentName] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
@@ -100,6 +101,44 @@ const TableView = () => {
     } catch (error) {
       console.error("Fetch error:", error);
     }
+  };
+
+  const handleSuggestionClick = (row) => {
+    Swal.fire({
+      title: `Submit Suggestion for ${row.name}`,
+      input: "textarea",
+      inputAttributes: {
+        autocapitalize: "off",
+      },
+      showCancelButton: true,
+      confirmButtonText: "Submit",
+      showLoaderOnConfirm: true,
+      preConfirm: async (suggestion) => {
+        try {
+          const payload = {
+            personId: row.id,
+            suggestion,
+
+            user:
+              JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
+          };
+
+          await axios.post(`${API_URL}/suggestions/`, payload);
+          return suggestion;
+        } catch (error) {
+          Swal.showValidationMessage(`Request failed: ${error}`);
+        }
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Suggestion Submitted!",
+          text: "Your suggestion has been submitted successfully.",
+          icon: "success",
+        });
+      }
+    });
   };
 
   const handleSearch = (criteria) => {
@@ -401,23 +440,28 @@ const TableView = () => {
                       >
                         <FaInfoCircle />
                       </button>
-                      {isAdminLocal && (
+                      {isAdminLocal ? (
                         <>
                           <button
-                            className="icon-button text-gray-500 hover:text-green-500"
-                            title="Edit"
+                            className="icon-button edit-button"
                             onClick={() => handleEditClick(row)}
                           >
                             <FaEdit />
                           </button>
                           <button
-                            className="icon-button text-gray-500 hover:text-red-500"
-                            title="Delete"
+                            className="icon-button delete-button"
                             onClick={() => handleDelete(row)}
                           >
                             <FaTrash />
                           </button>
                         </>
+                      ) : (
+                        <button
+                          className="icon-button suggestion-button"
+                          onClick={handleSuggestionClick}
+                        >
+                          <FaLightbulb />
+                        </button>
                       )}
                       <button
                         className="icon-button card-button text-gray-500 hover:text-blue-500"
