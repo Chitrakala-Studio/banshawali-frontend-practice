@@ -7,7 +7,7 @@ const FooterButtons = ({ onGenerateFamilyTree,id ,infoPopup}) => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed bottom-0 right-4 w-full flex justify-center ">
+    <div className="fixed bottom-6 right-4 w-full flex justify-center ">
       <div className={infoPopup ? "w-full max-w-lg flex justify-around items-center p-3 mx-0 h-10 bg-black rounded-lg " : "w-full max-w-lg flex justify-around items-center p-3"}>
         <button
           onClick={() => navigate(`/compare/${id}`)}

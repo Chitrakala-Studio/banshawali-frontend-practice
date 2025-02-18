@@ -126,7 +126,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
             
             // Expand father if available
             if (nodeDatum.id.startsWith("father-")){
-            if (newData.father && !targetNode.children.some(child => child.id === `father-${newData.father.id}`)) {
+            if (newData.father && newData.length>0 && !targetNode.children.some(child => child.id === `father-${newData.father.id}`)) {
               targetNode.children.push({
                 name: newData.father.name,
                 id: `father-${newData.father.id}`,
@@ -237,26 +237,27 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
   
         {/* Only show image for actual persons, not "Father" or "Children" */}
         {!isGroupNode && (
-          nodeDatum.photo && nodeDatum.photo !== "null" ? (
-            <image
-              x="-80.3"
-              y="-40"
-              width="65"
-              height="65"
-              href={nodeDatum.photo}
-              preserveAspectRatio="xMidYMid slice"
-              pointerEvents="none"
-            />
+         nodeDatum.photo === "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg" ? (
+          <image
+          x="-80.3"
+          y="-40"
+          width="65"
+          height="65"
+          href={nodeDatum.gender === "male" ? "/src/assets/public/maleicon.png" : "/src/assets/public/iconfemale.png"}
+          preserveAspectRatio="xMidYMid slice"
+          pointerEvents="none"
+        />
+            
           ) : (
             <image
-              x="-50.3"
-              y="-50"
-              width="65"
-              height="65"
-              href={nodeDatum.gender === "male" ? "src/assets/public/maleicon.png" : "src/assets/public/iconfemale.png"}
-              preserveAspectRatio="xMidYMid slice"
-              pointerEvents="none"
-            />
+            x="-80.3"
+            y="-40"
+            width="65"
+            height="65"
+            href={nodeDatum.photo}
+            preserveAspectRatio="xMidYMid slice"
+            pointerEvents="none"
+          />
           )
         )}
   
@@ -287,7 +288,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
   
 
   return (
-    <div ref={treeContainerRef} style={{ width: "100%", height: "60vh" }}>
+    <div ref={treeContainerRef} style={{ width: "100%", height: "100%" }}>
       <h2>{selectedPerson}'s Family Tree</h2>
       {treeData && (
         <ReactD3Tree
