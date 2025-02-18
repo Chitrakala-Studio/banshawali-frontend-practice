@@ -12,6 +12,9 @@ image {
 .tree{
   line-height: 1.5;
 }
+.card{
+  background-color: darkolivegreen;
+}
 @media (max-width: 764px) {
   #root {
     overflow: scroll;

@@ -52,7 +52,7 @@ const TableView = () => {
     email: "",
     father_name: "",
     mother_name: "",
-    same_vansha_status: false,
+    same_vamsha_status: false,
   });
 
   const API_URL = "https://gautamfamily.org.np";
@@ -187,53 +187,8 @@ const TableView = () => {
       return;
     }
 
-    const filtered = data.filter((item) => {
-      const matchesName =
-        criteria.name &&
-        item.name.toLowerCase().includes(criteria.name.toLowerCase());
-      const matchesPustaNumber =
-        criteria.pusta_number &&
-        item.pusta_number.toString().includes(criteria.pusta_number);
-      const matchesPhone =
-        criteria.phone &&
-        item.contact_details &&
-        item.contact_details.phone &&
-        item.contact_details.phone
-          .toLowerCase()
-          .includes(criteria.phone.toLowerCase());
-      const matchesEmail =
-        criteria.email &&
-        item.contact_details &&
-        item.contact_details.email &&
-        item.contact_details.email
-          .toLowerCase()
-          .includes(criteria.email.toLowerCase());
-      const matchesFather =
-        criteria.father_name &&
-        item.father &&
-        item.father.name &&
-        item.father.name
-          .toLowerCase()
-          .includes(criteria.father_name.toLowerCase());
-      const matchesMother =
-        criteria.mother_name &&
-        item.mother &&
-        item.mother.name &&
-        item.mother.name
-          .toLowerCase()
-          .includes(criteria.mother_name.toLowerCase());
 
-      return (
-        matchesName ||
-        matchesPustaNumber ||
-        matchesPhone ||
-        matchesEmail ||
-        matchesFather ||
-        matchesMother
-      );
-    });
-
-    setFilteredData(filtered);
+    setFilteredData(criteria);
     setSearchApplied(true);
     setShowSearchForm(false);
   };
@@ -603,7 +558,7 @@ const TableView = () => {
               phone: selectedRow.contact_details?.phone || "",
               address: selectedRow.contact_details?.address || "",
             },
-            vansha_status: selectedRow.vansha ? "True" : "False",
+            vansha_status: selectedRow.same_vamsha_status ? "True" : "False",
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}

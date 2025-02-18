@@ -4,6 +4,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Compare from "./components/Compare";
 import TableView from "./components/TableView";
 import CardView from "./components/CardView";
+import FamilyTreeGraph from "./components/FamilyTreeGraph";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="card/:id" element={<AdminDashboard />} />
         <Route path="/compare/:id" element={<Compare />} />
         <Route path="/" element={<TableView />} />
+        {/* <Route path="/familytree/:id" element={<FamilyTreeGraph />} /> */}
         <Route path="/:id" element={<TableView />} />
 
         <Route path="/card" element={<CardView />} />
