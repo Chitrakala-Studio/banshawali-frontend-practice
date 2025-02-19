@@ -85,9 +85,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
   const [treeData, setTreeData] = useState(null)
   const [familyData, setFamilyData] = useState(null)
   const treeContainerRef = useRef(null)
-  const [expandfather, setexpandfather] = useState(false);
-  const [expandchild, setexpandchild] = useState(false);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;  // Prevent running when id is undefined
@@ -126,7 +124,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
 
             // Expand father if available
             if (nodeDatum.id.startsWith("father-")) {
-              if (newData.father && newData.length > 0 && !targetNode.children.some(child => child.id === `father-${newData.father.id}`)) {
+              if (newData.father && newData.father !== " " && newData.father.id) {
                 targetNode.children.push({
                   name: newData.father.name,
                   id: `father-${newData.father.id}`,
@@ -137,6 +135,8 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
                   children: []
                 });
               }
+              
+
             }
             if (nodeDatum.id.startsWith("child-")) {
               // Expand children if available
@@ -229,47 +229,57 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
 
   const renderNode = (nodeDatum) => {
     const isGroupNode = nodeDatum.name === "Father" || nodeDatum.name === "Children";
-    const circleRadius = 50;
     const gender = nodeDatum.gender;
-    const imageSize = circleRadius * 1.25;
     const wrapText = (text, width) => {
-      const words = text.split(" ")
-      const lines = []
-      let currentLine = words[0]
+      if (!text || text === '') {
+        return []; // Return empty array or handle it gracefully if text is not valid
+    }
 
+      const words = text.split(" ");
+      const lines = [];
+      let currentLine = words[0];
+  
       for (let i = 1; i < words.length; i++) {
         if (currentLine.length + words[i].length < width) {
-          currentLine += " " + words[i]
+          currentLine += " " + words[i];
         } else {
-          lines.push(currentLine)
-          currentLine = words[i]
+          lines.push(currentLine);
+          currentLine = words[i];
         }
       }
-      lines.push(currentLine)
-      return lines
-    }
-    const nameLines = wrapText(nodeDatum.name, 10)
+      lines.push(currentLine);
+      return lines;
+    };
+    const nameLines = wrapText(nodeDatum.name, 12);
+    console.log(gender)
     return (
-      <g className="tree" strokeWidth="0.5" cursor="pointer" onClick={() => handleNodeClick(nodeDatum)}>
+      <g className="tree" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
         {/* Background */}
-        <rect x="-80" y="-40" width="165" height="63" rx="30" ry="30" fill="#f2f3f4" pointerEvents="all" />
-
+        {!isGroupNode &&
+          <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill={gender === "Male" ? "#d4fff5" : "#ffcee9"} pointerEvents="all" />
+        }
+        {isGroupNode &&
+          <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill={"#e7e7e7"} pointerEvents="all" />
+        }
         {/* Only show image for actual persons, not "Father" or "Children" */}
         {!isGroupNode && (
-          nodeDatum.photo === "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg" ? (
-            gender === "male" ? (
-              <image x="-80.3" y="-40" rx="0" ry="0" width={imageSize} height={imageSize} href="src/assets/public/maleicon.png" preserveAspectRatio="xMidYMid slice" />
-            ) : (
-              <image x="-80.3" y="-40" rx="0" ry="0" width={imageSize} height={imageSize} href={"src/assets/public/iconfemale.png"} preserveAspectRatio="xMidYMid slice" />
-            )
-
+          nodeDatum.photo && nodeDatum.photo !== "null" ? (
+            <image
+              x="-80.3"
+              y="-40"
+              width="65"
+              height="65"
+              href={nodeDatum.photo}
+              preserveAspectRatio="xMidYMid slice"
+              pointerEvents="none"
+            />
           ) : (
             <image
-              x="-80.5"
-              y="-39.5"
-              width={imageSize}
-              height={imageSize}
-              href={nodeDatum.photo}
+              x="-50.3"
+              y="-50"
+              width="65"
+              height="65"
+              href={nodeDatum.gender === "male" ? "src/assets/public/maleicon.png" : "src/assets/public/iconfemale.png"}
               preserveAspectRatio="xMidYMid slice"
               pointerEvents="none"
             />
@@ -278,34 +288,32 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
 
         {/* Name */}
         {isGroupNode &&
-         <text x="0" y="-5" fill="black" textAnchor="middle" fontSize="16" fontWeight="300">
-         {nodeDatum.name}
-       </text>
-        
+          <text x="20" y="-10" textAnchor="middle" fontSize="14"  fill="black" stroke="0">
+            {nodeDatum.name}
+          </text>
         }
         {!isGroupNode &&
-        <text
-        x="20"
-        y={-15.5 + (nameLines.length > 1 ? -10 : 0)}
-        textAnchor="middle"
-        fontSize="14"
-        fontFamily="cursive"
-        dominantBaseline="middle"
-        fill="black"
-        fontWeight= "200"
-      >
-        {nameLines.map((line, i) => (
-          <tspan key={i} x="20" dy={i === 0 ? 0 : 20}
-            fontWeight="200">
-            {line}
-          </tspan>
-        ))}
-      </text>
-  }
-
+           <text
+           x="60"
+           y={-27.5 + (nameLines.length > 1 ? -10 : 0)}
+           textAnchor="middle"
+           fontSize="14"
+           fontFamily="cursive"
+           dominantBaseline="middle"
+           fill="black"
+           fontWeight= "200"
+         >
+           {nameLines.map((line, i) => (
+             <tspan key={i} x="60" dy={i === 0 ? 0 : 20}
+               fontWeight="200">
+               {line}
+             </tspan>
+           ))}
+         </text>
+        }
         {/* Pusta (Family Lineage) */}
         {!isGroupNode && (
-          <text x="20" y="15" textAnchor="middle" fontSize="12" fontWeight="normal">
+          <text x="50" y="15" textAnchor="middle" fontSize="12" fontWeight="normal">
             {nodeDatum.pusta}
           </text>
         )}
@@ -313,7 +321,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(50, -10) rotate(${nodeDatum.collapsed ? 0 : 90})`}
+            transform={`translate(40, -10) rotate(${nodeDatum.collapsed ? 0 : 90})`}
             style={{ transition: "transform 0.3s ease" }}
           >
             <ChevronRight size={20} />
@@ -325,7 +333,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
 
 
   return (
-    <div ref={treeContainerRef} style={{ width: "100%", height: "100%" }}>
+    <div ref={treeContainerRef} style={{ width: "100%", height: "60vh" }}>
       <h2>{selectedPerson}'s Family Tree</h2>
       {treeData && (
         <ReactD3Tree
@@ -350,4 +358,3 @@ FamilyTreeGraph.propTypes = {
 }
 
 export default FamilyTreeGraph
-

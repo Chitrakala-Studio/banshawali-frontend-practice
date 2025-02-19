@@ -273,7 +273,7 @@ const CardView = () => {
         {/* Family Tree Modal */}
         {selectedPerson && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white w-[70vw] h-[70vh] max-w-4xl p-6 rounded-lg relative">
+            <div className="bg-white w-[70vw] h-[80vh] max-w-4xl p-6 rounded-lg relative">
               <button
                 onClick={() => {
                   setSelectedPerson(null);
