@@ -34,9 +34,8 @@ const InfoSection = ({ person }) => {
               <p className="text-l mt-0 text-white">{person.gender || "N/A"}</p>
             </div>
             <div
-              className={`flex items-center ${
-                person.date_of_death ? "border-b border-gray-600 pb-3" : ""
-              }`}
+              className={`flex items-center ${person.date_of_death ? "border-b border-gray-600 pb-3" : ""
+                }`}
             >
               <FaBirthdayCake className="mr-2 text-xl" />
               <p className="text-l mt-0 text-white">
@@ -59,9 +58,8 @@ const InfoSection = ({ person }) => {
             <div className="space-y-3">
               {(person.father?.name || person.mother?.name) && (
                 <div
-                  className={`flex items-center ${
-                    person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                  }`}
+                  className={`flex items-center ${person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                    }`}
                 >
                   {/* Parents */}
                   <FaUser className="mr-2 text-xl" />
@@ -91,23 +89,22 @@ const InfoSection = ({ person }) => {
                   </p>
                 </div>
               )}
-        
+
               {/* Grandparents */}
               {(person.grandfather?.name || person.grandmother?.name) && (
-                <div className={`flex items-center ${
-                  person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                }`}>
+                <div className={`flex items-center ${person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                  }`}>
                   <FaUser className="mr-2 text-xl" />
                   <p className="text-l text-white mt-1">
                     {person.grandfather?.name && person.grandfather.name !== "N/A" && (
                       <>
-                      Spouse:{" "}
-                      <Link
-                        to={`/${person.grandfather.id}`}
-                        className="text-blue-500 hover:underline"
-                      >
-                        {person.grandfather.name} (Grandfather)
-                      </Link>
+                        Spouse:{" "}
+                        <Link
+                          to={`/${person.grandfather.id}`}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {person.grandfather.name} (Grandfather)
+                        </Link>
                       </>
                     )}
                     {person.grandmother?.name && person.grandmother.name !== "N/A" && (
@@ -121,29 +118,28 @@ const InfoSection = ({ person }) => {
                   </p>
                 </div>
               )}
-        
+
               {/* Spouse */}
               {person.spouse?.name && (
-                <div className={`flex items-center ${
-                  person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                }`}>
+                <div className={`flex items-center ${person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                  }`}>
                   <FaUser className="mr-2 text-xl" />
                   <p className="text-l text-white mt-1">
                     {person.spouse.name && person.spouse.name !== "N/A" && (
                       <>
-                      Spouse:{" "}
-                      <Link
-                        to={`/${person.spouse.id}`}
-                        className="text-blue-500 hover:underline"
-                      >
-                        {person.spouse.name} (Spouse)
-                      </Link>
+                        Spouse:{" "}
+                        <Link
+                          to={`/${person.spouse.id}`}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {person.spouse.name} (Spouse)
+                        </Link>
                       </>
                     )}
                   </p>
                 </div>
               )}
-        
+
               {/* Children */}
               {person.children?.length > 0 && (
                 <div className="flex items-center">
@@ -168,47 +164,47 @@ const InfoSection = ({ person }) => {
         )}
 
         {/* Contact Information Box */}
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <h3 className="font-bold text-m mb-4">Contact Information</h3>
-          <div className="space-y-3">
-            {person.contact_details.phone && (
-              <div
-                className={`flex items-center ${
-                  person.contact_details.email || person.contact_details.address
-                    ? "border-b border-gray-600 pb-3"
-                    : ""
-                }`}
-              >
-                <FaPhone className="mr-2 text-xl" />
-                <p className="text-l text-white mt-1">
-                  {person.contact_details.phone || "N/A"}
-                </p>
-              </div>
-            )}
-            {person.contact_details.email && (
-              <div
-                className={`flex items-center ${
-                  person.contact_details.address
-                    ? "border-b border-gray-600 pb-3"
-                    : ""
-                }`}
-              >
-                <FaEnvelope className="mr-2 text-xl" />
-                <p className="text-l text-white mt-0">
-                  {person.contact_details.email || "N/A"}
-                </p>
-              </div>
-            )}
-            {person.contact_details.address && (
-              <div className="flex items-center">
-                <FaAddressCard className="mr-2 text-xl" />
-                <p className="text-l text-white mt-0">
-                  {person.contact_details.address || "N/A"}
-                </p>
-              </div>
-            )}
+        {(person.contact_details?.phone || person.contact_details?.email || person.contact_details?.address) &&
+          <div className="bg-gray-700 p-4 rounded-lg">
+            <h3 className="font-bold text-m mb-4">Contact Information</h3>
+            <div className="space-y-3">
+              {person.contact_details.phone && (
+                <div
+                  className={`flex items-center ${person.contact_details.email || person.contact_details.address
+                      ? "border-b border-gray-600 pb-3"
+                      : ""
+                    }`}
+                >
+                  <FaPhone className="mr-2 text-xl" />
+                  <p className="text-l text-white mt-1">
+                    {person.contact_details.phone || "N/A"}
+                  </p>
+                </div>
+              )}
+              {person.contact_details.email && (
+                <div
+                  className={`flex items-center ${person.contact_details.address
+                      ? "border-b border-gray-600 pb-3"
+                      : ""
+                    }`}
+                >
+                  <FaEnvelope className="mr-2 text-xl" />
+                  <p className="text-l text-white mt-0">
+                    {person.contact_details.email || "N/A"}
+                  </p>
+                </div>
+              )}
+              {person.contact_details.address && (
+                <div className="flex items-center">
+                  <FaAddressCard className="mr-2 text-xl" />
+                  <p className="text-l text-white mt-0">
+                    {person.contact_details.address || "N/A"}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        }
 
         {/* Professional Information Box */}
         {person.profession && (
