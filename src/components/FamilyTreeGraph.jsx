@@ -85,7 +85,10 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
   const [treeData, setTreeData] = useState(null)
   const [familyData, setFamilyData] = useState(null)
   const treeContainerRef = useRef(null)
-  
+  const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
+  const [expandfather, setexpandfather] = useState(false);
+  const [expandchild, setexpandchild] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;  // Prevent running when id is undefined
@@ -250,7 +253,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
       lines.push(currentLine);
       return lines;
     };
-    const nameLines = wrapText(nodeDatum.name, 12);
+    const nameLines = wrapText(nodeDatum.name, 8);
     console.log(gender)
     return (
       <g className="tree" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
@@ -288,24 +291,25 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
 
         {/* Name */}
         {isGroupNode &&
-          <text x="20" y="-10" textAnchor="middle" fontSize="14"  fill="black" stroke="0">
+          <text x="0" y="-10" textAnchor="middle" fontSize="14"  fill="black" strokeWidth="0" fontWeight={"bold"}>
             {nodeDatum.name}
           </text>
         }
         {!isGroupNode &&
            <text
-           x="60"
-           y={-27.5 + (nameLines.length > 1 ? -10 : 0)}
+           x="25"
+           y={-18.5 + (nameLines.length > 1 ? -10 : 0)}
            textAnchor="middle"
            fontSize="14"
            fontFamily="cursive"
            dominantBaseline="middle"
            fill="black"
+           strokeWidth="0"
            fontWeight= "200"
          >
            {nameLines.map((line, i) => (
-             <tspan key={i} x="60" dy={i === 0 ? 0 : 20}
-               fontWeight="200">
+             <tspan key={i} x="25" dy={i === 0 ? 0 : 20}
+               strokeWidth="0">
                {line}
              </tspan>
            ))}
@@ -313,7 +317,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
         }
         {/* Pusta (Family Lineage) */}
         {!isGroupNode && (
-          <text x="50" y="15" textAnchor="middle" fontSize="12" fontWeight="normal">
+          <text x="20" y="15" textAnchor="middle" fontSize="12" fontWeight="normal">
             {nodeDatum.pusta}
           </text>
         )}
