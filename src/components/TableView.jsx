@@ -106,30 +106,65 @@ const TableView = () => {
   const handleSuggestionClick = (row) => {
     Swal.fire({
       title: `Submit Suggestion for ${row.name}`,
-      input: "textarea",
-      inputAttributes: {
-        autocapitalize: "off",
-      },
+      html: `
+        <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" autocapitalize="off"></textarea>
+        <input type="file" id="suggestionFile" class="swal2-input" />
+      `,
+      focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: "Submit",
       showLoaderOnConfirm: true,
-      preConfirm: async (suggestion) => {
+      preConfirm: async () => {
+        const suggestion = document.getElementById("suggestion").value;
+        const file = document.getElementById("suggestionFile").files[0];
+
+        // Prepare form data for file upload and suggestion
+        const formData = new FormData();
+        formData.append("personId", row.id);
+        formData.append("suggestion", suggestion);
+        formData.append(
+          "user",
+          JSON.parse(localStorage.getItem("user"))?.username || "Anonymous"
+        );
+
+        if (file) {
+          formData.append("file", file);
+        }
+
         try {
-          const payload = {
-            personId: row.id,
-            suggestion,
-
-            user:
-              JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
-          };
-
-          await axios.post(`${API_URL}/suggestions/`, payload);
+          // Send the request to the server with both suggestion and file
+          await axios.post(`${API_URL}/suggestions/`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
           return suggestion;
         } catch (error) {
           Swal.showValidationMessage(`Request failed: ${error}`);
         }
       },
       allowOutsideClick: () => !Swal.isLoading(),
+      // Adding custom CSS to fix the textarea size, remove scrolling, and shift file input
+      didOpen: () => {
+        const suggestionTextArea = document.getElementById("suggestion");
+        const suggestionFileInput = document.getElementById("suggestionFile");
+
+        // Fix the size of the suggestion textarea
+        suggestionTextArea.style.resize = "none"; // Prevent resizing
+        suggestionTextArea.style.height = "150px"; // Increase height of the textarea
+        suggestionTextArea.style.width = "100%"; // Increase width to 100%
+        suggestionTextArea.style.overflow = "hidden"; // Remove scrollbars
+        suggestionTextArea.style.backgroundColor = "white"; // Set background to white
+        suggestionTextArea.style.border = "1px solid #ccc"; // Add border for visibility
+
+        // Style the file input (reduce size and shift left)
+        suggestionFileInput.style.width = "calc(100% - 10px)"; // Set file input width slightly smaller to avoid scrollbar
+        suggestionFileInput.style.padding = "5px"; // Reduce padding for a smaller file input
+        suggestionFileInput.style.marginTop = "10px"; // Give some spacing from textarea
+        suggestionFileInput.style.marginLeft = "0"; // Remove any left margin to align it to the left
+        suggestionFileInput.style.backgroundColor = "white"; // Set background to white
+        suggestionFileInput.style.border = "1px solid #ccc"; // Add border for visibility
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
@@ -151,7 +186,6 @@ const TableView = () => {
       setShowSearchForm(false);
       return;
     }
-
 
     setFilteredData(criteria);
     setSearchApplied(true);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import { FaArrowDown } from "react-icons/fa";
@@ -34,7 +34,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
-  const [errors, setErrors] = useState({});
+  //const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
 
@@ -42,6 +42,36 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
 
   const today = new Date().toISOString().split("T")[0];
+  const hideFatherSuggestionsTimeout = useRef(null);
+  const hideMotherSuggestionsTimeout = useRef(null);
+
+  // For father suggestions
+  const handleFatherMouseEnter = () => {
+    if (hideFatherSuggestionsTimeout.current) {
+      clearTimeout(hideFatherSuggestionsTimeout.current);
+    }
+    setShowSuggestions(true);
+  };
+
+  const handleFatherMouseLeave = () => {
+    hideFatherSuggestionsTimeout.current = setTimeout(() => {
+      setShowSuggestions(false);
+    }, 200); // Adjust the delay as needed
+  };
+
+  // For mother suggestions
+  const handleMotherMouseEnter = () => {
+    if (hideMotherSuggestionsTimeout.current) {
+      clearTimeout(hideMotherSuggestionsTimeout.current);
+    }
+    setShowMotherSuggestions(true);
+  };
+
+  const handleMotherMouseLeave = () => {
+    hideMotherSuggestionsTimeout.current = setTimeout(() => {
+      setShowMotherSuggestions(false);
+    }, 200); // Adjust the delay as needed
+  };
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -305,7 +335,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       }));
     } catch (error) {
       console.error("Error converting text:", error);
-      // Optionally display an error message to the user
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -549,14 +579,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 name="father_name"
                 value={form.father_name}
                 onChange={handleChange}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                readOnly
+                onMouseEnter={handleFatherMouseEnter}
+                onMouseLeave={handleFatherMouseLeave}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter father's name"
               />
 
               {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
+                <ul
+                  className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                  onMouseEnter={handleFatherMouseEnter}
+                  onMouseLeave={handleFatherMouseLeave}
+                >
                   {suggestions.map((suggestion, index) => (
                     <li
                       key={index}
@@ -587,16 +622,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 name="mother_name"
                 value={form.mother_name}
                 onChange={handleChange}
-                onFocus={() => setShowMotherSuggestions(true)}
-                onBlur={() =>
-                  setTimeout(() => setShowMotherSuggestions(false), 200)
-                }
+                readOnly
+                onMouseEnter={handleMotherMouseEnter}
+                onMouseLeave={handleMotherMouseLeave}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter mother's name"
               />
 
               {showMotherSuggestions && motherSuggestions.length > 0 && (
-                <ul className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full">
+                <ul
+                  className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                  onMouseEnter={handleMotherMouseEnter}
+                  onMouseLeave={handleMotherMouseLeave}
+                >
                   {motherSuggestions.map((suggestion, index) => (
                     <li
                       key={index}
