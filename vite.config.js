@@ -8,7 +8,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',  // Allows external access
     port: 5173,       // Ensure this port is open
-    allowedHosts: ['gautamfamily.org.np'],
+    allowedHosts: ['gautamfamily.org.np',
+      "http://54.173.191.197",],
     hmr: {
       protocol: 'wss',
       host: 'gautamfamily.org.np',
