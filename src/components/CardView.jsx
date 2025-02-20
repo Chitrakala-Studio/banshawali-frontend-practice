@@ -168,7 +168,7 @@ const CardView = () => {
           <div
             ref={containerRef}
             id="container"
-            className={isMobile? "flex flex-col w-full h-[90vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide":"flex flex-col w-full h-[96vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"}
+            className={isMobile? "flex flex-col w-full h-[92vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide":"flex flex-col w-full h-[96vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"}
           >
             <TinderCard
               className={`relative min-w-full h-full snap-center flex flex-col group ${infoPopup === data[currentIndex].name
@@ -181,7 +181,7 @@ const CardView = () => {
               onMouseLeave={() => setIsHovered(false)}
             >
               {/* Image Section */}
-              <div className={!infoPopup ? "flex items-center justify-center w-[100%] h-[100%]  rounded-lg shadow-lg bg-white relative" : "flex items-center justify-center w-[100%] h-[80vh]  object-scale-down rounded-lg shadow-lg bg-white relative"}>
+              <div className={!infoPopup ? "flex items-center justify-center w-[100%] h-[100%]  rounded-lg shadow-lg bg-white relative" : "flex items-center justify-center w-[100%] h-[78vh]  object-scale-down rounded-lg shadow-lg bg-white relative"}>
                 <img
                   src={
                     data[currentIndex].photo ||
@@ -189,7 +189,7 @@ const CardView = () => {
                   }
                   alt={data[currentIndex].name_in_nepali}
                   className={!infoPopup ? "w-full h-full  object-cover select-none"
-                    : "w-full h-[80vh] object-cover"}
+                    : "w-full h-[78vh] object-cover"}
                 />
                 {/* Buttons Section */}
                 <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
@@ -232,7 +232,7 @@ const CardView = () => {
                   <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
                     {data[currentIndex].name_in_nepali}
                   </h2>
-                  <div className="flex justify-between items-center w-full mb-8">
+                  <div className={isMobile? "flex justify-between items-center w-full mb-12":"flex justify-between items-center w-full mb-8"}>
                     <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5  z-20">
                       {data[currentIndex].pusta_number}
                     </div>
@@ -261,7 +261,7 @@ const CardView = () => {
               )}
             </TinderCard>
 
-            <div className="footer lg:mt-0 md:mt-1 sm:mt-4 sticky bottom-0 left-0 w-full bg-white z-20">
+            <div className= {isMobile? "footer sticky mt-4 bottom-0 left-0 w-full bg-white z-20":"footer sticky bottom-0 left-0 w-full bg-white z-20"}>
               <FooterButtons
                 id={id}
                 onGenerateFamilyTree={handleFooterGenerate}
