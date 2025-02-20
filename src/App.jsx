@@ -13,7 +13,9 @@ const App = () => {
         {/* Uncomment these if needed */}
         <Route path="/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="card/:id" element={<AdminDashboard />} />
+        {/* <Route path="card/:id" element={<AdminDashboard />} /> */}
+        <Route path="card/:id" element={<CardView />} />
+
         <Route path="/compare/:id" element={<Compare />} />
         <Route path="/" element={<TableView />} />
         {/* <Route path="/familytree/:id" element={<FamilyTreeGraph />} /> */}
