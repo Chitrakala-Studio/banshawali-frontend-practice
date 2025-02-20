@@ -14,7 +14,7 @@ const CardViewPopup = ({ selectedData, onClose }) => {
                 <div
                     className="relative bg-cover bg-center bg-no-repeat rounded-lg max-w-lg w-full h-[500px] shadow-lg"
                     style={{
-                        backgroundImage: `url(${selectedData.photo_url || "https://via.placeholder.com/150"})`,
+                        backgroundImage: `url(${selectedData.photo_url })`,
                     }}
                 >
                     {/* Close Button */}

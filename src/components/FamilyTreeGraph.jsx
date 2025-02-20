@@ -33,7 +33,7 @@ const transformToTreeData = (familyData) => {
     children: [],
   };
 
-  if (familyData.father ) {
+  if (familyData.father) {
     tree.children.push({
       name: "Father",
       id: `father-group-${familyData.id}`,
@@ -52,7 +52,7 @@ const transformToTreeData = (familyData) => {
       isCollapsible: true,
       collapsed: true,
       children: [
-        
+
       ],
     });
   }
@@ -85,7 +85,8 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
   const [treeData, setTreeData] = useState(null)
   const [familyData, setFamilyData] = useState(null)
   const treeContainerRef = useRef(null)
-  const [expandfather,setexpandfather] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
+  const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
 
   useEffect(() => {
@@ -98,15 +99,15 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
         setTreeData(transformToTreeData(data)); // Update tree
       }
     };
-    
+
     fetchData();
-  }, [id]); 
-  
+  }, [id]);
+
   const handleNodeClick = async (nodeDatum) => {
     console.log("Node clicked:", nodeDatum);
 
     console.log("COLLAPASABLE", nodeDatum.isCollapsible);
-  
+
     // If it's a real person (not "Father" or "Children"), expand instead of resetting the tree
     if (!nodeDatum.isCollapsible) {
       console.log(`Fetching additional data for: ${nodeDatum.name}`);
@@ -114,66 +115,68 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
       if (newData) {
         setTreeData((prevTree) => {
           if (!prevTree) return null;
-  
+
           const newTree = JSON.parse(JSON.stringify(prevTree)); // Deep copy
           const targetNode = findNodeById(newTree, nodeDatum.id);
-  
+
           if (targetNode) {
             targetNode.children = targetNode.children || [];
 
-            console.log("IDDDD",nodeDatum.id)
+            console.log("IDDDD", nodeDatum.id)
 
-            
+
             // Expand father if available
-            if (nodeDatum.id.startsWith("father-")){
-            if (newData.father && newData.length>0 && !targetNode.children.some(child => child.id === `father-${newData.father.id}`)) {
-              targetNode.children.push({
-                name: newData.father.name,
-                id: `father-${newData.father.id}`,
-                real_id: newData.father.id,
-                photo: newData.father.photo || null,
-                gender: newData.father.gender || "Male",
-                pusta: newData.father.pusta || "",
-                children: []
-              });
+            if (nodeDatum.id.startsWith("father-")) {
+              if (newData.father && newData.father !== " " && newData.father.id) {
+                targetNode.children.push({
+                  name: newData.father.name,
+                  id: `father-${newData.father.id}`,
+                  real_id: newData.father.id,
+                  photo: newData.father.photo || null,
+                  gender: newData.father.gender || "Male",
+                  pusta: newData.father.pusta || "",
+                  children: []
+                });
+              }
+              
+
+            }
+            if (nodeDatum.id.startsWith("child-")) {
+              // Expand children if available
+              if (newData.children && newData.children.length > 0) {
+                newData.children.forEach(child => {
+                  if (!targetNode.children.some(c => c.id === `child-${child.id}`)) {
+                    targetNode.children.push({
+                      name: child.name,
+                      id: `child-${child.id}`,
+                      real_id: child.id,
+                      photo: child.photo || null,
+                      gender: child.gender || "Male",
+                      pusta: child.pusta || "",
+                      children: []
+                    });
+                  }
+                });
+              }
             }
           }
-          if (nodeDatum.id.startsWith("child-")){
-            // Expand children if available
-            if (newData.children && newData.children.length > 0) {
-              newData.children.forEach(child => {
-                if (!targetNode.children.some(c => c.id === `child-${child.id}`)) {
-                  targetNode.children.push({
-                    name: child.name,
-                    id: `child-${child.id}`,
-                    real_id: child.id,
-                    photo: child.photo || null,
-                    gender: child.gender || "Male",
-                    pusta: child.pusta || "",
-                    children: []
-                  });
-                }
-              });
-            }
-          }
-        }
           return newTree;
         });
       }
       return;
     }
-  
+
     // If it's a "Father" or "Children" group, toggle expansion
     setTreeData((prevTree) => {
       if (!prevTree) return null;
-  
+
       const newTree = JSON.parse(JSON.stringify(prevTree)); // Deep copy
       const targetNode = findNodeById(newTree, nodeDatum.id);
-  
+
       if (targetNode) {
         targetNode.collapsed = !targetNode.collapsed;
         console.log(`Toggled collapsed state: ${targetNode.collapsed}`);
-  
+
         if (!targetNode.collapsed && nodeDatum.name === "Father") {
           console.log("Expanding father group");
           // setexpandfather(true);
@@ -197,7 +200,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
           }
         } else if (!targetNode.collapsed && nodeDatum.name === "Children") {
           console.log("Expanding children group");
-          
+
           if (familyData.children && familyData.children.length > 0) {
             // setexpandchild(true);
             targetNode.children = familyData.children.map((child) => ({
@@ -219,60 +222,106 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
           targetNode.children = [];
         }
       }
-  
+
       return newTree;
     });
   };
 
-  
-  
-  
+
+
+
   const renderNode = (nodeDatum) => {
     const isGroupNode = nodeDatum.name === "Father" || nodeDatum.name === "Children";
+    const gender = nodeDatum.gender;
+    const wrapText = (text, width) => {
+      if (!text || text === '') {
+        return []; // Return empty array or handle it gracefully if text is not valid
+    }
+
+      const words = text.split(" ");
+      const lines = [];
+      let currentLine = words[0];
   
+      for (let i = 1; i < words.length; i++) {
+        if (currentLine.length + words[i].length < width) {
+          currentLine += " " + words[i];
+        } else {
+          lines.push(currentLine);
+          currentLine = words[i];
+        }
+      }
+      lines.push(currentLine);
+      return lines;
+    };
+    const nameLines = wrapText(nodeDatum.name, 8);
+    console.log(gender)
     return (
-      <g className="tree" strokeWidth="0.5" cursor="pointer" onClick={() => handleNodeClick(nodeDatum)}>
+      <g className="tree" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
         {/* Background */}
-        <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill="#f2f3f4" pointerEvents="all" />
-  
+        {!isGroupNode &&
+          <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill={gender === "Male" ? "#d4fff5" : "#ffcee9"} pointerEvents="all" />
+        }
+        {isGroupNode &&
+          <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill={"#e7e7e7"} pointerEvents="all" />
+        }
         {/* Only show image for actual persons, not "Father" or "Children" */}
         {!isGroupNode && (
-         nodeDatum.photo === "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg" ? (
-          <image
-          x="-80.3"
-          y="-40"
-          width="65"
-          height="65"
-          href={nodeDatum.gender === "male" ? "/src/assets/public/maleicon.png" : "/src/assets/public/iconfemale.png"}
-          preserveAspectRatio="xMidYMid slice"
-          pointerEvents="none"
-        />
-            
+          nodeDatum.photo && nodeDatum.photo !== "null" ? (
+            <image
+              x="-80.3"
+              y="-40"
+              width="65"
+              height="65"
+              href={nodeDatum.photo}
+              preserveAspectRatio="xMidYMid slice"
+              pointerEvents="none"
+            />
           ) : (
             <image
-            x="-80.3"
-            y="-40"
-            width="65"
-            height="65"
-            href={nodeDatum.photo}
-            preserveAspectRatio="xMidYMid slice"
-            pointerEvents="none"
-          />
+              x="-50.3"
+              y="-50"
+              width="65"
+              height="65"
+              href={nodeDatum.gender === "male" ? "src/assets/public/maleicon.png" : "src/assets/public/iconfemale.png"}
+              preserveAspectRatio="xMidYMid slice"
+              pointerEvents="none"
+            />
           )
         )}
-  
+
         {/* Name */}
-        <text x="20" y="-10" textAnchor="middle" fontSize="14" fontFamily="Arial" fill="black" fontWeight="bold">
-          {nodeDatum.name}
-        </text>
-  
+        {isGroupNode &&
+          <text x="0" y="-10" textAnchor="middle" fontSize="14"  fill="black" strokeWidth="0" fontWeight={"bold"}>
+            {nodeDatum.name}
+          </text>
+        }
+        {!isGroupNode &&
+           <text
+           x="25"
+           y={-18.5 + (nameLines.length > 1 ? -10 : 0)}
+           textAnchor="middle"
+           fontSize="14"
+           fontFamily="cursive"
+           dominantBaseline="middle"
+           fill="black"
+           strokeWidth="0"
+           fontWeight= "200"
+         >
+           {nameLines.map((line, i) => (
+             <tspan key={i} x="25" dy={i === 0 ? 0 : 20}
+               strokeWidth="0">
+               {line}
+             </tspan>
+           ))}
+         </text>
+        }
         {/* Pusta (Family Lineage) */}
         {!isGroupNode && (
-          <text x="50" y="15" textAnchor="middle" fontSize="12" fontWeight="normal">
+          <text x="20" y="15" textAnchor="middle" fontSize="12" fontWeight="normal">
             {nodeDatum.pusta}
           </text>
         )}
-  
+
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
@@ -285,23 +334,23 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
       </g>
     );
   };
-  
+
 
   return (
-    <div ref={treeContainerRef} style={{ width: "100%", height: "100%" }}>
+    <div ref={treeContainerRef} style={{ width: "100%", height: "60vh" }}>
       <h2>{selectedPerson}'s Family Tree</h2>
       {treeData && (
         <ReactD3Tree
-        data={treeData}
-        orientation="horizontal"
-        nodeSize={{ x: 200, y: 100 }}
-        translate={{ x: 300, y: 200 }}
-        renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
-        onNodeClick={handleNodeClick} // Keep this to capture clicks
-        separation={{ siblings: 1.5, nonSiblings: 2 }}
-        pathFunc="step"
-      />
-      
+          data={treeData}
+          orientation="horizontal"
+          nodeSize={{ x: 200, y: 100 }}
+          translate={{ x: 300, y: 200 }}
+          renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
+          onNodeClick={handleNodeClick} // Keep this to capture clicks
+          separation={{ siblings: 1.5, nonSiblings: 2 }}
+          pathFunc="step"
+        />
+
       )}
     </div>
   )
@@ -313,4 +362,3 @@ FamilyTreeGraph.propTypes = {
 }
 
 export default FamilyTreeGraph
-
