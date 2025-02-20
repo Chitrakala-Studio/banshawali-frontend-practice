@@ -166,8 +166,8 @@ const CardView = () => {
               id="container"
               className={
                 isMobile
-                  ? "flex flex-col w-full h-[92vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
-                  : "flex flex-col w-full h-[96vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
+                  ? "flex flex-col w-full h-[95vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
+                  : "flex flex-col w-full h-[98vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
               }
             >
               <TinderCard
@@ -197,7 +197,7 @@ const CardView = () => {
                     alt={data[currentIndex].name_in_nepali}
                     className={
                       !infoPopup
-                        ? "w-full h-full  object-cover select-none"
+                        ? "w-full h-[99.8%]  object-cover select-none"
                         : "w-full h-[78vh] object-cover"
                     }
                   />
@@ -280,7 +280,7 @@ const CardView = () => {
               <div
                 className={
                   isMobile
-                    ? "footer sticky mt-4 bottom-0 left-0 w-full bg-white z-20"
+                    ? "footer sticky mt-4  ml-1 bottom-0 left-0 w-full bg-white z-20"
                     : "footer sticky bottom-0 left-0 w-full bg-white z-20"
                 }
               >
@@ -288,6 +288,7 @@ const CardView = () => {
                   id={id}
                   onGenerateFamilyTree={handleFooterGenerate}
                   infoPopup={infoPopup}
+                  isMobile={isMobile}
                 />
               </div>
             </div>

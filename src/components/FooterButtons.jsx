@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { FaExchangeAlt, FaSitemap } from "react-icons/fa";
 
-const FooterButtons = ({ onGenerateFamilyTree,id ,infoPopup}) => {
+const FooterButtons = ({ onGenerateFamilyTree,id ,infoPopup,isMobile}) => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed bottom-2 right-4 w-full flex justify-center ">
+    <div className={isMobile? "fixed bottom-0 right-2 w-full flex justify-center ":"fixed bottom-2 right-4 w-full flex justify-center"}>
       <div className={infoPopup ? "w-full max-w-lg flex justify-around items-center p-3 mx-0 h-10 bg-black rounded-lg " : "w-full max-w-lg flex justify-around items-center p-3"}>
         <button
           onClick={() => navigate(`/compare/${id}`)}
