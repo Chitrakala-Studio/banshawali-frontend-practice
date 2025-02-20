@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   useNavigate,
   BrowserRouter as Router,
@@ -10,27 +10,34 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Compare from "./components/Compare";
 import TableView from "./components/TableView";
 import CardView from "./components/CardView";
-import FamilyTreeGraph from "./components/FamilyTreeGraph";
+// import FamilyTreeGraph from "./components/FamilyTreeGraph";
 
-const RedirectOnMobile = () => {
-  const navigate = useNavigate();
+const RedirectOnMobile = ({ setIsMobile }) => {
   useEffect(() => {
-    if (window.innerWidth < 768) {
-      navigate("/card");
-    }
-  }, [navigate]);
-  return null;
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 764);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Run once on mount to set the initial state
+    return () => window.removeEventListener("resize", handleResize);
+  }, [setIsMobile]);
+
+  return null; // Nothing to render, this is just for side-effects
 };
 
-const AppRoutes = () => (
+const AppRoutes = ({ isMobile }) => (
   <>
-    <RedirectOnMobile />
     <Routes>
+      
       <Route path="/login" element={<AdminLogin />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/card/:id" element={<CardView />} />
       <Route path="/compare/:id" element={<Compare />} />
-      <Route path="/" element={<TableView />} />
+      {isMobile ? (
+        <Route path="/" element={<CardView />} />
+      ) : (
+        <Route path="/" element={<TableView />} />
+      )}
       <Route path="/:id" element={<TableView />} />
       <Route path="/card" element={<CardView />} />
     </Routes>
@@ -38,9 +45,13 @@ const AppRoutes = () => (
 );
 
 const App = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 764);
+
   return (
-    <Router basename="/Banshali-app">
-      <AppRoutes />
+    <Router basename="/Banshali-app/">
+
+      <RedirectOnMobile setIsMobile={setIsMobile} />
+      <AppRoutes isMobile={isMobile} />
     </Router>
   );
 };
