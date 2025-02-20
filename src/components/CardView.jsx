@@ -198,8 +198,9 @@ const CardView = () => {
                     className={
                       !infoPopup
                         ? "w-full h-[99.8%]  object-cover select-none"
-                        : "w-full h-[78vh] object-cover"
+                        : "w-full h-[78vh] object-cover select-none"
                     }
+                   
                   />
                   {/* Buttons Section */}
                   <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
