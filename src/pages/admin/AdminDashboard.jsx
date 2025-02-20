@@ -7,15 +7,17 @@ import Compare from "../../components/Compare"; // Import Compare Component
 import "./../../assets/styles/AdminDashboard.css";
 
 const AdminDashboard = () => {
-  const [view, setView] = useState("Card View"); // Default view
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // Check if screen is mobile
+  const isMobileInitial = window.innerWidth <= 768;
+  const [view, setView] = useState(
+    isMobileInitial ? "Card View" : "Table View"
+  );
+  const [isMobile, setIsMobile] = useState(isMobileInitial);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth <= 768) {
-        setView("Card View");
-      }
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      setView(mobile ? "Card View" : "Table View");
     };
 
     window.addEventListener("resize", handleResize);
@@ -26,9 +28,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      {/*  {!isMobile && (
-        <Sidebar setView={setView} currentView={view} /> // Pass props to Sidebar
-      )} */}
+      {/* Uncomment Sidebar if needed */}
+      {/* {!isMobile && <Sidebar setView={setView} currentView={view} />} */}
       <div className="admin-dashboard-content overflow-y-scroll overflow-hidden">
         {/* <Header view={view} setView={setView} /> */}
         <div

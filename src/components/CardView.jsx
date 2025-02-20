@@ -137,13 +137,7 @@ const CardView = () => {
     }
   };
   if (loading) {
-    return <div >
-
-      Loading...
-
-
-
-    </div>; // Show loading while data is being fetched
+    return <div>Loading...</div>; // Show loading while data is being fetched
   }
 
   if (error) {
@@ -153,14 +147,15 @@ const CardView = () => {
   return (
     <>
       <div className="flex flex-col lg:w-screen lg:h-screen scroll-m-0 bg-gradient-to-t from-black via-black/60 to-transparent">
-        <ToggleView
-          isTableView={isTableView}
-          toggleView={toggleView}
-          availableId={data[currentIndex]?.id}
-        />
+        {!isMobile && (
+          <ToggleView
+            isTableView={isTableView}
+            toggleView={toggleView}
+            availableId={data[currentIndex]?.id}
+          />
+        )}
 
         <div className=" lg:w-[40vw] sm:w-[90vw] h-[96vh] m-auto rounded-2xl overflow-hidden ">
-
           {/* Navigation Buttons */}
           {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
 
@@ -171,26 +166,36 @@ const CardView = () => {
             className="flex flex-col w-full h-full rounded-2xl overflow-x-scroll  mt-2 snap-x snap-mandatory scrollbar-hide"
           >
             <TinderCard
-              className={`relative min-w-full h-full snap-center flex flex-col group ${infoPopup === data[currentIndex].name
-                ? "overflow-y-scroll"
-                : "overflow-y-hidden"
-                }`}
+              className={`relative min-w-full h-full snap-center flex flex-col group ${
+                infoPopup === data[currentIndex].name
+                  ? "overflow-y-scroll"
+                  : "overflow-y-hidden"
+              }`}
               preventSwipe={["up", "down"]}
               onSwipe={(direction) => handleSwipe(direction)}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
               {/* Image Section */}
-              <div className={!infoPopup ? "flex items-center justify-center w-[100%] h-[100%]  rounded-lg shadow-lg bg-white relative" : "flex items-center justify-center w-[100%] h-[86vh] object-scale-down rounded-lg shadow-lg bg-white relative"}>
+              <div
+                className={
+                  !infoPopup
+                    ? "flex items-center justify-center w-[100%] h-[100%]  rounded-lg shadow-lg bg-white relative"
+                    : "flex items-center justify-center w-[100%] h-[86vh] object-scale-down rounded-lg shadow-lg bg-white relative"
+                }
+              >
                 <img
                   src={
                     data[currentIndex].photo ||
                     "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                   }
                   alt={data[currentIndex].name_in_nepali}
-                  className={!infoPopup ? "w-full h-full  aspect-w-16 aspect-h-9 object-cover select-none"
-                 : "w-full h-[85vh] object-cover"}
-                    />
+                  className={
+                    !infoPopup
+                      ? "w-full h-full  aspect-w-16 aspect-h-9 object-cover select-none"
+                      : "w-full h-[85vh] object-cover"
+                  }
+                />
                 {/* Buttons Section */}
                 <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
                   {/* Scroll Left Button */}

@@ -137,7 +137,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           setLoading(true);
           const response = await axios.get(`${API_URL}/people/${formData.id}`);
           const data = response.data;
-          setForm(data); /
+          setForm(data);
         } catch (error) {
           handleBackendError(
             error,
@@ -151,7 +151,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       fetchUserDetails();
     }
-  },[formData.id, API_URL]);
+  }, [formData.id, API_URL]);
 
   const handleSuggestionClick = (suggestion) => {
     setForm((prev) => ({
@@ -364,9 +364,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         same_vamsha_status: form.vansha_status,
       };
       const response = form.id
-      ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
-      : await axios.post(`${API_URL}/people/`, payload);
-
+        ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
+        : await axios.post(`${API_URL}/people/`, payload);
 
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");

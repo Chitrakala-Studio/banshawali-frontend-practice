@@ -202,6 +202,16 @@ table tr:last-child {
   border-radius: 5px;
 }
 
+@media only screen and (max-width: 768px) {
+  .table-wrapper {
+    max-height: 50vh;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #ddd;
+    background-color: #fff;
+  }
+}
+
 .pagination {
   display: flex;
   list-style: none;
