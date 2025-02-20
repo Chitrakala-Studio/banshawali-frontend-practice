@@ -172,7 +172,7 @@ const Compare = () => {
     };
 
     fetchLeftPersonData();
-  }, [id, API_URL]);
+  }, [id]);
 
   const handleCompare = async () => {
     if (
@@ -231,7 +231,7 @@ const Compare = () => {
         Go Back to Table
       </button>
 
-      <div className="flex flex-col items-center px-4 py-6 h-full w-full overflow-y-auto">
+      <div className="flex flex-col items-center px-4 py-6 pt-20 h-full w-full overflow-y-auto">
         <h1 className="text-center text-2xl md:text-3xl font-bold mb-6">
           Compare
         </h1>
@@ -239,6 +239,8 @@ const Compare = () => {
         <div className="flex flex-col lg:flex-row lg:justify-center pt-10 lg:space-x-8 space-y-8 lg:space-y-0 w-full max-w-4xl">
           {/* Left Person */}
           <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
+            <h1 className="text-3xl font-bold text-center -mt-4">Person 1</h1>
+
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">
                 Pusta Number
@@ -312,7 +314,10 @@ const Compare = () => {
           </div>
 
           {/* Right Person */}
+
           <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
+            <h1 className="text-3xl font-bold text-center -mt-4">Person 2</h1>
+
             <div className="w-full">
               <label className="block mb-2 text-sm md:text-base">
                 Pusta Number
