@@ -156,68 +156,80 @@ const CardView = () => {
         )}
 
         <div className=" lg:w-[40vw] sm:w-[90vw] h-[98vh] m-auto rounded-2xl overflow-auto ">
+          <div className=" lg:w-[40vw] sm:w-[90vw] h-[96vh] m-auto rounded-2xl overflow-hidden ">
+            {/* Navigation Buttons */}
+            {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
 
-        <div className=" lg:w-[40vw] sm:w-[90vw] h-[96vh] m-auto rounded-2xl overflow-hidden ">
-          {/* Navigation Buttons */}
-          {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
-
-          {/* Card Container */}
-          <div
-            ref={containerRef}
-            id="container"
-            className={isMobile? "flex flex-col w-full h-[90vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide":"flex flex-col w-full h-[96vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"}
-          >
-            <TinderCard
-              className={`relative min-w-full h-full snap-center flex flex-col group ${
-                infoPopup === data[currentIndex].name
-                  ? "overflow-y-scroll"
-                  : "overflow-y-hidden"
-              }`}
-              preventSwipe={["up", "down"]}
-              onSwipe={(direction) => handleSwipe(direction)}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+            {/* Card Container */}
+            <div
+              ref={containerRef}
+              id="container"
+              className={
+                isMobile
+                  ? "flex flex-col w-full h-[90vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
+                  : "flex flex-col w-full h-[96vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
+              }
             >
-              {/* Image Section */}
-              <div className={!infoPopup ? "flex items-center justify-center w-[100%] h-[100%]  rounded-lg shadow-lg bg-white relative" : "flex items-center justify-center w-[100%] h-[80vh]  object-scale-down rounded-lg shadow-lg bg-white relative"}>
-                <img
-                  src={
-                    data[currentIndex].photo ||
-                    "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+              <TinderCard
+                className={`relative min-w-full h-full snap-center flex flex-col group ${
+                  infoPopup === data[currentIndex].name
+                    ? "overflow-y-scroll"
+                    : "overflow-y-hidden"
+                }`}
+                preventSwipe={["up", "down"]}
+                onSwipe={(direction) => handleSwipe(direction)}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                {/* Image Section */}
+                <div
+                  className={
+                    !infoPopup
+                      ? "flex items-center justify-center w-[100%] h-[100%]  rounded-lg shadow-lg bg-white relative"
+                      : "flex items-center justify-center w-[100%] h-[80vh]  object-scale-down rounded-lg shadow-lg bg-white relative"
                   }
-                  alt={data[currentIndex].name_in_nepali}
-                  className={!infoPopup ? "w-full h-full  object-cover select-none"
-                    : "w-full h-[80vh] object-cover"}
-                />
-                {/* Buttons Section */}
-                <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
-                  {/* Scroll Left Button */}
-                  <button
-                    className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    onClick={scrollLeft}
-                    onTouchEnd={scrollLeft}
-                  >
-                    <img
-                      className="w-6 h-6"
-                      src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
-                      alt="Scroll Left"
-                    />
-                  </button>
+                >
+                  <img
+                    src={
+                      data[currentIndex].photo ||
+                      "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                    }
+                    alt={data[currentIndex].name_in_nepali}
+                    className={
+                      !infoPopup
+                        ? "w-full h-full  object-cover select-none"
+                        : "w-full h-[80vh] object-cover"
+                    }
+                  />
+                  {/* Buttons Section */}
+                  <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+                    {/* Scroll Left Button */}
+                    <button
+                      className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      onClick={scrollLeft}
+                      onTouchEnd={scrollLeft}
+                    >
+                      <img
+                        className="w-6 h-6"
+                        src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+                        alt="Scroll Left"
+                      />
+                    </button>
 
-                  {/* Scroll Right Button */}
-                  <button
-                    className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    onClick={scrollRight}
-                    onTouchEnd={scrollRight}
-                  >
-                    <img
-                      className="w-6 h-6"
-                      src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
-                      alt="Scroll Right"
-                    />
-                  </button>
+                    {/* Scroll Right Button */}
+                    <button
+                      className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      onClick={scrollRight}
+                      onTouchEnd={scrollRight}
+                    >
+                      <img
+                        className="w-6 h-6"
+                        src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+                        alt="Scroll Right"
+                      />
+                    </button>
 
-                  {/* Generate Family Tree Button
+                    {/* Generate Family Tree Button
                   <FamilyTreeCardButton
                     onClick={() =>
                       handleGenerateFamilyTree(data[currentIndex])
@@ -227,72 +239,73 @@ const CardView = () => {
                     }
                   /> */}
 
-                  <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
-                    {data[currentIndex].name_in_nepali}
-                  </h2>
-                  <div className="flex justify-between items-center w-full mb-8">
-                    <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5  z-20">
-                      {data[currentIndex].pusta_number}
-                    </div>
-                    <button
-                      className="pr-4 text-white text-xl"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleInfo(data[currentIndex]);
-                      }}
-                      onTouchEnd={(e) => {
-                        e.stopPropagation();
-                        handleToggleInfo(data[currentIndex]);
-                      }}
-                    >
-                      <div className="expand-button ">
-                        {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                    <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
+                      {data[currentIndex].name_in_nepali}
+                    </h2>
+                    <div className="flex justify-between items-center w-full mb-8">
+                      <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5  z-20">
+                        {data[currentIndex].pusta_number}
                       </div>
-                    </button>
+                      <button
+                        className="pr-4 text-white text-xl"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleInfo(data[currentIndex]);
+                        }}
+                        onTouchEnd={(e) => {
+                          e.stopPropagation();
+                          handleToggleInfo(data[currentIndex]);
+                        }}
+                      >
+                        <div className="expand-button ">
+                          {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
+
+                {/* Info Section */}
+                {infoPopup === data[currentIndex].name && (
+                  <InfoSection person={data[currentIndex]} />
+                )}
+              </TinderCard>
+
+              <div className="footer lg:mt-0 md:mt-1 sm:mt-4 sticky bottom-0 left-0 w-full bg-white z-20">
+                <FooterButtons
+                  id={id}
+                  onGenerateFamilyTree={handleFooterGenerate}
+                  infoPopup={infoPopup}
+                />
               </div>
-
-              {/* Info Section */}
-              {infoPopup === data[currentIndex].name && (
-                <InfoSection person={data[currentIndex]} />
-              )}
-            </TinderCard>
-
-            <div className="footer lg:mt-0 md:mt-1 sm:mt-4 sticky bottom-0 left-0 w-full bg-white z-20">
-              <FooterButtons
-                id={id}
-                onGenerateFamilyTree={handleFooterGenerate}
-                infoPopup={infoPopup}
-              />
             </div>
-          </div>
 
-          {/* Family Tree Modal */}
-          {selectedPerson && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
-              <button
-                onClick={() => {
-                  setSelectedPerson(null);
-                  setIsHorizontal(false); // Reset orientation
-                }}
-                onTouchEnd={() => {
-                  setSelectedPerson(null);
-                  setIsHorizontal(false); // Reset orientation
-                }}
-                className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
-              >
-                &#x2715;
-              </button>
-              <FamilyTreeGraph
-                id={id}
-                selectedPerson={selectedPerson}
-                isMobile={isMobile}
-              />
-            </div>
+            {/* Family Tree Modal */}
+            {selectedPerson && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
+                  <button
+                    onClick={() => {
+                      setSelectedPerson(null);
+                      setIsHorizontal(false); // Reset orientation
+                    }}
+                    onTouchEnd={() => {
+                      setSelectedPerson(null);
+                      setIsHorizontal(false); // Reset orientation
+                    }}
+                    className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
+                  >
+                    &#x2715;
+                  </button>
+                  <FamilyTreeGraph
+                    id={id}
+                    selectedPerson={selectedPerson}
+                    isMobile={isMobile}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
         </div>
       </div>
     </>
