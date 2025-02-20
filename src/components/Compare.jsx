@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 const Compare = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Family members data used for suggestions
   const [familyMembers, setFamilyMembers] = useState([]);
@@ -135,7 +136,7 @@ const Compare = () => {
   useEffect(() => {
     const fetchFamilyMembers = async () => {
       try {
-        const response = await axios.get(`https://gautamfamily.org.np/people/`);
+        const response = await axios.get(`${API_URL}/people/`);
         setFamilyMembers(response.data);
       } catch (error) {
         console.error("Error fetching family members:", error);
@@ -143,16 +144,15 @@ const Compare = () => {
     };
 
     fetchFamilyMembers();
-  }, []);
+  }, [API_URL]);
 
   // Fetch left person's data by ID
   useEffect(() => {
     const fetchLeftPersonData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          `https://gautamfamily.org.np/people/${id}`
-        );
+        const response = await axios.get(`${API_URL}/people/${id}`);
+
         console.log(response.data);
         setLeftPerson(response.data);
       } catch (error) {
@@ -172,7 +172,7 @@ const Compare = () => {
     };
 
     fetchLeftPersonData();
-  }, [id]);
+  }, [id, API_URL]);
 
   const handleCompare = async () => {
     if (
@@ -198,7 +198,7 @@ const Compare = () => {
     const rightPerson_fatherId = rightPerson.fatherId;
     const rightPerson_motherId = rightPerson.motherId;
 
-    const response = await axios.post(`https://gautamfamily.org.np/compare/`, {
+    const response = await axios.post(`${API_URL}/compare/`, {
       leftPersonId,
       rightPerson_name,
       rightPerson_pusta_number,

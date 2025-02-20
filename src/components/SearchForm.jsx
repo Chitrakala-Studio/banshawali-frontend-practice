@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
   const [criteria, setCriteria] = useState(initialCriteria);
+  const API_URL = import.meta.env.VITE_API_URL; // Use your env variable
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -15,23 +16,23 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const queryParams = new URLSearchParams(criteria).toString();
-    const url = `https://gautamfamily.org.np/people/search/?${queryParams}`;
-  
+    // Use the API URL from the environment variable
+    const url = `${API_URL}/people/search/?${queryParams}`;
+
     fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Search results:', data);
+        console.log("Search results:", data);
         onSearch(data);
       })
       .catch((error) => {
-        console.error('Error fetching search results:', error);
+        console.error("Error fetching search results:", error);
       });
-    // onSearch(criteria);
   };
 
   return (
