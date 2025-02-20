@@ -81,7 +81,7 @@ const findNodeById = (tree, id) => {
 
 
 
-const FamilyTreeGraph = ({ selectedPerson, id }) => {
+const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
   const [treeData, setTreeData] = useState(null)
   const [familyData, setFamilyData] = useState(null)
   const treeContainerRef = useRef(null)
@@ -301,7 +301,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
            y={-18.5 + (nameLines.length > 1 ? -10 : 0)}
            textAnchor="middle"
            fontSize="14"
-           fontFamily="cursive"
+          //  fontFamily="cursive"
            dominantBaseline="middle"
            fill="black"
            strokeWidth="0"
@@ -334,17 +334,46 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
       </g>
     );
   };
-
+dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
+  dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
+  const translateX = isMobile ? dimensions.width/6 : dimensions.width /2; // 
+  // Adjust for mobile and desktop
+  const translateY = isMobile ? dimensions.height/1.3 : dimensions.height/4; // Adjust for mobile and desktop
+  const nodeSize = isMobile ? { x: 160, y: 80 } : { x: 200, y: 150 }; // Smaller nodes on mobile
+  const scale = 1; // Scale down the tree for mobile to fit
 
   return (
-    <div ref={treeContainerRef} style={{ width: "100%", height: "60vh" }}>
+    <>
+    
+    <div
+    className="tree"
+    ref={treeContainerRef}
+    style={{
+      width: isMobile ? "80vh" : "100%",
+      height: isMobile ? "160vw" : "32em",
+      display: "flex",
+      flexDirection: "column", // Apply row when horizontal layout
+      justifyContent: "center",
+      alignItems: "center",
+      // position: "relative",
+      transform: isMobile ? "rotate(90deg)" : "none", // Apply rotation only for horizontal layout
+      transformOrigin: isMobile ? "down left" : "none", // Set the origin of the rotation when horizontal
+      overflow: isMobile ? "auto" : "hidden", // Apply overflow for horizontal layout
+      zIndex: "10"
+    }}
+
+  >
       <h2>{selectedPerson}'s Family Tree</h2>
       {treeData && (
         <ReactD3Tree
           data={treeData}
           orientation="horizontal"
           nodeSize={{ x: 200, y: 100 }}
-          translate={{ x: 300, y: 200 }}
+          translate={{
+            x: translateX,
+            y: translateY,
+
+          }}
           renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
           onNodeClick={handleNodeClick} // Keep this to capture clicks
           separation={{ siblings: 1.5, nonSiblings: 2 }}
@@ -353,6 +382,7 @@ const FamilyTreeGraph = ({ selectedPerson, id }) => {
 
       )}
     </div>
+    </>
   )
 }
 
