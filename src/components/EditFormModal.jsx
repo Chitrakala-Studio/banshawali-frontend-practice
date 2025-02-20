@@ -40,6 +40,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
+  const API_URL = import.meta.env.VITE_API_URL || "https://gautamfamily.org.np";
 
   const today = new Date().toISOString().split("T")[0];
   const hideFatherSuggestionsTimeout = useRef(null);
@@ -78,7 +79,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       if (form.pusta_number) {
         try {
           const response = await axios.get(
-            `https://gautamfamily.org.np/people/familyrelations?pusta_number=${form.pusta_number}`
+            `${API_URL}/people/familyrelations?pusta_number=${form.pusta_number}`
           );
           console.log(response.data);
           console.log(response.data.father_pusta);
@@ -94,7 +95,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     };
 
     fetchSuggestions();
-  }, [form.id, form.pusta_number]);
+  }, [form.id, form.pusta_number, API_URL]);
   useEffect(() => {
     if (formData.id !== form.id) {
       setForm(formData);
@@ -105,7 +106,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       if (form.pusta_number) {
         try {
           const response = await axios.get(
-            `https://gautamfamily.org.np/people/familyrelations?pusta_number=${form.pusta_number}`
+            `${API_URL}/people/familyrelations?pusta_number=${form.pusta_number}`
           );
           console.log(response.data);
           console.log(response.data.father_pusta);
@@ -126,7 +127,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     };
 
     fetchSuggestions();
-  }, [formData.id, form.pusta_number]);
+  }, [form.id, form.pusta_number, API_URL]);
 
   useEffect(() => {
     // Fetch user details only if formData has an ID
@@ -134,11 +135,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(
-            `https://gautamfamily.org.np/people/${formData.id}`
-          );
+          const response = await axios.get(`${API_URL}/people/${formData.id}`);
           const data = response.data;
-          setForm(data); // Assuming the API returns data in the correct format
+          setForm(data); /
         } catch (error) {
           handleBackendError(
             error,
@@ -152,7 +151,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       fetchUserDetails();
     }
-  }, [formData.id]);
+  },[formData.id, API_URL]);
 
   const handleSuggestionClick = (suggestion) => {
     setForm((prev) => ({
@@ -190,9 +189,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(
-            `https://gautamfamily.org.np/people/${formData.id}`
-          );
+          const response = await axios.get(`${API_URL}/people/${formData.id}`);
           const data = response.data;
           // Transform the data: assign contact_details to contact
           const transformedData = {
@@ -218,7 +215,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     if (!familyMembers.length) {
       const fetchFamilyMembers = async () => {
         try {
-          const response = await fetch(`https://gautamfamily.org.np/people/`);
+          const response = await fetch(`${API_URL}/people/`);
           const data = await response.json();
           setFamilyMembers(data);
         } catch (error) {
@@ -228,7 +225,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       fetchFamilyMembers();
     }
-  }, [formData, familyMembers.length]);
+  }, [formData, familyMembers.length, API_URL]);
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -367,11 +364,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         same_vamsha_status: form.vansha_status,
       };
       const response = form.id
-        ? await axios.put(
-            `https://gautamfamily.org.np/people/${form.id}/`,
-            payload
-          )
-        : await axios.post(`https://gautamfamily.org.np/people/`, payload);
+      ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
+      : await axios.post(`${API_URL}/people/`, payload);
+
 
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");

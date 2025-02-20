@@ -46,7 +46,7 @@ const CardView = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint
-        const response = await fetch("https://gautamfamily.org.np/people/");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/people/`);
         const result = await response.json();
 
         setData(result); // Set the fetched data

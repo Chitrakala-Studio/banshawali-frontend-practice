@@ -55,7 +55,7 @@ const TableView = () => {
     same_vamsha_status: false,
   });
 
-  const API_URL = "https://gautamfamily.org.np";
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchData();
