@@ -137,7 +137,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           setLoading(true);
           const response = await axios.get(`${API_URL}/people/${formData.id}`);
           const data = response.data;
-          setForm(data); /
+          setForm(data); 
         } catch (error) {
           handleBackendError(
             error,
