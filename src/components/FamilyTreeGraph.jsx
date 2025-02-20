@@ -81,11 +81,11 @@ const findNodeById = (tree, id) => {
 
 
 
-const FamilyTreeGraph = ({ selectedPerson, id }) => {
+const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
   const [treeData, setTreeData] = useState(null)
   const [familyData, setFamilyData] = useState(null)
   const treeContainerRef = useRef(null)
-  const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
+  // const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
   const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
 
