@@ -494,11 +494,30 @@ const TableView = () => {
                           })()}
                         </td>
                         <td className="text-center">
-                          {row.father?.name || "-"}
+                          {row.father ? (
+                            <span
+                              className="cursor-pointer text-blue-600 "
+                              onClick={() => navigate(`/${row.father.id}`)}
+                            >
+                              {row.father.name}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td className="text-center">
-                          {row.mother?.name || "-"}
+                          {row.mother ? (
+                            <span
+                              className="cursor-pointer text-blue-600 "
+                              onClick={() => navigate(`//${row.mother.id}`)}
+                            >
+                              {row.mother.name}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
+
                         <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
                             <>
