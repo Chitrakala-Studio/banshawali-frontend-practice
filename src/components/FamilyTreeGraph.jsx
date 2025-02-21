@@ -13,7 +13,7 @@ const fetchFamilyData = async (id) => {
   try {
     if (!id) return null
     console.log(`Fetching data for ID: ${id}`)
-    const response = await axios.get(`${API_URL}/familytree/${id}/`)
+    const response = await axios.get(`${API_URL}/familytree/familytree/${id}/`)
     return response.data
   } catch (error) {
     console.error("Error fetching family data:", error)
@@ -284,7 +284,7 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
               y="-40"
               width="65"
               height="65"
-              href={nodeDatum.gender === "male" ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png" : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"}
+              href={nodeDatum.gender === "male" ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg":"https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png" }
               preserveAspectRatio="xMidYMid slice"
               pointerEvents="none"
             />

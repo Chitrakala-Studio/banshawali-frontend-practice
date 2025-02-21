@@ -27,14 +27,14 @@ const CardView = () => {
   const [nextIndex, setNextIndex] = useState(0);
   const [previousIndex, setPreviousIndex] = useState(0);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 764);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 764);
+      setIsMobile(window.innerWidth < 800);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -59,6 +59,7 @@ const CardView = () => {
         );
         const result = await response.json();
         const result_data = result.data;
+        console.log(result_data)
 
         setData(result_data); // Set the fetched data
         setPreviousIndex(result.previous);
@@ -165,8 +166,8 @@ const CardView = () => {
           />
         )}
 
-        <div className=" lg:w-[40vw] sm:w-[90vw] h-[98vh] m-auto rounded-2xl overflow-auto ">
-          <div className=" lg:w-[40vw] sm:w-[90vw] h-[96vh] m-auto rounded-2xl overflow-hidden ">
+        <div className={isMobile? " w-[98vw]  h-[98vh] m-auto rounded-2xl overflow-auto ": "w-[40vw] h-[98vh] m-auto rounded-2xl overflow-auto"}>
+          <div className={ isMobile?" w-[98vw] h-[96vh] m-auto rounded-2xl overflow-hidden ":" w-[40vw] h-[96vh] m-auto rounded-2xl overflow-hidden"}>
             {/* Navigation Buttons */}
             {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
 
@@ -307,7 +308,7 @@ const CardView = () => {
             {/* Family Tree Modal */}
             {selectedPerson && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white w-11/12 max-w-4xl p-6 rounded-lg relative">
+                <div className="bg-white w-11/12 max-w-5xl p-6 rounded-lg relative">
                   <button
                     onClick={() => {
                       setSelectedPerson(null);
