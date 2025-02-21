@@ -17,7 +17,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
     e.preventDefault();
     const queryParams = new URLSearchParams(criteria).toString();
     // Use the API URL from the environment variable
-    const url = `${API_URL}/people/search/?${queryParams}`;
+    const url = `${API_URL}/people/people/search/?${queryParams}`;
 
     fetch(url, {
       method: "GET",
