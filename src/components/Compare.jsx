@@ -132,29 +132,20 @@ const Compare = () => {
     });
   };
 
-  // Fetch all family members once
-  useEffect(() => {
-    const fetchFamilyMembers = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/people/`);
-        setFamilyMembers(response.data.data);
-      } catch (error) {
-        console.error("Error fetching family members:", error);
-      }
-    };
-
-    fetchFamilyMembers();
-  }, [API_URL]);
-
   // Fetch left person's data by ID
   useEffect(() => {
     const fetchLeftPersonData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${API_URL}/people/${id}`);
+        const response = await fetch(`${API_URL}/people/${id}/`,{
+          method: 'GET',
+          headers: {'Content-Type': 'application/json'}
+        });
 
-        console.log(response.data);
-        setLeftPerson(response.data.data);
+        const response_data = await response.json();
+      const fetchedData = response_data.data[0];
+      console.log(fetchedData);
+        setLeftPerson(fetchedData);
       } catch (error) {
         console.error("Error fetching data:", error);
         setApiError(
@@ -174,13 +165,52 @@ const Compare = () => {
     fetchLeftPersonData();
   }, [id]);
 
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (rightPerson.pusta_number) {
+        try {
+          const response = await axios.get(
+            `${API_URL}/people/people/familyrelations?pusta_number=${rightPerson.pusta_number}`,{
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
+
+          );
+          const name_suggestions = response.data.current_pusta_data;
+          const fatherSuggestions = response.data.father_pusta;
+          const motherSuggestions = response.data.mother_pusta;
+          console.log("RIGHT NAME",name_suggestions);
+          console.log("RIGHT FATHER",fatherSuggestions);
+          console.log("RIGHT MOTHER",motherSuggestions);
+          setRightNameSuggestions(name_suggestions);
+          setRightFatherSuggestions(fatherSuggestions);
+          setRightMotherSuggestions(motherSuggestions);
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+        }
+      }
+    };
+
+    fetchSuggestions();
+  }, [rightPerson.pusta_number, API_URL]);
+
   const handleCompare = async () => {
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 100);
+    });
+
     if (
       !leftPerson.name ||
       !leftPerson.pusta_number ||
       !rightPerson.name ||
       !rightPerson.pusta_number
     ) {
+      console.log("Missing Information");
+      console.log(leftPerson);
+      console.log(rightPerson);
       Swal.fire({
         title: "Missing Information",
         text: "Both Name and pusta_number fields are required for comparison.",
@@ -198,7 +228,7 @@ const Compare = () => {
     const rightPerson_fatherId = rightPerson.fatherId;
     const rightPerson_motherId = rightPerson.motherId;
 
-    const response = await axios.post(`${API_URL}/compare/`, {
+    const response = await axios.post(`${API_URL}/people/compare/`, {
       leftPersonId,
       rightPerson_name,
       rightPerson_pusta_number,
@@ -265,7 +295,7 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Full Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.name}
+                value={leftPerson.name_in_nepali}
                 onChange={(e) =>
                   setLeftPerson((prev) => ({
                     ...prev,
@@ -283,7 +313,7 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Father's Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.father?.name || ""}
+                value={leftPerson.father?.name_in_nepali || ""}
                 onChange={(e) =>
                   setLeftPerson((prev) => ({
                     ...prev,
@@ -301,7 +331,7 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Mother's Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.mother?.name || ""}
+                value={leftPerson.mother?.name_in_nepali || ""}
                 onChange={(e) =>
                   setLeftPerson((prev) => ({
                     ...prev,
@@ -326,7 +356,7 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter pusta_number"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.pusta_number}
+                value={rightPerson.pusta_number || ""}
                 onChange={(e) =>
                   setRightPerson((prev) => ({
                     ...prev,
@@ -343,41 +373,13 @@ const Compare = () => {
                 type="text"
                 placeholder="Enter Full Name"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.name}
+                value={rightPerson.name || ""}
                 onChange={(e) => {
                   const value = e.target.value;
-                  setRightPerson((prev) => ({ ...prev, name: value }));
-                  if (rightPerson.pusta_number) {
-                    fetchRightNameSuggestions(rightPerson.pusta_number, value)
-                      .then((suggestions) => {
-                        setRightNameSuggestions(suggestions);
-                        setShowRightNameSuggestions(true);
-                      })
-                      .catch((error) =>
-                        console.error(
-                          "Error fetching right name suggestions:",
-                          error
-                        )
-                      );
-                  }
+                  
                 }}
                 onFocus={() => {
-                  if (rightPerson.pusta_number) {
-                    fetchRightNameSuggestions(
-                      rightPerson.pusta_number,
-                      rightPerson.name
-                    )
-                      .then((suggestions) => {
-                        setRightNameSuggestions(suggestions);
-                        setShowRightNameSuggestions(true);
-                      })
-                      .catch((error) =>
-                        console.error(
-                          "Error fetching right name suggestions:",
-                          error
-                        )
-                      );
-                  }
+                  setShowRightNameSuggestions(true);
                 }}
                 onBlur={() => {
                   setTimeout(() => setShowRightNameSuggestions(false), 150);
@@ -501,13 +503,13 @@ const Compare = () => {
             <p className="text-lg font-bold mb-4">{relationship}</p>
           )}
 
-          <button
+          {/* <button
             className="bg-green-600 text-white px-6 py-2 md:px-10 md:py-2 rounded text-base md:text-xl"
             onClick={handleGenerateFamilyTree}
             disabled={isLoading}
           >
             {isLoading ? "Generating..." : "Generate Family Tree"}
-          </button>
+          </button> */}
           {apiError && <p className="text-red-500 text-sm mt-4">{apiError}</p>}
         </div>
       </div>
