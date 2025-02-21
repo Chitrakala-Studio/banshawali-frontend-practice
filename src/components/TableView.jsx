@@ -87,12 +87,12 @@ const TableView = () => {
       let response = null;
       // Check in param if there is id and fetch data for that id
       if (id) {
-        response = await fetch(`${API_URL}/people/${id}`, {
+        response = await fetch(`${API_URL}/people/${id}/`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
       } else {
-        response = await fetch(`${API_URL}/people/?page=${page}`, {
+        response = await fetch(`${API_URL}/people/people/?page=${page}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
