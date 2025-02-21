@@ -94,12 +94,12 @@ const TableView = () => {
       let response = null;
       // Check in param if there is id and fetch data for that id
       if (id) {
-        response = await fetch(`${API_URL}/people/${id}`, {
+        response = await fetch(`${API_URL}/people/${id}/`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
       } else {
-        response = await fetch(`${API_URL}/people/?page=${page}`, {
+        response = await fetch(`${API_URL}/people/people/?page=${page}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -471,7 +471,22 @@ const TableView = () => {
                       <td>{row.pusta_number}</td>
                       <td>{row.father?.name || "-"}</td>
                       <td>{row.mother?.name || "-"}</td>
-                      <td>{row.gender}</td>
+                      <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
+                        {row.gender?.toLowerCase() === "male" ? (
+                          <>
+                            <FaMale className="text-blue-500 text-lg" />
+                            <span className="font-medium">Male</span>
+                          </>
+                        ) : row.gender?.toLowerCase() === "female" ? (
+                          <>
+                            <FaFemale className="text-pink-500 text-lg" />
+                            <span className="font-medium">Female</span>
+                          </>
+                        ) : (
+                          <span>-</span>
+                        )}
+                      </td>
+
                       <td>
                         {row.lifestatus.toLowerCase() === "dead"
                           ? "Dead"

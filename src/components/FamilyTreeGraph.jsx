@@ -280,11 +280,11 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
             />
           ) : (
             <image
-              x="-50.3"
-              y="-50"
+              x="-80.3"
+              y="-40"
               width="65"
               height="65"
-              href={nodeDatum.gender === "male" ? "src/assets/public/maleicon.png" : "src/assets/public/iconfemale.png"}
+              href={nodeDatum.gender === "male" ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png" : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"}
               preserveAspectRatio="xMidYMid slice"
               pointerEvents="none"
             />
@@ -300,7 +300,7 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
         {!isGroupNode &&
            <text
            x="25"
-           y={-18.5 + (nameLines.length > 1 ? -10 : 0)}
+           y={-18.5 + (nameLines.length > 0 ? -10 : 0)}
            textAnchor="middle"
            fontSize="14"
           //  fontFamily="cursive"
@@ -327,7 +327,7 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(40, -10) rotate(${nodeDatum.collapsed ? 0 : 90})`}
+            transform={`translate(50, -10) rotate(${nodeDatum.collapsed ? 0 : 90})`}
             style={{ transition: "transform 0.3s ease" }}
           >
             <ChevronRight size={20} />
