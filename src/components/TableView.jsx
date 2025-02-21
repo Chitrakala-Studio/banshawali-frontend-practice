@@ -452,13 +452,13 @@ const TableView = () => {
               <table className="ml-3 w-full">
                 <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
                   <tr>
-                    <th>Name</th>
-                    <th>Pusta Number</th>
-                    <th>Father Name</th>
-                    <th>Mother Name</th>
-                    <th>Gender</th>
-                    <th>Age</th>
-                    <th>Actions</th>
+                    <th className="text-center ">Name</th>
+                    <th className="text-center ">Pusta Number</th>
+                    <th className="text-center ">Father Name</th>
+                    <th className="text-center ">Mother Name</th>
+                    <th className="text-center ">Gender</th>
+                    <th className="text-center ">Age</th>
+                    <th className="text-center ">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -467,10 +467,49 @@ const TableView = () => {
                       key={index}
                       className="border-b-2 border-gray-700 hover:bg-gray-200"
                     >
-                      <td>{row.name}</td>
-                      <td>{row.pusta_number}</td>
-                      <td>{row.father?.name || "-"}</td>
-                      <td>{row.mother?.name || "-"}</td>
+                      <td className="text-center ">
+                        <img
+                          src={
+                            row.photo ||
+                            "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                          }
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+
+                        {row.name}
+                      </td>
+                      <td className="text-center items-center justify-center">
+                        {(() => {
+                          // If the pusta_number is red then first green  else orange
+                          const genColorClass =
+                            row.pusta_number % 2 === 0
+                              ? {
+                                  bg: "bg-green-300 text-green-700",
+                                  label: "Even Generation",
+                                }
+                              : {
+                                  bg: "bg-orange-300 text-orange-700",
+                                  label: "Odd Generation",
+                                };
+
+                          return (
+                            <div
+                              className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                              title={genColorClass.label}
+                            >
+                              <span className="w-2 h-2 rounded-full mr-2"></span>
+                              {row.pusta_number}
+                            </div>
+                          );
+                        })()}
+                      </td>
+                      <td className="text-center ">
+                        {row.father?.name || "-"}
+                      </td>
+                      <td className="text-center ">
+                        {row.mother?.name || "-"}
+                      </td>
                       <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
                         {row.gender?.toLowerCase() === "male" ? (
                           <>
@@ -487,12 +526,16 @@ const TableView = () => {
                         )}
                       </td>
 
-                      <td>
-                        {row.lifestatus.toLowerCase() === "dead"
-                          ? "Dead"
-                          : "Alive"}
+                      <td className="text-center">
+                        {row.lifestatus.toLowerCase() === "dead" ? (
+                          <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
+                            Dead
+                          </span>
+                        ) : (
+                          calculateAge(row.date_of_birth, row.lifestatus)
+                        )}
                       </td>
-                      <td>
+                      <td className="text-center ">
                         <button onClick={() => handleInfoClick(row)}>
                           <FaInfoCircle />
                         </button>
