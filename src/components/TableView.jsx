@@ -5,6 +5,7 @@ import {
   FaTimes,
   FaFileAlt,
   FaDownload,
+  FaArrowLeft,
   FaInfoCircle,
   FaEdit,
   FaTrash,
@@ -412,9 +413,10 @@ const TableView = () => {
               {(id || searchApplied) && (
                 <button
                   onClick={handleGoBack}
-                  className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 transition-all shadow-md"
+                  className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 transition-all shadow-md flex items-center gap-2"
                 >
-                  Go back
+                  <FaArrowLeft />
+                  <span>Go back</span>
                 </button>
               )}
             </div>
