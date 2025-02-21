@@ -36,13 +36,10 @@ const TableView = () => {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState("data");
-  //const [displayCount, setDisplayCount] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
-  //const [showSuggestionPopup, setShowSuggestionPopup] = useState(false);
   const [expandedSuggestion, setExpandedSuggestion] = useState(null);
-  // const [selectedParentName, setSelectedParentName] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
@@ -91,8 +88,9 @@ const TableView = () => {
 
   const fetchData = async (page) => {
     try {
+      if (!hasMore) return;
       let response = null;
-      // Check in param if there is id and fetch data for that id
+
       if (id) {
         response = await fetch(`${API_URL}/people/${id}/`, {
           method: "GET",
@@ -105,9 +103,7 @@ const TableView = () => {
         });
       }
 
-      // Data s inside response.data
       const response_data = await response.json();
-      //  main data is inside this Array and named as data
       const fetchedData = response_data.data;
       console.log("Fetched data:", fetchedData);
 
@@ -121,18 +117,19 @@ const TableView = () => {
       setHasMore(fetchedData.next !== null);
     } catch (error) {
       console.error("Fetch error:", error);
+      setHasMore(false);
     }
   };
+
   const fetchSuggestions = async () => {
     try {
-      const response = await axios.get(`${API_URL}/suggestions/`);
+      const response = await axios.get(`${API_URL}/people/suggestions/`);
       setSuggestions(response.data);
-
-      if (response.data.length === 0) {
-        setHasMore(false);
-      } else {
-        setHasMore(true);
-      }
+      const suggestionArray = Array.isArray(response.data)
+        ? response.data
+        : response.data.suggestions || [];
+      setSuggestions(suggestionArray);
+      setHasMore(response.data.length === 0 ? false : true);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setHasMore(false);
@@ -141,7 +138,7 @@ const TableView = () => {
 
   const handleAcceptSuggestion = async (id) => {
     try {
-      await axios.put(`${API_URL}/suggestions/${id}/accept`);
+      await axios.put(`${API_URL}/people/suggestions/${id}/accept`);
       fetchSuggestions();
       Swal.fire("Accepted!", "Suggestion has been accepted.", "success");
     } catch (error) {
@@ -152,7 +149,7 @@ const TableView = () => {
 
   const handleRejectSuggestion = async (id) => {
     try {
-      await axios.put(`${API_URL}/suggestions/${id}/reject`);
+      await axios.put(`${API_URL}/people/suggestions/${id}/reject`);
       fetchSuggestions();
       Swal.fire("Rejected!", "Suggestion has been declined.", "success");
     } catch (error) {
@@ -160,12 +157,13 @@ const TableView = () => {
       Swal.fire("Error!", "Failed to reject the suggestion.", "error");
     }
   };
+
   const handleSuggestionClick = (row) => {
     Swal.fire({
       title: `Submit Suggestion for ${row.name}`,
       html: `
         <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" autocapitalize="off"></textarea>
-        <input type="file" id="suggestionFile" class="swal2-input" />
+        <input type="file" id="suggestionFile" class="swal2-input" accept="image/*"  />
       `,
       focusConfirm: false,
       showCancelButton: true,
@@ -174,53 +172,65 @@ const TableView = () => {
       preConfirm: async () => {
         const suggestion = document.getElementById("suggestion").value;
         const file = document.getElementById("suggestionFile").files[0];
+        let photoUrl = "";
 
-        // Prepare form data for file upload and suggestion
-        const formData = new FormData();
-        formData.append("personId", row.id);
-        formData.append("suggestion", suggestion);
-        formData.append(
+        if (file) {
+          const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+          const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+          const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+
+          const uploadData = new FormData();
+          uploadData.append("file", file);
+          uploadData.append("upload_preset", uploadPreset);
+
+          try {
+            const response = await axios.post(cloudUrl, uploadData);
+            photoUrl = response.data.secure_url;
+          } catch (error) {
+            Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
+          }
+        }
+        const suggestionFormData = new FormData();
+        suggestionFormData.append("personId", row.id);
+        suggestionFormData.append("suggestion", suggestion);
+        suggestionFormData.append(
           "user",
           JSON.parse(localStorage.getItem("user"))?.username || "Anonymous"
         );
-
-        if (file) {
-          formData.append("file", file);
+        if (photoUrl) {
+          suggestionFormData.append("photo", photoUrl);
         }
-
         try {
-          // Send the request to the server with both suggestion and file
-          await axios.post(`${API_URL}/suggestions/`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
+          await axios.post(
+            `${API_URL}/people/suggestions/`,
+            suggestionFormData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
           return suggestion;
         } catch (error) {
           Swal.showValidationMessage(`Request failed: ${error}`);
         }
       },
       allowOutsideClick: () => !Swal.isLoading(),
-      // Adding custom CSS to fix the textarea size, remove scrolling, and shift file input
       didOpen: () => {
         const suggestionTextArea = document.getElementById("suggestion");
         const suggestionFileInput = document.getElementById("suggestionFile");
-
-        // Fix the size of the suggestion textarea
-        suggestionTextArea.style.resize = "none"; // Prevent resizing
-        suggestionTextArea.style.height = "150px"; // Increase height of the textarea
-        suggestionTextArea.style.width = "100%"; // Increase width to 100%
-        suggestionTextArea.style.overflow = "hidden"; // Remove scrollbars
-        suggestionTextArea.style.backgroundColor = "white"; // Set background to white
-        suggestionTextArea.style.border = "1px solid #ccc"; // Add border for visibility
-
-        // Style the file input (reduce size and shift left)
-        suggestionFileInput.style.width = "calc(100% - 10px)"; // Set file input width slightly smaller to avoid scrollbar
-        suggestionFileInput.style.padding = "5px"; // Reduce padding for a smaller file input
-        suggestionFileInput.style.marginTop = "10px"; // Give some spacing from textarea
-        suggestionFileInput.style.marginLeft = "0"; // Remove any left margin to align it to the left
-        suggestionFileInput.style.backgroundColor = "white"; // Set background to white
-        suggestionFileInput.style.border = "1px solid #ccc"; // Add border for visibility
+        suggestionTextArea.style.resize = "none";
+        suggestionTextArea.style.height = "150px";
+        suggestionTextArea.style.width = "100%";
+        suggestionTextArea.style.overflow = "hidden";
+        suggestionTextArea.style.backgroundColor = "white";
+        suggestionTextArea.style.border = "1px solid #ccc";
+        suggestionFileInput.style.width = "calc(100% - 10px)";
+        suggestionFileInput.style.padding = "5px";
+        suggestionFileInput.style.marginTop = "10px";
+        suggestionFileInput.style.marginLeft = "0";
+        suggestionFileInput.style.backgroundColor = "white";
+        suggestionFileInput.style.border = "1px solid #ccc";
       },
     }).then((result) => {
       if (result.isConfirmed) {
@@ -243,7 +253,6 @@ const TableView = () => {
       setShowSearchForm(false);
       return;
     }
-
     setFilteredData(criteria);
     setSearchApplied(true);
     setShowSearchForm(false);
@@ -330,8 +339,6 @@ const TableView = () => {
   };
 
   const finalData = filteredData;
-
-  // IMPORTANT: Use finalData for the visible rows.
   const visibleData = finalData;
 
   const handleLoadMore = () => {
@@ -339,7 +346,7 @@ const TableView = () => {
     setCurrentPage(nextPage);
     fetchData(nextPage);
   };
-  console.log("Visible Data:", visibleData);
+
   return (
     <div className="table-view transition-all duration-300">
       <div className={isModalOpen ? "blurred" : ""}>
@@ -372,7 +379,7 @@ const TableView = () => {
                 }`}
                 onClick={() => {
                   setActiveTab("suggestions");
-                  fetchSuggestions(); // Ensure we fetch latest suggestions
+                  fetchSuggestions();
                 }}
               >
                 View Suggestions
@@ -382,243 +389,416 @@ const TableView = () => {
         </div>
 
         <div className="table-view-filters mt-10 p-4">
-          {/* Parent flex container with space-between */}
           <div className="flex items-center justify-between w-full">
-            {/* Left side (Go back button) */}
             <div>
               {(id || searchApplied) && (
                 <button
                   onClick={handleGoBack}
-                  className="border border-gray-300 px-4 py-2 rounded-md 
-                     hover:bg-gray-100 transition-all shadow-md"
+                  className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 transition-all shadow-md"
                 >
                   Go back
                 </button>
               )}
             </div>
-
-            {/* Right side (Search & + Add New) */}
             <div className="flex items-center gap-4">
               <button
-                className="bg-teal-500 text-white px-6 py-2 rounded-md 
-                   hover:bg-teal-600 transition-all shadow-md 
-                   flex items-center space-x-2"
+                className="bg-teal-500 text-white px-6 py-2 rounded-md hover:bg-teal-600 transition-all shadow-md flex items-center space-x-2"
                 onClick={() => setShowSearchForm(true)}
               >
                 <FaSearch className="text-white" />
                 <span>Search</span>
               </button>
-
               {isAdminLocal && (
-                <>
-                  <button
-                    className="bg-blue-500 text-white px-6 py-2 rounded-md 
-                     hover:bg-blue-600 transition-all shadow-md"
-                    onClick={() => {
-                      setFormData({
-                        username: "",
-                        pusta_number: "",
-                        father_name: "",
-                        mother_name: "",
-                        dob: "",
-                        lifestatus: "Alive",
-                        profession: "",
-                        gender: "Male",
-                      });
-                      setIsAdding(true);
-                    }}
-                  >
-                    + Add New
-                  </button>
-                </>
+                <button
+                  className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all shadow-md"
+                  onClick={() => {
+                    setFormData({
+                      username: "",
+                      pusta_number: "",
+                      father_name: "",
+                      mother_name: "",
+                      dob: "",
+                      lifestatus: "Alive",
+                      profession: "",
+                      gender: "Male",
+                    });
+                    setIsAdding(true);
+                  }}
+                >
+                  + Add New
+                </button>
               )}
             </div>
           </div>
         </div>
 
-        <InfiniteScroll
-          dataLength={visibleData.length}
-          next={handleLoadMore}
-          hasMore={hasMore}
-          loader={
-            <div className="flex justify-center items-center h-screen">
-              <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-            </div>
-          }
-          style={{ overflow: "hidden" }}
-        >
-          {activeTab === "data" ? (
-            <div className="table-wrapper">
-              <table className="ml-3 w-full">
-                <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
-                  <tr>
-                    <th className="text-center ">Name</th>
-                    <th className="text-center ">Pusta Number</th>
-                    <th className="text-center ">Father Name</th>
-                    <th className="text-center ">Mother Name</th>
-                    <th className="text-center ">Gender</th>
-                    <th className="text-center ">Age</th>
-                    <th className="text-center ">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredData.map((row, index) => (
-                    <tr
-                      key={index}
-                      className="border-b-2 border-gray-700 hover:bg-gray-200"
-                    >
-                      <td className="text-center ">
-                        <img
-                          src={
-                            row.photo ||
-                            "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
-                          }
-                          alt="Profile"
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-
-                        {row.name}
-                      </td>
-                      <td className="text-center items-center justify-center">
-                        {(() => {
-                          // If the pusta_number is red then first green  else orange
-                          const genColorClass =
-                            row.pusta_number % 2 === 0
-                              ? {
-                                  bg: "bg-green-300 text-green-700",
-                                  label: "Even Generation",
-                                }
-                              : {
-                                  bg: "bg-orange-300 text-orange-700",
-                                  label: "Odd Generation",
-                                };
-
-                          return (
-                            <div
-                              className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
-                              title={genColorClass.label}
-                            >
-                              <span className="w-2 h-2 rounded-full mr-2"></span>
-                              {row.pusta_number}
-                            </div>
-                          );
-                        })()}
-                      </td>
-                      <td className="text-center ">
-                        {row.father?.name || "-"}
-                      </td>
-                      <td className="text-center ">
-                        {row.mother?.name || "-"}
-                      </td>
-                      <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
-                        {row.gender?.toLowerCase() === "male" ? (
-                          <>
-                            <FaMale className="text-blue-500 text-lg" />
-                            <span className="font-medium">Male</span>
-                          </>
-                        ) : row.gender?.toLowerCase() === "female" ? (
-                          <>
-                            <FaFemale className="text-pink-500 text-lg" />
-                            <span className="font-medium">Female</span>
-                          </>
-                        ) : (
-                          <span>-</span>
-                        )}
-                      </td>
-
-                      <td className="text-center">
-                        {row.lifestatus.toLowerCase() === "dead" ? (
-                          <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
-                            Dead
-                          </span>
-                        ) : (
-                          calculateAge(row.date_of_birth, row.lifestatus)
-                        )}
-                      </td>
-                      <td className="text-center ">
-                        <button onClick={() => handleInfoClick(row)}>
-                          <FaInfoCircle />
-                        </button>
-                        {isAdminLocal ? (
-                          <>
-                            <button
-                              className="icon-button edit-button"
-                              onClick={() => handleEditClick(row)}
-                            >
-                              <FaEdit />
-                            </button>
-                            <button
-                              className="icon-button delete-button"
-                              onClick={() => handleDelete(row)}
-                            >
-                              <FaTrash />
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            className="icon-button suggestion-button"
-                            onClick={handleSuggestionClick}
-                          >
-                            <FaLightbulb />
+        {!id ? (
+          <InfiniteScroll
+            dataLength={visibleData.length}
+            next={handleLoadMore}
+            hasMore={hasMore}
+            loader={
+              <div className="flex justify-center items-center h-screen">
+                <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+              </div>
+            }
+            style={{ overflow: "hidden" }}
+          >
+            {activeTab === "data" ? (
+              <div className="table-wrapper">
+                <table className="ml-3 w-full">
+                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
+                    <tr>
+                      <th className="text-center">Name</th>
+                      <th className="text-center">Pusta Number</th>
+                      <th className="text-center">Father Name</th>
+                      <th className="text-center">Mother Name</th>
+                      <th className="text-center">Gender</th>
+                      <th className="text-center">Age</th>
+                      <th className="text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredData.map((row, index) => (
+                      <tr
+                        key={index}
+                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                      >
+                        <td className="text-center">
+                          <img
+                            src={
+                              row.photo ||
+                              "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                            }
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          {row.name}
+                        </td>
+                        <td className="text-center items-center justify-center">
+                          {(() => {
+                            const genColorClass =
+                              row.pusta_number % 2 === 0
+                                ? {
+                                    bg: "bg-green-300 text-green-700",
+                                    label: "Even Generation",
+                                  }
+                                : {
+                                    bg: "bg-orange-300 text-orange-700",
+                                    label: "Odd Generation",
+                                  };
+                            return (
+                              <div
+                                className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                                title={genColorClass.label}
+                              >
+                                <span className="w-2 h-2 rounded-full mr-2"></span>
+                                {row.pusta_number}
+                              </div>
+                            );
+                          })()}
+                        </td>
+                        <td className="text-center">
+                          {row.father?.name || "-"}
+                        </td>
+                        <td className="text-center">
+                          {row.mother?.name || "-"}
+                        </td>
+                        <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
+                          {row.gender?.toLowerCase() === "male" ? (
+                            <>
+                              <FaMale className="text-blue-500 text-lg" />
+                              <span className="font-medium">Male</span>
+                            </>
+                          ) : row.gender?.toLowerCase() === "female" ? (
+                            <>
+                              <FaFemale className="text-pink-500 text-lg" />
+                              <span className="font-medium">Female</span>
+                            </>
+                          ) : (
+                            <span>-</span>
+                          )}
+                        </td>
+                        <td className="text-center">
+                          {row.lifestatus.toLowerCase() === "dead" ? (
+                            <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
+                              Dead
+                            </span>
+                          ) : (
+                            calculateAge(row.date_of_birth, row.lifestatus)
+                          )}
+                        </td>
+                        <td className="text-center">
+                          <button onClick={() => handleInfoClick(row)}>
+                            <FaInfoCircle />
                           </button>
-                        )}
-                        <button
-                          className="icon-button card-button text-gray-500 hover:text-blue-500"
-                          title="View Card"
-                          onClick={() => navigate(`/card/${row.id}`)}
-                        >
-                          <FaRegIdCard />
-                        </button>
-                      </td>
+                          {isAdminLocal ? (
+                            <>
+                              <button
+                                className="icon-button edit-button"
+                                onClick={() => handleEditClick(row)}
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                className="icon-button delete-button"
+                                onClick={() => handleDelete(row)}
+                              >
+                                <FaTrash />
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              className="icon-button suggestion-button"
+                              onClick={handleSuggestionClick}
+                            >
+                              <FaLightbulb />
+                            </button>
+                          )}
+                          <button
+                            className="icon-button card-button text-gray-500 hover:text-blue-500"
+                            title="View Card"
+                            onClick={() => navigate(`/card/${row.id}`)}
+                          >
+                            <FaRegIdCard />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="table-wrapper">
+                <table className="ml-3 w-full">
+                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
+                    <tr>
+                      <th>User</th>
+                      <th>Suggestion</th>
+                      <th>Photo</th>
+                      <th>Date</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="table-wrapper">
-              <table className="ml-3 w-full">
-                <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
-                  <tr>
-                    <th>User</th>
-                    <th>Suggestion</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {suggestions.map((suggestion) => (
-                    <tr
-                      key={suggestion.id}
-                      className="border-b-2 border-gray-700 hover:bg-gray-200"
-                    >
-                      <td>{suggestion.user}</td>
-                      <td>{suggestion.suggestion}</td>
-                      <td>{new Date(suggestion.date).toLocaleDateString()}</td>
-                      <td>
-                        <button
-                          onClick={() => handleAcceptSuggestion(suggestion.id)}
-                        >
-                          <FaCheck />
-                        </button>
-                        <button
-                          onClick={() => handleRejectSuggestion(suggestion.id)}
-                        >
-                          <FaTimes />
-                        </button>
-                      </td>
+                  </thead>
+                  <tbody>
+                    {suggestions.map((suggestion) => (
+                      <tr
+                        key={suggestion.id}
+                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                      >
+                        <td>{suggestion.user}</td>
+                        <td>{suggestion.suggestion}</td>
+                        <td>
+                          {suggestion.photo ? (
+                            <img
+                              src={suggestion.photo}
+                              alt="Suggestion"
+                              className="w-10 h-10 object-cover rounded-full inline-block"
+                            />
+                          ) : (
+                            "No Photo"
+                          )}
+                        </td>
+                        <td>
+                          {new Date(suggestion.date).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() =>
+                              handleAcceptSuggestion(suggestion.id)
+                            }
+                          >
+                            <FaCheck />
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleRejectSuggestion(suggestion.id)
+                            }
+                          >
+                            <FaTimes />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </InfiniteScroll>
+        ) : (
+          <>
+            {activeTab === "data" ? (
+              <div className="table-wrapper">
+                <table className="ml-3 w-full">
+                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
+                    <tr>
+                      <th className="text-center">Name</th>
+                      <th className="text-center">Pusta Number</th>
+                      <th className="text-center">Father Name</th>
+                      <th className="text-center">Mother Name</th>
+                      <th className="text-center">Gender</th>
+                      <th className="text-center">Age</th>
+                      <th className="text-center">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </InfiniteScroll>
+                  </thead>
+                  <tbody>
+                    {filteredData.map((row, index) => (
+                      <tr
+                        key={index}
+                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                      >
+                        <td className="text-center">
+                          <img
+                            src={
+                              row.photo ||
+                              "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                            }
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          {row.name}
+                        </td>
+                        <td className="text-center items-center justify-center">
+                          {(() => {
+                            const genColorClass =
+                              row.pusta_number % 2 === 0
+                                ? {
+                                    bg: "bg-green-300 text-green-700",
+                                    label: "Even Generation",
+                                  }
+                                : {
+                                    bg: "bg-orange-300 text-orange-700",
+                                    label: "Odd Generation",
+                                  };
+                            return (
+                              <div
+                                className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                                title={genColorClass.label}
+                              >
+                                <span className="w-2 h-2 rounded-full mr-2"></span>
+                                {row.pusta_number}
+                              </div>
+                            );
+                          })()}
+                        </td>
+                        <td className="text-center">
+                          {row.father?.name || "-"}
+                        </td>
+                        <td className="text-center">
+                          {row.mother?.name || "-"}
+                        </td>
+                        <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
+                          {row.gender?.toLowerCase() === "male" ? (
+                            <>
+                              <FaMale className="text-blue-500 text-lg" />
+                              <span className="font-medium">Male</span>
+                            </>
+                          ) : row.gender?.toLowerCase() === "female" ? (
+                            <>
+                              <FaFemale className="text-pink-500 text-lg" />
+                              <span className="font-medium">Female</span>
+                            </>
+                          ) : (
+                            <span>-</span>
+                          )}
+                        </td>
+                        <td className="text-center">
+                          {row.lifestatus.toLowerCase() === "dead" ? (
+                            <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
+                              Dead
+                            </span>
+                          ) : (
+                            calculateAge(row.date_of_birth, row.lifestatus)
+                          )}
+                        </td>
+                        <td className="text-center">
+                          <button onClick={() => handleInfoClick(row)}>
+                            <FaInfoCircle />
+                          </button>
+                          {isAdminLocal ? (
+                            <>
+                              <button
+                                className="icon-button edit-button"
+                                onClick={() => handleEditClick(row)}
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                className="icon-button delete-button"
+                                onClick={() => handleDelete(row)}
+                              >
+                                <FaTrash />
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              className="icon-button suggestion-button"
+                              onClick={handleSuggestionClick}
+                            >
+                              <FaLightbulb />
+                            </button>
+                          )}
+                          <button
+                            className="icon-button card-button text-gray-500 hover:text-blue-500"
+                            title="View Card"
+                            onClick={() => navigate(`/card/${row.id}`)}
+                          >
+                            <FaRegIdCard />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="table-wrapper">
+                <table className="ml-3 w-full">
+                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
+                    <tr>
+                      <th>User</th>
+                      <th>Suggestion</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {suggestions.map((suggestion) => (
+                      <tr
+                        key={suggestion.id}
+                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                      >
+                        <td>{suggestion.user}</td>
+                        <td>{suggestion.suggestion}</td>
+                        <td>
+                          {new Date(suggestion.date).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() =>
+                              handleAcceptSuggestion(suggestion.id)
+                            }
+                          >
+                            <FaCheck />
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleRejectSuggestion(suggestion.id)
+                            }
+                          >
+                            <FaTimes />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
       </div>
       <div className="table-footer">
-        {/* <button className="import-button">
-          Import <FaCloudDownloadAlt className="import-icon" />
-        </button> */}
         <div className="flex items-center justify-between w-full mt-4">
           {/* Pagination controls removed */}
         </div>
