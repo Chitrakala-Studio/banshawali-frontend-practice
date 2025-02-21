@@ -79,7 +79,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       if (form.pusta_number) {
         try {
           const response = await axios.get(
-            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`
+            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,{
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
+
           );
           console.log(response.data);
           console.log(response.data.father_pusta);
@@ -106,7 +110,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       if (form.pusta_number) {
         try {
           const response = await axios.get(
-            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`
+            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,{
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
           );
           console.log(response.data);
           console.log(response.data.father_pusta);
@@ -135,9 +142,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(`${API_URL}/people/people/${formData.id}`);
-          const data = response.data.data;
-          setForm(data);
+          const url = `${API_URL}/people/${formData.id}/`;
+        console.log("Fetching URL:", url);
+        const response = await fetch(url , 
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          }
+        );
+        const result = await response.json();
+        const result_data = result.data;
+        setForm(result_data);
         } catch (error) {
           handleBackendError(
             error,
@@ -158,6 +175,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       ...prev,
       father_name: suggestion.name,
       father_id: suggestion.id,
+      
     }));
     setShowSuggestions(false);
   };
@@ -189,7 +207,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(`${API_URL}/people/${formData.id}`);
+          const response = await fetch(`${API_URL}/people/${formData.id}/`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
           const data = response.data;
           // Transform the data: assign contact_details to contact
           const transformedData = {
@@ -215,7 +236,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     if (!familyMembers.length) {
       const fetchFamilyMembers = async () => {
         try {
-          const response = await fetch(`${API_URL}/people/`);
+          const response = await fetch(`${API_URL}/people/people/`);
           const data = await response.json();
           setFamilyMembers(data.data);
         } catch (error) {
@@ -348,6 +369,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     setLoading(true);
     try {
+      console.log("FORM",form)
       const payload = {
         name: form.name,
         name_in_nepali: form.name_in_nepali,
@@ -364,7 +386,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         same_vamsha_status: form.vansha_status,
       };
       const response = form.id
-        ? await axios.put(`${API_URL}/people/people/${form.id}/`, payload)
+        ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
         : await axios.post(`${API_URL}/people/people/`, payload);
 
       onSave(response.data);
