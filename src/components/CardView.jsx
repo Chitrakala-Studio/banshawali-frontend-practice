@@ -47,7 +47,16 @@ const CardView = () => {
         setLoading(true);
         // Replace with your actual API endpoint
 
-        const response = await fetch(`${API_URL}/people/${id}`);
+        const url = `${API_URL}/people/${id}/`;
+        console.log("Fetching URL:", url);
+        const response = await fetch(url , 
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          }
+        );
         const result = await response.json();
         const result_data = result.data;
 
