@@ -16,7 +16,7 @@ import CardView from "./components/CardView";
 const RedirectOnMobile = ({ setIsMobile }) => {
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 764);
+      setIsMobile(window.innerWidth < 800);
     };
     window.addEventListener("resize", handleResize);
     handleResize(); // Run once on mount to set the initial state

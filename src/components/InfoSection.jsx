@@ -17,209 +17,223 @@ const InfoSection = ({ person }) => {
   return (
     <div className="pb-12 bg-black">
       <div className="w-full bg-black/90 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
+
         {/* Personal Information Box */}
+
         <div className="bg-gray-700 p-4 rounded-lg">
           <h3 className="font-bold text-lg mb-2">Personal Information</h3>
           <div className="space-y-3">
             <div className="flex items-center border-b border-gray-600 pb-3">
               <FaUser className="mr-2 text-xl" />
-              <p className="text-l text-white mt-1">{person.name || "N/A"}</p>
+              {person.name &&
+                <p className="text-l text-white mt-1">{person.name}</p>
+              }
             </div>
             <div className="flex items-center border-b border-gray-600 pb-3">
+
               {person.gender === "Male" ? (
                 <FaMale className="mr-2 text-xl" />
               ) : (
                 <FaFemale className="mr-2 text-xl" />
               )}
-              <p className="text-l mt-0 text-white">{person.gender || "N/A"}</p>
+              {person.gender &&
+                < p className="text-l mt-0 text-white">{person.gender}</p>
+              }
+          </div>
+          <div
+            className={`flex items-center ${person.date_of_death ? "border-b border-gray-600 pb-3" : ""
+              }`}
+          >
+            <FaBirthdayCake className="mr-2 text-xl" />
+            {person.date_of_birth &&
+            <p className="text-l mt-0 text-white">
+              {person.date_of_birth || "N/A"}
+            </p>
+            }
+          </div>
+          {person.date_of_death && (
+            <div className="flex items-center">
+              <FaSkullCrossbones className="mr-2 text-xl" />
+              <p className="text-l text-white mt-0">{person.date_of_death}</p>
             </div>
-            <div
-              className={`flex items-center ${person.date_of_death ? "border-b border-gray-600 pb-3" : ""
-                }`}
-            >
-              <FaBirthdayCake className="mr-2 text-xl" />
-              <p className="text-l mt-0 text-white">
-                {person.date_of_birth || "N/A"}
-              </p>
-            </div>
-            {person.date_of_death && (
-              <div className="flex items-center">
-                <FaSkullCrossbones className="mr-2 text-xl" />
-                <p className="text-l text-white mt-0">{person.date_of_death}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Family Information Box */}
+      {(person.father?.name || person.mother?.name || person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0) && (
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <h3 className="font-bold text-lg mb-2">Family</h3>
+          <div className="space-y-3">
+            {(person.father?.name || person.mother?.name) && (
+              <div
+                className={`flex items-center ${person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                  }`}
+              >
+                {/* Parents */}
+                <FaUser className="mr-2 text-xl" />
+                <p className="text-l text-white mt-1">
+                  {person.father?.name && person.father.name !== "N/A" && (
+                    <>
+                      Father:{" "}
+                      <Link
+                        to={`/${person.father.id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        {person.father.name}
+                      </Link>
+                    </>
+                  )}
+                  {person.mother?.name && person.mother.name !== "N/A" && (
+                    <>
+                      Mother:{" "}
+                      <Link
+                        to={`/${person.mother.id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        {person.mother.name}
+                      </Link>
+                    </>
+                  )}
+                </p>
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Family Information Box */}
-        {(person.father?.name || person.mother?.name || person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0) && (
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="font-bold text-lg mb-2">Family</h3>
-            <div className="space-y-3">
-              {(person.father?.name || person.mother?.name) && (
-                <div
-                  className={`flex items-center ${person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                    }`}
-                >
-                  {/* Parents */}
-                  <FaUser className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    {person.father?.name && person.father.name !== "N/A" && (
-                      <>
-                        Father:{" "}
-                        <Link
-                          to={`/${person.father.id}`}
-                          className="text-blue-500 hover:underline"
-                        >
-                          {person.father.name}
-                        </Link>
-                      </>
-                    )}
-                    {person.mother?.name && person.mother.name !== "N/A" && (
-                      <>
-                        Mother:{" "}
-                        <Link
-                          to={`/${person.mother.id}`}
-                          className="text-blue-500 hover:underline"
-                        >
-                          {person.mother.name}
-                        </Link>
-                      </>
-                    )}
-                  </p>
-                </div>
-              )}
-
-              {/* Grandparents */}
-              {(person.grandfather?.name || person.grandmother?.name) && (
-                <div className={`flex items-center ${person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                  }`}>
-                  <FaUser className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    {person.grandfather?.name && person.grandfather.name !== "N/A" && (
-                      <>
-                        Spouse:{" "}
-                        <Link
-                          to={`/${person.grandfather.id}`}
-                          className="text-blue-500 hover:underline"
-                        >
-                          {person.grandfather.name} (Grandfather)
-                        </Link>
-                      </>
-                    )}
-                    {person.grandmother?.name && person.grandmother.name !== "N/A" && (
+            {/* Grandparents */}
+            {(person.grandfather?.name || person.grandmother?.name) && (
+              <div className={`flex items-center ${person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                }`}>
+                <FaUser className="mr-2 text-xl" />
+                <p className="text-l text-white mt-1">
+                  {person.grandfather?.name && person.grandfather.name !== "N/A" && (
+                    <>
+                      GrandFather:{" "}
+                      <Link
+                        to={`/${person.grandfather.id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        {person.grandfather.name} (Grandfather)
+                      </Link>
+                    </>
+                  )}
+                  {person.grandmother?.name && person.grandmother.name !== "N/A" && (
+                    <>
+                      GrandMother:{""}
                       <Link
                         to={`/${person.grandmother.id}`}
                         className="text-blue-500 hover:underline"
                       >
                         {person.grandmother.name} (Grandmother)
                       </Link>
-                    )}
-                  </p>
-                </div>
-              )}
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
 
-              {/* Spouse */}
-              {person.spouse?.name && (
-                <div className={`flex items-center ${person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                  }`}>
-                  <FaUser className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    {person.spouse.name && person.spouse.name !== "N/A" && (
-                      <>
-                        Spouse:{" "}
-                        <Link
-                          to={`/${person.spouse.id}`}
-                          className="text-blue-500 hover:underline"
-                        >
-                          {person.spouse.name} (Spouse)
-                        </Link>
-                      </>
-                    )}
-                  </p>
-                </div>
-              )}
-
-              {/* Children */}
-              {person.children?.length > 0 && (
-                <div className="flex items-center">
-                  <FaUser className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    Children:{" "}
-                    {person.children.map((child, index) => (
+            {/* Spouse */}
+            {person.spouse?.name && (
+              <div className={`flex items-center ${person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                }`}>
+                <FaUser className="mr-2 text-xl" />
+                <p className="text-l text-white mt-1">
+                  {person.spouse.name && person.spouse.name !== "N/A" && (
+                    <>
+                      Spouse:{" "}
                       <Link
-                        key={index}
-                        to={`/${child.id}`}
+                        to={`/${person.spouse.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {child.name}
-                        {index < person.children.length - 1 ? ", " : ""}
+                        {person.spouse.name} (Spouse)
                       </Link>
-                    ))}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
 
-        {/* Contact Information Box */}
-        {(person.contact_details?.phone || person.contact_details?.email || person.contact_details?.address) &&
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="font-bold text-m mb-4">Contact Information</h3>
-            <div className="space-y-3">
-              {person.contact_details.phone && (
-                <div
-                  className={`flex items-center ${person.contact_details.email || person.contact_details.address
-                      ? "border-b border-gray-600 pb-3"
-                      : ""
-                    }`}
-                >
-                  <FaPhone className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-1">
-                    {person.contact_details.phone || "N/A"}
-                  </p>
-                </div>
-              )}
-              {person.contact_details.email && (
-                <div
-                  className={`flex items-center ${person.contact_details.address
-                      ? "border-b border-gray-600 pb-3"
-                      : ""
-                    }`}
-                >
-                  <FaEnvelope className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {person.contact_details.email || "N/A"}
-                  </p>
-                </div>
-              )}
-              {person.contact_details.address && (
-                <div className="flex items-center">
-                  <FaAddressCard className="mr-2 text-xl" />
-                  <p className="text-l text-white mt-0">
-                    {person.contact_details.address || "N/A"}
-                  </p>
-                </div>
-              )}
-            </div>
+            {/* Children */}
+            {person.children?.length > 0 && (
+              <div className="flex items-center">
+                <FaUser className="mr-2 text-xl" />
+                <p className="text-l text-white mt-1">
+                  Children:{" "}
+                  {person.children.map((child, index) => (
+                    <Link
+                      key={index}
+                      to={`/${child.id}`}
+                      className="text-blue-500 hover:underline"
+                    >
+                      {child.name}
+                      {index < person.children.length - 1 ? ", " : ""}
+                    </Link>
+                  ))}
+                </p>
+              </div>
+            )}
           </div>
-        }
+        </div>
+      )}
 
-        {/* Professional Information Box */}
-        {person.profession && (
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="font-bold text-m mb-4">Professional Information</h3>
-            <div className="flex items-center">
-              <FaBriefcase className="mr-2 text-xl" />
-              <p className="text-l text-white mt-0">
-                {person.profession || "N/A"}
-              </p>
-            </div>
+      {/* Contact Information Box */}
+
+      {((person.contact_details?.phone && person.contact_details?.phone !== "") || (person.contact_details?.email && person.contact_details?.email !== "") || (person.contact_details?.address && person.contact_details?.address !== "()")) &&
+
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <h3 className="font-bold text-m mb-4">Contact Information</h3>
+          <div className="space-y-3">
+            {person.contact_details.phone && (
+              <div
+                className={`flex items-center ${person.contact_details.email || person.contact_details.address
+                  ? "border-b border-gray-600 pb-3"
+                  : ""
+                  }`}
+              >
+                <FaPhone className="mr-2 text-xl" />
+                <p className="text-l text-white mt-1">
+                  {person.contact_details.phone || "N/A"}
+                </p>
+              </div>
+            )}
+            {person.contact_details.email && (
+              <div
+                className={`flex items-center ${person.contact_details.address
+                  ? "border-b border-gray-600 pb-3"
+                  : ""
+                  }`}
+              >
+                <FaEnvelope className="mr-2 text-xl" />
+                <p className="text-l text-white mt-0">
+                  {person.contact_details.email || "N/A"}
+                </p>
+              </div>
+            )}
+            {person.contact_details.address && (
+              <div className="flex items-center">
+                <FaAddressCard className="mr-2 text-xl" />
+                <p className="text-l text-white mt-0">
+                  {person.contact_details.address || "N/A"}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      }
+
+      {/* Professional Information Box */}
+      {person.profession && (
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <h3 className="font-bold text-m mb-4">Professional Information</h3>
+          <div className="flex items-center">
+            <FaBriefcase className="mr-2 text-xl" />
+            <p className="text-l text-white mt-0">
+              {person.profession || "N/A"}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
+    </div >
   );
 };
 
