@@ -39,7 +39,6 @@ const TableView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
-  const [expandedSuggestion, setExpandedSuggestion] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
@@ -61,6 +60,15 @@ const TableView = () => {
     mother_name: "",
     same_vamsha_status: true,
   });
+  const handleAccept = (e, id) => {
+    e.stopPropagation();
+    handleAcceptSuggestion(id);
+  };
+
+  const handleReject = (e, id) => {
+    e.stopPropagation();
+    handleRejectSuggestion(id);
+  };
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -124,12 +132,10 @@ const TableView = () => {
   const fetchSuggestions = async () => {
     try {
       const response = await axios.get(`${API_URL}/people/suggestions/`);
-      setSuggestions(response.data);
-      const suggestionArray = Array.isArray(response.data)
-        ? response.data
-        : response.data.suggestions || [];
+      console.log("Fetched suggestions:", response.data);
+      const suggestionArray = response.data.data;
       setSuggestions(suggestionArray);
-      setHasMore(response.data.length === 0 ? false : true);
+      setHasMore(response.data.next !== null);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setHasMore(false);
@@ -195,7 +201,7 @@ const TableView = () => {
           suggestion: suggestion,
           user:
             JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
-          ...(photoUrl && { photo: photoUrl }),
+          ...(photoUrl && { image: photoUrl }),
         };
 
         try {
@@ -282,6 +288,23 @@ const TableView = () => {
       age--;
     }
     return age === 0 ? "-" : age;
+  };
+  const handleRowClick = (suggestion) => {
+    Swal.fire({
+      title: "Suggestion Details",
+      html: `
+        <div style="text-align: left;">
+          <p><strong>Suggestion:</strong> ${suggestion.suggestion}</p>
+          ${
+            suggestion.image
+              ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
+              : "No Image"
+          }
+        </div>
+      `,
+      showCloseButton: true,
+      showCancelButton: false,
+    });
   };
 
   const handleInfoClick = (row) => {
@@ -494,11 +517,30 @@ const TableView = () => {
                           })()}
                         </td>
                         <td className="text-center">
-                          {row.father?.name || "-"}
+                          {row.father ? (
+                            <span
+                              className="cursor-pointer text-blue-600 "
+                              onClick={() => navigate(`/${row.father.id}`)}
+                            >
+                              {row.father.name}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td className="text-center">
-                          {row.mother?.name || "-"}
+                          {row.mother ? (
+                            <span
+                              className="cursor-pointer text-blue-600 "
+                              onClick={() => navigate(`//${row.mother.id}`)}
+                            >
+                              {row.mother.name}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
+
                         <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
                             <>
@@ -568,9 +610,8 @@ const TableView = () => {
                 <table className="ml-3 w-full">
                   <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
                     <tr>
-                      <th>User</th>
                       <th>Suggestion</th>
-                      <th>Photo</th>
+                      <th>Image</th>
                       <th>Date</th>
                       <th>Actions</th>
                     </tr>
@@ -580,18 +621,22 @@ const TableView = () => {
                       <tr
                         key={suggestion.id}
                         className="border-b-2 border-gray-700 hover:bg-gray-200"
+                        onClick={() => handleRowClick(suggestion)}
                       >
-                        <td>{suggestion.user}</td>
                         <td>{suggestion.suggestion}</td>
                         <td>
-                          {suggestion.photo ? (
+                          {suggestion.image ? (
                             <img
-                              src={suggestion.photo}
+                              src={
+                                suggestion.image.startsWith("http")
+                                  ? suggestion.image
+                                  : `${API_URL}${suggestion.image}`
+                              }
                               alt="Suggestion"
                               className="w-10 h-10 object-cover rounded-full inline-block"
                             />
                           ) : (
-                            "No Photo"
+                            "No Image"
                           )}
                         </td>
                         <td>
@@ -599,16 +644,12 @@ const TableView = () => {
                         </td>
                         <td>
                           <button
-                            onClick={() =>
-                              handleAcceptSuggestion(suggestion.id)
-                            }
+                            onClick={(e) => handleAccept(e, suggestion.id)}
                           >
                             <FaCheck />
                           </button>
                           <button
-                            onClick={() =>
-                              handleRejectSuggestion(suggestion.id)
-                            }
+                            onClick={(e) => handleReject(e, suggestion.id)}
                           >
                             <FaTimes />
                           </button>
