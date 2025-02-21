@@ -63,12 +63,12 @@ const TableView = () => {
   });
   const handleAccept = (e, id) => {
     e.stopPropagation();
-    handleAcceptSuggestion(id);
+    updateSuggestionStatus(id, "Approved");
   };
 
   const handleReject = (e, id) => {
     e.stopPropagation();
-    handleRejectSuggestion(id);
+    updateSuggestionStatus(id, "Declined");
   };
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -143,27 +143,27 @@ const TableView = () => {
     }
   };
 
-  const handleAcceptSuggestion = async (id) => {
-    try {
-      await axios.put(`${API_URL}/people/suggestions/${id}/accept`);
-      fetchSuggestions();
-      Swal.fire("Accepted!", "Suggestion has been accepted.", "success");
-    } catch (error) {
-      console.error("Error accepting suggestion:", error);
-      Swal.fire("Error!", "Failed to accept the suggestion.", "error");
-    }
-  };
+  // const handleAcceptSuggestion = async (id) => {
+  //   try {
+  //     await axios.put(`${API_URL}/people/suggestions/${id}`);
+  //     fetchSuggestions();
+  //     Swal.fire("Accepted!", "Suggestion has been accepted.", "success");
+  //   } catch (error) {
+  //     console.error("Error accepting suggestion:", error);
+  //     Swal.fire("Error!", "Failed to accept the suggestion.", "error");
+  //   }
+  // };
 
-  const handleRejectSuggestion = async (id) => {
-    try {
-      await axios.put(`${API_URL}/people/suggestions/${id}/reject`);
-      fetchSuggestions();
-      Swal.fire("Rejected!", "Suggestion has been declined.", "success");
-    } catch (error) {
-      console.error("Error rejecting suggestion:", error);
-      Swal.fire("Error!", "Failed to reject the suggestion.", "error");
-    }
-  };
+  // const handleRejectSuggestion = async (id) => {
+  //   try {
+  //     await axios.put(`${API_URL}/people/suggestions/${id}`);
+  //     fetchSuggestions();
+  //     Swal.fire("Rejected!", "Suggestion has been declined.", "success");
+  //   } catch (error) {
+  //     console.error("Error rejecting suggestion:", error);
+  //     Swal.fire("Error!", "Failed to reject the suggestion.", "error");
+  //   }
+  // };
 
   const handleSuggestionClick = (row) => {
     Swal.fire({
@@ -272,6 +272,38 @@ const TableView = () => {
   const handleEditClick = (row) => {
     setSelectedRow(row);
     setIsEditing(true);
+  };
+
+  const updateSuggestionStatus = async (id, newStatus) => {
+    try {
+      const payload = {
+        status: newStatus,
+      }; // payload contains the new status
+      // Send the PUT request to update the suggestion (assuming your API supports this)
+      await axios.put(`${API_URL}/people/suggestions/`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+      // Update the local state so that the table reflects the new status
+      setSuggestions((prevSuggestions) =>
+        prevSuggestions.map((suggestion) =>
+          suggestion.id === id
+            ? { ...suggestion, status: newStatus }
+            : suggestion
+        )
+      );
+      Swal.fire({
+        title: `${newStatus}!`,
+        text: `Suggestion status updated to ${newStatus}.`,
+        icon: "success",
+      });
+    } catch (error) {
+      console.error("Error updating suggestion status:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update suggestion status.",
+        icon: "error",
+      });
+    }
   };
 
   const calculateAge = (dob, lifestatus) => {
@@ -615,6 +647,7 @@ const TableView = () => {
                       <th>Suggestion</th>
                       <th>Image</th>
                       <th>Date</th>
+                      <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -644,6 +677,8 @@ const TableView = () => {
                         <td>
                           {new Date(suggestion.date).toLocaleDateString()}
                         </td>
+                        <td>{suggestion.status || "Pending"}</td>{" "}
+                        {/* Show status or default to Pending */}
                         <td>
                           <button
                             onClick={(e) => handleAccept(e, suggestion.id)}
