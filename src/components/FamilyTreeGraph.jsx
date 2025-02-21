@@ -7,6 +7,10 @@ import axios from "axios"
 import { ChevronRight } from "lucide-react"
 import "./App.css"
 import html2canvas from "html2canvas";
+import jsPDF from "jspdf"
+import Swal from "sweetalert2"
+import "svg2pdf.js";
+import { Canvg } from "canvg";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -81,7 +85,30 @@ const findNodeById = (tree, id) => {
   return null; // If not found in this branch
 };
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const convertImagesToBase64 = async (svgElement) => {
+  const images = svgElement.querySelectorAll('image');
+  for (const img of images) {
+    const href = img.getAttribute('href') || img.getAttribute('xlink:href');
+    if (href && href.startsWith('http')) {
+      try {
+        const response = await fetch(href, { mode: 'cors' });
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        await new Promise((resolve) => {
+          reader.onloadend = () => {
+            img.setAttribute('href', reader.result);
+            resolve();
+          };
+        });
+      } catch (error) {
+        console.warn(`Failed to load image: ${href}`, error);
+      }
+    }
+  }
+};
 
 
 const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
@@ -106,18 +133,83 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     fetchData();
   }, [id]);
 
-  const handlePrint = () => {
-    console.log("printed")
-    const treeContainer = document.getElementById("tree-container");
-
-    html2canvas(treeContainer, { useCORS: true, scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-
-      // Open the captured image in a new tab and print
-      const newTab = window.open();
-      newTab.document.write(`<img src="${imgData}" onload="window.print(); window.close();" />`);
+  const handlePrint = async () => {
+    const confirmation = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to print the family tree?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, print it!",
     });
+
+    if (confirmation.isConfirmed) {
+      const svgElement = document.querySelector(".rd3t-svg"); // Target the SVG directly
+      if (svgElement) {
+        await delay(500);
+        await convertImagesToBase64(svgElement);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = svgElement.clientWidth * 2;
+          canvas.height = svgElement.clientHeight * 2;
+          const ctx = canvas.getContext("2d");
+          const v = Canvg.fromString(ctx, svgElement.outerHTML);
+          await v.render();
+
+          const image = canvas.toDataURL("image/png");
+          const newWindow = window.open();
+          newWindow.document.write(`<img src='${image}' />`);
+          newWindow.print();
+          Swal.fire("Printed!", "Your family tree has been sent to the printer.", "success");
+        } catch (error) {
+          console.log(error)
+          Swal.fire("Error", "There was a problem printing the family tree.", "error");
+        }
+      }
+    }
   };
+
+  // Function to handle downloading the graph as a PDF with Swal confirmation using canvg
+  const handlePDF = async () => {
+    const confirmation = await Swal.fire({
+      title: "Download PDF?",
+      text: "Do you want to download the family tree as a PDF?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, download it!",
+    });
+
+    if (confirmation.isConfirmed) {
+      const svgElement = document.querySelector(".rd3t-svg"); // Target the SVG directly
+      if (svgElement) {
+        await delay(500);
+        await convertImagesToBase64(svgElement);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = svgElement.clientWidth * 2;
+          canvas.height = svgElement.clientHeight * 2;
+          const ctx = canvas.getContext("2d");
+          const v = Canvg.fromString(ctx, svgElement.outerHTML);
+          await v.render();
+
+          const image = canvas.toDataURL("image/png");
+          const pdf = new jsPDF({
+            orientation: "landscape",
+            unit: "px",
+            format: [canvas.width, canvas.height],
+          });
+          pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
+          pdf.save("FamilyTree.pdf");
+          Swal.fire("Downloaded!", "Your family tree PDF has been saved.", "success");
+        } catch (error) {
+          Swal.fire("Error", "There was a problem downloading the PDF.", "error");
+        }
+      }
+    }
+  };
+
+
+
+
   const handleNodeClick = async (nodeDatum) => {
     console.log("Node clicked:", nodeDatum);
 
@@ -252,47 +344,47 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
       if (!text || text.trim() === "") {
         return [];
       }
-    
+
       // Check if text contains "/"
       if (text.includes("/")) {
         const nameParts = text.split("/").map((part) => part.trim());
-    
+
         if (nameParts.length <= 2) {
           return [nameParts.join(" / ")]; // If only two names, put them in one line
         }
-    
+
         const firstLine = nameParts.slice(0, 2).join(" / "); // First two names
         const secondLine = "/ " + nameParts.slice(2).join(" / "); // Remaining names with leading "/"
-    
+
         return [firstLine, secondLine];
       }
-    
+
       // If no "/", break text based on word count for balance
       const words = text.split(" ");
       const mid = Math.ceil(words.length / 2); // Find middle point
-    
+
       const firstLine = words.slice(0, mid).join(" "); // First half
       const secondLine = words.slice(mid).join(" "); // Second half
-    
+
       return secondLine ? [firstLine, secondLine] : [firstLine]; // Avoid empty second line
     };
-    
-      const nameLines = wrapText(nodeDatum.name, 8);
+
+    const nameLines = wrapText(nodeDatum.name, 8);
     console.log(gender)
     return (
-      <g className="tree" id="tree-container" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
+      <g className="tree" id="family-tree" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
         {/* Background */}
         {!isGroupNode &&
-          <rect x="-80" y="-40" width="175" height="65" rx="30" ry="30" fill={gender === "Male" ? "#d4fff5" : "#ffcee9"} pointerEvents="all" />
+          <rect x="-95" y="-40" width="180" height="65" rx="30" ry="30" fill={gender === "Male" ? "#d4fff5" : "#ffcee9"} pointerEvents="all" />
         }
         {isGroupNode &&
-          <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill={"#e7e7e7"} pointerEvents="all" />
+          <rect x="-95" y="-40" width="165" height="65" rx="30" ry="30" fill={"#e7e7e7"} pointerEvents="all" />
         }
         {/* Only show image for actual persons, not "Father" or "Children" */}
         {!isGroupNode && (
           nodeDatum.photo && nodeDatum.photo !== "null" ? (
             <image
-              x="-80.3"
+              x="-95"
               y="-40"
               width="65"
               height="65"
@@ -302,7 +394,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
             />
           ) : (
             <image
-              x="-80.3"
+              x="-95"
               y="-40"
               width="65"
               height="65"
@@ -321,7 +413,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
         }
         {!isGroupNode &&
           <text
-            x="30"
+            x="25"
             y={-13.5 + (nameLines.length > 0 ? -10 : 0)}
             textAnchor="middle"
             fontSize="14"
@@ -332,7 +424,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
             fontWeight="200"
           >
             {nameLines.map((line, i) => (
-              <tspan key={i} x="30" dy={i === 0 ? 0 : 20}
+              <tspan key={i} x="25" dy={i === 0 ? 0 : 20}
                 strokeWidth="0">
                 {line}
               </tspan>
@@ -349,7 +441,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(58, -10) rotate(${nodeDatum.collapsed ? 0 : 90})`}
+            transform={`translate(45, -10) rotate(${nodeDatum.collapsed ? 0 : 90})`}
             style={{ transition: "transform 0.3s ease" }}
           >
             <ChevronRight size={20} />
@@ -405,9 +497,14 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
           />
 
         )}
-        {/* <button onClick={handlePrint} className="print-button">
-          Print Family Tree
-        </button> */}
+        <div style={{ display: "flex",flexDirection:"row", gap: "10px", marginTop: "10px" }}>
+          <button onClick={handlePDF} className="save-button">
+            Save as PDF
+          </button>
+          <button onClick={handlePrint} className="print-button">
+            Print Family Tree
+          </button>
+        </div>
       </div>
     </>
   )
