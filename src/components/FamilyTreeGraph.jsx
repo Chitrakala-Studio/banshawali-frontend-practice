@@ -6,6 +6,7 @@ import ReactD3Tree from "react-d3-tree"
 import axios from "axios"
 import { ChevronRight } from "lucide-react"
 import "./App.css"
+import html2canvas from "html2canvas";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -83,7 +84,7 @@ const findNodeById = (tree, id) => {
 
 
 
-const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
+const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
   const [treeData, setTreeData] = useState(null)
   const [familyData, setFamilyData] = useState(null)
   const treeContainerRef = useRef(null)
@@ -105,6 +106,18 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
     fetchData();
   }, [id]);
 
+  const handlePrint = () => {
+    console.log("printed")
+    const treeContainer = document.getElementById("tree-container");
+
+    html2canvas(treeContainer, { useCORS: true, scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+
+      // Open the captured image in a new tab and print
+      const newTab = window.open();
+      newTab.document.write(`<img src="${imgData}" onload="window.print(); window.close();" />`);
+    });
+  };
   const handleNodeClick = async (nodeDatum) => {
     console.log("Node clicked:", nodeDatum);
 
@@ -140,7 +153,7 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
                   children: []
                 });
               }
-              
+
 
             }
             if (nodeDatum.id.startsWith("child-")) {
@@ -235,33 +248,36 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
   const renderNode = (nodeDatum) => {
     const isGroupNode = nodeDatum.name === "Father" || nodeDatum.name === "Children";
     const gender = nodeDatum.gender;
-    const wrapText = (text, width) => {
+    const wrapText = (text) => {
       if (!text || text === '') {
-        return []; // Return empty array or handle it gracefully if text is not valid
-    }
-
-      const words = text.split(" ");
-      const lines = [];
-      let currentLine = words[0];
-  
-      for (let i = 1; i < words.length; i++) {
-        if (currentLine.length + words[i].length < width) {
-          currentLine += " " + words[i];
-        } else {
-          lines.push(currentLine);
-          currentLine = words[i];
-        }
+        return [];
       }
-      lines.push(currentLine);
-      return lines;
+
+      const nameParts = text.split("/").map((part) => part.trim());
+
+      if (nameParts.length <= 2) {
+        return [nameParts.join(" / ")]; // If only two words, put them on one line
+      }
+
+      const firstLine = nameParts.slice(0, 2).join(" / "); // First two names
+      const secondLine = "/ " + nameParts.slice(2).join(" / "); // Remaining names with a leading "/"
+
+      return [firstLine, secondLine];
     };
+
+
+
+
+
+
+
     const nameLines = wrapText(nodeDatum.name, 8);
     console.log(gender)
     return (
-      <g className="tree" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
+      <g className="tree" id="tree-container" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
         {/* Background */}
         {!isGroupNode &&
-          <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill={gender === "Male" ? "#d4fff5" : "#ffcee9"} pointerEvents="all" />
+          <rect x="-80" y="-40" width="175" height="65" rx="30" ry="30" fill={gender === "Male" ? "#d4fff5" : "#ffcee9"} pointerEvents="all" />
         }
         {isGroupNode &&
           <rect x="-80" y="-40" width="165" height="65" rx="30" ry="30" fill={"#e7e7e7"} pointerEvents="all" />
@@ -284,7 +300,7 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
               y="-40"
               width="65"
               height="65"
-              href={nodeDatum.gender === "Male" ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png":"https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg" }
+              href={nodeDatum.gender === "Male" ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png" : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"}
               preserveAspectRatio="xMidYMid slice"
               pointerEvents="none"
             />
@@ -293,29 +309,29 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
 
         {/* Name */}
         {isGroupNode &&
-          <text x="-10" y="-10" textAnchor="middle" fontSize="14"  fill="black" strokeWidth="0" fontWeight={"bold"}>
+          <text x="-10" y="-10" textAnchor="middle" fontSize="14" fill="black" strokeWidth="0" fontWeight={"bold"}>
             {nodeDatum.name}
           </text>
         }
         {!isGroupNode &&
-           <text
-           x="25"
-           y={-10.5 + (nameLines.length > 0 ? -10 : 0)}
-           textAnchor="middle"
-           fontSize="14"
-          //  fontFamily="cursive"
-           dominantBaseline="middle"
-           fill="black"
-           strokeWidth="0"
-           fontWeight= "200"
-         >
-           {nameLines.map((line, i) => (
-             <tspan key={i} x="25" dy={i === 0 ? 0 : 20}
-               strokeWidth="0">
-               {line}
-             </tspan>
-           ))}
-         </text>
+          <text
+            x="30"
+            y={-10.5 + (nameLines.length > 0 ? -10 : 0)}
+            textAnchor="middle"
+            fontSize="14"
+            //  fontFamily="cursive"
+            dominantBaseline="middle"
+            fill="black"
+            strokeWidth="0"
+            fontWeight="200"
+          >
+            {nameLines.map((line, i) => (
+              <tspan key={i} x="30" dy={i === 0 ? 0 : 20}
+                strokeWidth="0">
+                {line}
+              </tspan>
+            ))}
+          </text>
         }
         {/* Pusta (Family Lineage) */}
         {!isGroupNode && (
@@ -336,54 +352,57 @@ const FamilyTreeGraph = ({ selectedPerson, id,isMobile }) => {
       </g>
     );
   };
-dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
+  dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
   dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
-  const translateX = isMobile ? dimensions.width/6 : dimensions.width /2; // 
+  const translateX = isMobile ? dimensions.width / 6 : dimensions.width / 2; // 
   // Adjust for mobile and desktop
-  const translateY = isMobile ? dimensions.height/1.3 : dimensions.height/4; // Adjust for mobile and desktop
+  const translateY = isMobile ? dimensions.height / 1.3 : dimensions.height / 4; // Adjust for mobile and desktop
   const nodeSize = isMobile ? { x: 160, y: 80 } : { x: 200, y: 150 }; // Smaller nodes on mobile
   const scale = 1; // Scale down the tree for mobile to fit
 
   return (
     <>
-    
-    <div
-    className="tree"
-    ref={treeContainerRef}
-    style={{
-      width: isMobile ? "80vh" : "100%",
-      height: isMobile ? "160vw" : "32em",
-      display: "flex",
-      flexDirection: "column", // Apply row when horizontal layout
-      justifyContent: "center",
-      alignItems: "center",
-      // position: "relative",
-      transform: isMobile ? "rotate(90deg)" : "none", // Apply rotation only for horizontal layout
-      transformOrigin: isMobile ? "down left" : "none", // Set the origin of the rotation when horizontal
-      overflow: isMobile ? "auto" : "hidden", // Apply overflow for horizontal layout
-      zIndex: "10"
-    }}
 
-  >
-      <h2>{selectedPerson}'s Family Tree</h2>
-      {treeData && (
-        <ReactD3Tree
-          data={treeData}
-          orientation="horizontal"
-          nodeSize={{ x: 200, y: 100 }}
-          translate={{
-            x: translateX,
-            y: translateY,
+      <div
+        className="tree"
+        ref={treeContainerRef}
+        style={{
+          width: isMobile ? "80vh" : "100%",
+          height: isMobile ? "160vw" : "32em",
+          display: "flex",
+          flexDirection: "column", // Apply row when horizontal layout
+          justifyContent: "center",
+          alignItems: "center",
+          // position: "relative",
+          transform: isMobile ? "rotate(90deg)" : "none", // Apply rotation only for horizontal layout
+          transformOrigin: isMobile ? "down left" : "none", // Set the origin of the rotation when horizontal
+          overflow: isMobile ? "auto" : "hidden", // Apply overflow for horizontal layout
+          zIndex: "10"
+        }}
 
-          }}
-          renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
-          onNodeClick={handleNodeClick} // Keep this to capture clicks
-          separation={{ siblings: 1.5, nonSiblings: 2 }}
-          pathFunc="step"
-        />
+      >
+        <h2>{selectedPerson}'s Family Tree</h2>
+        {treeData && (
+          <ReactD3Tree
+            data={treeData}
+            orientation="horizontal"
+            nodeSize={{ x: 200, y: 100 }}
+            translate={{
+              x: translateX,
+              y: translateY,
 
-      )}
-    </div>
+            }}
+            renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
+            onNodeClick={handleNodeClick} // Keep this to capture clicks
+            separation={{ siblings: 1.5, nonSiblings: 2 }}
+            pathFunc="step"
+          />
+
+        )}
+        {/* <button onClick={handlePrint} className="print-button">
+          Print Family Tree
+        </button> */}
+      </div>
     </>
   )
 }
