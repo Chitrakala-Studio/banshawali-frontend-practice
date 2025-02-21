@@ -190,31 +190,26 @@ const TableView = () => {
             Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
           }
         }
-        const suggestionFormData = new FormData();
-        suggestionFormData.append("personId", row.id);
-        suggestionFormData.append("suggestion", suggestion);
-        suggestionFormData.append(
-          "user",
-          JSON.parse(localStorage.getItem("user"))?.username || "Anonymous"
-        );
-        if (photoUrl) {
-          suggestionFormData.append("photo", photoUrl);
-        }
+        const payload = {
+          personId: row.id,
+          suggestion: suggestion,
+          user:
+            JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
+          ...(photoUrl && { photo: photoUrl }),
+        };
+
         try {
-          await axios.post(
-            `${API_URL}/people/suggestions/`,
-            suggestionFormData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
+          await axios.post(`${API_URL}/people/suggestions/`, payload, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
           return suggestion;
         } catch (error) {
           Swal.showValidationMessage(`Request failed: ${error}`);
         }
       },
+
       allowOutsideClick: () => !Swal.isLoading(),
       didOpen: () => {
         const suggestionTextArea = document.getElementById("suggestion");
