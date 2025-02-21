@@ -79,7 +79,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       if (form.pusta_number) {
         try {
           const response = await axios.get(
-            `${API_URL}/people/familyrelations?pusta_number=${form.pusta_number}`
+            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`
           );
           console.log(response.data);
           console.log(response.data.father_pusta);
@@ -106,7 +106,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       if (form.pusta_number) {
         try {
           const response = await axios.get(
-            `${API_URL}/people/familyrelations?pusta_number=${form.pusta_number}`
+            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`
           );
           console.log(response.data);
           console.log(response.data.father_pusta);
@@ -135,7 +135,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(`${API_URL}/people/${formData.id}`);
+          const response = await axios.get(`${API_URL}/people/people/${formData.id}`);
           const data = response.data.data;
           setForm(data);
         } catch (error) {
@@ -364,8 +364,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         same_vamsha_status: form.vansha_status,
       };
       const response = form.id
-        ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
-        : await axios.post(`${API_URL}/people/`, payload);
+        ? await axios.put(`${API_URL}/people/people/${form.id}/`, payload)
+        : await axios.post(`${API_URL}/people/people/`, payload);
 
       onSave(response.data);
       Swal.fire("Saved!", "Your changes have been saved.", "success");
