@@ -40,7 +40,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
-  const API_URL = import.meta.env.VITE_API_URL || "https://gautamfamily.org.np";
+  const API_URL = import.meta.env.VITE_API_URL 
 
   const today = new Date().toISOString().split("T")[0];
   const hideFatherSuggestionsTimeout = useRef(null);
@@ -136,7 +136,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         try {
           setLoading(true);
           const response = await axios.get(`${API_URL}/people/${formData.id}`);
-          const data = response.data;
+          const data = response.data.data;
           setForm(data);
         } catch (error) {
           handleBackendError(
@@ -217,7 +217,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         try {
           const response = await fetch(`${API_URL}/people/`);
           const data = await response.json();
-          setFamilyMembers(data);
+          setFamilyMembers(data.data);
         } catch (error) {
           console.error("Error fetching family members:", error);
         }

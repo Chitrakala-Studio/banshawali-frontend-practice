@@ -4,6 +4,7 @@
   min-height: 100vh; /* Ensure the container stretches to the full viewport height */
   padding-bottom: 20px; /* Add some space at the bottom to avoid black space */
   margin-left: 20px; /* Shift the container a little to the left */
+  overflow-y: auto; /* Add a scrollbar when the content overflows */
 }
 
 .table-view img {
@@ -205,7 +206,7 @@ table tr:last-child {
 @media only screen and (max-width: 768px) {
   .table-wrapper {
     max-height: 50vh;
-    overflow-y: hidden;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     border: 1px solid #ddd;
     background-color: #fff;
@@ -247,4 +248,18 @@ table tr:last-child {
 .pagination li.disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.loader {
+  border-top-color: #3498db;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

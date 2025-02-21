@@ -4,6 +4,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
+  Navigate,
 } from "react-router-dom";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -28,18 +29,17 @@ const RedirectOnMobile = ({ setIsMobile }) => {
 const AppRoutes = ({ isMobile }) => (
   <>
     <Routes>
-      
       <Route path="/login" element={<AdminLogin />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/card/:id" element={<CardView />} />
       <Route path="/compare/:id" element={<Compare />} />
       {isMobile ? (
-        <Route path="/" element={<CardView />} />
+        <Route path="/" element={<Navigate to="/card/1" />} />
       ) : (
         <Route path="/" element={<TableView />} />
       )}
       <Route path="/:id" element={<TableView />} />
-      <Route path="/card" element={<CardView />} />
+      <Route path="/card" element={<Navigate to="/card/1" />} />
     </Routes>
   </>
 );
@@ -49,7 +49,6 @@ const App = () => {
 
   return (
     <Router basename="/Banshali-app/">
-
       <RedirectOnMobile setIsMobile={setIsMobile} />
       <AppRoutes isMobile={isMobile} />
     </Router>

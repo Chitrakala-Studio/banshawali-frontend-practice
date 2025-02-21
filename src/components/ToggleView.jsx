@@ -9,7 +9,9 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
     toggleView();
     if (isTableView && availableId) {
       navigate(`/card/${availableId}`);
-    } else {
+    } else if (!isTableView && availableId) {
+      navigate(`/${availableId}`);
+    }  else {
       navigate("/");
     }
   };

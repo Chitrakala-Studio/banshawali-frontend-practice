@@ -12,7 +12,7 @@ import NavigationButtons from "./NavigationButtons";
 import FamilyTreeCardButton from "./FamilyTreeCardButton"; // Import FamilyTreeCardButton
 
 const CardView = () => {
-  const { id } = useParams(); // Extract the id from URL params
+  const { id } = useParams();
   const containerRef = useRef(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
@@ -24,13 +24,13 @@ const CardView = () => {
   const [data, setData] = useState([]); // State for API data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
+  const [nextIndex, setNextIndex] = useState(0);
+  const [previousIndex, setPreviousIndex] = useState(0);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 764);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const initialIndex = data.findIndex((item) => item.id === parseInt(id));
-  const [currentIndex, setCurrentIndex] = useState(
-    initialIndex !== -1 ? initialIndex : 0
-  );
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,22 +46,27 @@ const CardView = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint
-        const response = await fetch("https://gautamfamily.org.np/people/");
-        const result = await response.json();
 
-        setData(result); // Set the fetched data
+        const response = await fetch(`${API_URL}/people/${id}`);
+        const result = await response.json();
+        const result_data = result.data;
+
+        setData(result_data); // Set the fetched data
+        setPreviousIndex(result.previous);
+        setNextIndex(result.next);
         setLoading(false);
 
         // Check if the id exists in the fetched data
-        const index = result.findIndex((item) => item.id === parseInt(id));
-        if (index !== -1) {
-          setCurrentIndex(index);
-          requestAnimationFrame(() => scrollToCard(index));
+        if (result_data.length > 0) {
+          // index of the current person is 0 since data of just that person is provided
+          setCurrentIndex(0);
         } else {
-          navigate("/"); // Redirect if invalid `id`
+          // If the id doesn't exist, navigate to the first item
+          navigate(`/`); 
         }
       } catch (error) {
-        setError(error.message); // Set error if API call fails
+        // setError(error.toString()); // Set error if API call fails
+        setError(typeof(id));
         setLoading(false);
       }
     };
@@ -93,24 +98,20 @@ const CardView = () => {
   };
   // Scroll to the previous card with circular navigation
   const scrollLeft = () => {
-    const newIndex = currentIndex === 0 ? data.length - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
-    scrollToCard(newIndex);
+    const newIndex = previousIndex;
     setInfoPopup(false);
     setIsExpanded(false);
     // Update the URL with the new id
-    navigate(`/card/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/card/${previousIndex}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to the next card with circular navigation
   const scrollRight = () => {
-    const newIndex = currentIndex === data.length - 1 ? 0 : currentIndex + 1;
-    setCurrentIndex(newIndex);
-    scrollToCard(newIndex);
+    const newIndex = nextIndex;
     setInfoPopup(false);
     setIsExpanded(false);
     // Update the URL with the new id
-    navigate(`/card/${data[newIndex].id}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/card/${nextIndex}`); // Assuming the URL pattern is like `/card/:id`
   };
 
   // Scroll to a specific card
@@ -151,7 +152,7 @@ const CardView = () => {
           <ToggleView
             isTableView={isTableView}
             toggleView={toggleView}
-            availableId={data[currentIndex]?.id}
+            availableId={id}
           />
         )}
 

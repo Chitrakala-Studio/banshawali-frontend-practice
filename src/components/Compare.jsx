@@ -137,7 +137,7 @@ const Compare = () => {
     const fetchFamilyMembers = async () => {
       try {
         const response = await axios.get(`${API_URL}/people/`);
-        setFamilyMembers(response.data);
+        setFamilyMembers(response.data.data);
       } catch (error) {
         console.error("Error fetching family members:", error);
       }
@@ -154,7 +154,7 @@ const Compare = () => {
         const response = await axios.get(`${API_URL}/people/${id}`);
 
         console.log(response.data);
-        setLeftPerson(response.data);
+        setLeftPerson(response.data.data);
       } catch (error) {
         console.error("Error fetching data:", error);
         setApiError(

@@ -32,6 +32,8 @@ const TableView = () => {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [displayCount, setDisplayCount] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   // const [selectedParentName, setSelectedParentName] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
@@ -55,14 +57,15 @@ const TableView = () => {
     same_vamsha_status: true,
   });
 
+
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetchData();
+    fetchData(1);
   }, []);
 
   useEffect(() => {
-    fetchData();
+    fetchData(1);
   }, [id]);
 
   useEffect(() => {
@@ -79,7 +82,7 @@ const TableView = () => {
     }
   }, [navigate]);
 
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     try {
       let response = null;
       // Check in param if there is id and fetch data for that id
@@ -89,15 +92,25 @@ const TableView = () => {
           headers: { "Content-Type": "application/json" },
         });
       } else {
-        response = await fetch(`${API_URL}/people/`, {
+        response = await fetch(`${API_URL}/people/?page=${page}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
       }
-      const fetchedData = await response.json();
+      // Data s inside response.data 
+      const response_data = await response.json();
+      //  main data is inside this Array and named as data
+      const fetchedData = response_data.data;
       console.log("Fetched data:", fetchedData);
-      setData(fetchedData);
-      setFilteredData(fetchedData);
+
+      if (page === 1) {
+        setData(fetchedData);
+        setFilteredData(fetchedData);
+      } else {
+        setData((prevData) => [...prevData, ...fetchedData]);
+        setFilteredData((prevData) => [...prevData, ...fetchedData]);
+      }
+      setHasMore(fetchedData.next !== null);
     } catch (error) {
       console.error("Fetch error:", error);
     }
@@ -232,7 +245,7 @@ const TableView = () => {
   const handleSave = async (updatedRow) => {
     try {
       await axios.put(`${API_URL}/data/${updatedRow.id}`, updatedRow);
-      fetchData();
+      fetchData(1);
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating data:", error);
@@ -242,7 +255,7 @@ const TableView = () => {
   const handleSaveNew = async (newData) => {
     try {
       await axios.post(`${API_URL}/people/`, newData);
-      fetchData();
+      fetchData(1);
       setIsAdding(false);
     } catch (error) {
       console.error("Error adding data:", error);
@@ -262,7 +275,7 @@ const TableView = () => {
       if (result.isConfirmed) {
         try {
           await axios.delete(`${API_URL}/people/${row.id}/`);
-          fetchData();
+          fetchData(1);
           Swal.fire("Deleted!", `${row.name} has been deleted.`, "success");
         } catch (error) {
           console.error("Error deleting data:", error);
@@ -275,12 +288,12 @@ const TableView = () => {
   const finalData = filteredData;
 
   // IMPORTANT: Use finalData for the visible rows.
-  const visibleData = Array.isArray(finalData)
-    ? finalData.slice(0, displayCount)
-    : [finalData];
+  const visibleData = finalData;
 
   const handleLoadMore = () => {
-    setDisplayCount((prev) => prev + 20);
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    fetchData(nextPage);
   };
   console.log("Visible Data:", visibleData);
   return (
@@ -349,8 +362,12 @@ const TableView = () => {
         <InfiniteScroll
           dataLength={visibleData.length}
           next={handleLoadMore}
-          hasMore={displayCount < finalData.length}
-          loader={<h4>Loading more data...</h4>}
+          hasMore={hasMore}
+          loader={
+            <div className="flex justify-center items-center h-screen">
+              <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            </div>
+          }
           style={{ overflow: "hidden" }}
         >
           <div className="table-wrapper">

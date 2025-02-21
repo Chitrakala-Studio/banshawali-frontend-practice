@@ -7,11 +7,13 @@ import axios from "axios"
 import { ChevronRight } from "lucide-react"
 import "./App.css"
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const fetchFamilyData = async (id) => {
   try {
     if (!id) return null
     console.log(`Fetching data for ID: ${id}`)
-    const response = await axios.get(`https://gautamfamily.org.np/familytree/${id}/`)
+    const response = await axios.get(`${API_URL}/familytree/${id}/`)
     return response.data
   } catch (error) {
     console.error("Error fetching family data:", error)

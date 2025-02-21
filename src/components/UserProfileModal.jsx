@@ -18,6 +18,8 @@ import {
   FaMale,
   FaSkullCrossbones,
   FaUser,
+  FaUserAlt,
+  FaUserAltSlash,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -315,18 +317,38 @@ const UserProfileModal = ({ user, onClose }) => {
             marginBottom: "24px",
           }}
         >
-          <img
-            src={user.photo}
-            alt={user.name}
-            style={{
-              width: "150px",
-              height: "150px",
-              borderRadius: "0", // Square shape
-              objectFit: "cover",
-              marginRight: "16px",
-              border: "2px solid #D1D5DB",
-            }}
-          />
+          {user.photo ? (
+    <img
+      src={user.photo}
+      alt={user.name}
+      style={{
+        width: "150px",
+        height: "150px",
+        borderRadius: "0", // Square shape
+        objectFit: "cover",
+        marginRight: "16px",
+        border: "2px solid #D1D5DB",
+      }}
+    />
+  ) : user.gender === "Male" ? (
+    <FaUserAlt
+      style={{
+        width: "150px",
+        height: "150px",
+        marginRight: "16px",
+        border: "2px solid #D1D5DB",
+      }}
+    />
+  ) : (
+    <FaUserAltSlash
+      style={{
+        width: "150px",
+        height: "150px",
+        marginRight: "16px",
+        border: "2px solid #D1D5DB",
+      }}
+    />
+  )}
           <div>
             <h2
               style={{ fontSize: "24px", fontWeight: "bold", color: "#1F2937" }}
