@@ -249,29 +249,35 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     const isGroupNode = nodeDatum.name === "Father" || nodeDatum.name === "Children";
     const gender = nodeDatum.gender;
     const wrapText = (text) => {
-      if (!text || text === '') {
+      if (!text || text.trim() === "") {
         return [];
       }
-
-      const nameParts = text.split("/").map((part) => part.trim());
-
-      if (nameParts.length <= 2) {
-        return [nameParts.join(" / ")]; // If only two words, put them on one line
+    
+      // Check if text contains "/"
+      if (text.includes("/")) {
+        const nameParts = text.split("/").map((part) => part.trim());
+    
+        if (nameParts.length <= 2) {
+          return [nameParts.join(" / ")]; // If only two names, put them in one line
+        }
+    
+        const firstLine = nameParts.slice(0, 2).join(" / "); // First two names
+        const secondLine = "/ " + nameParts.slice(2).join(" / "); // Remaining names with leading "/"
+    
+        return [firstLine, secondLine];
       }
-
-      const firstLine = nameParts.slice(0, 2).join(" / "); // First two names
-      const secondLine = "/ " + nameParts.slice(2).join(" / "); // Remaining names with a leading "/"
-
-      return [firstLine, secondLine];
+    
+      // If no "/", break text based on word count for balance
+      const words = text.split(" ");
+      const mid = Math.ceil(words.length / 2); // Find middle point
+    
+      const firstLine = words.slice(0, mid).join(" "); // First half
+      const secondLine = words.slice(mid).join(" "); // Second half
+    
+      return secondLine ? [firstLine, secondLine] : [firstLine]; // Avoid empty second line
     };
-
-
-
-
-
-
-
-    const nameLines = wrapText(nodeDatum.name, 8);
+    
+      const nameLines = wrapText(nodeDatum.name, 8);
     console.log(gender)
     return (
       <g className="tree" id="tree-container" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
@@ -316,7 +322,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
         {!isGroupNode &&
           <text
             x="30"
-            y={-10.5 + (nameLines.length > 0 ? -10 : 0)}
+            y={-13.5 + (nameLines.length > 0 ? -10 : 0)}
             textAnchor="middle"
             fontSize="14"
             //  fontFamily="cursive"
