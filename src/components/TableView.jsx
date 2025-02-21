@@ -167,7 +167,7 @@ const TableView = () => {
 
   const handleSuggestionClick = (row) => {
     Swal.fire({
-      title: `Submit Suggestion for ${row.name}`,
+      title: `Submit Suggestion for ${row.name_in_nepali}`,
       html: `
         <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" autocapitalize="off"></textarea>
         <input type="file" id="suggestionFile" class="swal2-input" accept="image/*"  />
@@ -369,7 +369,7 @@ const TableView = () => {
   const handleDelete = async (row) => {
     Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to delete ${row.name}? This action cannot be undone.`,
+      text: `Do you want to delete ${row.name_in_nepali}? This action cannot be undone.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -380,7 +380,7 @@ const TableView = () => {
         try {
           await axios.delete(`${API_URL}/people/${row.id}/`);
           fetchData(1);
-          Swal.fire("Deleted!", `${row.name} has been deleted.`, "success");
+          Swal.fire("Deleted!", `${row.name_in_nepali} has been deleted.`, "success");
         } catch (error) {
           console.error("Error deleting data:", error);
           Swal.fire("Error!", "Failed to delete record.", "error");
@@ -525,7 +525,7 @@ const TableView = () => {
                             alt="Profile"
                             className="w-10 h-10 rounded-full object-cover"
                           />
-                          {row.name}
+                          {row.name_in_nepali}
                         </td>
                         <td className="text-center items-center justify-center">
                           {(() => {
@@ -556,7 +556,7 @@ const TableView = () => {
                               className="cursor-pointer text-blue-600 "
                               onClick={() => navigate(`/${row.father.id}`)}
                             >
-                              {row.father.name}
+                              {row.father.name_in_nepali}
                             </span>
                           ) : (
                             "-"
@@ -568,7 +568,7 @@ const TableView = () => {
                               className="cursor-pointer text-blue-600 "
                               onClick={() => navigate(`//${row.mother.id}`)}
                             >
-                              {row.mother.name}
+                              {row.mothername_in_nepali}
                             </span>
                           ) : (
                             "-"
@@ -729,7 +729,7 @@ const TableView = () => {
                             alt="Profile"
                             className="w-10 h-10 rounded-full object-cover"
                           />
-                          {row.name}
+                          {row.name_in_nepali}
                         </td>
                         <td className="text-center items-center justify-center">
                           {(() => {
@@ -755,10 +755,10 @@ const TableView = () => {
                           })()}
                         </td>
                         <td className="text-center">
-                          {row.father?.name || "-"}
+                          {row.father?.name_in_nepali || "-"}
                         </td>
                         <td className="text-center">
-                          {row.mother?.name || "-"}
+                          {row.mother?.name_in_nepali || "-"}
                         </td>
                         <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
@@ -903,6 +903,8 @@ const TableView = () => {
             pusta_number: selectedRow.pusta_number || "",
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
+            father_id: selectedRow.father?.id||"",
+            mother_id: selectedRow.mother?.id||"",
             dob: selectedRow.date_of_birth || "",
             lifestatus: selectedRow.lifestatus || "Alive",
             death_date: selectedRow.date_of_death || "",
