@@ -29,7 +29,8 @@ const InfoSection = ({ person }) => {
                 <p className="text-l text-white mt-1">{person.name}</p>
               }
             </div>
-            <div className="flex items-center border-b border-gray-600 pb-3">
+
+            <div className={person.date_of_birth!==""? "flex items-center ":"flex items-center border-b border-gray-600 pb-3"}>
 
               {person.gender === "Male" ? (
                 <FaMale className="mr-2 text-xl" />
@@ -40,17 +41,19 @@ const InfoSection = ({ person }) => {
                 < p className="text-l mt-0 text-white">{person.gender}</p>
               }
           </div>
+          {person.date_of_birth && (
           <div
             className={`flex items-center ${person.date_of_death ? "border-b border-gray-600 pb-3" : ""
               }`}
           >
+            
             <FaBirthdayCake className="mr-2 text-xl" />
-            {person.date_of_birth &&
             <p className="text-l mt-0 text-white">
-              {person.date_of_birth || "N/A"}
+              {person.date_of_birth}
             </p>
-            }
+            
           </div>
+          )}
           {person.date_of_death && (
             <div className="flex items-center">
               <FaSkullCrossbones className="mr-2 text-xl" />
@@ -112,7 +115,7 @@ const InfoSection = ({ person }) => {
                         to={`/${person.grandfather.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.grandfather.name} (Grandfather)
+                        {person.grandfather.name}
                       </Link>
                     </>
                   )}
@@ -123,7 +126,7 @@ const InfoSection = ({ person }) => {
                         to={`/${person.grandmother.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.grandmother.name} (Grandmother)
+                        {person.grandmother.name} 
                       </Link>
                     </>
                   )}
@@ -144,7 +147,7 @@ const InfoSection = ({ person }) => {
                         to={`/${person.spouse.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.spouse.name} (Spouse)
+                        {person.spouse.name} 
                       </Link>
                     </>
                   )}
