@@ -14,6 +14,7 @@ import {
   FaMale,
   FaLightbulb,
   FaFemale,
+  FaClock,
 } from "react-icons/fa";
 import EditFormModal from "./EditFormModal";
 import "./../assets/styles/TableView.css";
@@ -61,14 +62,14 @@ const TableView = () => {
     mother_name: "",
     same_vamsha_status: true,
   });
-  const handleAccept = (e, id) => {
+  const handleAccept = (e, id , suggestion , image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Approved");
+    updateSuggestionStatus(id, "Approved" , suggestion , image);
   };
 
-  const handleReject = (e, id) => {
+  const handleReject = (e, id , suggestion, image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Declined");
+    updateSuggestionStatus(id, "Rejected" , suggestion , image);
   };
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -274,13 +275,16 @@ const TableView = () => {
     setIsEditing(true);
   };
 
-  const updateSuggestionStatus = async (id, newStatus) => {
+  const updateSuggestionStatus = async (id, newStatus , suggestion , image) => {
     try {
       const payload = {
         status: newStatus,
+        suggestion: suggestion,
+        image: image,
+        id: id,
       }; // payload contains the new status
       // Send the PUT request to update the suggestion (assuming your API supports this)
-      await axios.put(`${API_URL}/people/suggestions/`, payload, {
+      await axios.put(`${API_URL}/people/suggestions/${id}/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       // Update the local state so that the table reflects the new status
@@ -458,7 +462,7 @@ const TableView = () => {
                 onClick={() => setShowSearchForm(true)}
               >
                 <FaSearch className="text-white" />
-                <span>Search</span>
+                <span>Search User</span>
               </button>
               {isAdminLocal && (
                 <button
@@ -477,7 +481,7 @@ const TableView = () => {
                     setIsAdding(true);
                   }}
                 >
-                  + Add New
+                  + Add New User
                 </button>
               )}
             </div>
@@ -643,23 +647,22 @@ const TableView = () => {
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
                   <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
-                    <tr>
-                      <th>Suggestion</th>
-                      <th>Image</th>
-                      <th>Date</th>
-                      <th>Status</th>
-                      <th>Actions</th>
+                    <tr className="text-center">
+                      <th className="text-center">Suggestion</th>
+                      <th className="text-center">Image</th>
+                      <th className="text-center">Date</th>
+                      <th className="text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {suggestions.map((suggestion) => (
                       <tr
                         key={suggestion.id}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                        className="border-b-2 border-gray-700 hover:bg-gray-200 text-center"
                         onClick={() => handleRowClick(suggestion)}
                       >
-                        <td>{suggestion.suggestion}</td>
-                        <td>
+                        <td className="text-center">{suggestion.suggestion}</td>
+                        <td className="text-center">
                           {suggestion.image ? (
                             <img
                               src={
@@ -674,23 +677,38 @@ const TableView = () => {
                             "No Image"
                           )}
                         </td>
-                        <td>
+                        <td className="text-center">
                           {new Date(suggestion.date).toLocaleDateString()}
                         </td>
-                        <td>{suggestion.status || "Pending"}</td>{" "}
+                       
                         {/* Show status or default to Pending */}
-                        <td>
-                          <button
-                            onClick={(e) => handleAccept(e, suggestion.id)}
-                          >
-                            <FaCheck />
-                          </button>
-                          <button
-                            onClick={(e) => handleReject(e, suggestion.id)}
-                          >
-                            <FaTimes />
-                          </button>
-                        </td>
+                         <td className="text-center">
+  {suggestion.status === "Pending" ? (
+    <>
+      <button
+        onClick={(e) => handleAccept(e, suggestion.id, suggestion.suggestion, suggestion.image)}
+        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
+      >
+        <FaCheck />
+      </button>
+      <button
+        onClick={(e) => handleReject(e, suggestion.id, suggestion.suggestion, suggestion.image)}
+        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
+      >
+        <FaTimes />
+      </button>
+    </>
+  ) : (
+    <span className={
+      suggestion.status === "Approved" ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center" :
+      suggestion.status === "Rejected" ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center" : ""
+    }>
+      {suggestion.status === "Approved" && <FaCheck className="mr-1" />}
+      {suggestion.status === "Rejected" && <FaTimes className="mr-1" />}
+      {suggestion.status}
+    </span>
+  )}
+</td>
                       </tr>
                     ))}
                   </tbody>
