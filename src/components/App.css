@@ -12,6 +12,7 @@ image {
 
 .tree{
   line-height: 1.5;
+  transform: scale(0.95);
 }
 .card{
   background-color: darkolivegreen;
@@ -24,4 +25,16 @@ image {
     transform: scale(0.65);
   }
   
+}
+@media print {
+  svg line {
+    stroke-width: 1px !important;
+    vector-effect: non-scaling-stroke;
+  }
+  button {
+    display: none;
+  }
+  body {
+    background: white !important;
+  }
 }

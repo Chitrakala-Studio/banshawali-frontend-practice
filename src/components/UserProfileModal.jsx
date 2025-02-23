@@ -331,7 +331,7 @@ const UserProfileModal = ({ user, onClose }) => {
       }}
     />
   ) : user.gender === "Male" ? (
-    <FaUserAlt
+    <img src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
       style={{
         width: "150px",
         height: "150px",
@@ -340,7 +340,7 @@ const UserProfileModal = ({ user, onClose }) => {
       }}
     />
   ) : (
-    <FaUserAltSlash
+    <img src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
       style={{
         width: "150px",
         height: "150px",
