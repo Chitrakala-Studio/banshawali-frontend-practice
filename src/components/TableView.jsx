@@ -426,8 +426,8 @@ const TableView = () => {
                   View Table
                 </button>
                 <button
-                  className={`px-6 py-2 rounded-lg transition-all shadow-md bg-teal-900 ${activeTab === "data"
-                    ? " text-white text-sm font-medium rounded-full h-8 px-0 transition-all duration-300 hover:bg-teal-600 hover:scale-110 hover:border-black/40 hover:shadow-lg focus:outline-none  "
+                  className={`px-6 py-2 rounded-lg transition-all shadow-md bg-teal-700 ${activeTab === "data"
+                    ? " text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm "
                     : "bg-gray-300 text-gray-700 active:scale-50 "
                     }`}
                   onClick={() => {
@@ -547,7 +547,6 @@ const TableView = () => {
                                 className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
-                                <span className="w-2 h-2 rounded-full mr-2"></span>
                                 {row.pusta_number}
                               </div>
                             );
