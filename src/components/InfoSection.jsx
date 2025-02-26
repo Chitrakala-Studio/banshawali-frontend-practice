@@ -135,7 +135,7 @@ const InfoSection = ({ person }) => {
             )}
 
             {/* Spouse */}
-            {person.spouse?.name && (
+            {person.spouse?.length > 0 && (
               <div className={`flex items-center ${person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
                 }`}>
                 <FaUser className="mr-2 text-xl" />
@@ -143,12 +143,16 @@ const InfoSection = ({ person }) => {
                   {person.spouse.name && person.spouse.name !== "N/A" && (
                     <>
                       Spouse:{" "}
-                      <Link
-                        to={`/${person.spouse.id}`}
-                        className="text-blue-500 hover:underline"
-                      >
-                        {person.spouse.name} 
-                      </Link>
+                      {person.spouse.map((spouse, index) => (
+                    <Link
+                      key={index}
+                      to={`/${spouse.id}`}
+                      className="text-blue-500 hover:underline"
+                    >
+                      {spouse.name}
+                      {index < person.spouse.length - 1 ? ", " : ""}
+                    </Link>
+                  ))}
                     </>
                   )}
                 </p>

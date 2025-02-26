@@ -62,14 +62,14 @@ const TableView = () => {
     mother_name: "",
     same_vamsha_status: true,
   });
-  const handleAccept = (e, id , suggestion , image) => {
+  const handleAccept = (e, id, suggestion, image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Approved" , suggestion , image);
+    updateSuggestionStatus(id, "Approved", suggestion, image);
   };
 
-  const handleReject = (e, id , suggestion, image) => {
+  const handleReject = (e, id, suggestion, image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Rejected" , suggestion , image);
+    updateSuggestionStatus(id, "Rejected", suggestion, image);
   };
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -275,7 +275,7 @@ const TableView = () => {
     setIsEditing(true);
   };
 
-  const updateSuggestionStatus = async (id, newStatus , suggestion , image) => {
+  const updateSuggestionStatus = async (id, newStatus, suggestion, image) => {
     try {
       const payload = {
         status: newStatus,
@@ -332,11 +332,10 @@ const TableView = () => {
       html: `
         <div style="text-align: left;">
           <p><strong>Suggestion:</strong> ${suggestion.suggestion}</p>
-          ${
-            suggestion.image
-              ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
-              : "No Image"
-          }
+          ${suggestion.image
+          ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
+          : "No Image"
+        }
         </div>
       `,
       showCloseButton: true,
@@ -403,7 +402,7 @@ const TableView = () => {
   };
 
   return (
-    <div className="table-view transition-all duration-300">
+    <div className="table-view transition-all duration-300 relative">
       <div className={isModalOpen ? "blurred" : ""}>
         <div className="flex items-center justify-between w-full mb-4">
           <div className="flex items-center gap-4">
@@ -414,35 +413,62 @@ const TableView = () => {
               className=""
             />
           </div>
-          {isAdminLocal && (
-            <div className="flex gap-4">
-              <button
-                className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                  activeTab === "data"
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-700"
-                }`}
-                onClick={() => setActiveTab("data")}
-              >
-                View Table
-              </button>
-              <button
-                className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                  activeTab === "suggestions"
-                    ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                    : "bg-gray-300 text-gray-700"
-                }`}
+          <div className="flex flex-row absolute top-4 h-8 right-6 gap-4">
+            {isAdminLocal && (
+              <div className="flex gap-4">
+                <button
+                  className={`px-6 py-2 rounded-lg transition-all shadow-md bg-zinc-700 ${activeTab === "data"
+                    ? " bg-zinc-700 text-white text-sm border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2  "
+                    : "bg-gray-300 text-gray-700 active:scale-50 "
+                    }`}
+                  onClick={() => setActiveTab("data")}
+                >
+                  View Table
+                </button>
+                <button
+                  className={`px-6 py-2 rounded-lg transition-all shadow-md bg-teal-900 ${activeTab === "data"
+                    ? " text-white text-sm font-medium rounded-full h-8 px-0 transition-all duration-300 hover:bg-teal-600 hover:scale-110 hover:border-black/40 hover:shadow-lg focus:outline-none  "
+                    : "bg-gray-300 text-gray-700 active:scale-50 "
+                    }`}
+                  onClick={() => {
+                    setActiveTab("suggestions");
+                    fetchSuggestions();
+                  }}
+                >
+                  View Suggestions
+                </button>
+                <button
+                className=" bg-zinc-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
                 onClick={() => {
-                  setActiveTab("suggestions");
-                  fetchSuggestions();
+                  setFormData({
+                    username: "",
+                    pusta_number: "",
+                    father_name: "",
+                    mother_name: "",
+                    dob: "",
+                    lifestatus: "Alive",
+                    profession: "",
+                    gender: "Male",
+                  });
+                  setIsAdding(true);
                 }}
               >
-                View Suggestions
+                <span className="text-white">
+                  + Add New User
+                </span>
               </button>
-            </div>
-          )}
+              </div>
+            )}
+            <button
+              className="bg-teal-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
+              onClick={() => setShowSearchForm(true)}
+            >
+              <FaSearch className="text-white" />
+              <span className="text-white">Search User</span>
+            </button>
+          </div>
+         
         </div>
-
         <div className="table-view-filters mt-10 p-4">
           <div className="flex items-center justify-between w-full">
             <div>
@@ -456,35 +482,8 @@ const TableView = () => {
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-4">
-              <button
-                className="bg-teal-500 text-white px-6 py-2 rounded-md hover:bg-teal-600 transition-all shadow-md flex items-center space-x-2"
-                onClick={() => setShowSearchForm(true)}
-              >
-                <FaSearch className="text-white" />
-                <span>Search User</span>
-              </button>
-              {isAdminLocal && (
-                <button
-                  className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all shadow-md"
-                  onClick={() => {
-                    setFormData({
-                      username: "",
-                      pusta_number: "",
-                      father_name: "",
-                      mother_name: "",
-                      dob: "",
-                      lifestatus: "Alive",
-                      profession: "",
-                      gender: "Male",
-                    });
-                    setIsAdding(true);
-                  }}
-                >
-                  + Add New User
-                </button>
-              )}
-            </div>
+
+
           </div>
         </div>
 
@@ -536,13 +535,13 @@ const TableView = () => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
                                 ? {
-                                    bg: "bg-green-300 text-green-700",
-                                    label: "Even Generation",
-                                  }
+                                  bg: "bg-green-300 text-green-700",
+                                  label: "Even Generation",
+                                }
                                 : {
-                                    bg: "bg-orange-300 text-orange-700",
-                                    label: "Odd Generation",
-                                  };
+                                  bg: "bg-orange-300 text-orange-700",
+                                  label: "Odd Generation",
+                                };
                             return (
                               <div
                                 className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
@@ -680,35 +679,35 @@ const TableView = () => {
                         <td className="text-center">
                           {new Date(suggestion.date).toLocaleDateString()}
                         </td>
-                       
+
                         {/* Show status or default to Pending */}
-                         <td className="text-center">
-  {suggestion.status === "Pending" ? (
-    <>
-      <button
-        onClick={(e) => handleAccept(e, suggestion.id, suggestion.suggestion, suggestion.image)}
-        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
-      >
-        <FaCheck />
-      </button>
-      <button
-        onClick={(e) => handleReject(e, suggestion.id, suggestion.suggestion, suggestion.image)}
-        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
-      >
-        <FaTimes />
-      </button>
-    </>
-  ) : (
-    <span className={
-      suggestion.status === "Approved" ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center" :
-      suggestion.status === "Rejected" ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center" : ""
-    }>
-      {suggestion.status === "Approved" && <FaCheck className="mr-1" />}
-      {suggestion.status === "Rejected" && <FaTimes className="mr-1" />}
-      {suggestion.status}
-    </span>
-  )}
-</td>
+                        <td className="text-center">
+                          {suggestion.status === "Pending" ? (
+                            <>
+                              <button
+                                onClick={(e) => handleAccept(e, suggestion.id, suggestion.suggestion, suggestion.image)}
+                                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
+                              >
+                                <FaCheck />
+                              </button>
+                              <button
+                                onClick={(e) => handleReject(e, suggestion.id, suggestion.suggestion, suggestion.image)}
+                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
+                              >
+                                <FaTimes />
+                              </button>
+                            </>
+                          ) : (
+                            <span className={
+                              suggestion.status === "Approved" ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center" :
+                                suggestion.status === "Rejected" ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center" : ""
+                            }>
+                              {suggestion.status === "Approved" && <FaCheck className="mr-1" />}
+                              {suggestion.status === "Rejected" && <FaTimes className="mr-1" />}
+                              {suggestion.status}
+                            </span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -738,14 +737,14 @@ const TableView = () => {
                         key={index}
                         className="border-b-2 border-gray-700 hover:bg-gray-200"
                       >
-                        <td className="text-center">
+                        <td className="text-center h-12 mb-5 pb-5 ">
                           <img
                             src={
                               row.photo ||
                               "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                             }
                             alt="Profile"
-                            className="w-10 h-10 rounded-full object-cover"
+                            className="w-14 h-14 rounded-full object-cover "
                           />
                           {row.name_in_nepali}
                         </td>
@@ -754,19 +753,18 @@ const TableView = () => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
                                 ? {
-                                    bg: "bg-green-300 text-green-700",
-                                    label: "Even Generation",
-                                  }
+                                  bg: "bg-green-300 text-green-700",
+                                  label: "Even Generation",
+                                }
                                 : {
-                                    bg: "bg-orange-300 text-orange-700",
-                                    label: "Odd Generation",
-                                  };
+                                  bg: "bg-orange-300 text-orange-700",
+                                  label: "Odd Generation",
+                                };
                             return (
                               <div
                                 className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
-                                <span className="w-2 h-2 rounded-full mr-2"></span>
                                 {row.pusta_number}
                               </div>
                             );
@@ -778,7 +776,7 @@ const TableView = () => {
                         <td className="text-center">
                           {row.mother?.name_in_nepali || "-"}
                         </td>
-                        <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
+                        <td className="flex items-center py-12 space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
                             <>
                               <FaMale className="text-blue-500 text-lg" />
@@ -921,8 +919,8 @@ const TableView = () => {
             pusta_number: selectedRow.pusta_number || "",
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
-            father_id: selectedRow.father?.id||"",
-            mother_id: selectedRow.mother?.id||"",
+            father_id: selectedRow.father?.id || "",
+            mother_id: selectedRow.mother?.id || "",
             dob: selectedRow.date_of_birth || "",
             lifestatus: selectedRow.lifestatus || "Alive",
             death_date: selectedRow.date_of_death || "",
