@@ -26,7 +26,7 @@ const InfoSection = ({ person }) => {
             <div className="flex items-center border-b border-gray-600 pb-3">
               <FaUser className="mr-2 text-xl" />
               {person.name &&
-                <p className="text-l text-white mt-1">{person.name}</p>
+                <p className="text-l text-white mt-1">{person.name_in_nepali}</p>
               }
             </div>
 
@@ -68,9 +68,9 @@ const InfoSection = ({ person }) => {
         <div className="bg-gray-700 p-4 rounded-lg">
           <h3 className="font-bold text-lg mb-2">Family</h3>
           <div className="space-y-3">
-            {(person.father?.name || person.mother?.name) && (
+            {person.father?.name  && (
               <div
-                className={`flex items-center ${person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                className={`flex items-center ${person.grandfather?.name || person.mother?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
                   }`}
               >
                 {/* Parents */}
@@ -83,10 +83,22 @@ const InfoSection = ({ person }) => {
                         to={`/${person.father.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.father.name}
+                        {person.father.name_in_nepali}
                       </Link>
                     </>
                   )}
+                  
+                </p>
+              </div>
+            )}
+             {person.father?.name  && (
+              <div
+                className={`flex items-center ${person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
+                  }`}
+              >
+                {/* Parents */}
+                <FaUser className="mr-2 text-xl" />
+                <p className="text-l text-white mt-1">
                   {person.mother?.name && person.mother.name !== "N/A" && (
                     <>
                       Mother:{" "}
@@ -94,14 +106,15 @@ const InfoSection = ({ person }) => {
                         to={`/${person.mother.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.mother.name}
+                        {person.mother.name_in_nepali}
                       </Link>
                     </>
                   )}
+                  
                 </p>
               </div>
             )}
-
+              
             {/* Grandparents */}
             {(person.grandfather?.name || person.grandmother?.name) && (
               <div className={`flex items-center ${person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
@@ -115,7 +128,7 @@ const InfoSection = ({ person }) => {
                         to={`/${person.grandfather.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.grandfather.name}
+                        {person.grandfather.name_in_nepali}
                       </Link>
                     </>
                   )}
@@ -126,7 +139,7 @@ const InfoSection = ({ person }) => {
                         to={`/${person.grandmother.id}`}
                         className="text-blue-500 hover:underline"
                       >
-                        {person.grandmother.name} 
+                        {person.grandmother.name_in_nepali} 
                       </Link>
                     </>
                   )}
@@ -136,25 +149,22 @@ const InfoSection = ({ person }) => {
 
             {/* Spouse */}
             {person.spouse?.length > 0 && (
-              <div className={`flex items-center ${person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                }`}>
+              <div className={person.children?.length > 0 ? "border-b border-gray-600 pb-3 flex items-center" : "flex items-center"}>
+                
                 <FaUser className="mr-2 text-xl" />
+
                 <p className="text-l text-white mt-1">
-                  {person.spouse.name && person.spouse.name !== "N/A" && (
-                    <>
-                      Spouse:{" "}
-                      {person.spouse.map((spouse, index) => (
+                  Spouse:{" "}
+                  {person.spouse.map((spouse, index) => (
                     <Link
                       key={index}
                       to={`/${spouse.id}`}
                       className="text-blue-500 hover:underline"
                     >
-                      {spouse.name}
+                      {spouse.name_in_nepali}
                       {index < person.spouse.length - 1 ? ", " : ""}
                     </Link>
                   ))}
-                    </>
-                  )}
                 </p>
               </div>
             )}
@@ -171,7 +181,7 @@ const InfoSection = ({ person }) => {
                       to={`/${child.id}`}
                       className="text-blue-500 hover:underline"
                     >
-                      {child.name}
+                      {child.name_in_nepali}
                       {index < person.children.length - 1 ? ", " : ""}
                     </Link>
                   ))}

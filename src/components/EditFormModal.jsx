@@ -13,9 +13,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     name: formData.name || "",
     name_in_nepali: formData.name_in_nepali || "",
     gender: formData.gender || "",
-    dob: formData.dob || "",
+    dob: formData.dob || "None",
     lifestatus: formData.lifestatus || "",
-    death_date: formData.death_date || "",
+    death_date: formData.death_date || "None",
     father_name: formData.father_name || "",
     father_id: formData.father_id || null,
     mother_name: formData.mother_name || "",
@@ -313,7 +313,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setForm((prev) => ({
       ...prev,
       [name]: value,
-      
+
     }));
 
     const parentGeneration = form.pusta_number - 1;
@@ -384,9 +384,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         contact_details: form.contact,
         father_name: form.father_id ? form.father_id : form.father_name,
         mother_name: form.mother_id ? form.mother_id : form.mother_name,
-        date_of_birth: form.dob,
+        date_of_birth: form.dob || "None",
         lifestatus: form.lifestatus,
-        date_of_death: form.death_date,
+        date_of_death: form.death_date ||"None",
         photo: form.profileImage,
         profession: form.profession,
         gender: form.gender,
