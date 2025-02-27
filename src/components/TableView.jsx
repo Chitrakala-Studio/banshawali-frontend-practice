@@ -513,7 +513,7 @@ const TableView = () => {
                       <th className="text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody >
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
@@ -526,7 +526,7 @@ const TableView = () => {
                               "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                             }
                             alt="Profile"
-                            className="w-10 h-10 rounded-full object-cover"
+                            className="w-10 h-10 mb-10 rounded-full object-cover"
                           />
                           {row.name_in_nepali}
                         </td>
