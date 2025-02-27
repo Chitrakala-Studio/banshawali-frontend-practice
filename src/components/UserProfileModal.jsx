@@ -99,7 +99,7 @@ const UserProfileModal = ({ user, onClose }) => {
             }}
           />
           <strong style={{ marginRight: "4px" }}>Grandfather:</strong>{" "}
-          {user.grandfather.name}
+          {user.grandfather.name_in_nepali}
         </p>
       )}
       {user.grandmother?.name && (
@@ -113,7 +113,7 @@ const UserProfileModal = ({ user, onClose }) => {
             }}
           />
           <strong style={{ marginRight: "4px" }}>Grandmother:</strong>{" "}
-          {user.grandmother.name}
+          {user.grandmother.name_in_nepali}
         </p>
       )}
       {user.father?.name && (
@@ -131,7 +131,7 @@ const UserProfileModal = ({ user, onClose }) => {
             to={`/${user.father.id}`}
             style={{ color: "#3B82F6", marginLeft: "4px" }}
           >
-            {user.father.name}
+            {user.father.name_in_nepali}
           </Link>
         </p>
       )}
@@ -150,23 +150,45 @@ const UserProfileModal = ({ user, onClose }) => {
             to={`/${user.mother.id}`}
             style={{ color: "#3B82F6", marginLeft: "4px" }}
           >
-            {user.mother.name}
+            {user.mother.name_in_nepali}
           </Link>
         </p>
       )}
-      {user.spouse?.name && (
-        <p style={{ display: "flex", alignItems: "center" }}>
-          <FaUser
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
-          <strong style={{ marginRight: "4px" }}>Spouse:</strong>
-          <Link
-            to={`/${user.spouse.id}`}
-            style={{ color: "#3B82F6", marginLeft: "4px" }}
+       {user.spouse && user.spouse.length > 0 && (
+        <div>
+          <p
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontWeight: "bold",
+            }}
           >
-            {user.spouse.name}
-          </Link>
-        </p>
+            <Users
+              style={{ width: "20px", height: "20px", marginRight: "8px" }}
+            />{" "}
+            Spouse:
+          </p>
+          {user.spouse.map((spouse) => (
+            <p
+              key={spouse.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "1.75rem",
+              }}
+            >
+              <FaUser
+                style={{ width: "16px", height: "16px", marginRight: "4px" }}
+              />
+              <Link
+                to={`/${spouse.id}`}
+                style={{ color: "#3B82F6", marginLeft: "4px" }}
+              >
+                {spouse.name_in_nepali}
+              </Link>
+            </p>
+          ))}
+        </div>
       )}
       {user.siblings && user.siblings.length > 0 && (
         <div style={{ marginBottom: "1rem" }}>
@@ -198,7 +220,7 @@ const UserProfileModal = ({ user, onClose }) => {
                 to={`/${sibling.id}`}
                 style={{ color: "#3B82F6", marginLeft: "4px" }}
               >
-                {sibling.name}
+                {sibling.name_in_nepali}
               </Link>
             </p>
           ))}
@@ -234,7 +256,7 @@ const UserProfileModal = ({ user, onClose }) => {
                 to={`/${child.id}`}
                 style={{ color: "#3B82F6", marginLeft: "4px" }}
               >
-                {child.name}
+                {child.name_in_nepali}
               </Link>
             </p>
           ))}
@@ -353,12 +375,13 @@ const UserProfileModal = ({ user, onClose }) => {
             <h2
               style={{ fontSize: "24px", fontWeight: "bold", color: "#1F2937" }}
             >
-              {user.name}
+              {user.name_in_nepali}
+             
             </h2>
             <p
               style={{ color: "#4B5563", fontStyle: "italic", margin: "4px 0" }}
             >
-              {user.name_in_nepali}
+               {user.name}
             </p>
             <p style={{ color: "#4B5563", fontStyle: "italic" }}>{user.bio}</p>
           </div>

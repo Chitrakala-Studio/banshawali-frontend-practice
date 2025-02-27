@@ -300,13 +300,20 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       },
     }));
   };
-
+  const handleDateChange= (event) => {
+    let dateValue = event.target.value;
+    let date = new Date(dateValue);
+    let formattedDate = date.toISOString().split('T')[0]; // Extract the YYYY-MM-DD part
+    // Update the form value to the correctly formatted date
+    setForm({ ...form, dob: formattedDate });
+  }
   // This handler updates other form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: value,
+      
     }));
 
     const parentGeneration = form.pusta_number - 1;
@@ -543,7 +550,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 name="dob"
                 // required
                 value={form.dob}
-                onChange={handleChange}
+                onChange={handleDateChange}
+                // onChange={handleChange}
                 max={today}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
               />

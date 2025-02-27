@@ -74,13 +74,13 @@ const TableView = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    fetchData(1);
-  }, []);
+  // useEffect(() => {
+  //   fetchData(1);
+  // }, []);
 
-  useEffect(() => {
-    fetchData(1);
-  }, [id]);
+  // useEffect(() => {
+  //   fetchData(1);
+  // }, [id]);
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
@@ -94,7 +94,8 @@ const TableView = () => {
     } else {
       navigate("/login");
     }
-  }, [navigate]);
+    fetchData(1);
+  }, [navigate,id]);
 
   const fetchData = async (page) => {
     try {
@@ -144,27 +145,7 @@ const TableView = () => {
     }
   };
 
-  // const handleAcceptSuggestion = async (id) => {
-  //   try {
-  //     await axios.put(`${API_URL}/people/suggestions/${id}`);
-  //     fetchSuggestions();
-  //     Swal.fire("Accepted!", "Suggestion has been accepted.", "success");
-  //   } catch (error) {
-  //     console.error("Error accepting suggestion:", error);
-  //     Swal.fire("Error!", "Failed to accept the suggestion.", "error");
-  //   }
-  // };
-
-  // const handleRejectSuggestion = async (id) => {
-  //   try {
-  //     await axios.put(`${API_URL}/people/suggestions/${id}`);
-  //     fetchSuggestions();
-  //     Swal.fire("Rejected!", "Suggestion has been declined.", "success");
-  //   } catch (error) {
-  //     console.error("Error rejecting suggestion:", error);
-  //     Swal.fire("Error!", "Failed to reject the suggestion.", "error");
-  //   }
-  // };
+ 
 
   const handleSuggestionClick = (row) => {
     Swal.fire({
@@ -517,7 +498,7 @@ const TableView = () => {
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                        className="border-b-2  border-gray-700 hover:bg-gray-200"
                       >
                         <td className="text-center">
                           <img
@@ -526,7 +507,7 @@ const TableView = () => {
                               "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                             }
                             alt="Profile"
-                            className="w-10 h-10 mb-10 rounded-full object-cover"
+                            className="w-10 h-6 text-lg rounded-full object-cover"
                           />
                           {row.name_in_nepali}
                         </td>
@@ -544,7 +525,7 @@ const TableView = () => {
                                 };
                             return (
                               <div
-                                className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                                className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
                                 {row.pusta_number}
@@ -565,6 +546,7 @@ const TableView = () => {
                           )}
                         </td>
                         <td className="text-center">
+                          
                           {row.mother ? (
                             <span
                               className="cursor-pointer text-blue-600 "
@@ -734,9 +716,9 @@ const TableView = () => {
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                        className="border-b-2 pb-2 border-gray-700 hover:bg-gray-200"
                       >
-                        <td className="text-center h-12 mb-5 pb-5 ">
+                        <td className="text-center  ">
                           <img
                             src={
                               row.photo ||
@@ -773,7 +755,10 @@ const TableView = () => {
                           {row.father?.name_in_nepali || "-"}
                         </td>
                         <td className="text-center">
-                          {row.mother?.name_in_nepali || "-"}
+                       
+                          { 
+                          row.mother?.name_in_nepali || "-"
+                          }
                         </td>
                         <td className="flex items-center py-12 space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
