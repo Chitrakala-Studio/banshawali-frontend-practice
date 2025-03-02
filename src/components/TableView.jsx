@@ -24,6 +24,7 @@ import SearchForm from "./SearchForm";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
+import { useDropzone } from "react-dropzone";
 
 const TableView = () => {
   const { id } = useParams();
@@ -144,88 +145,111 @@ const TableView = () => {
       setHasMore(false);
     }
   };
-
  
+const handleSuggestionClick = (row) => {
+  Swal.fire({
+    title: `Submit Suggestion for ${row.name_in_nepali}`,
+    html: `
+      <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:300px;" ></textarea>
+   <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer">
+  Drag & drop an image here or 
+  <button id="file-picker" 
+          style="color: white; background-color: #c39bd3; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none;"
+          onmouseover="this.style.transform='scale(1)'; this.style.transition='transform 0.2s';"
+          onmouseout="this.style.transform='scale(0.9)';">
+    Click to select
+  </button>
+</div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: "Submit",
+    showLoaderOnConfirm: true,
+    didOpen: () => {
+      const dropzoneContainer = document.getElementById("dropzone-container");
+      const fileInput = document.getElementById("file-input");
+      const filePicker = document.getElementById("file-picker");
 
-  const handleSuggestionClick = (row) => {
-    Swal.fire({
-      title: `Submit Suggestion for ${row.name_in_nepali}`,
-      html: `
-        <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" autocapitalize="off"></textarea>
-        <input type="file" id="suggestionFile" class="swal2-input" accept="image/*"  />
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: "Submit",
-      showLoaderOnConfirm: true,
-      preConfirm: async () => {
-        const suggestion = document.getElementById("suggestion").value;
-        const file = document.getElementById("suggestionFile").files[0];
-        let photoUrl = "";
-
-        if (file) {
-          const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-          const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-          const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-
-          const uploadData = new FormData();
-          uploadData.append("file", file);
-          uploadData.append("upload_preset", uploadPreset);
-
-          try {
-            const response = await axios.post(cloudUrl, uploadData);
-            photoUrl = response.data.secure_url;
-          } catch (error) {
-            Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
-          }
+      filePicker.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", (event) => {
+        if (event.target.files.length > 0) {
+          const file = event.target.files[0];
+          dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+          dropzoneContainer.file = file; // Store file for later use
         }
-        const payload = {
-          personId: row.id,
-          suggestion: suggestion,
-          user:
-            JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
-          ...(photoUrl && { image: photoUrl }),
-        };
+      });
+
+      dropzoneContainer.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropzoneContainer.style.borderColor = "blue";
+      });
+
+      dropzoneContainer.addEventListener("dragleave", () => {
+        dropzoneContainer.style.borderColor = "gray";
+      });
+
+      dropzoneContainer.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        if (file) {
+          dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+          dropzoneContainer.file = file; // Store file for later use
+        }
+      });
+    },
+    preConfirm: async () => {
+      const suggestion = document.getElementById("suggestion").value;
+      const dropzoneContainer = document.getElementById("dropzone-container");
+      const file = dropzoneContainer.file;
+      let photoUrl = "";
+
+      if (file) {
+        // Cloudinary Upload Setup
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+        const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", uploadPreset);
 
         try {
-          await axios.post(`${API_URL}/people/suggestions/`, payload, {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          return suggestion;
+          const response = await axios.post(cloudUrl, uploadData);
+          photoUrl = response.data.secure_url;
         } catch (error) {
-          Swal.showValidationMessage(`Request failed: ${error}`);
+          Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
         }
-      },
-
-      allowOutsideClick: () => !Swal.isLoading(),
-      didOpen: () => {
-        const suggestionTextArea = document.getElementById("suggestion");
-        const suggestionFileInput = document.getElementById("suggestionFile");
-        suggestionTextArea.style.resize = "none";
-        suggestionTextArea.style.height = "150px";
-        suggestionTextArea.style.width = "100%";
-        suggestionTextArea.style.overflow = "hidden";
-        suggestionTextArea.style.backgroundColor = "white";
-        suggestionTextArea.style.border = "1px solid #ccc";
-        suggestionFileInput.style.width = "calc(100% - 10px)";
-        suggestionFileInput.style.padding = "5px";
-        suggestionFileInput.style.marginTop = "10px";
-        suggestionFileInput.style.marginLeft = "0";
-        suggestionFileInput.style.backgroundColor = "white";
-        suggestionFileInput.style.border = "1px solid #ccc";
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Suggestion Submitted!",
-          text: "Your suggestion has been submitted successfully.",
-          icon: "success",
-        });
       }
-    });
-  };
+
+      // API Payload
+      const payload = {
+        personId: row.id,
+        suggestion: suggestion,
+        user: JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
+        ...(photoUrl && { image: photoUrl }),
+      };
+
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/people/suggestions/`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+        return suggestion;
+      } catch (error) {
+        Swal.showValidationMessage(`Request failed: ${error}`);
+      }
+    },
+    allowOutsideClick: () => !Swal.isLoading(),
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Suggestion Submitted!",
+        text: "Your suggestion has been submitted successfully.",
+        icon: "success",
+      });
+    }
+  });
+};
+  
 
   const handleSearch = (criteria) => {
     const hasAnyCriteria = Object.values(criteria).some(
@@ -372,15 +396,18 @@ const TableView = () => {
       }
     });
   };
-
+  //  filteredData = filteredData.data;
   const finalData = filteredData;
   const visibleData = finalData;
+  
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
     setCurrentPage(nextPage);
     fetchData(nextPage);
   };
+
+  console.log("Visible Data:", filteredData);
 
   return (
     <div className="table-view transition-all duration-300 relative">
@@ -456,7 +483,7 @@ const TableView = () => {
               {(id || searchApplied) && (
                 <button
                   onClick={handleGoBack}
-                  className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 transition-all shadow-md flex items-center gap-2"
+                  className=" bg-zinc-400 border-black/10 px-6 py-2 rounded-md  text-white focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-slate-400 hover:shadow-lg transition-all shadow-md flex items-center space-x-2   "
                 >
                   <FaArrowLeft />
                   <span>Go back</span>
@@ -472,13 +499,15 @@ const TableView = () => {
           <InfiniteScroll
             dataLength={visibleData.length}
             next={handleLoadMore}
-            hasMore={hasMore}
+            hasMore={hasMore && visibleData.length >= 15}
             loader={
-              <div className="flex justify-center items-center h-screen">
-                <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-              </div>
-            }
-            style={{ overflow: "hidden" }}
+    visibleData.length >= 15 ? (  // Only show loader when data is 15+
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+      </div>
+    ) : null
+  }
+  style={{ overflow: "hidden" }}
           >
             {activeTab === "data" ? (
               <div className="table-wrapper">
@@ -494,7 +523,9 @@ const TableView = () => {
                       <th className="text-center">Actions</th>
                     </tr>
                   </thead>
+                  
                   <tbody >
+                    
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
@@ -701,7 +732,7 @@ const TableView = () => {
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
-                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
+                  <thead className="text-center  bg-gray-100">
                     <tr>
                       <th className="text-center">Name</th>
                       <th className="text-center">Pusta Number</th>
@@ -716,7 +747,7 @@ const TableView = () => {
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2 pb-2 border-gray-700 hover:bg-gray-200"
+                        className=" hover:bg-gray-200"
                       >
                         <td className="text-center  ">
                           <img
@@ -743,7 +774,7 @@ const TableView = () => {
                                 };
                             return (
                               <div
-                                className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                                className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
                                 {row.pusta_number}
