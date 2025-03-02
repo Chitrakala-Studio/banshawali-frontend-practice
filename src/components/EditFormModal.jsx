@@ -5,6 +5,8 @@ import { FaArrowDown } from "react-icons/fa";
 import axios from "axios";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
@@ -30,6 +32,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     profileImage: formData.profileImage || "",
   }));
 
+  
+
   const [suggestions, setSuggestions] = useState([]);
   const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -45,6 +49,16 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const today = new Date().toISOString().split("T")[0];
   const hideFatherSuggestionsTimeout = useRef(null);
   const hideMotherSuggestionsTimeout = useRef(null);
+  const datepickerRef = useRef(null);
+
+  
+  useEffect(() => {
+    flatpickr(datepickerRef.current, {
+      minDate: '1900-01-01',
+      maxDate: today,
+      dateFormat: 'Y-m-d', // Format the date as 'YYYY-MM-DD'
+    });
+  }, []);
 
   // For father suggestions
   const handleFatherMouseEnter = () => {
@@ -545,7 +559,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                 Date of Birth
               </label>
-              <input
+              <input ref={datepickerRef} type="text" class="form-control flatpickr-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm" id="datepicker-minmax" value={form.dob}
+                onChange={handleDateChange} max={today} />
+              {/* <input
                 type="date"
                 name="dob"
                 // required
@@ -554,7 +570,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 // onChange={handleChange}
                 max={today}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm"
-              />
+              /> */}
             </div>
 
             <div className="w-full">

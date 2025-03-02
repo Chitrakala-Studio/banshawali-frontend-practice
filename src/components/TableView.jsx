@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   FaCheck,
   FaTimes,
+  FaCloudUploadAlt,
   FaFileAlt,
   FaDownload,
   FaArrowLeft,
@@ -150,15 +151,22 @@ const handleSuggestionClick = (row) => {
   Swal.fire({
     title: `Submit Suggestion for ${row.name_in_nepali}`,
     html: `
-      <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:300px;" ></textarea>
+    <script src="https://kit.fontawesome.com/2b9fd73550.js" crossorigin="anonymous"></script>
+      <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:450px;" ></textarea>
    <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer">
+   <p>
+   <i class="fa-solid fa-cloud-arrow-up"/>
+   </p>
   Drag & drop an image here or 
-  <button id="file-picker" 
+  <p>
+   <button id="file-picker" 
           style="color: white; background-color: #c39bd3; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none;"
           onmouseover="this.style.transform='scale(1)'; this.style.transition='transform 0.2s';"
           onmouseout="this.style.transform='scale(0.9)';">
     Click to select
   </button>
+   <input type="file" id="file-input" accept="image/*" style="display: none;">
+  </p>
 </div>
     `,
     focusConfirm: false,
