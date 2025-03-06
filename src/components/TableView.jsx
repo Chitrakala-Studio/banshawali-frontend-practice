@@ -148,27 +148,23 @@ const TableView = () => {
   };
  
 const handleSuggestionClick = (row) => {
+  console.log("Suggestion Clicked:", row);
   Swal.fire({
     title: `Submit Suggestion for ${row.name_in_nepali}`,
+    
     html: `
-    <script src="https://kit.fontawesome.com/2b9fd73550.js" crossorigin="anonymous"></script>
-      <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:450px;" ></textarea>
-   <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer">
-   <p>
-   <i class="fa-solid fa-cloud-arrow-up"/>
-   </p>
-  Drag & drop an image here or 
-  <p>
-   <button id="file-picker" 
-          style="color: white; background-color: #c39bd3; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none;"
-          onmouseover="this.style.transform='scale(1)'; this.style.transition='transform 0.2s';"
-          onmouseout="this.style.transform='scale(0.9)';">
-    Click to select
-  </button>
-   <input type="file" id="file-input" accept="image/*" style="display: none;">
-  </p>
-</div>
+       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px;"></textarea>
+    <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
+      <div id="file-picker" style="height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
+        <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
+        Drag & drop an image here or click to select 
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+      </div>
+    </div>
     `,
+    
+    backdrop: `rgba(10,10,10,0.8)`,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: "Submit",
@@ -177,7 +173,24 @@ const handleSuggestionClick = (row) => {
       const dropzoneContainer = document.getElementById("dropzone-container");
       const fileInput = document.getElementById("file-input");
       const filePicker = document.getElementById("file-picker");
-
+      const titleElement = document.querySelector('.swal2-title');
+      if (titleElement) {
+        titleElement.style.fontSize = '24px';
+        titleElement.style.color = 'antiquewhite';
+        titleElement.style.fontFamily = 'Times New Roman, sans-serif';
+        titleElement.style.letterSpacing = '1px';
+        titleElement.style.fontWeight = 'bold';
+        titleElement.style.marginBottom = '15px';
+        titleElement.style.borderBottom = '2px solid #eaeaea';
+        titleElement.style.paddingBottom = '10px';
+      }
+      const popupElement = document.querySelector('.swal2-popup');
+      if (popupElement) {
+        popupElement.style.backgroundColor = '#0b1d2e';
+        popupElement.style.borderRadius = '10px';
+        popupElement.style.padding = '20px';
+        popupElement.style.border = '2px solid #0b1d2e';
+      }
       filePicker.addEventListener("click", () => fileInput.click());
       fileInput.addEventListener("change", (event) => {
         if (event.target.files.length > 0) {
@@ -435,7 +448,7 @@ const handleSuggestionClick = (row) => {
                 <button
                   className={`px-6 py-2 rounded-lg transition-all shadow-md bg-zinc-700 ${activeTab === "data"
                     ? " bg-zinc-700 text-white text-sm border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2  "
-                    : "bg-gray-300 text-gray-700 active:scale-50 "
+                    : "bg-gray-300 text-white active:scale-10 text-sm ocus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2  "
                     }`}
                   onClick={() => setActiveTab("data")}
                 >
@@ -444,7 +457,7 @@ const handleSuggestionClick = (row) => {
                 <button
                   className={`px-6 py-2 rounded-lg transition-all shadow-md bg-teal-700 ${activeTab === "data"
                     ? " text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm "
-                    : "bg-gray-300 text-gray-700 active:scale-50 "
+                    : "bg-gray-300 text-white active:scale-10  focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm  "
                     }`}
                   onClick={() => {
                     setActiveTab("suggestions");
@@ -644,7 +657,7 @@ const handleSuggestionClick = (row) => {
                           ) : (
                             <button
                               className="icon-button suggestion-button"
-                              onClick={handleSuggestionClick}
+                              onClick={() => handleSuggestionClick(row)}
                             >
                               <FaLightbulb />
                             </button>
