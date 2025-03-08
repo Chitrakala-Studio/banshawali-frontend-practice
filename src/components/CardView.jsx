@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { Circles } from 'react-loader-spinner';s
 
 import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
@@ -148,7 +149,19 @@ const CardView = () => {
     }
   };
   if (loading) {
-    return <div>Loading...</div>; // Show loading while data is being fetched
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Circles
+          height="80"
+          width="80"
+          color="#4fa94d"
+          ariaLabel="circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+      </div>
+    );
   }
 
   if (error) {

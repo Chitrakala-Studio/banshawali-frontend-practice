@@ -76,14 +76,6 @@ const TableView = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // useEffect(() => {
-  //   fetchData(1);
-  // }, []);
-
-  // useEffect(() => {
-  //   fetchData(1);
-  // }, [id]);
-
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
@@ -337,7 +329,7 @@ const handleSuggestionClick = (row) => {
   };
 
   const calculateAge = (dob, lifestatus) => {
-    if (lifestatus && lifestatus.toLowerCase() === "dead") return "Dead";
+    if (lifestatus && lifestatus.toLowerCase() === "dead") return "मृत्यु";
     if (!dob) return "-";
     const birthDate = new Date(dob);
     if (isNaN(birthDate)) return "-";
@@ -350,7 +342,7 @@ const handleSuggestionClick = (row) => {
     ) {
       age--;
     }
-    return age === 0 ? "-" : age;
+    return age === 0 ? "-" : convertToNepaliNumerals(age);
   };
   const handleRowClick = (suggestion) => {
     Swal.fire({
@@ -426,6 +418,11 @@ const handleSuggestionClick = (row) => {
     const nextPage = currentPage + 1;
     setCurrentPage(nextPage);
     fetchData(nextPage);
+  };
+
+  const convertToNepaliNumerals = (number) => {
+    const nepaliNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    return number.toString().split('').map(digit => nepaliNumerals[digit]).join('');
   };
 
   console.log("Visible Data:", filteredData);
@@ -535,13 +532,13 @@ const handleSuggestionClick = (row) => {
                 <table className="ml-3 w-full">
                   <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
                     <tr>
-                      <th className="text-center">Name</th>
-                      <th className="text-center">Pusta Number</th>
-                      <th className="text-center">Father Name</th>
-                      <th className="text-center">Mother Name</th>
-                      <th className="text-center">Gender</th>
-                      <th className="text-center">Age</th>
-                      <th className="text-center">Actions</th>
+                      <th className="text-center">नाम</th>
+                      <th className="text-center">पुस्ता नम्बर</th>
+                      <th className="text-center">बाबुको नाम</th>
+                      <th className="text-center">आमाको नाम</th>
+                      <th className="text-center">लिङ्ग</th>
+                      <th className="text-center">उमेर</th>
+                      <th className="text-center">कार्यहरू</th>
                     </tr>
                   </thead>
                   
@@ -569,18 +566,16 @@ const handleSuggestionClick = (row) => {
                               row.pusta_number % 2 === 0
                                 ? {
                                   bg: "bg-green-300 text-green-700",
-                                  label: "Even Generation",
                                 }
                                 : {
                                   bg: "bg-orange-300 text-orange-700",
-                                  label: "Odd Generation",
                                 };
                             return (
                               <div
                                 className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
-                                {row.pusta_number}
+                                {convertToNepaliNumerals(row.pusta_number)}
                               </div>
                             );
                           })()}
@@ -629,7 +624,7 @@ const handleSuggestionClick = (row) => {
                         <td className="text-center">
                           {row.lifestatus.toLowerCase() === "dead" ? (
                             <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
-                              Dead
+                              मृत्यु
                             </span>
                           ) : (
                             calculateAge(row.date_of_birth, row.lifestatus)
