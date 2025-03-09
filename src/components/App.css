@@ -22,8 +22,53 @@ image {
     overflow: scroll;
   }
   .tree {
-    transform: scale(0.65);
+    transform: scale(0.60);
   }
+  td {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  th, td {
+    width: auto; /* Ensure it auto-adjusts */
+    white-space: nowrap; /* Prevents text from breaking */
+  }
+  td img {
+    max-width: 40px; /* Limit image size */
+    height: auto;
+    vertical-align: middle; /* Align with text */
+  }
+  .dropzone {
+    border: 2px dashed #007bff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f7f7f7;
+    transition: background-color 0.3s;
+  }
+  
+  .dropzone:hover {
+    background-color: #f0f8ff;
+  }
+  .swal2-popup.custom-popup .swal2-title.custom-title {
+    font-size: 24px !important;
+    color: antiquewhite !important;
+    font-family: "Arial", sans-serif !important;
+    letter-spacing: 1px !important;
+    color: #333 !important;
+    font-weight: bold !important;
+    margin-bottom: 15px !important;
+    border-bottom: 2px solid #eaeaea !important;
+    padding-bottom: 10px !important;
+    
+  }
+  .swal2-popup.custom-popup {
+    background-color: #333 !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    border: 2px solid #007bff !important;
+  }
+  
   
 }
 @media print {

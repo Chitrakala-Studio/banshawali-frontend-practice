@@ -498,10 +498,10 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
 
         )}
         <div style={{ display: "flex",flexDirection:"row", gap: "10px", marginTop: "10px" }}>
-          <button onClick={handlePDF} className="save-button">
+          <button onClick={handlePDF} className="save-button bg-teal-700 text-white h-6 border-black/10 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm">
             Save as PDF
           </button>
-          <button onClick={handlePrint} className="print-button">
+          <button onClick={handlePrint} className="print-button bg-teal-700 text-sm text-white border-black/10  h-6 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 ">
             Print Family Tree
           </button>
         </div>

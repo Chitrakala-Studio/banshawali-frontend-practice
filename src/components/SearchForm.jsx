@@ -1,16 +1,32 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import debounce from "lodash.debounce";
 
 const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
   const [criteria, setCriteria] = useState(initialCriteria);
   const API_URL = import.meta.env.VITE_API_URL; // Use your env variable
-
+  const debouncedSearch = debounce((newCriteria) => {
+    const queryParams = new URLSearchParams(newCriteria).toString();
+    fetch(`${API_URL}/people/people/search/?${queryParams}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((response) => response.json())
+      .then((data) => onSearch(data.data))
+      .catch((error) => console.error("Error fetching search results:", error));
+  }, 500); // Adjust debounce time as needed
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setCriteria((prev) => ({
-      ...prev,
+    // setCriteria((prev) => ({
+    //   ...prev,
+    //   [name]: type === "checkbox" ? checked : value,
+    // }));
+    const updatedCriteria = {
+      ...criteria,
       [name]: type === "checkbox" ? checked : value,
-    }));
+    };
+    setCriteria(updatedCriteria);
+    debouncedSearch(updatedCriteria); 
   };
 
   const handleSubmit = (e) => {
@@ -28,11 +44,12 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
       .then((response) => response.json())
       .then((data) => {
         console.log("Search results:", data);
-        onSearch(data);
+        onSearch(data.data);
       })
       .catch((error) => {
         console.error("Error fetching search results:", error);
       });
+      debouncedSearch.flush();
   };
 
   return (
@@ -96,8 +113,8 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
               <label className="block text-xs text-gray-300 mb-1">Phone</label>
               <input
                 type="text"
-                name="phone"
-                value={criteria.phone}
+                name="phone_number"
+                value={criteria.phone_number}
                 onChange={handleChange}
                 placeholder="Enter phone number"
                 className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 text-white text-sm"
@@ -190,7 +207,7 @@ SearchForm.propTypes = {
   initialCriteria: PropTypes.shape({
     name: PropTypes.string,
     pusta_number: PropTypes.string,
-    phone: PropTypes.string,
+    phone_number: PropTypes.string,
     email: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,

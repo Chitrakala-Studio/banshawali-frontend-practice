@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   FaCheck,
   FaTimes,
+  FaCloudUploadAlt,
   FaFileAlt,
   FaDownload,
   FaArrowLeft,
@@ -24,6 +25,7 @@ import SearchForm from "./SearchForm";
 import { useNavigate, Link, useParams, useLocation } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
+import { useDropzone } from "react-dropzone";
 
 const TableView = () => {
   const { id } = useParams();
@@ -84,16 +86,6 @@ const TableView = () => {
   }, [id]);
 
   useEffect(() => {
-    if (location.pathname === "/suggestions") {
-      setActiveTab("suggestions");
-      fetchSuggestions();
-    } else {
-      setActiveTab("data");
-      fetchData(1);
-    }
-  }, [location.pathname, id]);
-
-  useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
       const user = JSON.parse(userStr);
@@ -105,7 +97,8 @@ const TableView = () => {
     } else {
       navigate("/login");
     }
-  }, [navigate]);
+    fetchData(1);
+  }, [navigate,id]);
 
   const fetchData = async (page) => {
     try {
@@ -154,108 +147,131 @@ const TableView = () => {
       setHasMore(false);
     }
   };
-
-  // const handleAcceptSuggestion = async (id) => {
-  //   try {
-  //     await axios.put(`${API_URL}/people/suggestions/${id}`);
-  //     fetchSuggestions();
-  //     Swal.fire("Accepted!", "Suggestion has been accepted.", "success");
-  //   } catch (error) {
-  //     console.error("Error accepting suggestion:", error);
-  //     Swal.fire("Error!", "Failed to accept the suggestion.", "error");
-  //   }
-  // };
-
-  // const handleRejectSuggestion = async (id) => {
-  //   try {
-  //     await axios.put(`${API_URL}/people/suggestions/${id}`);
-  //     fetchSuggestions();
-  //     Swal.fire("Rejected!", "Suggestion has been declined.", "success");
-  //   } catch (error) {
-  //     console.error("Error rejecting suggestion:", error);
-  //     Swal.fire("Error!", "Failed to reject the suggestion.", "error");
-  //   }
-  // };
-
-  const handleSuggestionClick = (row) => {
-    Swal.fire({
-      title: `Submit Suggestion for ${row.name_in_nepali}`,
-      html: `
-        <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" autocapitalize="off"></textarea>
-        <input type="file" id="suggestionFile" class="swal2-input" accept="image/*"  />
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: "Submit",
-      showLoaderOnConfirm: true,
-      preConfirm: async () => {
-        const suggestion = document.getElementById("suggestion").value;
-        const file = document.getElementById("suggestionFile").files[0];
-        let photoUrl = "";
-
-        if (file) {
-          const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-          const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-          const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-
-          const uploadData = new FormData();
-          uploadData.append("file", file);
-          uploadData.append("upload_preset", uploadPreset);
-
-          try {
-            const response = await axios.post(cloudUrl, uploadData);
-            photoUrl = response.data.secure_url;
-          } catch (error) {
-            Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
-          }
+ 
+const handleSuggestionClick = (row) => {
+  console.log("Suggestion Clicked:", row);
+  Swal.fire({
+    title: `Submit Suggestion for ${row.name_in_nepali}`,
+    
+    html: `
+       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px;"></textarea>
+    <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
+      <div id="file-picker" style="height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
+        <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
+        Drag & drop an image here or click to select 
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+      </div>
+    </div>
+    `,
+    
+    backdrop: `rgba(10,10,10,0.8)`,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: "Submit",
+    showLoaderOnConfirm: true,
+    didOpen: () => {
+      const dropzoneContainer = document.getElementById("dropzone-container");
+      const fileInput = document.getElementById("file-input");
+      const filePicker = document.getElementById("file-picker");
+      const titleElement = document.querySelector('.swal2-title');
+      if (titleElement) {
+        titleElement.style.fontSize = '24px';
+        titleElement.style.color = 'antiquewhite';
+        titleElement.style.fontFamily = 'Times New Roman, sans-serif';
+        titleElement.style.letterSpacing = '1px';
+        titleElement.style.fontWeight = 'bold';
+        titleElement.style.marginBottom = '15px';
+        titleElement.style.borderBottom = '2px solid #eaeaea';
+        titleElement.style.paddingBottom = '10px';
+      }
+      const popupElement = document.querySelector('.swal2-popup');
+      if (popupElement) {
+        popupElement.style.backgroundColor = '#0b1d2e';
+        popupElement.style.borderRadius = '10px';
+        popupElement.style.padding = '20px';
+        popupElement.style.border = '2px solid #0b1d2e';
+      }
+      filePicker.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", (event) => {
+        if (event.target.files.length > 0) {
+          const file = event.target.files[0];
+          dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+          dropzoneContainer.file = file; // Store file for later use
         }
-        const payload = {
-          personId: row.id,
-          suggestion: suggestion,
-          user:
-            JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
-          ...(photoUrl && { image: photoUrl }),
-        };
+      });
+
+      dropzoneContainer.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropzoneContainer.style.borderColor = "blue";
+      });
+
+      dropzoneContainer.addEventListener("dragleave", () => {
+        dropzoneContainer.style.borderColor = "gray";
+      });
+
+      dropzoneContainer.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        if (file) {
+          dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+          dropzoneContainer.file = file; // Store file for later use
+        }
+      });
+    },
+    preConfirm: async () => {
+      const suggestion = document.getElementById("suggestion").value;
+      const dropzoneContainer = document.getElementById("dropzone-container");
+      const file = dropzoneContainer.file;
+      let photoUrl = "";
+
+      if (file) {
+        // Cloudinary Upload Setup
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+        const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", uploadPreset);
 
         try {
-          await axios.post(`${API_URL}/people/suggestions/`, payload, {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          return suggestion;
+          const response = await axios.post(cloudUrl, uploadData);
+          photoUrl = response.data.secure_url;
         } catch (error) {
-          Swal.showValidationMessage(`Request failed: ${error}`);
+          Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
         }
-      },
-
-      allowOutsideClick: () => !Swal.isLoading(),
-      didOpen: () => {
-        const suggestionTextArea = document.getElementById("suggestion");
-        const suggestionFileInput = document.getElementById("suggestionFile");
-        suggestionTextArea.style.resize = "none";
-        suggestionTextArea.style.height = "150px";
-        suggestionTextArea.style.width = "100%";
-        suggestionTextArea.style.overflow = "hidden";
-        suggestionTextArea.style.backgroundColor = "white";
-        suggestionTextArea.style.border = "1px solid #ccc";
-        suggestionFileInput.style.width = "calc(100% - 10px)";
-        suggestionFileInput.style.padding = "5px";
-        suggestionFileInput.style.marginTop = "10px";
-        suggestionFileInput.style.marginLeft = "0";
-        suggestionFileInput.style.backgroundColor = "white";
-        suggestionFileInput.style.border = "1px solid #ccc";
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Suggestion Submitted!",
-          text: "Your suggestion has been submitted successfully.",
-          icon: "success",
-        });
       }
-    });
-  };
+
+      // API Payload
+      const payload = {
+        personId: row.id,
+        suggestion: suggestion,
+        user: JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
+        ...(photoUrl && { image: photoUrl }),
+      };
+
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/people/suggestions/`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+        return suggestion;
+      } catch (error) {
+        Swal.showValidationMessage(`Request failed: ${error}`);
+      }
+    },
+    allowOutsideClick: () => !Swal.isLoading(),
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Suggestion Submitted!",
+        text: "Your suggestion has been submitted successfully.",
+        icon: "success",
+      });
+    }
+  });
+};
+  
 
   const handleSearch = (criteria) => {
     const hasAnyCriteria = Object.values(criteria).some(
@@ -322,7 +338,7 @@ const TableView = () => {
   };
 
   const calculateAge = (dob, lifestatus) => {
-    if (lifestatus && lifestatus.toLowerCase() === "dead") return "Dead";
+    if (lifestatus && lifestatus.toLowerCase() === "dead") return "मृत्यु";
     if (!dob) return "-";
     const birthDate = new Date(dob);
     if (isNaN(birthDate)) return "-";
@@ -335,7 +351,7 @@ const TableView = () => {
     ) {
       age--;
     }
-    return age === 0 ? "-" : age;
+    return age === 0 ? "-" : convertToNepaliNumerals(age);
   };
   const handleRowClick = (suggestion) => {
     Swal.fire({
@@ -343,11 +359,10 @@ const TableView = () => {
       html: `
         <div style="text-align: left;">
           <p><strong>Suggestion:</strong> ${suggestion.suggestion}</p>
-          ${
-            suggestion.image
-              ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
-              : "No Image"
-          }
+          ${suggestion.image
+          ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
+          : "No Image"
+        }
         </div>
       `,
       showCloseButton: true,
@@ -407,9 +422,10 @@ const TableView = () => {
       }
     });
   };
-
+  //  filteredData = filteredData.data;
   const finalData = filteredData;
   const visibleData = finalData;
+  
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
@@ -417,8 +433,15 @@ const TableView = () => {
     fetchData(nextPage);
   };
 
+  const convertToNepaliNumerals = (number) => {
+    const nepaliNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    return number.toString().split('').map(digit => nepaliNumerals[digit]).join('');
+  };
+
+  console.log("Visible Data:", filteredData);
+
   return (
-    <div className="table-view transition-all duration-300">
+    <div className="table-view transition-all duration-300 relative">
       <div className={isModalOpen ? "blurred" : ""}>
         <div className="flex items-center justify-between w-full mb-4">
           <div className="flex items-center gap-4">
@@ -431,34 +454,29 @@ const TableView = () => {
           </div>
           {isAdminLocal && (
             <div className="flex gap-4">
-              {activeTab !== "data" && (
-                <button
-                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                    activeTab === "data"
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-gray-300 text-gray-700"
-                  }`}
-                  onClick={() => navigate("/")}
-                >
-                  View Table
-                </button>
-              )}
-              {activeTab !== "suggestions" && (
-                <button
-                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                    activeTab === "suggestions"
-                      ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                      : "bg-gray-300 text-gray-700"
-                  }`}
-                  onClick={() => {
-                    // setActiveTab("suggestions");
-                    // fetchSuggestions();
-                    navigate("/suggestions");
-                  }}
-                >
-                  View Suggestions
-                </button>
-              )}
+              <button
+                className={`px-6 py-2 rounded-md transition-all shadow-md ${
+                  activeTab === "data"
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-300 text-gray-700"
+                }`}
+                onClick={() => setActiveTab("data")}
+              >
+                View Table
+              </button>
+              <button
+                className={`px-6 py-2 rounded-md transition-all shadow-md ${
+                  activeTab === "suggestions"
+                    ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                    : "bg-gray-300 text-gray-700"
+                }`}
+                onClick={() => {
+                  setActiveTab("suggestions");
+                  fetchSuggestions();
+                }}
+              >
+                View Suggestions
+              </button>
             </div>
           )}
         </div>
@@ -468,43 +486,52 @@ const TableView = () => {
             <div>
               {(id || searchApplied) && (
                 <button
+                className=" bg-zinc-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
+                onClick={() => {
+                  setFormData({
+                    username: "",
+                    pusta_number: "",
+                    father_name: "",
+                    mother_name: "",
+                    dob: "",
+                    lifestatus: "Alive",
+                    profession: "",
+                    gender: "Male",
+                  });
+                  setIsAdding(true);
+                }}
+              >
+                <span className="text-white">
+                  + Add New User
+                </span>
+              </button>
+              </div>
+            )}
+            <button
+              className="bg-teal-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
+              onClick={() => setShowSearchForm(true)}
+            >
+              <FaSearch className="text-white" />
+              <span className="text-white">Search User</span>
+            </button>
+          </div>
+         
+        </div>
+        <div className="table-view-filters mt-10 p-4">
+          <div className="flex items-center justify-between w-full">
+            <div>
+              {(id || searchApplied) && (
+                <button
                   onClick={handleGoBack}
-                  className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-100 transition-all shadow-md flex items-center gap-2"
+                  className=" bg-zinc-400 border-black/10 px-6 py-2 rounded-md  text-white focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-slate-400 hover:shadow-lg transition-all shadow-md flex items-center space-x-2   "
                 >
                   <FaArrowLeft />
                   <span>Go back</span>
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-4">
-              <button
-                className="bg-teal-500 text-white px-6 py-2 rounded-md hover:bg-teal-600 transition-all shadow-md flex items-center space-x-2"
-                onClick={() => setShowSearchForm(true)}
-              >
-                <FaSearch className="text-white" />
-                <span>Search User</span>
-              </button>
-              {isAdminLocal && (
-                <button
-                  className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all shadow-md"
-                  onClick={() => {
-                    setFormData({
-                      username: "",
-                      pusta_number: "",
-                      father_name: "",
-                      mother_name: "",
-                      dob: "",
-                      lifestatus: "Alive",
-                      profession: "",
-                      gender: "Male",
-                    });
-                    setIsAdding(true);
-                  }}
-                >
-                  + Add New User
-                </button>
-              )}
-            </div>
+
+
           </div>
         </div>
 
@@ -512,33 +539,37 @@ const TableView = () => {
           <InfiniteScroll
             dataLength={visibleData.length}
             next={handleLoadMore}
-            hasMore={hasMore}
+            hasMore={hasMore && visibleData.length >= 15}
             loader={
-              <div className="flex justify-center items-center h-screen">
-                <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-              </div>
-            }
-            style={{ overflow: "hidden" }}
+    visibleData.length >= 15 ? (  // Only show loader when data is 15+
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+      </div>
+    ) : null
+  }
+  style={{ overflow: "hidden" }}
           >
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
                   <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
                     <tr>
-                      <th className="text-center">Name</th>
-                      <th className="text-center">Pusta Number</th>
-                      <th className="text-center">Father Name</th>
-                      <th className="text-center">Mother Name</th>
-                      <th className="text-center">Gender</th>
-                      <th className="text-center">Age</th>
-                      <th className="text-center">Actions</th>
+                      <th className="text-center">नाम</th>
+                      <th className="text-center">पुस्ता नम्बर</th>
+                      <th className="text-center">बाबुको नाम</th>
+                      <th className="text-center">आमाको नाम</th>
+                      <th className="text-center">लिङ्ग</th>
+                      <th className="text-center">उमेर</th>
+                      <th className="text-center">कार्यहरू</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  
+                  <tbody >
+                    
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                        className="border-b-2  border-gray-700 hover:bg-gray-200"
                       >
                         <td className="text-center">
                           <img
@@ -547,7 +578,7 @@ const TableView = () => {
                               "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                             }
                             alt="Profile"
-                            className="w-10 h-10 rounded-full object-cover"
+                            className="w-10 h-6 text-lg rounded-full object-cover"
                           />
                           {row.name_in_nepali}
                         </td>
@@ -556,20 +587,17 @@ const TableView = () => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
                                 ? {
-                                    bg: "bg-green-300 text-green-700",
-                                    label: "Even Generation",
-                                  }
+                                  bg: "bg-green-300 text-green-700",
+                                }
                                 : {
-                                    bg: "bg-orange-300 text-orange-700",
-                                    label: "Odd Generation",
-                                  };
+                                  bg: "bg-orange-300 text-orange-700",
+                                };
                             return (
                               <div
-                                className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                                className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
-                                <span className="w-2 h-2 rounded-full mr-2"></span>
-                                {row.pusta_number}
+                                {convertToNepaliNumerals(row.pusta_number)}
                               </div>
                             );
                           })()}
@@ -587,6 +615,7 @@ const TableView = () => {
                           )}
                         </td>
                         <td className="text-center">
+                          
                           {row.mother ? (
                             <span
                               className="cursor-pointer text-blue-600 "
@@ -617,7 +646,7 @@ const TableView = () => {
                         <td className="text-center">
                           {row.lifestatus.toLowerCase() === "dead" ? (
                             <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
-                              Dead
+                              मृत्यु
                             </span>
                           ) : (
                             calculateAge(row.date_of_birth, row.lifestatus)
@@ -645,7 +674,7 @@ const TableView = () => {
                           ) : (
                             <button
                               className="icon-button suggestion-button"
-                              onClick={handleSuggestionClick}
+                              onClick={() => handleSuggestionClick(row)}
                             >
                               <FaLightbulb />
                             </button>
@@ -702,56 +731,33 @@ const TableView = () => {
                         </td>
 
                         {/* Show status or default to Pending */}
-                        <td className="text-center">
-                          {suggestion.status === "Pending" ? (
-                            <>
-                              <button
-                                onClick={(e) =>
-                                  handleAccept(
-                                    e,
-                                    suggestion.id,
-                                    suggestion.suggestion,
-                                    suggestion.image
-                                  )
-                                }
-                                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
-                              >
-                                <FaCheck />
-                              </button>
-                              <button
-                                onClick={(e) =>
-                                  handleReject(
-                                    e,
-                                    suggestion.id,
-                                    suggestion.suggestion,
-                                    suggestion.image
-                                  )
-                                }
-                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
-                              >
-                                <FaTimes />
-                              </button>
-                            </>
-                          ) : (
-                            <span
-                              className={
-                                suggestion.status === "Approved"
-                                  ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center"
-                                  : suggestion.status === "Rejected"
-                                  ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center"
-                                  : ""
-                              }
-                            >
-                              {suggestion.status === "Approved" && (
-                                <FaCheck className="mr-1" />
-                              )}
-                              {suggestion.status === "Rejected" && (
-                                <FaTimes className="mr-1" />
-                              )}
-                              {suggestion.status}
-                            </span>
-                          )}
-                        </td>
+                         <td className="text-center">
+  {suggestion.status === "Pending" ? (
+    <>
+      <button
+        onClick={(e) => handleAccept(e, suggestion.id, suggestion.suggestion, suggestion.image)}
+        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
+      >
+        <FaCheck />
+      </button>
+      <button
+        onClick={(e) => handleReject(e, suggestion.id, suggestion.suggestion, suggestion.image)}
+        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
+      >
+        <FaTimes />
+      </button>
+    </>
+  ) : (
+    <span className={
+      suggestion.status === "Approved" ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center" :
+      suggestion.status === "Rejected" ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center" : ""
+    }>
+      {suggestion.status === "Approved" && <FaCheck className="mr-1" />}
+      {suggestion.status === "Rejected" && <FaTimes className="mr-1" />}
+      {suggestion.status}
+    </span>
+  )}
+</td>
                       </tr>
                     ))}
                   </tbody>
@@ -764,7 +770,7 @@ const TableView = () => {
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
-                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
+                  <thead className="text-center  bg-gray-100">
                     <tr>
                       <th className="text-center">Name</th>
                       <th className="text-center">Pusta Number</th>
@@ -779,16 +785,16 @@ const TableView = () => {
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                        className=" hover:bg-gray-200"
                       >
-                        <td className="text-center">
+                        <td className="text-center  ">
                           <img
                             src={
                               row.photo ||
                               "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                             }
                             alt="Profile"
-                            className="w-10 h-10 rounded-full object-cover"
+                            className="w-14 h-14 rounded-full object-cover "
                           />
                           {row.name_in_nepali}
                         </td>
@@ -797,19 +803,18 @@ const TableView = () => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
                                 ? {
-                                    bg: "bg-green-300 text-green-700",
-                                    label: "Even Generation",
-                                  }
+                                  bg: "bg-green-300 text-green-700",
+                                  label: "Even Generation",
+                                }
                                 : {
-                                    bg: "bg-orange-300 text-orange-700",
-                                    label: "Odd Generation",
-                                  };
+                                  bg: "bg-orange-300 text-orange-700",
+                                  label: "Odd Generation",
+                                };
                             return (
                               <div
-                                className={`flex items-center justify-center w-3/4 h-6 p-2 rounded-full ${genColorClass.bg}`}
+                                className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
-                                <span className="w-2 h-2 rounded-full mr-2"></span>
                                 {row.pusta_number}
                               </div>
                             );
@@ -819,9 +824,12 @@ const TableView = () => {
                           {row.father?.name_in_nepali || "-"}
                         </td>
                         <td className="text-center">
-                          {row.mother?.name_in_nepali || "-"}
+                       
+                          { 
+                          row.mother?.name_in_nepali || "-"
+                          }
                         </td>
-                        <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
+                        <td className="flex items-center py-12 space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
                             <>
                               <FaMale className="text-blue-500 text-lg" />
