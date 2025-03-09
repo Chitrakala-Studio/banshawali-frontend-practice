@@ -38,6 +38,7 @@ const AppRoutes = ({ isMobile }) => (
       ) : (
         <Route path="/" element={<TableView />} />
       )}
+      <Route path="/suggestions" element={<TableView />} />
       <Route path="/:id" element={<TableView />} />
       <Route path="/card" element={<Navigate to="/card/1" />} />
     </Routes>

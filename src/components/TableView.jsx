@@ -21,7 +21,7 @@ import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
 import ToggleView from "./ToggleView";
 import SearchForm from "./SearchForm";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useNavigate, Link, useParams, useLocation } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
 
@@ -31,6 +31,7 @@ const TableView = () => {
   const [isAdminLocal, setIsAdminLocal] = useState(false);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -62,14 +63,14 @@ const TableView = () => {
     mother_name: "",
     same_vamsha_status: true,
   });
-  const handleAccept = (e, id , suggestion , image) => {
+  const handleAccept = (e, id, suggestion, image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Approved" , suggestion , image);
+    updateSuggestionStatus(id, "Approved", suggestion, image);
   };
 
-  const handleReject = (e, id , suggestion, image) => {
+  const handleReject = (e, id, suggestion, image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Rejected" , suggestion , image);
+    updateSuggestionStatus(id, "Rejected", suggestion, image);
   };
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -81,6 +82,16 @@ const TableView = () => {
   useEffect(() => {
     fetchData(1);
   }, [id]);
+
+  useEffect(() => {
+    if (location.pathname === "/suggestions") {
+      setActiveTab("suggestions");
+      fetchSuggestions();
+    } else {
+      setActiveTab("data");
+      fetchData(1);
+    }
+  }, [location.pathname, id]);
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
@@ -275,7 +286,7 @@ const TableView = () => {
     setIsEditing(true);
   };
 
-  const updateSuggestionStatus = async (id, newStatus , suggestion , image) => {
+  const updateSuggestionStatus = async (id, newStatus, suggestion, image) => {
     try {
       const payload = {
         status: newStatus,
@@ -384,7 +395,11 @@ const TableView = () => {
         try {
           await axios.delete(`${API_URL}/people/${row.id}/`);
           fetchData(1);
-          Swal.fire("Deleted!", `${row.name_in_nepali} has been deleted.`, "success");
+          Swal.fire(
+            "Deleted!",
+            `${row.name_in_nepali} has been deleted.`,
+            "success"
+          );
         } catch (error) {
           console.error("Error deleting data:", error);
           Swal.fire("Error!", "Failed to delete record.", "error");
@@ -416,29 +431,34 @@ const TableView = () => {
           </div>
           {isAdminLocal && (
             <div className="flex gap-4">
-              <button
-                className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                  activeTab === "data"
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-700"
-                }`}
-                onClick={() => setActiveTab("data")}
-              >
-                View Table
-              </button>
-              <button
-                className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                  activeTab === "suggestions"
-                    ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                    : "bg-gray-300 text-gray-700"
-                }`}
-                onClick={() => {
-                  setActiveTab("suggestions");
-                  fetchSuggestions();
-                }}
-              >
-                View Suggestions
-              </button>
+              {activeTab !== "data" && (
+                <button
+                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
+                    activeTab === "data"
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-gray-300 text-gray-700"
+                  }`}
+                  onClick={() => navigate("/")}
+                >
+                  View Table
+                </button>
+              )}
+              {activeTab !== "suggestions" && (
+                <button
+                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
+                    activeTab === "suggestions"
+                      ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                      : "bg-gray-300 text-gray-700"
+                  }`}
+                  onClick={() => {
+                    // setActiveTab("suggestions");
+                    // fetchSuggestions();
+                    navigate("/suggestions");
+                  }}
+                >
+                  View Suggestions
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -680,35 +700,58 @@ const TableView = () => {
                         <td className="text-center">
                           {new Date(suggestion.date).toLocaleDateString()}
                         </td>
-                       
+
                         {/* Show status or default to Pending */}
-                         <td className="text-center">
-  {suggestion.status === "Pending" ? (
-    <>
-      <button
-        onClick={(e) => handleAccept(e, suggestion.id, suggestion.suggestion, suggestion.image)}
-        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
-      >
-        <FaCheck />
-      </button>
-      <button
-        onClick={(e) => handleReject(e, suggestion.id, suggestion.suggestion, suggestion.image)}
-        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
-      >
-        <FaTimes />
-      </button>
-    </>
-  ) : (
-    <span className={
-      suggestion.status === "Approved" ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center" :
-      suggestion.status === "Rejected" ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center" : ""
-    }>
-      {suggestion.status === "Approved" && <FaCheck className="mr-1" />}
-      {suggestion.status === "Rejected" && <FaTimes className="mr-1" />}
-      {suggestion.status}
-    </span>
-  )}
-</td>
+                        <td className="text-center">
+                          {suggestion.status === "Pending" ? (
+                            <>
+                              <button
+                                onClick={(e) =>
+                                  handleAccept(
+                                    e,
+                                    suggestion.id,
+                                    suggestion.suggestion,
+                                    suggestion.image
+                                  )
+                                }
+                                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
+                              >
+                                <FaCheck />
+                              </button>
+                              <button
+                                onClick={(e) =>
+                                  handleReject(
+                                    e,
+                                    suggestion.id,
+                                    suggestion.suggestion,
+                                    suggestion.image
+                                  )
+                                }
+                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
+                              >
+                                <FaTimes />
+                              </button>
+                            </>
+                          ) : (
+                            <span
+                              className={
+                                suggestion.status === "Approved"
+                                  ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center"
+                                  : suggestion.status === "Rejected"
+                                  ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center"
+                                  : ""
+                              }
+                            >
+                              {suggestion.status === "Approved" && (
+                                <FaCheck className="mr-1" />
+                              )}
+                              {suggestion.status === "Rejected" && (
+                                <FaTimes className="mr-1" />
+                              )}
+                              {suggestion.status}
+                            </span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -921,8 +964,8 @@ const TableView = () => {
             pusta_number: selectedRow.pusta_number || "",
             father_name: selectedRow.father?.name || "",
             mother_name: selectedRow.mother?.name || "",
-            father_id: selectedRow.father?.id||"",
-            mother_id: selectedRow.mother?.id||"",
+            father_id: selectedRow.father?.id || "",
+            mother_id: selectedRow.mother?.id || "",
             dob: selectedRow.date_of_birth || "",
             lifestatus: selectedRow.lifestatus || "Alive",
             death_date: selectedRow.date_of_death || "",

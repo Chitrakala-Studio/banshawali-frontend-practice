@@ -28,7 +28,7 @@ const AdminLogin = () => {
     const user = { username: "guest", token: "dummyToken123", role: "user" };
     localStorage.setItem("user", JSON.stringify(user));
     // Redirect to the table view
-    navigate("/table");
+    navigate("/");
   };
 
   return (
