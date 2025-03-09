@@ -17,7 +17,6 @@ const InfoSection = ({ person }) => {
   return (
     <div className="pb-12 bg-black">
       <div className="w-full bg-black/90 text-white p-4 rounded-b-lg shadow-lg z-10 space-y-4">
-
         {/* Personal Information Box */}
 
         <div className="bg-gray-700 p-4 rounded-lg">
@@ -25,33 +24,37 @@ const InfoSection = ({ person }) => {
           <div className="space-y-3">
             <div className="flex items-center border-b border-gray-600 pb-3">
               <FaUser className="mr-2 text-xl" />
-              {person.name &&
-                <p className="text-l text-white mt-1">{person.name_in_nepali}</p>
-              }
+              {person.name && (
+                <p className="text-l text-white mt-1">
+                  {person.name_in_nepali}
+                </p>
+              )}
             </div>
 
-            <div className={person.date_of_birth !== "" ? "flex items-center " : "flex items-center border-b border-gray-600 pb-3"}>
-
+            <div
+              className={
+                person.date_of_birth !== ""
+                  ? "flex items-center "
+                  : "flex items-center border-b border-gray-600 pb-3"
+              }
+            >
               {person.gender === "Male" ? (
                 <FaMale className="mr-2 text-xl" />
               ) : (
                 <FaFemale className="mr-2 text-xl" />
               )}
-              {person.gender &&
-                < p className="text-l mt-0 text-white">{person.gender}</p>
-              }
+              {person.gender && (
+                <p className="text-l mt-0 text-white">{person.gender}</p>
+              )}
             </div>
             {person.date_of_birth && (
               <div
-                className={`flex items-center ${person.date_of_death ? "border-b border-gray-600 pb-3" : ""
-                  }`}
+                className={`flex items-center ${
+                  person.date_of_death ? "border-b border-gray-600 pb-3" : ""
+                }`}
               >
-
                 <FaBirthdayCake className="mr-2 text-xl" />
-                <p className="text-l mt-0 text-white">
-                  {person.date_of_birth}
-                </p>
-
+                <p className="text-l mt-0 text-white">{person.date_of_birth}</p>
               </div>
             )}
             {person.date_of_death && (
@@ -64,14 +67,26 @@ const InfoSection = ({ person }) => {
         </div>
 
         {/* Family Information Box */}
-        {(person.father?.name || person.mother?.name || person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0) && (
+        {(person.father?.name ||
+          person.mother?.name ||
+          person.grandfather?.name ||
+          person.grandmother?.name ||
+          person.spouse?.name ||
+          person.children?.length > 0) && (
           <div className="bg-gray-700 p-4 rounded-lg">
             <h3 className="font-bold text-lg mb-2">Family</h3>
             <div className="space-y-3">
               {person.father?.name && (
                 <div
-                  className={`flex items-center ${person.grandfather?.name || person.mother?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                    }`}
+                  className={`flex items-center ${
+                    person.grandfather?.name ||
+                    person.mother?.name ||
+                    person.grandmother?.name ||
+                    person.spouse?.name ||
+                    person.children?.length > 0
+                      ? "border-b border-gray-600 pb-3"
+                      : ""
+                  }`}
                 >
                   {/* Parents */}
                   <FaUser className="mr-2 text-xl" />
@@ -87,7 +102,6 @@ const InfoSection = ({ person }) => {
                         </Link>
                       </>
                     )}
-
                   </p>
                 </div>
               )}
@@ -95,8 +109,14 @@ const InfoSection = ({ person }) => {
               {/* Parents */}
               {person.mother?.name && (
                 <div
-                  className={`flex items-center ${person.grandfather?.name || person.grandmother?.name || person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                    }`}
+                  className={`flex items-center ${
+                    person.grandfather?.name ||
+                    person.grandmother?.name ||
+                    person.spouse?.name ||
+                    person.children?.length > 0
+                      ? "border-b border-gray-600 pb-3"
+                      : ""
+                  }`}
                 >
                   {/* Parents */}
                   <FaUser className="mr-2 text-xl" />
@@ -112,48 +132,58 @@ const InfoSection = ({ person }) => {
                         </Link>
                       </>
                     )}
-
                   </p>
                 </div>
               )}
 
-
               {/* Grandparents */}
               {(person.grandfather?.name || person.grandmother?.name) && (
-                <div className={`flex items-center ${person.spouse?.name || person.children?.length > 0 ? "border-b border-gray-600 pb-3" : ""
-                  }`}>
+                <div
+                  className={`flex items-center ${
+                    person.spouse?.name || person.children?.length > 0
+                      ? "border-b border-gray-600 pb-3"
+                      : ""
+                  }`}
+                >
                   <FaUser className="mr-2 text-xl" />
                   <p className="text-l text-white mt-1">
-                    {person.grandfather?.name && person.grandfather.name !== "N/A" && (
-                      <>
-                        GrandFather:{" "}
-                        <Link
-                          to={`/${person.grandfather.id}`}
-                          className="text-blue-500 hover:underline"
-                        >
-                          {person.grandfather.name_in_nepali}
-                        </Link>
-                      </>
-                    )}
-                    {person.grandmother?.name && person.grandmother.name !== "N/A" && (
-                      <>
-                        GrandMother:{""}
-                        <Link
-                          to={`/${person.grandmother.id}`}
-                          className="text-blue-500 hover:underline"
-                        >
-                          {person.grandmother.name_in_nepali}
-                        </Link>
-                      </>
-                    )}
+                    {person.grandfather?.name &&
+                      person.grandfather.name !== "N/A" && (
+                        <>
+                          GrandFather:{" "}
+                          <Link
+                            to={`/${person.grandfather.id}`}
+                            className="text-blue-500 hover:underline"
+                          >
+                            {person.grandfather.name_in_nepali}
+                          </Link>
+                        </>
+                      )}
+                    {person.grandmother?.name &&
+                      person.grandmother.name !== "N/A" && (
+                        <>
+                          GrandMother:{""}
+                          <Link
+                            to={`/${person.grandmother.id}`}
+                            className="text-blue-500 hover:underline"
+                          >
+                            {person.grandmother.name_in_nepali}
+                          </Link>
+                        </>
+                      )}
                   </p>
                 </div>
               )}
 
               {/* Spouse */}
               {person.spouse?.length > 0 && (
-                <div className={person.children?.length > 0 ? "border-b border-gray-600 pb-3 flex items-center" : "flex items-center"}>
-
+                <div
+                  className={
+                    person.children?.length > 0
+                      ? "border-b border-gray-600 pb-3 flex items-center"
+                      : "flex items-center"
+                  }
+                >
                   <FaUser className="mr-2 text-xl" />
 
                   <p className="text-l text-white mt-1">
@@ -197,17 +227,23 @@ const InfoSection = ({ person }) => {
 
         {/* Contact Information Box */}
 
-        {((person.contact_details?.phone && person.contact_details?.phone !== "") || (person.contact_details?.email && person.contact_details?.email !== "") || (person.contact_details?.address && person.contact_details?.address !== "()")) &&
-
+        {((person.contact_details?.phone &&
+          person.contact_details?.phone !== "") ||
+          (person.contact_details?.email &&
+            person.contact_details?.email !== "") ||
+          (person.contact_details?.address &&
+            person.contact_details?.address !== "()")) && (
           <div className="bg-gray-700 p-4 rounded-lg">
             <h3 className="font-bold text-m mb-4">Contact Information</h3>
             <div className="space-y-3">
               {person.contact_details.phone && (
                 <div
-                  className={`flex items-center ${person.contact_details.email || person.contact_details.address
-                    ? "border-b border-gray-600 pb-3"
-                    : ""
-                    }`}
+                  className={`flex items-center ${
+                    person.contact_details.email ||
+                    person.contact_details.address
+                      ? "border-b border-gray-600 pb-3"
+                      : ""
+                  }`}
                 >
                   <FaPhone className="mr-2 text-xl" />
                   <p className="text-l text-white mt-1">
@@ -217,10 +253,11 @@ const InfoSection = ({ person }) => {
               )}
               {person.contact_details.email && (
                 <div
-                  className={`flex items-center ${person.contact_details.address
-                    ? "border-b border-gray-600 pb-3"
-                    : ""
-                    }`}
+                  className={`flex items-center ${
+                    person.contact_details.address
+                      ? "border-b border-gray-600 pb-3"
+                      : ""
+                  }`}
                 >
                   <FaEnvelope className="mr-2 text-xl" />
                   <p className="text-l text-white mt-0">
@@ -238,7 +275,7 @@ const InfoSection = ({ person }) => {
               )}
             </div>
           </div>
-        }
+        )}
 
         {/* Professional Information Box */}
         {person.profession && (
@@ -253,7 +290,7 @@ const InfoSection = ({ person }) => {
           </div>
         )}
       </div>
-    </div >
+    </div>
   );
 };
 

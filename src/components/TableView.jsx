@@ -26,6 +26,7 @@ import { useNavigate, Link, useParams, useLocation } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
 import { useDropzone } from "react-dropzone";
+import Suggestion from "./Suggestion";
 
 const TableView = () => {
   const { id } = useParams();
@@ -707,99 +708,7 @@ const TableView = () => {
                 </table>
               </div>
             ) : (
-              <div className="table-wrapper">
-                <table className="ml-3 w-full">
-                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
-                    <tr className="text-center">
-                      <th className="text-center">Suggestion</th>
-                      <th className="text-center">Image</th>
-                      <th className="text-center">Date</th>
-                      <th className="text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {suggestions.map((suggestion) => (
-                      <tr
-                        key={suggestion.id}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200 text-center"
-                        onClick={() => handleRowClick(suggestion)}
-                      >
-                        <td className="text-center">{suggestion.suggestion}</td>
-                        <td className="text-center">
-                          {suggestion.image ? (
-                            <img
-                              src={
-                                suggestion.image.startsWith("http")
-                                  ? suggestion.image
-                                  : `${API_URL}${suggestion.image}`
-                              }
-                              alt="Suggestion"
-                              className="w-10 h-10 object-cover rounded-full inline-block"
-                            />
-                          ) : (
-                            "No Image"
-                          )}
-                        </td>
-                        <td className="text-center">
-                          {new Date(suggestion.date).toLocaleDateString()}
-                        </td>
-
-                        {/* Show status or default to Pending */}
-                        <td className="text-center">
-                          {suggestion.status === "Pending" ? (
-                            <>
-                              <button
-                                onClick={(e) =>
-                                  handleAccept(
-                                    e,
-                                    suggestion.id,
-                                    suggestion.suggestion,
-                                    suggestion.image
-                                  )
-                                }
-                                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
-                              >
-                                <FaCheck />
-                              </button>
-                              <button
-                                onClick={(e) =>
-                                  handleReject(
-                                    e,
-                                    suggestion.id,
-                                    suggestion.suggestion,
-                                    suggestion.image
-                                  )
-                                }
-                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
-                              >
-                                <FaTimes />
-                              </button>
-                            </>
-                          ) : (
-                            <span
-                              className={
-                                suggestion.status === "Approved"
-                                  ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center"
-                                  : suggestion.status === "Rejected"
-                                  ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center"
-                                  : ""
-                              }
-                            >
-                              {suggestion.status === "Approved" && (
-                                <FaCheck className="mr-1" />
-                              )}
-                              {suggestion.status === "Rejected" && (
-                                <FaTimes className="mr-1" />
-                              )}
-                              {suggestion.status}
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Suggestion />
             )}
           </InfiniteScroll>
         ) : (
@@ -925,48 +834,7 @@ const TableView = () => {
                 </table>
               </div>
             ) : (
-              <div className="table-wrapper">
-                <table className="ml-3 w-full">
-                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
-                    <tr>
-                      <th>User</th>
-                      <th>Suggestion</th>
-                      <th>Date</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {suggestions.map((suggestion) => (
-                      <tr
-                        key={suggestion.id}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200"
-                      >
-                        <td>{suggestion.user}</td>
-                        <td>{suggestion.suggestion}</td>
-                        <td>
-                          {new Date(suggestion.date).toLocaleDateString()}
-                        </td>
-                        <td>
-                          <button
-                            onClick={() =>
-                              handleAcceptSuggestion(suggestion.id)
-                            }
-                          >
-                            <FaCheck />
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleRejectSuggestion(suggestion.id)
-                            }
-                          >
-                            <FaTimes />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Suggestion />
             )}
           </>
         )}
