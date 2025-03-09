@@ -479,7 +479,7 @@ const TableView = () => {
                       ? "bg-blue-500 text-white hover:bg-blue-600"
                       : "bg-gray-300 text-gray-700"
                   }`}
-                  onClick={() => navigate("/suggestions")}
+                  onClick={() => navigate("/")}
                 >
                   View Table
                 </button>
