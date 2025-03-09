@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Circles } from 'react-loader-spinner';s
+import { Circles } from 'react-loader-spinner';
 
 import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
@@ -150,7 +150,7 @@ const CardView = () => {
   };
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen bg-gradient-to-t from-black via-black/60 to-transparent">
         <Circles
           height="80"
           width="80"
@@ -167,6 +167,11 @@ const CardView = () => {
   if (error) {
     return <div>Error: {error}</div>; // Show error if the API call fails
   }
+
+  const convertToNepaliNumerals = (number) => {
+    const nepaliNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    return number.toString().split('').map(digit => nepaliNumerals[digit]).join('');
+  };
 
   return (
     <>
@@ -275,7 +280,8 @@ const CardView = () => {
                       }
                     >
                       <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5  z-20">
-                        {data[currentIndex].pusta_number}
+                        {/* {data[currentIndex].pusta_number} */}
+                        {convertToNepaliNumerals(data[currentIndex].pusta_number)}
                       </div>
                       <button
                         className="pr-4 text-white text-xl"
