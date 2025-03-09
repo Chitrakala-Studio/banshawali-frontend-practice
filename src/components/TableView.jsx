@@ -86,6 +86,16 @@ const TableView = () => {
   }, [id]);
 
   useEffect(() => {
+    if (location.pathname === "/suggestions") {
+      setActiveTab("suggestions");
+      fetchSuggestions();
+    } else {
+      setActiveTab("data");
+      fetchData(1);
+    }
+  }, [location.pathname, id]);
+
+  useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
       const user = JSON.parse(userStr);
@@ -98,7 +108,7 @@ const TableView = () => {
       navigate("/login");
     }
     fetchData(1);
-  }, [navigate,id]);
+  }, [navigate, id]);
 
   const fetchData = async (page) => {
     try {
@@ -147,13 +157,13 @@ const TableView = () => {
       setHasMore(false);
     }
   };
- 
-const handleSuggestionClick = (row) => {
-  console.log("Suggestion Clicked:", row);
-  Swal.fire({
-    title: `Submit Suggestion for ${row.name_in_nepali}`,
-    
-    html: `
+
+  const handleSuggestionClick = (row) => {
+    console.log("Suggestion Clicked:", row);
+    Swal.fire({
+      title: `Submit Suggestion for ${row.name_in_nepali}`,
+
+      html: `
        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
     <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px;"></textarea>
     <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
@@ -164,114 +174,118 @@ const handleSuggestionClick = (row) => {
       </div>
     </div>
     `,
-    
-    backdrop: `rgba(10,10,10,0.8)`,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: "Submit",
-    showLoaderOnConfirm: true,
-    didOpen: () => {
-      const dropzoneContainer = document.getElementById("dropzone-container");
-      const fileInput = document.getElementById("file-input");
-      const filePicker = document.getElementById("file-picker");
-      const titleElement = document.querySelector('.swal2-title');
-      if (titleElement) {
-        titleElement.style.fontSize = '24px';
-        titleElement.style.color = 'antiquewhite';
-        titleElement.style.fontFamily = 'Times New Roman, sans-serif';
-        titleElement.style.letterSpacing = '1px';
-        titleElement.style.fontWeight = 'bold';
-        titleElement.style.marginBottom = '15px';
-        titleElement.style.borderBottom = '2px solid #eaeaea';
-        titleElement.style.paddingBottom = '10px';
-      }
-      const popupElement = document.querySelector('.swal2-popup');
-      if (popupElement) {
-        popupElement.style.backgroundColor = '#0b1d2e';
-        popupElement.style.borderRadius = '10px';
-        popupElement.style.padding = '20px';
-        popupElement.style.border = '2px solid #0b1d2e';
-      }
-      filePicker.addEventListener("click", () => fileInput.click());
-      fileInput.addEventListener("change", (event) => {
-        if (event.target.files.length > 0) {
-          const file = event.target.files[0];
-          dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
-          dropzoneContainer.file = file; // Store file for later use
+
+      backdrop: `rgba(10,10,10,0.8)`,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Submit",
+      showLoaderOnConfirm: true,
+      didOpen: () => {
+        const dropzoneContainer = document.getElementById("dropzone-container");
+        const fileInput = document.getElementById("file-input");
+        const filePicker = document.getElementById("file-picker");
+        const titleElement = document.querySelector(".swal2-title");
+        if (titleElement) {
+          titleElement.style.fontSize = "24px";
+          titleElement.style.color = "antiquewhite";
+          titleElement.style.fontFamily = "Times New Roman, sans-serif";
+          titleElement.style.letterSpacing = "1px";
+          titleElement.style.fontWeight = "bold";
+          titleElement.style.marginBottom = "15px";
+          titleElement.style.borderBottom = "2px solid #eaeaea";
+          titleElement.style.paddingBottom = "10px";
         }
-      });
+        const popupElement = document.querySelector(".swal2-popup");
+        if (popupElement) {
+          popupElement.style.backgroundColor = "#0b1d2e";
+          popupElement.style.borderRadius = "10px";
+          popupElement.style.padding = "20px";
+          popupElement.style.border = "2px solid #0b1d2e";
+        }
+        filePicker.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", (event) => {
+          if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+            dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+            dropzoneContainer.file = file; // Store file for later use
+          }
+        });
 
-      dropzoneContainer.addEventListener("dragover", (event) => {
-        event.preventDefault();
-        dropzoneContainer.style.borderColor = "blue";
-      });
+        dropzoneContainer.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          dropzoneContainer.style.borderColor = "blue";
+        });
 
-      dropzoneContainer.addEventListener("dragleave", () => {
-        dropzoneContainer.style.borderColor = "gray";
-      });
+        dropzoneContainer.addEventListener("dragleave", () => {
+          dropzoneContainer.style.borderColor = "gray";
+        });
 
-      dropzoneContainer.addEventListener("drop", (event) => {
-        event.preventDefault();
-        const file = event.dataTransfer.files[0];
+        dropzoneContainer.addEventListener("drop", (event) => {
+          event.preventDefault();
+          const file = event.dataTransfer.files[0];
+          if (file) {
+            dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+            dropzoneContainer.file = file; // Store file for later use
+          }
+        });
+      },
+      preConfirm: async () => {
+        const suggestion = document.getElementById("suggestion").value;
+        const dropzoneContainer = document.getElementById("dropzone-container");
+        const file = dropzoneContainer.file;
+        let photoUrl = "";
+
         if (file) {
-          dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
-          dropzoneContainer.file = file; // Store file for later use
+          // Cloudinary Upload Setup
+          const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+          const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+          const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+
+          const uploadData = new FormData();
+          uploadData.append("file", file);
+          uploadData.append("upload_preset", uploadPreset);
+
+          try {
+            const response = await axios.post(cloudUrl, uploadData);
+            photoUrl = response.data.secure_url;
+          } catch (error) {
+            Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
+          }
         }
-      });
-    },
-    preConfirm: async () => {
-      const suggestion = document.getElementById("suggestion").value;
-      const dropzoneContainer = document.getElementById("dropzone-container");
-      const file = dropzoneContainer.file;
-      let photoUrl = "";
 
-      if (file) {
-        // Cloudinary Upload Setup
-        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-        const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-
-        const uploadData = new FormData();
-        uploadData.append("file", file);
-        uploadData.append("upload_preset", uploadPreset);
+        // API Payload
+        const payload = {
+          personId: row.id,
+          suggestion: suggestion,
+          user:
+            JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
+          ...(photoUrl && { image: photoUrl }),
+        };
 
         try {
-          const response = await axios.post(cloudUrl, uploadData);
-          photoUrl = response.data.secure_url;
+          await axios.post(
+            `${import.meta.env.VITE_API_URL}/people/suggestions/`,
+            payload,
+            {
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+          return suggestion;
         } catch (error) {
-          Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
+          Swal.showValidationMessage(`Request failed: ${error}`);
         }
-      }
-
-      // API Payload
-      const payload = {
-        personId: row.id,
-        suggestion: suggestion,
-        user: JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
-        ...(photoUrl && { image: photoUrl }),
-      };
-
-      try {
-        await axios.post(`${import.meta.env.VITE_API_URL}/people/suggestions/`, payload, {
-          headers: { "Content-Type": "application/json" },
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Suggestion Submitted!",
+          text: "Your suggestion has been submitted successfully.",
+          icon: "success",
         });
-        return suggestion;
-      } catch (error) {
-        Swal.showValidationMessage(`Request failed: ${error}`);
       }
-    },
-    allowOutsideClick: () => !Swal.isLoading(),
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Swal.fire({
-        title: "Suggestion Submitted!",
-        text: "Your suggestion has been submitted successfully.",
-        icon: "success",
-      });
-    }
-  });
-};
-  
+    });
+  };
 
   const handleSearch = (criteria) => {
     const hasAnyCriteria = Object.values(criteria).some(
@@ -359,10 +373,11 @@ const handleSuggestionClick = (row) => {
       html: `
         <div style="text-align: left;">
           <p><strong>Suggestion:</strong> ${suggestion.suggestion}</p>
-          ${suggestion.image
-          ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
-          : "No Image"
-        }
+          ${
+            suggestion.image
+              ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
+              : "No Image"
+          }
         </div>
       `,
       showCloseButton: true,
@@ -425,7 +440,6 @@ const handleSuggestionClick = (row) => {
   //  filteredData = filteredData.data;
   const finalData = filteredData;
   const visibleData = finalData;
-  
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
@@ -434,8 +448,12 @@ const handleSuggestionClick = (row) => {
   };
 
   const convertToNepaliNumerals = (number) => {
-    const nepaliNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-    return number.toString().split('').map(digit => nepaliNumerals[digit]).join('');
+    const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+    return number
+      .toString()
+      .split("")
+      .map((digit) => nepaliNumerals[digit])
+      .join("");
   };
 
   console.log("Visible Data:", filteredData);
@@ -454,29 +472,32 @@ const handleSuggestionClick = (row) => {
           </div>
           {isAdminLocal && (
             <div className="flex gap-4">
-              <button
-                className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                  activeTab === "data"
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-700"
-                }`}
-                onClick={() => setActiveTab("data")}
-              >
-                View Table
-              </button>
-              <button
-                className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                  activeTab === "suggestions"
-                    ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                    : "bg-gray-300 text-gray-700"
-                }`}
-                onClick={() => {
-                  setActiveTab("suggestions");
-                  fetchSuggestions();
-                }}
-              >
-                View Suggestions
-              </button>
+              {activeTab !== "data" && (
+                <button
+                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
+                    activeTab === "data"
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-gray-300 text-gray-700"
+                  }`}
+                  onClick={() => navigate("/suggestions")}
+                >
+                  View Table
+                </button>
+              )}
+              {activeTab !== "suggestions" && (
+                <button
+                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
+                    activeTab === "suggestions"
+                      ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                      : "bg-gray-300 text-gray-700"
+                  }`}
+                  onClick={() => {
+                    navigate("/suggestions");
+                  }}
+                >
+                  View Suggestions
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -486,25 +507,23 @@ const handleSuggestionClick = (row) => {
             <div>
               {(id || searchApplied) && (
                 <button
-                className=" bg-zinc-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
-                onClick={() => {
-                  setFormData({
-                    username: "",
-                    pusta_number: "",
-                    father_name: "",
-                    mother_name: "",
-                    dob: "",
-                    lifestatus: "Alive",
-                    profession: "",
-                    gender: "Male",
-                  });
-                  setIsAdding(true);
-                }}
-              >
-                <span className="text-white">
-                  + Add New User
-                </span>
-              </button>
+                  className=" bg-zinc-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
+                  onClick={() => {
+                    setFormData({
+                      username: "",
+                      pusta_number: "",
+                      father_name: "",
+                      mother_name: "",
+                      dob: "",
+                      lifestatus: "Alive",
+                      profession: "",
+                      gender: "Male",
+                    });
+                    setIsAdding(true);
+                  }}
+                >
+                  <span className="text-white">+ Add New User</span>
+                </button>
               )}
             </div>
             <button
@@ -515,7 +534,6 @@ const handleSuggestionClick = (row) => {
               <span className="text-white">Search User</span>
             </button>
           </div>
-         
         </div>
         <div className="table-view-filters mt-10 p-4">
           <div className="flex items-center justify-between w-full">
@@ -530,8 +548,6 @@ const handleSuggestionClick = (row) => {
                 </button>
               )}
             </div>
-
-
           </div>
         </div>
 
@@ -541,13 +557,13 @@ const handleSuggestionClick = (row) => {
             next={handleLoadMore}
             hasMore={hasMore && visibleData.length >= 15}
             loader={
-    visibleData.length >= 15 ? (  // Only show loader when data is 15+
-      <div className="flex justify-center items-center h-screen">
-        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-      </div>
-    ) : null
-  }
-  style={{ overflow: "hidden" }}
+              visibleData.length >= 15 ? ( // Only show loader when data is 15+
+                <div className="flex justify-center items-center h-screen">
+                  <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                </div>
+              ) : null
+            }
+            style={{ overflow: "hidden" }}
           >
             {activeTab === "data" ? (
               <div className="table-wrapper">
@@ -563,9 +579,8 @@ const handleSuggestionClick = (row) => {
                       <th className="text-center">कार्यहरू</th>
                     </tr>
                   </thead>
-                  
-                  <tbody >
-                    
+
+                  <tbody>
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
@@ -587,11 +602,11 @@ const handleSuggestionClick = (row) => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
                                 ? {
-                                  bg: "bg-green-300 text-green-700",
-                                }
+                                    bg: "bg-green-300 text-green-700",
+                                  }
                                 : {
-                                  bg: "bg-orange-300 text-orange-700",
-                                };
+                                    bg: "bg-orange-300 text-orange-700",
+                                  };
                             return (
                               <div
                                 className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
@@ -615,7 +630,6 @@ const handleSuggestionClick = (row) => {
                           )}
                         </td>
                         <td className="text-center">
-                          
                           {row.mother ? (
                             <span
                               className="cursor-pointer text-blue-600 "
@@ -731,33 +745,56 @@ const handleSuggestionClick = (row) => {
                         </td>
 
                         {/* Show status or default to Pending */}
-                         <td className="text-center">
-  {suggestion.status === "Pending" ? (
-    <>
-      <button
-        onClick={(e) => handleAccept(e, suggestion.id, suggestion.suggestion, suggestion.image)}
-        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
-      >
-        <FaCheck />
-      </button>
-      <button
-        onClick={(e) => handleReject(e, suggestion.id, suggestion.suggestion, suggestion.image)}
-        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
-      >
-        <FaTimes />
-      </button>
-    </>
-  ) : (
-    <span className={
-      suggestion.status === "Approved" ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center" :
-      suggestion.status === "Rejected" ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center" : ""
-    }>
-      {suggestion.status === "Approved" && <FaCheck className="mr-1" />}
-      {suggestion.status === "Rejected" && <FaTimes className="mr-1" />}
-      {suggestion.status}
-    </span>
-  )}
-</td>
+                        <td className="text-center">
+                          {suggestion.status === "Pending" ? (
+                            <>
+                              <button
+                                onClick={(e) =>
+                                  handleAccept(
+                                    e,
+                                    suggestion.id,
+                                    suggestion.suggestion,
+                                    suggestion.image
+                                  )
+                                }
+                                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all"
+                              >
+                                <FaCheck />
+                              </button>
+                              <button
+                                onClick={(e) =>
+                                  handleReject(
+                                    e,
+                                    suggestion.id,
+                                    suggestion.suggestion,
+                                    suggestion.image
+                                  )
+                                }
+                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
+                              >
+                                <FaTimes />
+                              </button>
+                            </>
+                          ) : (
+                            <span
+                              className={
+                                suggestion.status === "Approved"
+                                  ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center"
+                                  : suggestion.status === "Rejected"
+                                  ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center"
+                                  : ""
+                              }
+                            >
+                              {suggestion.status === "Approved" && (
+                                <FaCheck className="mr-1" />
+                              )}
+                              {suggestion.status === "Rejected" && (
+                                <FaTimes className="mr-1" />
+                              )}
+                              {suggestion.status}
+                            </span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -783,10 +820,7 @@ const handleSuggestionClick = (row) => {
                   </thead>
                   <tbody>
                     {filteredData.map((row, index) => (
-                      <tr
-                        key={index}
-                        className=" hover:bg-gray-200"
-                      >
+                      <tr key={index} className=" hover:bg-gray-200">
                         <td className="text-center  ">
                           <img
                             src={
@@ -803,13 +837,13 @@ const handleSuggestionClick = (row) => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
                                 ? {
-                                  bg: "bg-green-300 text-green-700",
-                                  label: "Even Generation",
-                                }
+                                    bg: "bg-green-300 text-green-700",
+                                    label: "Even Generation",
+                                  }
                                 : {
-                                  bg: "bg-orange-300 text-orange-700",
-                                  label: "Odd Generation",
-                                };
+                                    bg: "bg-orange-300 text-orange-700",
+                                    label: "Odd Generation",
+                                  };
                             return (
                               <div
                                 className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
@@ -824,10 +858,7 @@ const handleSuggestionClick = (row) => {
                           {row.father?.name_in_nepali || "-"}
                         </td>
                         <td className="text-center">
-                       
-                          { 
-                          row.mother?.name_in_nepali || "-"
-                          }
+                          {row.mother?.name_in_nepali || "-"}
                         </td>
                         <td className="flex items-center py-12 space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
