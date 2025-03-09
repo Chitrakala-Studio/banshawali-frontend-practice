@@ -505,8 +505,8 @@ const handleSuggestionClick = (row) => {
                   + Add New User
                 </span>
               </button>
-              </div>
-            )}
+              )}
+            </div>
             <button
               className="bg-teal-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
               onClick={() => setShowSearchForm(true)}
