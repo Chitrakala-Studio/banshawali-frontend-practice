@@ -1,8 +1,10 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import Choices from "choices.js";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-
+import "choices.js/public/assets/styles/choices.css";
+import debounce from "lodash.debounce";
 const Compare = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -10,7 +12,8 @@ const Compare = () => {
 
   // Family members data used for suggestions
   const [familyMembers, setFamilyMembers] = useState([]);
-
+  const [pustaNumber, setPustaNumber] = useState("");
+  // const [rightNameSuggestions, setRightNameSuggestions] = useState([]);
   // State for right person's name suggestions
   const [rightNameSuggestions, setRightNameSuggestions] = useState([]);
   const [showRightNameSuggestions, setShowRightNameSuggestions] =
@@ -47,23 +50,94 @@ const Compare = () => {
   const [isLoading, setIsLoading] = useState(false); // For loading state
   const [apiError, setApiError] = useState(""); // For error handling
   const [familyTreeData, setFamilyTreeData] = useState(null); // API response data
-
+  
   // Suggestion function for right person's name
-  const fetchRightNameSuggestions = (pustaNumber, query) => {
-    return new Promise((resolve) => {
+  // const fetchRightNameSuggestions = (pustaNumber, query) => {
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       const suggestions = familyMembers.filter((member) => {
+  //         const matchesPusta = member.pusta_number === pustaNumber;
+  //         const matchesQuery =
+  //           query.trim() === "" ||
+  //           member.name.toLowerCase().includes(query.toLowerCase());
+  //         return matchesPusta && matchesQuery;
+  //       });
+  //       resolve(suggestions);
+  //     }, 500);
+  //   });
+  // };
+  const fetchSuggestions = async (pustaNumber, setRightNameSuggestions, rightNameSelectRef, setRightPerson) => {
+    if (!pustaNumber) return;
+  
+    try {
+      const response = await axios.get(`${API_URL}/people/people/familyrelations?pusta_number=${pustaNumber}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      console.log("API Response:", response.data);
+  
+      const name_suggestions = response.data.current_pusta_data || [];
+  
+      if (name_suggestions.length === 0) {
+        console.warn("No suggestions found for pusta_number:", pustaNumber);
+      }
+  
+      // Add delay before updating UI to prevent flickering
       setTimeout(() => {
-        const suggestions = familyMembers.filter((member) => {
-          const matchesPusta = member.pusta_number === pustaNumber;
-          const matchesQuery =
-            query.trim() === "" ||
-            member.name.toLowerCase().includes(query.toLowerCase());
-          return matchesPusta && matchesQuery;
-        });
-        resolve(suggestions);
-      }, 500);
-    });
+        setRightNameSuggestions(name_suggestions);
+  
+        if (rightNameSelectRef.current) {
+          const choices = new Choices(rightNameSelectRef.current, {
+            removeItemButton: true,
+            shouldSort: false,
+            searchEnabled: true,
+          });
+  
+          choices.clearChoices(); // Remove old choices
+  
+          choices.setChoices(
+            name_suggestions.map((sugg) => ({
+              value: sugg.name,
+              label: `${sugg.name} - ${sugg.father?.name || ""} | ${sugg.mother?.name || ""}`,
+            })),
+            "value",
+            "label",
+            true
+          );
+  
+          rightNameSelectRef.current.addEventListener("change", (event) => {
+            const selectedPerson = name_suggestions.find((sugg) => sugg.name === event.target.value);
+            if (selectedPerson) {
+              setRightPerson((prev) => ({
+                ...prev,
+                name: selectedPerson.name,
+                id: selectedPerson.id,
+                pusta_number: selectedPerson.pusta_number,
+                fatherName: selectedPerson.father?.name || "",
+                motherName: selectedPerson.mother?.name || "",
+                fatherId: selectedPerson.father?.id || "",
+                motherId: selectedPerson.mother?.id || "",
+              }));
+            }
+          });
+        }
+      }, 500); // Delay for 500ms
+  
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    }
   };
-
+  const debouncedFetch = useCallback(
+    debounce((pustaNumber) => {
+      fetchSuggestions(pustaNumber);
+    }, 1000), // 500ms delay
+    []
+  );
+  if (rightPerson.pusta_number) {
+    debouncedFetch(rightPerson.pusta_number);
+  }
+  
   // Suggestion function for right person's father's name
   const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
@@ -137,14 +211,14 @@ const Compare = () => {
     const fetchLeftPersonData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_URL}/people/${id}/`,{
+        const response = await fetch(`${API_URL}/people/${id}/`, {
           method: 'GET',
-          headers: {'Content-Type': 'application/json'}
+          headers: { 'Content-Type': 'application/json' }
         });
 
         const response_data = await response.json();
-      const fetchedData = response_data.data[0];
-      console.log(fetchedData);
+        const fetchedData = response_data.data[0];
+        console.log(fetchedData);
         setLeftPerson(fetchedData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -164,35 +238,77 @@ const Compare = () => {
 
     fetchLeftPersonData();
   }, [id]);
-
+  const rightNameSelectRef = useRef(null);
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (rightPerson.pusta_number) {
-        try {
-          const response = await axios.get(
-            `${API_URL}/people/people/familyrelations?pusta_number=${rightPerson.pusta_number}`,{
-              method: "GET",
-              headers: { "Content-Type": "application/json" },
-            }
+      if (!rightPerson.pusta_number) return;
 
-          );
-          const name_suggestions = response.data.current_pusta_data;
-          const fatherSuggestions = response.data.father_pusta;
-          const motherSuggestions = response.data.mother_pusta;
-          console.log("RIGHT NAME",name_suggestions);
-          console.log("RIGHT FATHER",fatherSuggestions);
-          console.log("RIGHT MOTHER",motherSuggestions);
-          setRightNameSuggestions(name_suggestions);
-          setRightFatherSuggestions(fatherSuggestions);
-          setRightMotherSuggestions(motherSuggestions);
-        } catch (error) {
-          console.error("Error fetching suggestions:", error);
+      try {
+        const response = await axios.get(
+          `${API_URL}/people/people/familyrelations?pusta_number=${rightPerson.pusta_number}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        console.log("API Response:", response.data);
+
+        const name_suggestions = response.data.current_pusta_data || [];
+
+        if (name_suggestions.length === 0) {
+          console.warn("No suggestions found for pusta_number:", rightPerson.pusta_number);
         }
+
+        // Delay setting state to allow complete data to be received
+        setTimeout(() => {
+          setRightNameSuggestions(name_suggestions);
+
+          if (rightNameSelectRef.current) {
+            const choices = new Choices(rightNameSelectRef.current, {
+              removeItemButton: true,
+              shouldSort: false,
+              searchEnabled: true,
+            });
+
+            choices.clearChoices(); // Ensure old choices are removed
+
+            choices.setChoices(
+              name_suggestions.map((sugg) => ({
+                value: sugg.name,
+                label: `${sugg.name} - ${sugg.father?.name || ""} | ${sugg.mother?.name || ""}`,
+              })),
+              "value",
+              "label",
+              true
+            );
+
+            rightNameSelectRef.current.addEventListener("change", (event) => {
+              const selectedPerson = name_suggestions.find((sugg) => sugg.name === event.target.value);
+              if (selectedPerson) {
+                setRightPerson((prev) => ({
+                  ...prev,
+                  name: selectedPerson.name,
+                  id: selectedPerson.id,
+                  pusta_number: selectedPerson.pusta_number,
+                  fatherName: selectedPerson.father?.name || "",
+                  motherName: selectedPerson.mother?.name || "",
+                  fatherId: selectedPerson.father?.id || "",
+                  motherId: selectedPerson.mother?.id || "",
+                }));
+              }
+            });
+          }
+        }, 500); // **Delay UI update by 500ms**
+
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
       }
     };
 
+
     fetchSuggestions();
-  }, [rightPerson.pusta_number, API_URL]);
+  }, [rightPerson.pusta_number]);
 
   const handleCompare = async () => {
 
@@ -369,23 +485,10 @@ const Compare = () => {
 
             <div className="w-full relative">
               <label className="block mb-2 text-sm md:text-base">Name</label>
-              <input
-                type="text"
-                placeholder="Enter Full Name"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.name || ""}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  
-                }}
-                onFocus={() => {
-                  setShowRightNameSuggestions(true);
-                }}
-                onBlur={() => {
-                  setTimeout(() => setShowRightNameSuggestions(false), 150);
-                }}
-                disabled={isRightConfirmed}
-              />
+              {/* className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base" */}
+              <select ref={rightNameSelectRef} id="rightNameSelect" className="px-4 py-2  bg-white border rounded w-full text-sm md:text-base">
+                <option value="">Select Name</option>
+              </select>
               {showRightNameSuggestions && rightNameSuggestions.length > 0 && (
                 <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
                   {rightNameSuggestions.map((sugg, index) => (
@@ -452,10 +555,10 @@ const Compare = () => {
                         {sugg.father?.name && sugg.mother?.name
                           ? `- ${sugg.father.name} | ${sugg.mother.name}`
                           : sugg.father?.name
-                          ? `- ${sugg.father.name}`
-                          : sugg.mother?.name
-                          ? `- ${sugg.mother.name}`
-                          : ""}
+                            ? `- ${sugg.father.name}`
+                            : sugg.mother?.name
+                              ? `- ${sugg.mother.name}`
+                              : ""}
                       </span>
                     </li>
                   ))}
