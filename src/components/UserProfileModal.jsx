@@ -45,14 +45,15 @@ const UserProfileModal = ({ user, onClose }) => {
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
         )}
-        <strong style={{ marginRight: "4px" }}>Gender:</strong> {user.gender}
+        <strong style={{ marginRight: "7px" }}>Gender</strong>
+        {user.gender}
       </p>
       {user.dateOfBirth && (
         <p style={{ display: "flex", alignItems: "center" }}>
           <FaBirthdayCake
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Date of Birth:</strong>{" "}
+          <strong style={{ marginRight: "7px" }}>Date of Birth</strong>{" "}
           {user.dateOfBirth}
         </p>
       )}
@@ -61,7 +62,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <FaHeart
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Life Status:</strong>{" "}
+          <strong style={{ marginRight: "14px" }}>Status</strong>
           {user.lifestatus}
         </p>
       )}
@@ -70,7 +71,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <FaSkullCrossbones
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Date of Death:</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Date of Death</strong>{" "}
           {user.date_of_death}
         </p>
       )}
@@ -79,7 +80,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <Briefcase
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Profession:</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Profession</strong>{" "}
           {user.profession}
         </p>
       )}
@@ -98,7 +99,7 @@ const UserProfileModal = ({ user, onClose }) => {
               color: "#3B82F6",
             }}
           />
-          <strong style={{ marginRight: "4px" }}>Grandfather:</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Grandfather</strong>{" "}
           {user.grandfather.name_in_nepali}
         </p>
       )}
@@ -112,7 +113,7 @@ const UserProfileModal = ({ user, onClose }) => {
               color: "#EC4899",
             }}
           />
-          <strong style={{ marginRight: "4px" }}>Grandmother:</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Grandmother</strong>{" "}
           {user.grandmother.name_in_nepali}
         </p>
       )}
@@ -126,7 +127,7 @@ const UserProfileModal = ({ user, onClose }) => {
               color: "#3B82F6",
             }}
           />
-          <strong style={{ marginRight: "4px" }}>Father:</strong>
+          <strong style={{ marginRight: "2.5rem" }}>Father</strong>
           <Link
             to={`/${user.father.id}`}
             style={{ color: "#3B82F6", marginLeft: "4px" }}
@@ -145,7 +146,7 @@ const UserProfileModal = ({ user, onClose }) => {
               color: "#EC4899",
             }}
           />
-          <strong style={{ marginRight: "4px" }}>Mother:</strong>
+          <strong style={{ marginRight: "2.5rem" }}>Mother</strong>
           <Link
             to={`/${user.mother.id}`}
             style={{ color: "#3B82F6", marginLeft: "4px" }}
@@ -154,7 +155,7 @@ const UserProfileModal = ({ user, onClose }) => {
           </Link>
         </p>
       )}
-       {user.spouse && user.spouse.length > 0 && (
+      {user.spouse && user.spouse.length > 0 && (
         <div>
           <p
             style={{
@@ -166,7 +167,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <Users
               style={{ width: "20px", height: "20px", marginRight: "8px" }}
             />{" "}
-            Spouse:
+            Spouse
           </p>
           {user.spouse.map((spouse) => (
             <p
@@ -174,7 +175,7 @@ const UserProfileModal = ({ user, onClose }) => {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginLeft: "1.75rem",
+                marginLeft: "4rem",
               }}
             >
               <FaUser
@@ -202,7 +203,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <FaUser
               style={{ width: "20px", height: "20px", marginRight: "8px" }}
             />{" "}
-            Siblings:
+            Siblings
           </p>
           {user.siblings.map((sibling) => (
             <p
@@ -210,7 +211,7 @@ const UserProfileModal = ({ user, onClose }) => {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginLeft: "1.75rem",
+                marginLeft: "6.3rem",
               }}
             >
               <FaUser
@@ -238,7 +239,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <Users
               style={{ width: "20px", height: "20px", marginRight: "8px" }}
             />{" "}
-            Children:
+            Children
           </p>
           {user.children.map((child) => (
             <p
@@ -246,7 +247,7 @@ const UserProfileModal = ({ user, onClose }) => {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginLeft: "1.75rem",
+                marginLeft: "6.5rem",
               }}
             >
               <FaUser
@@ -270,7 +271,7 @@ const UserProfileModal = ({ user, onClose }) => {
       {user.contact_details?.email && (
         <p style={{ display: "flex", alignItems: "center" }}>
           <Mail style={{ width: "20px", height: "20px", marginRight: "8px" }} />
-          <strong style={{ marginRight: "4px" }}>Email:</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Email </strong>{" "}
           {user.contact_details.email}
         </p>
       )}
@@ -279,7 +280,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <Phone
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Phone:</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Phone </strong>{" "}
           {user.contact_details.phone}
         </p>
       )}
@@ -288,7 +289,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <MapPin
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Address:</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Address </strong>{" "}
           {user.contact_details.address}
         </p>
       )}
@@ -340,48 +341,49 @@ const UserProfileModal = ({ user, onClose }) => {
           }}
         >
           {user.photo ? (
-    <img
-      src={user.photo}
-      alt={user.name}
-      style={{
-        width: "150px",
-        height: "150px",
-        borderRadius: "0", // Square shape
-        objectFit: "cover",
-        marginRight: "16px",
-        border: "2px solid #D1D5DB",
-      }}
-    />
-  ) : user.gender === "Male" ? (
-    <img src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-      style={{
-        width: "150px",
-        height: "150px",
-        marginRight: "16px",
-        border: "2px solid #D1D5DB",
-      }}
-    />
-  ) : (
-    <img src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
-      style={{
-        width: "150px",
-        height: "150px",
-        marginRight: "16px",
-        border: "2px solid #D1D5DB",
-      }}
-    />
-  )}
+            <img
+              src={user.photo}
+              alt={user.name}
+              style={{
+                width: "150px",
+                height: "150px",
+                borderRadius: "0", // Square shape
+                objectFit: "cover",
+                marginRight: "16px",
+                border: "2px solid #D1D5DB",
+              }}
+            />
+          ) : user.gender === "Male" ? (
+            <img
+              src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+              style={{
+                width: "150px",
+                height: "150px",
+                marginRight: "16px",
+                border: "2px solid #D1D5DB",
+              }}
+            />
+          ) : (
+            <img
+              src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+              style={{
+                width: "150px",
+                height: "150px",
+                marginRight: "16px",
+                border: "2px solid #D1D5DB",
+              }}
+            />
+          )}
           <div>
             <h2
               style={{ fontSize: "24px", fontWeight: "bold", color: "#1F2937" }}
             >
               {user.name_in_nepali}
-             
             </h2>
             <p
               style={{ color: "#4B5563", fontStyle: "italic", margin: "4px 0" }}
             >
-               {user.name}
+              {user.name}
             </p>
             <p style={{ color: "#4B5563", fontStyle: "italic" }}>{user.bio}</p>
           </div>

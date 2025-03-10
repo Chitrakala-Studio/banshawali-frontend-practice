@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Circles } from 'react-loader-spinner';
+import { Circles } from "react-loader-spinner";
 
 import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
@@ -11,6 +11,7 @@ import ToggleView from "./ToggleView";
 import FooterButtons from "./FooterButtons";
 import NavigationButtons from "./NavigationButtons";
 import FamilyTreeCardButton from "./FamilyTreeCardButton"; // Import FamilyTreeCardButton
+import SearchForm from "./SearchForm";
 
 const CardView = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const CardView = () => {
   const [error, setError] = useState(null); // Error state
   const [nextIndex, setNextIndex] = useState(0);
   const [previousIndex, setPreviousIndex] = useState(0);
-
+  const [showSearchPopup, setShowSearchPopup] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -50,17 +51,15 @@ const CardView = () => {
 
         const url = `${API_URL}/people/${id}/`;
         console.log("Fetching URL:", url);
-        const response = await fetch(url , 
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          }
-        );
+        const response = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
         const result = await response.json();
         const result_data = result.data;
-        console.log(result_data)
+        console.log(result_data);
 
         setData(result_data); // Set the fetched data
         setPreviousIndex(result.previous);
@@ -73,11 +72,11 @@ const CardView = () => {
           setCurrentIndex(0);
         } else {
           // If the id doesn't exist, navigate to the first item
-          navigate(`/`); 
+          navigate(`/`);
         }
       } catch (error) {
         // setError(error.toString()); // Set error if API call fails
-        setError(typeof(id));
+        setError(typeof id);
         setLoading(false);
       }
     };
@@ -107,6 +106,18 @@ const CardView = () => {
       setIsExpanded(true);
     }
   };
+
+  const handleSearchResults = (results) => {
+    if (results && results.length > 0) {
+      setData(results); // Overwrite the displayed cards with search results
+      setCurrentIndex(0);
+    } else {
+      // Optionally handle "no results" case
+      setData([]);
+    }
+    setShowSearchPopup(false); // Close the search popup
+  };
+
   // Scroll to the previous card with circular navigation
   const scrollLeft = () => {
     const newIndex = previousIndex;
@@ -169,8 +180,12 @@ const CardView = () => {
   }
 
   const convertToNepaliNumerals = (number) => {
-    const nepaliNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-    return number.toString().split('').map(digit => nepaliNumerals[digit]).join('');
+    const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+    return number
+      .toString()
+      .split("")
+      .map((digit) => nepaliNumerals[digit])
+      .join("");
   };
 
   return (
@@ -184,8 +199,20 @@ const CardView = () => {
           />
         )}
 
-        <div className={isMobile? " w-[98vw]  h-[98vh] m-auto rounded-2xl overflow-auto ": "w-[40vw] h-[98vh] m-auto rounded-2xl overflow-auto"}>
-          <div className={ isMobile?" w-[98vw] h-[96vh] m-auto rounded-2xl overflow-hidden ":" w-[40vw] h-[96vh] m-auto rounded-2xl overflow-hidden"}>
+        <div
+          className={
+            isMobile
+              ? " w-[98vw]  h-[98vh] m-auto rounded-2xl overflow-auto "
+              : "w-[40vw] h-[98vh] m-auto rounded-2xl overflow-auto"
+          }
+        >
+          <div
+            className={
+              isMobile
+                ? " w-[98vw] h-[96vh] m-auto rounded-2xl overflow-hidden "
+                : " w-[40vw] h-[96vh] m-auto rounded-2xl overflow-hidden"
+            }
+          >
             {/* Navigation Buttons */}
             {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
 
@@ -229,7 +256,6 @@ const CardView = () => {
                         ? "w-full h-[99.8%]  object-cover select-none"
                         : "w-full h-[78vh] object-cover select-none"
                     }
-                   
                   />
                   {/* Buttons Section */}
                   <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
@@ -281,7 +307,9 @@ const CardView = () => {
                     >
                       <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5  z-20">
                         {/* {data[currentIndex].pusta_number} */}
-                        {convertToNepaliNumerals(data[currentIndex].pusta_number)}
+                        {convertToNepaliNumerals(
+                          data[currentIndex].pusta_number
+                        )}
                       </div>
                       <button
                         className="pr-4 text-white text-xl"
@@ -320,6 +348,7 @@ const CardView = () => {
                   onGenerateFamilyTree={handleFooterGenerate}
                   infoPopup={infoPopup}
                   isMobile={isMobile}
+                  onSearchButtonClick={() => setShowSearchPopup(true)}
                 />
               </div>
             </div>
@@ -352,6 +381,21 @@ const CardView = () => {
           </div>
         </div>
       </div>
+      {showSearchPopup && (
+        <SearchForm
+          initialCriteria={{
+            name: "",
+            pusta_number: "",
+            phone_number: "",
+            email: "",
+            father_name: "",
+            mother_name: "",
+            same_vamsha_status: false,
+          }}
+          onSearch={handleSearchResults}
+          onClose={() => setShowSearchPopup(false)}
+        />
+      )}
     </>
   );
 };
