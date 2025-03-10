@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheck, FaEye, FaTimes } from "react-icons/fa";
 
 const Suggestion = () => {
   const [suggestions, setSuggestions] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -68,7 +68,6 @@ const Suggestion = () => {
   };
 
   const handleAccept = (e, id, suggestion, image) => {
-    // Prevent event from bubbling to the row
     e.stopPropagation();
     updateSuggestionStatus(id, "Approved", suggestion, image);
   };
@@ -78,7 +77,6 @@ const Suggestion = () => {
     updateSuggestionStatus(id, "Rejected", suggestion, image);
   };
 
-  // Opens a SweetAlert modal with suggestion details
   const handleViewClick = (suggestion) => {
     Swal.fire({
       title: "Suggestion Details",
@@ -97,30 +95,41 @@ const Suggestion = () => {
     });
   };
 
+  const convertToNepaliNumerals = (number) => {
+    const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+    return number
+      .toString()
+      .split("")
+      .map((digit) => (digit === "/" ? "/" : nepaliNumerals[digit]))
+      .join("");
+  };
+
   return (
     <div className="table-wrapper">
       <InfiniteScroll
         dataLength={suggestions.length}
         next={() => {
-          const nextPage = Math.floor(suggestions.length / 15) + 1;
-          fetchSuggestions(nextPage);
+          if (hasMore) {
+            const nextPage = Math.floor(suggestions.length / 15) + 1;
+            fetchSuggestions(nextPage);
+          }
         }}
         hasMore={hasMore}
         loader={
-          <div className="flex justify-center items-center h-screen">
-            <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-          </div>
+          hasMore ? (
+            <div className="flex justify-center items-center h-screen">
+              <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            </div>
+          ) : null
         }
         style={{ overflow: "hidden" }}
       >
         <table className="ml-3 w-full">
           <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
             <tr className="text-center">
-              <th className="text-center">Suggestion</th>
-              <th className="text-center">Image</th>
-              <th className="text-center">Date</th>
-              <th className="text-center">View</th>
-              <th className="text-center">Actions</th>
+              <th className="text-center">सुझाव</th>
+              <th className="text-center">मिति</th>
+              <th className="text-center">कार्यहरू</th>
             </tr>
           </thead>
           <tbody>
@@ -130,32 +139,9 @@ const Suggestion = () => {
                 className="border-b-2 border-gray-700 text-center hover:bg-gray-100"
               >
                 <td className="text-center">{suggestion.suggestion}</td>
-                <td className="text-center">
-                  {suggestion.image ? (
-                    <img
-                      src={
-                        suggestion.image.startsWith("http")
-                          ? suggestion.image
-                          : `${API_URL}${suggestion.image}`
-                      }
-                      alt="Suggestion"
-                      className="w-10 h-10 object-cover rounded-full inline-block"
-                    />
-                  ) : (
-                    "No Image"
-                  )}
-                </td>
-                <td className="text-center">
-                  {new Date(suggestion.date).toLocaleDateString()}
-                </td>
 
                 <td className="text-center">
-                  <button
-                    onClick={() => handleViewClick(suggestion)}
-                    className="bg-indigo-500 text-white px-2 py-1 rounded hover:bg-indigo-600 transition-all"
-                  >
-                    View
-                  </button>
+                  {convertToNepaliNumerals(new Date(suggestion.date).toLocaleDateString())}
                 </td>
 
                 <td className="text-center">
@@ -187,25 +173,41 @@ const Suggestion = () => {
                       >
                         <FaTimes />
                       </button>
+                      {/* View Button */}
+                      <button
+                        onClick={() => handleViewClick(suggestion)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all ml-2"
+                      >
+                        <FaEye />
+                      </button>
                     </>
                   ) : (
-                    <span
-                      className={
-                        suggestion.status === "Approved"
-                          ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center"
-                          : suggestion.status === "Rejected"
-                          ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center"
-                          : ""
-                      }
-                    >
-                      {suggestion.status === "Approved" && (
-                        <FaCheck className="mr-1" />
-                      )}
-                      {suggestion.status === "Rejected" && (
-                        <FaTimes className="mr-1" />
-                      )}
-                      {suggestion.status}
-                    </span>
+                    <>
+                      <span
+                        className={
+                          suggestion.status === "Approved"
+                            ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center"
+                            : suggestion.status === "Rejected"
+                            ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center"
+                            : ""
+                        }
+                      >
+                        {suggestion.status === "Approved" && (
+                          <FaCheck className="mr-1" />
+                        )}
+                        {suggestion.status === "Rejected" && (
+                          <FaTimes className="mr-1" />
+                        )}
+                        {suggestion.status}
+                      </span>
+                      {/* View Button */}
+                      <button
+                        onClick={() => handleViewClick(suggestion)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all ml-2"
+                      >
+                        <FaEye />
+                      </button>
+                    </>
                   )}
                 </td>
               </tr>
