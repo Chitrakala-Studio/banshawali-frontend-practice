@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import debounce from "lodash.debounce";
+import { FaSearch } from "react-icons/fa";
 
 const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
   const [criteria, setCriteria] = useState(initialCriteria);
@@ -77,7 +78,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
         </button>
 
         <h2 className="text-xl font-bold text-blue-400 mb-3 text-center">
-          Search
+          Search User
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -194,6 +195,8 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
               type="submit"
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm transition-colors"
             >
+              {/* Icon */}
+              <FaSearch className="inline-block mr-1" />
               Search
             </button>
           </div>

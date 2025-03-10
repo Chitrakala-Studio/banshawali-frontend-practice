@@ -588,13 +588,15 @@ const TableView = () => {
                         className="border-b-2  border-gray-700 hover:bg-gray-200"
                       >
                         <td className="text-center">
-                          <img
+                        <img
                             src={
                               row.photo ||
-                              "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                              (row.gender === "Male"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg")
                             }
                             alt="Profile"
-                            className="w-10 h-6 text-lg rounded-full object-cover"
+                            className="w-14 h-14 rounded-full object-cover"
                           />
                           {row.name_in_nepali}
                         </td>
@@ -647,12 +649,12 @@ const TableView = () => {
                           {row.gender?.toLowerCase() === "male" ? (
                             <>
                               <FaMale className="text-blue-500 text-lg" />
-                              <span className="font-medium">Male</span>
+                              <span className="font-medium">पुरुष</span>
                             </>
                           ) : row.gender?.toLowerCase() === "female" ? (
                             <>
                               <FaFemale className="text-pink-500 text-lg" />
-                              <span className="font-medium">Female</span>
+                              <span className="font-medium">महिला</span>
                             </>
                           ) : (
                             <span>-</span>
@@ -718,13 +720,13 @@ const TableView = () => {
                 <table className="ml-3 w-full">
                   <thead className="text-center  bg-gray-100">
                     <tr>
-                      <th className="text-center">Name</th>
-                      <th className="text-center">Pusta Number</th>
-                      <th className="text-center">Father Name</th>
-                      <th className="text-center">Mother Name</th>
-                      <th className="text-center">Gender</th>
-                      <th className="text-center">Age</th>
-                      <th className="text-center">Actions</th>
+                    <th className="text-center">नाम</th>
+                      <th className="text-center">पुस्ता नम्बर</th>
+                      <th className="text-center">बाबुको नाम</th>
+                      <th className="text-center">आमाको नाम</th>
+                      <th className="text-center">लिङ्ग</th>
+                      <th className="text-center">उमेर</th>
+                      <th className="text-center">कार्यहरू</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -734,10 +736,12 @@ const TableView = () => {
                           <img
                             src={
                               row.photo ||
-                              "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                              (row.gender === "Male"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg")
                             }
                             alt="Profile"
-                            className="w-14 h-14 rounded-full object-cover "
+                            className="w-14 h-14 rounded-full object-cover"
                           />
                           {row.name_in_nepali}
                         </td>
@@ -747,41 +751,39 @@ const TableView = () => {
                               row.pusta_number % 2 === 0
                                 ? {
                                     bg: "bg-green-300 text-green-700",
-                                    label: "Even Generation",
                                   }
                                 : {
                                     bg: "bg-orange-300 text-orange-700",
-                                    label: "Odd Generation",
                                   };
                             return (
                               <div
                                 className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
                                 title={genColorClass.label}
                               >
-                                {row.pusta_number}
+                                {convertToNepaliNumerals(row.pusta_number)}
                               </div>
                             );
                           })()}
                         </td>
                         <td className="text-center">
-                          {row.father?.name_in_nepali || "-"}
+                          {row.father?.name_in_nepali || ""}
                         </td>
                         <td className="text-center">
-                          {row.mother?.name_in_nepali || "-"}
+                          {row.mother?.name_in_nepali || ""}
                         </td>
                         <td className="flex items-center py-12 space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
                             <>
                               <FaMale className="text-blue-500 text-lg" />
-                              <span className="font-medium">Male</span>
+                              <span className="font-medium">पुरुष</span>
                             </>
                           ) : row.gender?.toLowerCase() === "female" ? (
                             <>
                               <FaFemale className="text-pink-500 text-lg" />
-                              <span className="font-medium">Female</span>
+                              <span className="font-medium">महिला</span>
                             </>
                           ) : (
-                            <span>-</span>
+                            <span></span>
                           )}
                         </td>
                         <td className="text-center">
