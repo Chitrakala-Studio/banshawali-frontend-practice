@@ -22,7 +22,7 @@ import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
 import ToggleView from "./ToggleView";
 import SearchForm from "./SearchForm";
-import { useNavigate, Link, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
 import { useDropzone } from "react-dropzone";
@@ -66,6 +66,7 @@ const TableView = () => {
     mother_name: "",
     same_vamsha_status: true,
   });
+
   const handleAccept = (e, id, suggestion, image) => {
     e.stopPropagation();
     updateSuggestionStatus(id, "Approved", suggestion, image);
@@ -163,19 +164,17 @@ const TableView = () => {
     console.log("Suggestion Clicked:", row);
     Swal.fire({
       title: `Submit Suggestion for ${row.name_in_nepali}`,
-
       html: `
        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-    <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px;"></textarea>
-    <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
-      <div id="file-picker" style="height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; ">
-        <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
-        Drag & drop an image here or click to select 
-        <input type="file" id="file-input" accept="image/*" style="display: none;">
-      </div>
-    </div>
-    `,
-
+       <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px;"></textarea>
+       <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
+         <div id="file-picker" style="height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+           <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
+           Drag & drop an image here or click to select 
+           <input type="file" id="file-input" accept="image/*" style="display: none;">
+         </div>
+       </div>
+      `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
       showCancelButton: true,
@@ -211,16 +210,13 @@ const TableView = () => {
             dropzoneContainer.file = file; // Store file for later use
           }
         });
-
         dropzoneContainer.addEventListener("dragover", (event) => {
           event.preventDefault();
           dropzoneContainer.style.borderColor = "blue";
         });
-
         dropzoneContainer.addEventListener("dragleave", () => {
           dropzoneContainer.style.borderColor = "gray";
         });
-
         dropzoneContainer.addEventListener("drop", (event) => {
           event.preventDefault();
           const file = event.dataTransfer.files[0];
@@ -235,17 +231,14 @@ const TableView = () => {
         const dropzoneContainer = document.getElementById("dropzone-container");
         const file = dropzoneContainer.file;
         let photoUrl = "";
-
         if (file) {
           // Cloudinary Upload Setup
           const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
           const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
           const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-
           const uploadData = new FormData();
           uploadData.append("file", file);
           uploadData.append("upload_preset", uploadPreset);
-
           try {
             const response = await axios.post(cloudUrl, uploadData);
             photoUrl = response.data.secure_url;
@@ -253,7 +246,6 @@ const TableView = () => {
             Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
           }
         }
-
         // API Payload
         const payload = {
           personId: row.id,
@@ -262,7 +254,6 @@ const TableView = () => {
             JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
           ...(photoUrl && { image: photoUrl }),
         };
-
         try {
           await axios.post(
             `${import.meta.env.VITE_API_URL}/people/suggestions/`,
@@ -303,6 +294,7 @@ const TableView = () => {
     setShowSearchForm(false);
   };
 
+  // Renamed handleGoBack to now be used for "View All Table"
   const handleGoBack = () => {
     if (id) {
       navigate("/");
@@ -319,17 +311,10 @@ const TableView = () => {
 
   const updateSuggestionStatus = async (id, newStatus, suggestion, image) => {
     try {
-      const payload = {
-        status: newStatus,
-        suggestion: suggestion,
-        image: image,
-        id: id,
-      }; // payload contains the new status
-      // Send the PUT request to update the suggestion (assuming your API supports this)
+      const payload = { status: newStatus, suggestion, image, id };
       await axios.put(`${API_URL}/people/suggestions/${id}/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
-      // Update the local state so that the table reflects the new status
       setSuggestions((prevSuggestions) =>
         prevSuggestions.map((suggestion) =>
           suggestion.id === id
@@ -368,6 +353,7 @@ const TableView = () => {
     }
     return age === 0 ? "-" : convertToNepaliNumerals(age);
   };
+
   const handleRowClick = (suggestion) => {
     Swal.fire({
       title: "Suggestion Details",
@@ -438,7 +424,7 @@ const TableView = () => {
       }
     });
   };
-  //  filteredData = filteredData.data;
+
   const finalData = filteredData;
   const visibleData = finalData;
 
@@ -462,24 +448,32 @@ const TableView = () => {
   return (
     <div className="table-view transition-all duration-300 relative">
       <div className={isModalOpen ? "blurred" : ""}>
+        {/* Top Bar */}
         <div className="flex items-center justify-between w-full mb-4">
           <div className="flex items-center gap-4">
             <ToggleView
               isTableView={isTableView}
               toggleView={() => setIsTableView(!isTableView)}
               availableId={visibleData.length > 0 ? visibleData[0].id : null}
-              className=""
             />
           </div>
           {isAdminLocal && (
             <div className="flex gap-4">
+              {/* View Table */}
               {activeTab !== "data" && (
                 <button
-                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                    activeTab === "data"
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-gray-300 text-gray-700"
-                  }`}
+                  className="
+                 px-4 py-2
+                 rounded-md
+                 shadow-md
+                 text-white
+                 focus:outline-none
+                 transition-all
+                 hover:scale-110
+                 hover:shadow-lg
+                 bg-indigo-600
+                 hover:bg-indigo-700
+               "
                   onClick={() => navigate("/")}
                 >
                   View Table
@@ -487,28 +481,57 @@ const TableView = () => {
               )}
               {activeTab !== "suggestions" && (
                 <button
-                  className={`px-6 py-2 rounded-md transition-all shadow-md ${
-                    activeTab === "suggestions"
-                      ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                      : "bg-gray-300 text-gray-700"
-                  }`}
-                  onClick={() => {
-                    navigate("/suggestions");
-                  }}
+                  className="
+                   px-4 py-2
+                   rounded-md
+                   shadow-md
+                   text-white
+                   focus:outline-none
+                   transition-all
+                   hover:scale-110
+                   hover:shadow-lg
+                   bg-purple-600
+                   hover:bg-purple-700
+                 "
+                  onClick={() => navigate("/suggestions")}
                 >
                   View Suggestions
                 </button>
               )}
-            </div>
-          )}
-        </div>
-
-        <div className="table-view-filters mt-10 p-4">
-          <div className="flex items-center justify-between w-full">
-            <div>
-              {(id || searchApplied) && (
+              <button
+                className="
+          px-4 py-2
+          rounded-md
+          shadow-md
+          text-white
+          focus:outline-none
+          transition-all
+          hover:scale-110
+          hover:shadow-lg
+          bg-blue-600
+          hover:bg-blue-700
+          flex items-center space-x-2
+        "
+                onClick={() => setShowSearchForm(true)}
+              >
+                <FaSearch />
+                <span>Search User</span>
+              </button>
+              {activeTab === "data" && (
                 <button
-                  className=" bg-zinc-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
+                  className="
+                  px-4 py-2
+                  rounded-md
+                  shadow-md
+                  text-white
+                  focus:outline-none
+                  transition-all
+                  hover:scale-110
+                  hover:shadow-lg
+                  bg-green-600
+                  hover:bg-green-700
+                  flex items-center space-x-2
+                "
                   onClick={() => {
                     setFormData({
                       username: "",
@@ -523,42 +546,43 @@ const TableView = () => {
                     setIsAdding(true);
                   }}
                 >
-                  <span className="text-white">+ Add New User</span>
+                  <span>+ Add New User</span>
                 </button>
               )}
-            </div>
-            <button
-              className="bg-teal-700 text-white border-black/10 px-6 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
-              onClick={() => setShowSearchForm(true)}
-            >
-              <FaSearch className="text-white" />
-              <span className="text-white">Search User</span>
-            </button>
-          </div>
-        </div>
-        <div className="table-view-filters mt-10 p-4">
-          <div className="flex items-center justify-between w-full">
-            <div>
+              {/* Conditionally show "View All Table" button when (id || searchApplied) is true */}
               {(id || searchApplied) && (
                 <button
                   onClick={handleGoBack}
-                  className=" bg-zinc-400 border-black/10 px-6 py-2 rounded-md  text-white focus:outline-none hover:bg-black/40 hover:scale-110 hover:border-slate-400 hover:shadow-lg transition-all shadow-md flex items-center space-x-2   "
+                  className="
+                 px-4 py-2
+                 rounded-md
+                 shadow-md
+                 text-white
+                 focus:outline-none
+                 transition-all
+                 hover:scale-110
+                 hover:shadow-lg
+                 bg-gray-600
+                 hover:bg-gray-700
+                 flex items-center space-x-2
+               "
                 >
                   <FaArrowLeft />
-                  <span>Go back</span>
+                  <span>View All Table</span>
                 </button>
               )}
             </div>
-          </div>
+          )}
         </div>
 
+        {/* Main Content */}
         {!id ? (
           <InfiniteScroll
             dataLength={visibleData.length}
             next={handleLoadMore}
             hasMore={hasMore && visibleData.length >= 15}
             loader={
-              visibleData.length >= 15 ? ( // Only show loader when data is 15+
+              visibleData.length >= 15 ? (
                 <div className="flex justify-center items-center h-screen">
                   <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
                 </div>
@@ -580,12 +604,11 @@ const TableView = () => {
                       <th className="text-center">कार्यहरू</th>
                     </tr>
                   </thead>
-
                   <tbody>
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2  border-gray-700 hover:bg-gray-200"
+                        className="border-b-2 border-gray-700 hover:bg-gray-200"
                       >
                         <td className="text-center">
                           <img
@@ -602,16 +625,11 @@ const TableView = () => {
                           {(() => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
-                                ? {
-                                    bg: "bg-green-300 text-green-700",
-                                  }
-                                : {
-                                    bg: "bg-orange-300 text-orange-700",
-                                  };
+                                ? { bg: "bg-green-300 text-green-700" }
+                                : { bg: "bg-orange-300 text-orange-700" };
                             return (
                               <div
                                 className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
-                                title={genColorClass.label}
                               >
                                 {convertToNepaliNumerals(row.pusta_number)}
                               </div>
@@ -621,7 +639,7 @@ const TableView = () => {
                         <td className="text-center">
                           {row.father ? (
                             <span
-                              className="cursor-pointer text-blue-600 "
+                              className="cursor-pointer text-blue-600"
                               onClick={() => navigate(`/${row.father.id}`)}
                             >
                               {row.father.name_in_nepali}
@@ -633,7 +651,7 @@ const TableView = () => {
                         <td className="text-center">
                           {row.mother ? (
                             <span
-                              className="cursor-pointer text-blue-600 "
+                              className="cursor-pointer text-blue-600"
                               onClick={() => navigate(`//${row.mother.id}`)}
                             >
                               {row.mothername_in_nepali}
@@ -642,7 +660,6 @@ const TableView = () => {
                             "-"
                           )}
                         </td>
-
                         <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
                             <>
@@ -716,7 +733,7 @@ const TableView = () => {
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
-                  <thead className="text-center  bg-gray-100">
+                  <thead className="text-center bg-gray-100">
                     <tr>
                       <th className="text-center">Name</th>
                       <th className="text-center">Pusta Number</th>
@@ -729,15 +746,15 @@ const TableView = () => {
                   </thead>
                   <tbody>
                     {filteredData.map((row, index) => (
-                      <tr key={index} className=" hover:bg-gray-200">
-                        <td className="text-center  ">
+                      <tr key={index} className="hover:bg-gray-200">
+                        <td className="text-center">
                           <img
                             src={
                               row.photo ||
                               "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
                             }
                             alt="Profile"
-                            className="w-14 h-14 rounded-full object-cover "
+                            className="w-14 h-14 rounded-full object-cover"
                           />
                           {row.name_in_nepali}
                         </td>
@@ -838,11 +855,6 @@ const TableView = () => {
             )}
           </>
         )}
-      </div>
-      <div className="table-footer">
-        <div className="flex items-center justify-between w-full mt-4">
-          {/* Pagination controls removed */}
-        </div>
       </div>
 
       {showSearchForm && (
