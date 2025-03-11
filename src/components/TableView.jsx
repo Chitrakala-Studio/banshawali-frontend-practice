@@ -457,103 +457,11 @@ const TableView = () => {
               availableId={visibleData.length > 0 ? visibleData[0].id : null}
             />
           </div>
-          {isAdminLocal && (
-            <div className="flex gap-4">
-              {/* View Table */}
-              {activeTab !== "data" && (
-                <button
-                  className="
-                 px-4 py-2
-                 rounded-md
-                 shadow-md
-                 text-white
-                 focus:outline-none
-                 transition-all
-                 hover:scale-110
-                 hover:shadow-lg
-                 bg-indigo-600
-                 hover:bg-indigo-700
-               "
-                  onClick={() => navigate("/")}
-                >
-                  View Table
-                </button>
-              )}
-              {activeTab !== "suggestions" && (
-                <button
-                  className="
-                   px-4 py-2
-                   rounded-md
-                   shadow-md
-                   text-white
-                   focus:outline-none
-                   transition-all
-                   hover:scale-110
-                   hover:shadow-lg
-                   bg-purple-600
-                   hover:bg-purple-700
-                 "
-                  onClick={() => navigate("/suggestions")}
-                >
-                  View Suggestions
-                </button>
-              )}
+          <div className="flex gap-4">
+            {(id || searchApplied) && (
               <button
+                onClick={handleGoBack}
                 className="
-          px-4 py-2
-          rounded-md
-          shadow-md
-          text-white
-          focus:outline-none
-          transition-all
-          hover:scale-110
-          hover:shadow-lg
-          bg-blue-600
-          hover:bg-blue-700
-          flex items-center space-x-2
-        "
-                onClick={() => setShowSearchForm(true)}
-              >
-                <FaSearch />
-                <span>Search User</span>
-              </button>
-              {activeTab === "data" && (
-                <button
-                  className="
-                  px-4 py-2
-                  rounded-md
-                  shadow-md
-                  text-white
-                  focus:outline-none
-                  transition-all
-                  hover:scale-110
-                  hover:shadow-lg
-                  bg-green-600
-                  hover:bg-green-700
-                  flex items-center space-x-2
-                "
-                  onClick={() => {
-                    setFormData({
-                      username: "",
-                      pusta_number: "",
-                      father_name: "",
-                      mother_name: "",
-                      dob: "",
-                      lifestatus: "Alive",
-                      profession: "",
-                      gender: "Male",
-                    });
-                    setIsAdding(true);
-                  }}
-                >
-                  <span>+ Add New User</span>
-                </button>
-              )}
-              {/* Conditionally show "View All Table" button when (id || searchApplied) is true */}
-              {(id || searchApplied) && (
-                <button
-                  onClick={handleGoBack}
-                  className="
                  px-4 py-2
                  rounded-md
                  shadow-md
@@ -566,13 +474,108 @@ const TableView = () => {
                  hover:bg-gray-700
                  flex items-center space-x-2
                "
-                >
-                  <FaArrowLeft />
-                  <span>View All Table</span>
-                </button>
-              )}
-            </div>
-          )}
+              >
+                <FaArrowLeft />
+                <span>View All Table</span>
+              </button>
+            )}
+            <button
+              className="
+          px-4 py-2
+          rounded-md
+          shadow-md
+          text-white
+          focus:outline-none
+          transition-all
+          hover:scale-110
+          hover:shadow-lg
+          bg-blue-600
+          hover:bg-blue-700
+          flex items-center space-x-2
+        "
+              onClick={() => setShowSearchForm(true)}
+            >
+              <FaSearch />
+              <span>Search User</span>
+            </button>
+            {isAdminLocal && (
+              <>
+                {/* View Table */}
+                {activeTab !== "data" && (
+                  <button
+                    className="
+                 px-4 py-2
+                 rounded-md
+                 shadow-md
+                 text-white
+                 focus:outline-none
+                 transition-all
+                 hover:scale-110
+                 hover:shadow-lg
+                 bg-indigo-600
+                 hover:bg-indigo-700
+               "
+                    onClick={() => navigate("/")}
+                  >
+                    View Table
+                  </button>
+                )}
+                {activeTab !== "suggestions" && (
+                  <button
+                    className="
+                   px-4 py-2
+                   rounded-md
+                   shadow-md
+                   text-white
+                   focus:outline-none
+                   transition-all
+                   hover:scale-110
+                   hover:shadow-lg
+                   bg-purple-600
+                   hover:bg-purple-700
+                 "
+                    onClick={() => navigate("/suggestions")}
+                  >
+                    View Suggestions
+                  </button>
+                )}
+
+                {activeTab === "data" && (
+                  <button
+                    className="
+                  px-4 py-2
+                  rounded-md
+                  shadow-md
+                  text-white
+                  focus:outline-none
+                  transition-all
+                  hover:scale-110
+                  hover:shadow-lg
+                  bg-green-600
+                  hover:bg-green-700
+                  flex items-center space-x-2
+                "
+                    onClick={() => {
+                      setFormData({
+                        username: "",
+                        pusta_number: "",
+                        father_name: "",
+                        mother_name: "",
+                        dob: "",
+                        lifestatus: "Alive",
+                        profession: "",
+                        gender: "Male",
+                      });
+                      setIsAdding(true);
+                    }}
+                  >
+                    <span>+ Add New User</span>
+                  </button>
+                )}
+                {/* Conditionally show "View All Table" button when (id || searchApplied) is true */}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Main Content */}
@@ -611,7 +614,7 @@ const TableView = () => {
                         className="border-b-2 border-gray-700 hover:bg-gray-200"
                       >
                         <td className="text-center">
-                        <img
+                          <img
                             src={
                               row.photo ||
                               (row.gender === "Male"
@@ -737,7 +740,7 @@ const TableView = () => {
                 <table className="ml-3 w-full">
                   <thead className="text-center bg-gray-100">
                     <tr>
-                    <th className="text-center">नाम</th>
+                      <th className="text-center">नाम</th>
                       <th className="text-center">पुस्ता नम्बर</th>
                       <th className="text-center">बाबुको नाम</th>
                       <th className="text-center">आमाको नाम</th>

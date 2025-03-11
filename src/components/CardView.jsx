@@ -109,13 +109,13 @@ const CardView = () => {
 
   const handleSearchResults = (results) => {
     if (results && results.length > 0) {
-      setData(results); // Overwrite the displayed cards with search results
+      setData(results);
       setCurrentIndex(0);
     } else {
       // Optionally handle "no results" case
       setData([]);
     }
-    setShowSearchPopup(false); // Close the search popup
+    setShowSearchPopup(false); // Close the search modal
   };
 
   // Scroll to the previous card with circular navigation
@@ -301,12 +301,11 @@ const CardView = () => {
                     <div
                       className={
                         isMobile
-                          ? "flex justify-between items-center w-full mb-12"
-                          : "flex justify-between items-center w-full mb-8"
+                          ? "flex justify-between items-center w-full mb-12 relative -top-3"
+                          : "flex justify-between items-center w-full mb-8 relative -top-3"
                       }
                     >
-                      <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5  z-20">
-                        {/* {data[currentIndex].pusta_number} */}
+                      <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
                         {convertToNepaliNumerals(
                           data[currentIndex].pusta_number
                         )}
@@ -322,7 +321,7 @@ const CardView = () => {
                           handleToggleInfo(data[currentIndex]);
                         }}
                       >
-                        <div className="expand-button ">
+                        <div className="expand-button">
                           {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
                         </div>
                       </button>
