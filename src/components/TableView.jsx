@@ -104,13 +104,13 @@ const TableView = () => {
       if (user && user.token) {
         setIsAdminLocal(user.role === "admin");
       } else {
-        navigate("/login");
+        setIsAdminLocal(false); // Not logged in, but still show TableView
       }
     } else {
-      navigate("/login");
+      setIsAdminLocal(false); // No user data found
     }
     fetchData(1);
-  }, [navigate, id]);
+  }, [id]);
 
   const fetchData = async (page) => {
     try {
@@ -352,24 +352,6 @@ const TableView = () => {
       age--;
     }
     return age === 0 ? "-" : convertToNepaliNumerals(age);
-  };
-
-  const handleRowClick = (suggestion) => {
-    Swal.fire({
-      title: "Suggestion Details",
-      html: `
-        <div style="text-align: left;">
-          <p><strong>Suggestion:</strong> ${suggestion.suggestion}</p>
-          ${
-            suggestion.image
-              ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
-              : "No Image"
-          }
-        </div>
-      `,
-      showCloseButton: true,
-      showCancelButton: false,
-    });
   };
 
   const handleInfoClick = (row) => {

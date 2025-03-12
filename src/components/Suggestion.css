@@ -1,0 +1,59 @@
+/* 1) Blur background for the modal backdrop */
+.swal2-container-blur {
+  backdrop-filter: blur(5px);
+}
+
+/* 2) Entire modal container */
+.my-swal2-popup {
+  background-color: #0b1d2e !important;
+  border-radius: 10px !important;
+  padding: 20px !important;
+  border: 2px solid #0b1d2e !important;
+  font-family: "Times New Roman", sans-serif !important;
+  color: antiquewhite !important; /* default text color for entire modal */
+}
+
+/* 3) Modal title */
+.my-swal2-title {
+  font-size: 24px !important;
+  color: antiquewhite !important;
+  font-family: "Times New Roman", sans-serif !important;
+  letter-spacing: 1px !important;
+  font-weight: bold !important;
+  margin-bottom: 15px !important;
+  border-bottom: 2px solid #eaeaea !important;
+  padding-bottom: 10px !important;
+}
+
+/* 4) Main HTML container for the modal’s content */
+.my-swal2-html-container {
+  font-family: "Times New Roman", sans-serif !important;
+  color: antiquewhite !important;
+  text-align: center;
+}
+
+/* 5) Confirm (Submit/OK) and Cancel buttons */
+.my-swal2-confirm-button,
+.my-swal2-cancel-button {
+  font-family: "Times New Roman", sans-serif !important;
+  font-size: 16px !important;
+  background-color: #4a4ae2 !important; /* example color; adjust as desired */
+  color: #fff !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 0.5rem 1rem !important;
+  cursor: pointer !important;
+}
+
+.my-swal2-cancel-button {
+  background-color: #555 !important; /* example for Cancel button */
+  margin-left: 1rem !important;
+}
+
+/* If you need to style .swal2-input (for textareas) */
+.swal2-input {
+  font-family: "Times New Roman", sans-serif !important;
+  color: antiquewhite !important;
+  background-color: #222 !important; /* example dark background */
+  border: 1px solid #ccc !important;
+}

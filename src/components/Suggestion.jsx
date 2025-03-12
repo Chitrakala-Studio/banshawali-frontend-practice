@@ -18,6 +18,7 @@ const Suggestion = () => {
       const response = await axios.get(
         `${API_URL}/people/suggestions/?page=${page}`
       );
+      console.log("API Response:", response.data); // Log the API response
       const suggestionArray = response.data.data;
       if (page === 1) {
         setSuggestions(suggestionArray);
@@ -31,16 +32,19 @@ const Suggestion = () => {
     }
   };
 
+  // Update suggestion status with name_in_nepali
   const updateSuggestionStatus = async (
     id,
     newStatus,
     suggestionText,
+    name_in_nepali,
     image
   ) => {
     try {
       const payload = {
         status: newStatus,
         suggestion: suggestionText,
+        name_in_nepali: name_in_nepali, // Ensure name_in_nepali is included
         image: image,
         id: id,
       };
@@ -67,20 +71,36 @@ const Suggestion = () => {
     }
   };
 
-  const handleAccept = (e, id, suggestion, image) => {
+  // Handle accept and reject with name_in_nepali
+  const handleAccept = (e, id, name_in_nepali, suggestionText, image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Approved", suggestion, image);
+    updateSuggestionStatus(
+      id,
+      "Approved",
+      suggestionText,
+      name_in_nepali,
+      image
+    );
   };
 
-  const handleReject = (e, id, suggestion, image) => {
+  const handleReject = (e, id, name_in_nepali, suggestionText, image) => {
     e.stopPropagation();
-    updateSuggestionStatus(id, "Rejected", suggestion, image);
+    updateSuggestionStatus(
+      id,
+      "Rejected",
+      suggestionText,
+      name_in_nepali,
+      image
+    );
   };
 
+  // Handle view click with name_in_nepali
   const handleViewClick = (suggestion) => {
+    console.log("Suggestion Object:", suggestion); // Log the suggestion object
     Swal.fire({
-      title: "Suggestion Details",
+      title: `Suggestion Details for ${suggestion.name_in_nepali}`,
       html: `
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
         <div style="text-align: left;">
           <p><strong>Suggestion:</strong> ${suggestion.suggestion}</p>
           ${
@@ -89,9 +109,32 @@ const Suggestion = () => {
               : "No Image"
           }
         </div>
-      `,
+    `,
+      backdrop: `rgba(10,10,10,0.8)`,
       showCloseButton: true,
       showCancelButton: false,
+      confirmButtonText: "Close",
+      didOpen: () => {
+        const titleElement = document.querySelector(".swal2-title");
+        if (titleElement) {
+          titleElement.style.fontSize = "24px";
+          titleElement.style.color = "antiquewhite";
+          titleElement.style.fontFamily = "Times New Roman, sans-serif";
+          titleElement.style.letterSpacing = "1px";
+          titleElement.style.fontWeight = "bold";
+          titleElement.style.marginBottom = "15px";
+          titleElement.style.borderBottom = "2px solid #eaeaea";
+          titleElement.style.paddingBottom = "10px";
+        }
+        const popupElement = document.querySelector(".swal2-popup");
+        if (popupElement) {
+          popupElement.style.backgroundColor = "#0b1d2e";
+          popupElement.style.borderRadius = "10px";
+          popupElement.style.padding = "20px";
+          popupElement.style.border = "2px solid #0b1d2e";
+        }
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
     });
   };
 
@@ -139,11 +182,11 @@ const Suggestion = () => {
                 className="border-b-2 border-gray-700 text-center hover:bg-gray-100"
               >
                 <td className="text-center">{suggestion.suggestion}</td>
-
                 <td className="text-center">
-                  {convertToNepaliNumerals(new Date(suggestion.date).toLocaleDateString())}
+                  {convertToNepaliNumerals(
+                    new Date(suggestion.date).toLocaleDateString()
+                  )}
                 </td>
-
                 <td className="text-center">
                   {suggestion.status === "Pending" ? (
                     <>
@@ -152,6 +195,7 @@ const Suggestion = () => {
                           handleAccept(
                             e,
                             suggestion.id,
+                            suggestion.name_in_nepali,
                             suggestion.suggestion,
                             suggestion.image
                           )
@@ -165,6 +209,7 @@ const Suggestion = () => {
                           handleReject(
                             e,
                             suggestion.id,
+                            suggestion.name_in_nepali,
                             suggestion.suggestion,
                             suggestion.image
                           )
@@ -173,7 +218,6 @@ const Suggestion = () => {
                       >
                         <FaTimes />
                       </button>
-                      {/* View Button */}
                       <button
                         onClick={() => handleViewClick(suggestion)}
                         className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all ml-2"
@@ -200,7 +244,6 @@ const Suggestion = () => {
                         )}
                         {suggestion.status}
                       </span>
-                      {/* View Button */}
                       <button
                         onClick={() => handleViewClick(suggestion)}
                         className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all ml-2"

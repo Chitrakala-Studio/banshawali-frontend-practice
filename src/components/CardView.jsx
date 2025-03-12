@@ -222,7 +222,7 @@ const CardView = () => {
               id="container"
               className={
                 isMobile
-                  ? "flex flex-col w-full h-[95vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
+                  ? "flex flex-col w-full h-[100vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
                   : "flex flex-col w-full h-[98vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
               }
             >
@@ -232,7 +232,16 @@ const CardView = () => {
                     ? "overflow-y-scroll"
                     : "overflow-y-hidden"
                 }`}
-                preventSwipe={["up", "down"]}
+                preventSwipe={
+                  infoPopup === data[currentIndex].name
+                    ? ["left", "right", "up", "down"]
+                    : ["up", "down"]
+                }
+                style={
+                  infoPopup === data[currentIndex].name
+                    ? { touchAction: "pan-y" }
+                    : {}
+                }
                 onSwipe={(direction) => handleSwipe(direction)}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
@@ -241,20 +250,24 @@ const CardView = () => {
                 <div
                   className={
                     !infoPopup
-                      ? "flex items-center justify-center w-[100%] h-[100%]  rounded-lg shadow-lg bg-white relative"
-                      : "flex items-center justify-center w-[100%] h-[78vh]  object-scale-down rounded-lg shadow-lg bg-white relative"
+                      ? "flex items-center justify-center w-[100%] h-[100%] rounded-lg shadow-lg bg-white relative"
+                      : "flex items-center justify-center w-[100%] h-[100vh] object-scale-down rounded-lg shadow-lg bg-white relative"
                   }
                 >
                   <img
                     src={
                       data[currentIndex].photo ||
-                      "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"
+                      (data[currentIndex].gender === "Male"
+                        ? "https://img.freepik.com/free-vector/isolated-young-handsome-man-different-poses-white-background-illustration_632498-855.jpg?t=st=1741748425~exp=1741752025~hmac=2bcd7b0f0b492c0aacbded548378c3626448e04cab10b796691c099b97674c2a&w=1480" // Male icon
+                        : data[currentIndex].gender === "Female"
+                        ? "https://img.freepik.com/free-vector/woman-with-long-black-hair_90220-2937.jpg?t=st=1741748534~exp=1741752134~hmac=d1566425be4693e6258cd1291fbcf9ecae86f282505882bed935ee11c0bb6600&w=1480" // Female icon
+                        : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg") // Default placeholder
                     }
                     alt={data[currentIndex].name_in_nepali}
                     className={
                       !infoPopup
-                        ? "w-full h-[99.8%]  object-cover select-none"
-                        : "w-full h-[78vh] object-cover select-none"
+                        ? "w-full h-[95%] object-cover select-none"
+                        : "w-full h-[90%] object-cover select-none"
                     }
                   />
                   {/* Buttons Section */}
@@ -284,16 +297,6 @@ const CardView = () => {
                         alt="Scroll Right"
                       />
                     </button>
-
-                    {/* Generate Family Tree Button
-                  <FamilyTreeCardButton
-                    onClick={() =>
-                      handleGenerateFamilyTree(data[currentIndex])
-                    }
-                    onTouchEnd={() =>
-                      handleGenerateFamilyTree(data[currentIndex])
-                    }
-                  /> */}
 
                     <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
                       {data[currentIndex].name_in_nepali}
@@ -338,7 +341,7 @@ const CardView = () => {
               <div
                 className={
                   isMobile
-                    ? "footer sticky mt-4  ml-1 bottom-0 left-0 w-full bg-white z-20"
+                    ? "footer sticky mt-7  ml-1 bottom-0 left-0 w-full bg-white z-20"
                     : "footer sticky bottom-0 left-0 w-full bg-white z-20"
                 }
               >
@@ -365,7 +368,7 @@ const CardView = () => {
                       setSelectedPerson(null);
                       setIsHorizontal(false); // Reset orientation
                     }}
-                    className="absolute top-2 right-2 text-gray-700 font-bold text-lg"
+                    className="absolute top-10 right-2 text-gray-700 font-bold text-lg"
                   >
                     &#x2715;
                   </button>
