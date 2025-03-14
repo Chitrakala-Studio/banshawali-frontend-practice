@@ -226,117 +226,171 @@ const CardView = () => {
                   : "flex flex-col w-full h-[98vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
               }
             >
-              <TinderCard
-                className={`relative min-w-full h-full snap-center flex flex-col group ${
-                  infoPopup === data[currentIndex].name
-                    ? "overflow-y-scroll"
-                    : "overflow-y-hidden"
-                }`}
-                preventSwipe={
-                  infoPopup === data[currentIndex].name
-                    ? ["left", "right", "up", "down"]
-                    : ["up", "down"]
-                }
-                style={
-                  infoPopup === data[currentIndex].name
-                    ? { touchAction: "pan-y" }
-                    : {}
-                }
-                onSwipe={(direction) => handleSwipe(direction)}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-              >
-                {/* Image Section */}
-                <div
-                  className={
-                    !infoPopup
-                      ? "flex items-center justify-center w-[100%] h-[100%] rounded-lg shadow-lg bg-white relative"
-                      : "flex items-center justify-center w-[100%] h-[100vh] object-scale-down rounded-lg shadow-lg bg-white relative"
-                  }
-                >
-                  <img
-                    src={
-                      data[currentIndex].photo ||
-                      (data[currentIndex].gender === "Male"
-                        ? "https://img.freepik.com/free-vector/isolated-young-handsome-man-different-poses-white-background-illustration_632498-855.jpg?t=st=1741748425~exp=1741752025~hmac=2bcd7b0f0b492c0aacbded548378c3626448e04cab10b796691c099b97674c2a&w=1480" // Male icon
-                        : data[currentIndex].gender === "Female"
-                        ? "https://img.freepik.com/free-vector/woman-with-long-black-hair_90220-2937.jpg?t=st=1741748534~exp=1741752134~hmac=d1566425be4693e6258cd1291fbcf9ecae86f282505882bed935ee11c0bb6600&w=1480" // Female icon
-                        : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg") // Default placeholder
-                    }
-                    alt={data[currentIndex].name_in_nepali}
-                    className={
-                      !infoPopup
-                        ? "w-full h-[95%] object-cover select-none"
-                        : "w-full h-[90%] object-cover select-none"
-                    }
-                  />
-                  {/* Buttons Section */}
-                  <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
-                    {/* Scroll Left Button */}
-                    <button
-                      className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      onClick={scrollLeft}
-                      onTouchEnd={scrollLeft}
-                    >
-                      <img
-                        className="w-6 h-6"
-                        src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
-                        alt="Scroll Left"
-                      />
-                    </button>
-
-                    {/* Scroll Right Button */}
-                    <button
-                      className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 text-white rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      onClick={scrollRight}
-                      onTouchEnd={scrollRight}
-                    >
-                      <img
-                        className="w-6 h-6"
-                        src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
-                        alt="Scroll Right"
-                      />
-                    </button>
-
-                    <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
-                      {data[currentIndex].name_in_nepali}
-                    </h2>
-                    <div
-                      className={
-                        isMobile
-                          ? "flex justify-between items-center w-full mb-12 relative -top-3"
-                          : "flex justify-between items-center w-full mb-8 relative -top-3"
+              {infoPopup === data[currentIndex].name ? (
+                // Render a regular div when info is active, allowing vertical scroll
+                <div className="relative min-w-full h-full snap-center flex flex-col overflow-y-scroll">
+                  {/* Image Section */}
+                  <div className="flex items-center justify-center w-full h-[100%] rounded-lg shadow-lg bg-white relative">
+                    <img
+                      src={
+                        data[currentIndex].photo ||
+                        (data[currentIndex].gender === "Male"
+                          ? "https://img.freepik.com/free-vector/isolated-young-handsome-man-different-poses-white-background-illustration_632498-855.jpg"
+                          : data[currentIndex].gender === "Female"
+                          ? "https://img.freepik.com/free-vector/woman-with-long-black-hair_90220-2937.jpg"
+                          : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg")
                       }
-                    >
-                      <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
-                        {convertToNepaliNumerals(
-                          data[currentIndex].pusta_number
-                        )}
-                      </div>
-                      <button
-                        className="pr-4 text-white text-xl"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleInfo(data[currentIndex]);
-                        }}
-                        onTouchEnd={(e) => {
-                          e.stopPropagation();
-                          handleToggleInfo(data[currentIndex]);
-                        }}
+                      alt={data[currentIndex].name_in_nepali}
+                      className="w-full h-[90%] object-cover select-none"
+                    />
+                    {/* Buttons Section with name and pusta number */}
+                    <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+                      <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
+                        {data[currentIndex].name_in_nepali}
+                      </h2>
+                      <div
+                        className={
+                          isMobile
+                            ? "flex justify-between items-center w-full mb-12 relative -top-3"
+                            : "flex justify-between items-center w-full mb-8 relative -top-3"
+                        }
                       >
-                        <div className="expand-button">
-                          {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                        <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
+                          {convertToNepaliNumerals(
+                            data[currentIndex].pusta_number
+                          )}
                         </div>
-                      </button>
+                        {/* Arrow Button to close the info popup */}
+                        <button
+                          className="pr-4 text-white text-xl"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleInfo(data[currentIndex]);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.stopPropagation();
+                            handleToggleInfo(data[currentIndex]);
+                          }}
+                        >
+                          <div className="expand-button">
+                            {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                          </div>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Info Section */}
-                {infoPopup === data[currentIndex].name && (
+                  {/* Info Section */}
                   <InfoSection person={data[currentIndex]} />
-                )}
-              </TinderCard>
+                </div>
+              ) : (
+                // The TinderCard branch remains unchanged
+                <TinderCard
+                  className={`relative min-w-full h-full snap-center flex flex-col group ${
+                    infoPopup === data[currentIndex].name
+                      ? "overflow-y-scroll"
+                      : "overflow-y-hidden"
+                  }`}
+                  preventSwipe={
+                    infoPopup === data[currentIndex].name
+                      ? ["left", "right", "up", "down"]
+                      : ["up", "down"]
+                  }
+                  style={
+                    infoPopup === data[currentIndex].name
+                      ? { touchAction: "pan-y" }
+                      : {}
+                  }
+                  onSwipe={(direction) => handleSwipe(direction)}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  {/* Image Section */}
+                  <div
+                    className={
+                      !infoPopup
+                        ? "flex items-center justify-center w-[100%] h-[100%] rounded-lg shadow-lg bg-white relative"
+                        : "flex items-center justify-center w-[100%] h-[100vh] object-scale-down rounded-lg shadow-lg bg-white relative"
+                    }
+                  >
+                    <img
+                      src={
+                        data[currentIndex].photo ||
+                        (data[currentIndex].gender === "Male"
+                          ? "https://img.freepik.com/free-vector/isolated-young-handsome-man-different-poses-white-background-illustration_632498-855.jpg?t=st=1741748425~exp=1741752025~hmac=2bcd7b0f0b492c0aacbded548378c3626448e04cab10b796691c099b97674c2a&w=1480"
+                          : data[currentIndex].gender === "Female"
+                          ? "https://img.freepik.com/free-vector/woman-with-long-black-hair_90220-2937.jpg?t=st=1741748534~exp=1741752134~hmac=d1566425be4693e6258cd1291fbcf9ecae86f282505882bed935ee11c0bb6600&w=1480"
+                          : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg")
+                      }
+                      alt={data[currentIndex].name_in_nepali}
+                      className={
+                        !infoPopup
+                          ? "w-full h-[95%] object-cover select-none"
+                          : "w-full h-[90%] object-cover select-none"
+                      }
+                    />
+                    {/* Buttons Section */}
+                    <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
+                      <button
+                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        onClick={scrollLeft}
+                        onTouchEnd={scrollLeft}
+                      >
+                        <img
+                          className="w-6 h-6"
+                          src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+                          alt="Scroll Left"
+                        />
+                      </button>
+                      <button
+                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        onClick={scrollRight}
+                        onTouchEnd={scrollRight}
+                      >
+                        <img
+                          className="w-6 h-6"
+                          src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+                          alt="Scroll Right"
+                        />
+                      </button>
+                      <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
+                        {data[currentIndex].name_in_nepali}
+                      </h2>
+                      <div
+                        className={
+                          isMobile
+                            ? "flex justify-between items-center w-full mb-12 relative -top-3"
+                            : "flex justify-between items-center w-full mb-8 relative -top-3"
+                        }
+                      >
+                        <div className="flex justify-center items-center bg-[#E9FFEF] text-[#409261] text-base font-normal rounded-full h-10 w-32 ml-5 z-20">
+                          {convertToNepaliNumerals(
+                            data[currentIndex].pusta_number
+                          )}
+                        </div>
+                        <button
+                          className="pr-4 text-white text-xl"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleInfo(data[currentIndex]);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.stopPropagation();
+                            handleToggleInfo(data[currentIndex]);
+                          }}
+                        >
+                          <div className="expand-button">
+                            {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Info Section */}
+                  {infoPopup === data[currentIndex].name && (
+                    <InfoSection person={data[currentIndex]} />
+                  )}
+                </TinderCard>
+              )}
 
               <div
                 className={
