@@ -1,17 +1,18 @@
 import { useRef, useState, useEffect } from "react";
 import { Circles } from "react-loader-spinner";
-
 import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
 import { useNavigate, useParams } from "react-router-dom";
 import FamilyTreeGraph from "./FamilyTreeGraph";
-import { FaArrowUp, FaArrowDown } from "react-icons/fa"; // Import icons
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import InfoSection from "./InfoSection";
 import ToggleView from "./ToggleView";
 import FooterButtons from "./FooterButtons";
 import NavigationButtons from "./NavigationButtons";
-import FamilyTreeCardButton from "./FamilyTreeCardButton"; // Import FamilyTreeCardButton
+import FamilyTreeCardButton from "./FamilyTreeCardButton";
 import SearchForm from "./SearchForm";
+import male from "./male.png";
+import female from "./female.png";
 
 const CardView = () => {
   const { id } = useParams();
@@ -23,9 +24,9 @@ const CardView = () => {
   const [isTableView, setIsTableView] = useState(false);
   const navigate = useNavigate();
   const [isHorizontal, setIsHorizontal] = useState(false);
-  const [data, setData] = useState([]); // State for API data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [nextIndex, setNextIndex] = useState(0);
   const [previousIndex, setPreviousIndex] = useState(0);
   const [showSearchPopup, setShowSearchPopup] = useState(false);
@@ -43,12 +44,9 @@ const CardView = () => {
   }, []);
 
   useEffect(() => {
-    // Simulating an API call
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Replace with your actual API endpoint
-
         const url = `${API_URL}/people/${id}/`;
         console.log("Fetching URL:", url);
         const response = await fetch(url, {
@@ -61,21 +59,17 @@ const CardView = () => {
         const result_data = result.data;
         console.log(result_data);
 
-        setData(result_data); // Set the fetched data
+        setData(result_data);
         setPreviousIndex(result.previous);
         setNextIndex(result.next);
         setLoading(false);
 
-        // Check if the id exists in the fetched data
         if (result_data.length > 0) {
-          // index of the current person is 0 since data of just that person is provided
           setCurrentIndex(0);
         } else {
-          // If the id doesn't exist, navigate to the first item
           navigate(`/`);
         }
       } catch (error) {
-        // setError(error.toString()); // Set error if API call fails
         setError(typeof id);
         setLoading(false);
       }
@@ -90,7 +84,6 @@ const CardView = () => {
 
   const handleFooterGenerate = () => {
     const currentPerson = data[currentIndex];
-
     if (currentPerson) {
       setSelectedPerson(currentPerson.name);
       setIsHorizontal(!isHorizontal);
@@ -112,31 +105,25 @@ const CardView = () => {
       setData(results);
       setCurrentIndex(0);
     } else {
-      // Optionally handle "no results" case
       setData([]);
     }
-    setShowSearchPopup(false); // Close the search modal
+    setShowSearchPopup(false);
   };
 
-  // Scroll to the previous card with circular navigation
   const scrollLeft = () => {
     const newIndex = previousIndex;
     setInfoPopup(false);
     setIsExpanded(false);
-    // Update the URL with the new id
-    navigate(`/card/${previousIndex}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/card/${previousIndex}`);
   };
 
-  // Scroll to the next card with circular navigation
   const scrollRight = () => {
     const newIndex = nextIndex;
     setInfoPopup(false);
     setIsExpanded(false);
-    // Update the URL with the new id
-    navigate(`/card/${nextIndex}`); // Assuming the URL pattern is like `/card/:id`
+    navigate(`/card/${nextIndex}`);
   };
 
-  // Scroll to a specific card
   const scrollToCard = (index) => {
     if (containerRef.current) {
       const cardWidth = containerRef.current.clientWidth;
@@ -144,11 +131,10 @@ const CardView = () => {
         left: cardWidth * index,
         behavior: "auto",
       });
-      // Add a visual effect to the container
       containerRef.current.classList.add("animate-pulse");
       setTimeout(() => {
         containerRef.current.classList.remove("animate-pulse");
-      }, 300); // Remove the effect after 300ms
+      }, 300);
     }
   };
 
@@ -159,6 +145,7 @@ const CardView = () => {
       scrollLeft();
     }
   };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gradient-to-t from-black via-black/60 to-transparent">
@@ -176,7 +163,7 @@ const CardView = () => {
   }
 
   if (error) {
-    return <div>Error: {error}</div>; // Show error if the API call fails
+    return <div>Error: {error}</div>;
   }
 
   const convertToNepaliNumerals = (number) => {
@@ -199,43 +186,48 @@ const CardView = () => {
           />
         )}
 
+        {isMobile && (
+          <div className="fixed top-2 left-0 right-0 z-20 flex justify-center">
+            <FooterButtons
+              id={id}
+              onGenerateFamilyTree={handleFooterGenerate}
+              infoPopup={infoPopup}
+              isMobile={isMobile}
+              onSearchButtonClick={() => setShowSearchPopup(true)}
+            />
+          </div>
+        )}
         <div
           className={
             isMobile
-              ? " w-[98vw]  h-[98vh] m-auto rounded-2xl overflow-auto "
+              ? "w-[98vw] h-[98vh] m-auto rounded-2xl overflow-auto"
               : "w-[40vw] h-[98vh] m-auto rounded-2xl overflow-auto"
           }
         >
           <div
             className={
               isMobile
-                ? " w-[98vw] h-[96vh] m-auto rounded-2xl overflow-hidden "
-                : " w-[40vw] h-[96vh] m-auto rounded-2xl overflow-hidden"
+                ? "w-[98vw] h-[96vh] m-auto rounded-2xl overflow-hidden"
+                : "w-[40vw] h-[96vh] m-auto rounded-2xl overflow-hidden"
             }
           >
-            {/* Navigation Buttons */}
-            {/* <NavigationButtons scrollLeft={scrollLeft} scrollRight={scrollRight} /> */}
-
-            {/* Card Container */}
             <div
               ref={containerRef}
               id="container"
               className={
                 isMobile
-                  ? "flex flex-col w-full h-[100vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
-                  : "flex flex-col w-full h-[98vh]  rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
+                  ? "flex flex-col w-full h-[100vh] rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
+                  : "flex flex-col w-full h-[98vh] rounded-2xl overflow-x-scroll my-auto snap-x snap-mandatory scrollbar-hide"
               }
             >
               {infoPopup === data[currentIndex].name ? (
-                // Render a regular div when info is active, allowing vertical scroll
                 <div className="relative min-w-full h-full snap-center flex flex-col overflow-y-scroll">
-                  {/* Image Section */}
                   <div className="flex items-center justify-center w-full h-[100%] rounded-lg shadow-lg bg-white relative">
                     <img
                       src={
                         data[currentIndex].photo ||
                         (data[currentIndex].gender === "Male"
-                          ? "https://img.freepik.com/free-vector/isolated-young-handsome-man-different-poses-white-background-illustration_632498-855.jpg"
+                          ? male
                           : data[currentIndex].gender === "Female"
                           ? "https://img.freepik.com/free-vector/woman-with-long-black-hair_90220-2937.jpg"
                           : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg")
@@ -243,7 +235,6 @@ const CardView = () => {
                       alt={data[currentIndex].name_in_nepali}
                       className="w-full h-[90%] object-cover select-none"
                     />
-                    {/* Buttons Section with name and pusta number */}
                     <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
                       <h2 className="text-2xl font-bold ml-5 mb-6 z-20">
                         {data[currentIndex].name_in_nepali}
@@ -260,7 +251,6 @@ const CardView = () => {
                             data[currentIndex].pusta_number
                           )}
                         </div>
-                        {/* Arrow Button to close the info popup */}
                         <button
                           className="pr-4 text-white text-xl"
                           onClick={(e) => {
@@ -279,11 +269,9 @@ const CardView = () => {
                       </div>
                     </div>
                   </div>
-                  {/* Info Section */}
                   <InfoSection person={data[currentIndex]} />
                 </div>
               ) : (
-                // The TinderCard branch remains unchanged
                 <TinderCard
                   className={`relative min-w-full h-full snap-center flex flex-col group ${
                     infoPopup === data[currentIndex].name
@@ -304,7 +292,6 @@ const CardView = () => {
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
-                  {/* Image Section */}
                   <div
                     className={
                       !infoPopup
@@ -316,9 +303,9 @@ const CardView = () => {
                       src={
                         data[currentIndex].photo ||
                         (data[currentIndex].gender === "Male"
-                          ? "https://img.freepik.com/free-vector/isolated-young-handsome-man-different-poses-white-background-illustration_632498-855.jpg?t=st=1741748425~exp=1741752025~hmac=2bcd7b0f0b492c0aacbded548378c3626448e04cab10b796691c099b97674c2a&w=1480"
+                          ? male
                           : data[currentIndex].gender === "Female"
-                          ? "https://img.freepik.com/free-vector/woman-with-long-black-hair_90220-2937.jpg?t=st=1741748534~exp=1741752134~hmac=d1566425be4693e6258cd1291fbcf9ecae86f282505882bed935ee11c0bb6600&w=1480"
+                          ? female
                           : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg")
                       }
                       alt={data[currentIndex].name_in_nepali}
@@ -328,7 +315,6 @@ const CardView = () => {
                           : "w-full h-[90%] object-cover select-none"
                       }
                     />
-                    {/* Buttons Section */}
                     <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
                       <button
                         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -385,46 +371,49 @@ const CardView = () => {
                       </div>
                     </div>
                   </div>
-                  {/* Info Section */}
                   {infoPopup === data[currentIndex].name && (
                     <InfoSection person={data[currentIndex]} />
                   )}
                 </TinderCard>
               )}
 
+              {/* Updated Footer */}
               <div
                 className={
                   isMobile
-                    ? "footer sticky mt-7  ml-1 bottom-0 left-0 w-full bg-white z-20"
-                    : "footer sticky bottom-0 left-0 w-full bg-white z-20"
+                    ? "footer w-full bg-white z-20 ml-1"
+                    : "footer w-full bg-white z-20"
                 }
               >
-                <FooterButtons
-                  id={id}
-                  onGenerateFamilyTree={handleFooterGenerate}
-                  infoPopup={infoPopup}
-                  isMobile={isMobile}
-                  onSearchButtonClick={() => setShowSearchPopup(true)}
-                />
+                {!isMobile && (
+                  <div className="footer w-full bg-white z-20">
+                    <FooterButtons
+                      id={id}
+                      onGenerateFamilyTree={handleFooterGenerate}
+                      infoPopup={infoPopup}
+                      isMobile={isMobile}
+                      onSearchButtonClick={() => setShowSearchPopup(true)}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Family Tree Modal */}
             {selectedPerson && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                 <div className="bg-white w-11/12 max-w-5xl p-6 rounded-lg relative">
                   <button
                     onClick={() => {
                       setSelectedPerson(null);
-                      setIsHorizontal(false); // Reset orientation
+                      setIsHorizontal(false);
                     }}
                     onTouchEnd={() => {
                       setSelectedPerson(null);
-                      setIsHorizontal(false); // Reset orientation
+                      setIsHorizontal(false);
                     }}
                     className="absolute top-10 right-2 text-gray-700 font-bold text-lg"
                   >
-                    &#x2715;
+                    ✕
                   </button>
                   <FamilyTreeGraph
                     id={id}
