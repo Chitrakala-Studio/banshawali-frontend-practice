@@ -1,10 +1,10 @@
+import debounce from "lodash.debounce";
 import axios from "axios";
 import Choices from "choices.js";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "choices.js/public/assets/styles/choices.css";
-import debounce from "lodash.debounce";
 const Compare = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,6 +23,8 @@ const Compare = () => {
   const [rightFatherSuggestions, setRightFatherSuggestions] = useState([]);
   const [showRightFatherSuggestions, setShowRightFatherSuggestions] =
     useState(false);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
 
   // State for right person's mother's suggestions
   const [rightMotherSuggestions, setRightMotherSuggestions] = useState([]);
@@ -50,7 +52,7 @@ const Compare = () => {
   const [isLoading, setIsLoading] = useState(false); // For loading state
   const [apiError, setApiError] = useState(""); // For error handling
   const [familyTreeData, setFamilyTreeData] = useState(null); // API response data
-  
+
   // Suggestion function for right person's name
   // const fetchRightNameSuggestions = (pustaNumber, query) => {
   //   return new Promise((resolve) => {
@@ -66,48 +68,69 @@ const Compare = () => {
   //     }, 500);
   //   });
   // };
-  const fetchSuggestions = async (pustaNumber, setRightNameSuggestions, rightNameSelectRef, setRightPerson) => {
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 800);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const fetchSuggestions = async (
+    pustaNumber,
+    setRightNameSuggestions,
+    rightNameSelectRef,
+    setRightPerson
+  ) => {
     if (!pustaNumber) return;
-  
+
     try {
-      const response = await axios.get(`${API_URL}/people/people/familyrelations?pusta_number=${pustaNumber}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-  
+      const response = await axios.get(
+        `${API_URL}/people/people/familyrelations?pusta_number=${pustaNumber}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       console.log("API Response:", response.data);
-  
+
       const name_suggestions = response.data.current_pusta_data || [];
-  
+
       if (name_suggestions.length === 0) {
         console.warn("No suggestions found for pusta_number:", pustaNumber);
       }
-  
+
       // Add delay before updating UI to prevent flickering
       setTimeout(() => {
         setRightNameSuggestions(name_suggestions);
-  
+
         if (rightNameSelectRef.current) {
           const choices = new Choices(rightNameSelectRef.current, {
             removeItemButton: true,
             shouldSort: false,
             searchEnabled: true,
           });
-  
+
           choices.clearChoices(); // Remove old choices
-  
+
           choices.setChoices(
             name_suggestions.map((sugg) => ({
               value: sugg.name,
-              label: `${sugg.name} - ${sugg.father?.name || ""} | ${sugg.mother?.name || ""}`,
+              label: `${sugg.name} - ${sugg.father?.name || ""} | ${
+                sugg.mother?.name || ""
+              }`,
             })),
             "value",
             "label",
             true
           );
-  
+
           rightNameSelectRef.current.addEventListener("change", (event) => {
-            const selectedPerson = name_suggestions.find((sugg) => sugg.name === event.target.value);
+            const selectedPerson = name_suggestions.find(
+              (sugg) => sugg.name === event.target.value
+            );
             if (selectedPerson) {
               setRightPerson((prev) => ({
                 ...prev,
@@ -123,7 +146,6 @@ const Compare = () => {
           });
         }
       }, 500); // Delay for 500ms
-  
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
@@ -131,13 +153,13 @@ const Compare = () => {
   const debouncedFetch = useCallback(
     debounce((pustaNumber) => {
       fetchSuggestions(pustaNumber);
-    }, 1000), // 500ms delay
+    }, 3000),
     []
   );
   if (rightPerson.pusta_number) {
     debouncedFetch(rightPerson.pusta_number);
   }
-  
+
   // Suggestion function for right person's father's name
   const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
@@ -212,8 +234,8 @@ const Compare = () => {
       setIsLoading(true);
       try {
         const response = await fetch(`${API_URL}/people/${id}/`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
         });
 
         const response_data = await response.json();
@@ -257,7 +279,10 @@ const Compare = () => {
         const name_suggestions = response.data.current_pusta_data || [];
 
         if (name_suggestions.length === 0) {
-          console.warn("No suggestions found for pusta_number:", rightPerson.pusta_number);
+          console.warn(
+            "No suggestions found for pusta_number:",
+            rightPerson.pusta_number
+          );
         }
 
         // Delay setting state to allow complete data to be received
@@ -276,7 +301,9 @@ const Compare = () => {
             choices.setChoices(
               name_suggestions.map((sugg) => ({
                 value: sugg.name,
-                label: `${sugg.name} - ${sugg.father?.name || ""} | ${sugg.mother?.name || ""}`,
+                label: `${sugg.name} - ${sugg.father?.name || ""} | ${
+                  sugg.mother?.name || ""
+                }`,
               })),
               "value",
               "label",
@@ -284,7 +311,9 @@ const Compare = () => {
             );
 
             rightNameSelectRef.current.addEventListener("change", (event) => {
-              const selectedPerson = name_suggestions.find((sugg) => sugg.name === event.target.value);
+              const selectedPerson = name_suggestions.find(
+                (sugg) => sugg.name === event.target.value
+              );
               if (selectedPerson) {
                 setRightPerson((prev) => ({
                   ...prev,
@@ -300,18 +329,15 @@ const Compare = () => {
             });
           }
         }, 500); // **Delay UI update by 500ms**
-
       } catch (error) {
         console.error("Error fetching suggestions:", error);
       }
     };
 
-
     fetchSuggestions();
   }, [rightPerson.pusta_number]);
 
   const handleCompare = async () => {
-
     await new Promise((resolve) => {
       setTimeout(() => {
         resolve();
@@ -372,9 +398,11 @@ const Compare = () => {
     <div className="flex min-h-screen bg-gray-100">
       <button
         className="absolute top-4 left-4 bg-purple-700 text-white px-4 py-2 rounded-full"
-        onClick={() => navigate(`/`)}
+        onClick={() => {
+          isMobile ? navigate(`/card/${id}`) : navigate(`/`);
+        }}
       >
-        Go Back to Table
+        {isMobile ? "Go Back to Card" : "Go Back to Table"}
       </button>
 
       <div className="flex flex-col items-center px-4 py-6 pt-20 h-full w-full overflow-y-auto">
@@ -473,12 +501,19 @@ const Compare = () => {
                 placeholder="Enter pusta_number"
                 className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
                 value={rightPerson.pusta_number || ""}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const value = e.target.value;
                   setRightPerson((prev) => ({
                     ...prev,
-                    pusta_number: e.target.value,
-                  }))
-                }
+                    pusta_number: value,
+                  }));
+                  // Call debouncedFetch on every change
+                  debouncedFetch(value);
+                }}
+                onBlur={() => {
+                  // Immediately execute the debounced function when user leaves the field
+                  debouncedFetch.flush();
+                }}
                 disabled={isRightConfirmed}
               />
             </div>
@@ -486,7 +521,11 @@ const Compare = () => {
             <div className="w-full relative">
               <label className="block mb-2 text-sm md:text-base">Name</label>
               {/* className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base" */}
-              <select ref={rightNameSelectRef} id="rightNameSelect" className="px-4 py-2  bg-white border rounded w-full text-sm md:text-base">
+              <select
+                ref={rightNameSelectRef}
+                id="rightNameSelect"
+                className="px-4 py-2  bg-white border rounded w-full text-sm md:text-base"
+              >
                 <option value="">Select Name</option>
               </select>
               {showRightNameSuggestions && rightNameSuggestions.length > 0 && (
@@ -555,10 +594,10 @@ const Compare = () => {
                         {sugg.father?.name && sugg.mother?.name
                           ? `- ${sugg.father.name} | ${sugg.mother.name}`
                           : sugg.father?.name
-                            ? `- ${sugg.father.name}`
-                            : sugg.mother?.name
-                              ? `- ${sugg.mother.name}`
-                              : ""}
+                          ? `- ${sugg.father.name}`
+                          : sugg.mother?.name
+                          ? `- ${sugg.mother.name}`
+                          : ""}
                       </span>
                     </li>
                   ))}

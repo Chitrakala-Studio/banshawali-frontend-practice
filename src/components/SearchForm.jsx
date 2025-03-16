@@ -15,7 +15,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
       .then((response) => response.json())
       .then((data) => onSearch(data.data))
       .catch((error) => console.error("Error fetching search results:", error));
-  }, 500); // Adjust debounce time as needed
+  }, 500);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     // setCriteria((prev) => ({
@@ -27,7 +27,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
       [name]: type === "checkbox" ? checked : value,
     };
     setCriteria(updatedCriteria);
-    debouncedSearch(updatedCriteria); 
+    //debouncedSearch(updatedCriteria);
   };
 
   const handleSubmit = (e) => {
@@ -50,7 +50,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
       .catch((error) => {
         console.error("Error fetching search results:", error);
       });
-      debouncedSearch.flush();
+    debouncedSearch.flush();
   };
 
   return (

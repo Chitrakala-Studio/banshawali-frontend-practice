@@ -639,7 +639,7 @@ const TableView = () => {
                           {row.mother ? (
                             <span
                               className="cursor-pointer text-blue-600"
-                              onClick={() => navigate(`//${row.mother.id}`)}
+                              onClick={() => navigate(`/${row.mother.id}`)}
                             >
                               {row.mothername_in_nepali}
                             </span>
@@ -768,11 +768,30 @@ const TableView = () => {
                           })()}
                         </td>
                         <td className="text-center">
-                          {row.father?.name_in_nepali || ""}
+                          {row.father ? (
+                            <span
+                              className="cursor-pointer text-blue-600"
+                              onClick={() => navigate(`/${row.father.id}`)}
+                            >
+                              {row.father.name_in_nepali}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td className="text-center">
-                          {row.mother?.name_in_nepali || ""}
+                          {row.mother ? (
+                            <span
+                              className="cursor-pointer text-blue-600"
+                              onClick={() => navigate(`/${row.mother.id}`)}
+                            >
+                              {row.mother.name_in_nepali}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
+
                         <td className="flex items-center py-12 space-x-2 text-gray-700 text-base justify-center">
                           {row.gender?.toLowerCase() === "male" ? (
                             <>

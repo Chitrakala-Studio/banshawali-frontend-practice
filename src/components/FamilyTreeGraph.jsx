@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import PropTypes from "prop-types"
-import ReactD3Tree from "react-d3-tree"
-import axios from "axios"
-import { ChevronRight } from "lucide-react"
-import "./App.css"
+import { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+import ReactD3Tree from "react-d3-tree";
+import axios from "axios";
+import { ChevronRight } from "lucide-react";
+import "./App.css";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf"
-import Swal from "sweetalert2"
+import jsPDF from "jspdf";
+import Swal from "sweetalert2";
 import "svg2pdf.js";
 import { Canvg } from "canvg";
 
@@ -16,15 +16,15 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const fetchFamilyData = async (id) => {
   try {
-    if (!id) return null
-    console.log(`Fetching data for ID: ${id}`)
-    const response = await axios.get(`${API_URL}/familytree/familytree/${id}/`)
-    return response.data
+    if (!id) return null;
+    console.log(`Fetching data for ID: ${id}`);
+    const response = await axios.get(`${API_URL}/familytree/familytree/${id}/`);
+    return response.data;
   } catch (error) {
-    console.error("Error fetching family data:", error)
-    return null
+    console.error("Error fetching family data:", error);
+    return null;
   }
-}
+};
 
 const transformToTreeData = (familyData) => {
   if (!familyData) return null;
@@ -58,15 +58,12 @@ const transformToTreeData = (familyData) => {
       real_id: familyData.id,
       isCollapsible: true,
       collapsed: true,
-      children: [
-
-      ],
+      children: [],
     });
   }
 
   return tree;
 };
-
 
 const findNodeById = (tree, id) => {
   if (!tree) return null;
@@ -88,18 +85,18 @@ const findNodeById = (tree, id) => {
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const convertImagesToBase64 = async (svgElement) => {
-  const images = svgElement.querySelectorAll('image');
+  const images = svgElement.querySelectorAll("image");
   for (const img of images) {
-    const href = img.getAttribute('href') || img.getAttribute('xlink:href');
-    if (href && href.startsWith('http')) {
+    const href = img.getAttribute("href") || img.getAttribute("xlink:href");
+    if (href && href.startsWith("http")) {
       try {
-        const response = await fetch(href, { mode: 'cors' });
+        const response = await fetch(href, { mode: "cors" });
         const blob = await response.blob();
         const reader = new FileReader();
         reader.readAsDataURL(blob);
         await new Promise((resolve) => {
           reader.onloadend = () => {
-            img.setAttribute('href', reader.result);
+            img.setAttribute("href", reader.result);
             resolve();
           };
         });
@@ -110,18 +107,17 @@ const convertImagesToBase64 = async (svgElement) => {
   }
 };
 
-
 const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
-  const [treeData, setTreeData] = useState(null)
-  const [familyData, setFamilyData] = useState(null)
-  const treeContainerRef = useRef(null)
+  const [treeData, setTreeData] = useState(null);
+  const [familyData, setFamilyData] = useState(null);
+  const treeContainerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
   const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!id) return;  // Prevent running when id is undefined
+      if (!id) return; // Prevent running when id is undefined
       console.log(`Fetching data for new ID: ${id}`);
       const data = await fetchFamilyData(id);
       if (data) {
@@ -159,10 +155,18 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
           const newWindow = window.open();
           newWindow.document.write(`<img src='${image}' />`);
           newWindow.print();
-          Swal.fire("Printed!", "Your family tree has been sent to the printer.", "success");
+          Swal.fire(
+            "Printed!",
+            "Your family tree has been sent to the printer.",
+            "success"
+          );
         } catch (error) {
-          console.log(error)
-          Swal.fire("Error", "There was a problem printing the family tree.", "error");
+          console.log(error);
+          Swal.fire(
+            "Error",
+            "There was a problem printing the family tree.",
+            "error"
+          );
         }
       }
     }
@@ -199,16 +203,21 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
           });
           pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
           pdf.save("FamilyTree.pdf");
-          Swal.fire("Downloaded!", "Your family tree PDF has been saved.", "success");
+          Swal.fire(
+            "Downloaded!",
+            "Your family tree PDF has been saved.",
+            "success"
+          );
         } catch (error) {
-          Swal.fire("Error", "There was a problem downloading the PDF.", "error");
+          Swal.fire(
+            "Error",
+            "There was a problem downloading the PDF.",
+            "error"
+          );
         }
       }
     }
   };
-
-
-
 
   const handleNodeClick = async (nodeDatum) => {
     console.log("Node clicked:", nodeDatum);
@@ -229,30 +238,42 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
           if (targetNode) {
             targetNode.children = targetNode.children || [];
 
-            console.log("IDDDD", nodeDatum.id)
-
+            console.log("IDDDD", nodeDatum.id);
 
             // Expand father if available
             if (nodeDatum.id.startsWith("father-")) {
-              if (newData.father && newData.father !== " " && newData.father.id) {
-                targetNode.children.push({
-                  name: newData.father.name,
-                  id: `father-${newData.father.id}`,
-                  real_id: newData.father.id,
-                  photo: newData.father.photo || null,
-                  gender: newData.father.gender || "Male",
-                  pusta: newData.father.pusta || "",
-                  children: []
-                });
+              if (
+                newData.father &&
+                newData.father !== " " &&
+                newData.father.id
+              ) {
+                if (
+                  !targetNode.children.some(
+                    (c) => c.id === `father-${newData.father.id}`
+                  )
+                ) {
+                  targetNode.children.push({
+                    name: newData.father.name,
+                    id: `father-${newData.father.id}`,
+                    real_id: newData.father.id,
+                    photo: newData.father.photo || null,
+                    gender: newData.father.gender || "Male",
+                    pusta: newData.father.pusta || "",
+                    children: [],
+                  });
+                }
               }
-
-
             }
+
             if (nodeDatum.id.startsWith("child-")) {
               // Expand children if available
               if (newData.children && newData.children.length > 0) {
-                newData.children.forEach(child => {
-                  if (!targetNode.children.some(c => c.id === `child-${child.id}`)) {
+                newData.children.forEach((child) => {
+                  if (
+                    !targetNode.children.some(
+                      (c) => c.id === `child-${child.id}`
+                    )
+                  ) {
                     targetNode.children.push({
                       name: child.name,
                       id: `child-${child.id}`,
@@ -260,7 +281,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
                       photo: child.photo || null,
                       gender: child.gender || "Male",
                       pusta: child.pusta || "",
-                      children: []
+                      children: [],
                     });
                   }
                 });
@@ -334,11 +355,9 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     });
   };
 
-
-
-
   const renderNode = (nodeDatum) => {
-    const isGroupNode = nodeDatum.name === "Father" || nodeDatum.name === "Children";
+    const isGroupNode =
+      nodeDatum.name === "Father" || nodeDatum.name === "Children";
     const gender = nodeDatum.gender;
     const wrapText = (text) => {
       if (!text || text.trim() === "") {
@@ -370,19 +389,45 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     };
 
     const nameLines = wrapText(nodeDatum.name, 8);
-    console.log(gender)
+    console.log(gender);
     return (
-      <g className="tree" id="family-tree" strokeWidth="0.5" fontFamily="sans-sarif" cursor="pointer" fontWeight={"200"} onClick={() => handleNodeClick(nodeDatum)}>
+      <g
+        className="tree"
+        id="family-tree"
+        strokeWidth="0.5"
+        fontFamily="sans-sarif"
+        cursor="pointer"
+        fontWeight={"200"}
+        onClick={() => handleNodeClick(nodeDatum)}
+      >
         {/* Background */}
-        {!isGroupNode &&
-          <rect x="-95" y="-40" width="180" height="65" rx="30" ry="30" fill={gender === "Male" ? "#d4fff5" : "#ffcee9"} pointerEvents="all" />
-        }
-        {isGroupNode &&
-          <rect x="-95" y="-40" width="165" height="65" rx="30" ry="30" fill={"#e7e7e7"} pointerEvents="all" />
-        }
-        {/* Only show image for actual persons, not "Father" or "Children" */}
         {!isGroupNode && (
-          nodeDatum.photo && nodeDatum.photo !== "null" ? (
+          <rect
+            x="-95"
+            y="-40"
+            width="180"
+            height="65"
+            rx="30"
+            ry="30"
+            fill={gender === "Male" ? "#d4fff5" : "#ffcee9"}
+            pointerEvents="all"
+          />
+        )}
+        {isGroupNode && (
+          <rect
+            x="-95"
+            y="-40"
+            width="165"
+            height="65"
+            rx="30"
+            ry="30"
+            fill={"#e7e7e7"}
+            pointerEvents="all"
+          />
+        )}
+        {/* Only show image for actual persons, not "Father" or "Children" */}
+        {!isGroupNode &&
+          (nodeDatum.photo && nodeDatum.photo !== "null" ? (
             <image
               x="-95"
               y="-40"
@@ -398,20 +443,31 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
               y="-40"
               width="65"
               height="65"
-              href={nodeDatum.gender === "Male" ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png" : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"}
+              href={
+                nodeDatum.gender === "Male"
+                  ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                  : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+              }
               preserveAspectRatio="xMidYMid slice"
               pointerEvents="none"
             />
-          )
-        )}
+          ))}
 
         {/* Name */}
-        {isGroupNode &&
-          <text x="-10" y="-10" textAnchor="middle" fontSize="14" fill="black" strokeWidth="0" fontWeight={"bold"}>
+        {isGroupNode && (
+          <text
+            x="-10"
+            y="-10"
+            textAnchor="middle"
+            fontSize="14"
+            fill="black"
+            strokeWidth="0"
+            fontWeight={"bold"}
+          >
             {nodeDatum.name}
           </text>
-        }
-        {!isGroupNode &&
+        )}
+        {!isGroupNode && (
           <text
             x="25"
             y={-13.5 + (nameLines.length > 0 ? -10 : 0)}
@@ -424,16 +480,21 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
             fontWeight="200"
           >
             {nameLines.map((line, i) => (
-              <tspan key={i} x="25" dy={i === 0 ? 0 : 20}
-                strokeWidth="0">
+              <tspan key={i} x="25" dy={i === 0 ? 0 : 20} strokeWidth="0">
                 {line}
               </tspan>
             ))}
           </text>
-        }
+        )}
         {/* Pusta (Family Lineage) */}
         {!isGroupNode && (
-          <text x="20" y="15" textAnchor="middle" fontSize="12" fontWeight="normal">
+          <text
+            x="20"
+            y="15"
+            textAnchor="middle"
+            fontSize="12"
+            fontWeight="normal"
+          >
             {nodeDatum.pusta}
           </text>
         )}
@@ -441,7 +502,9 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(45, -10) rotate(${nodeDatum.collapsed ? 0 : 90})`}
+            transform={`translate(45, -10) rotate(${
+              nodeDatum.collapsed ? 0 : 90
+            })`}
             style={{ transition: "transform 0.3s ease" }}
           >
             <ChevronRight size={20} />
@@ -452,7 +515,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
   };
   dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
   dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
-  const translateX = isMobile ? dimensions.width / 6 : dimensions.width / 2; // 
+  const translateX = isMobile ? dimensions.width / 6 : dimensions.width / 2; //
   // Adjust for mobile and desktop
   const translateY = isMobile ? dimensions.height / 1.3 : dimensions.height / 4; // Adjust for mobile and desktop
   const nodeSize = isMobile ? { x: 160, y: 80 } : { x: 200, y: 150 }; // Smaller nodes on mobile
@@ -460,7 +523,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
 
   return (
     <>
-
       <div
         className="tree"
         ref={treeContainerRef}
@@ -475,9 +537,8 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
           transform: isMobile ? "rotate(90deg)" : "none", // Apply rotation only for horizontal layout
           transformOrigin: isMobile ? "down left" : "none", // Set the origin of the rotation when horizontal
           overflow: isMobile ? "auto" : "hidden", // Apply overflow for horizontal layout
-          zIndex: "10"
+          zIndex: "10",
         }}
-
       >
         <h2>{selectedPerson}'s Family Tree</h2>
         {treeData && (
@@ -488,31 +549,42 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
             translate={{
               x: translateX,
               y: translateY,
-
             }}
             renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
             onNodeClick={handleNodeClick} // Keep this to capture clicks
             separation={{ siblings: 1.5, nonSiblings: 2 }}
             pathFunc="step"
           />
-
         )}
-        <div style={{ display: "flex",flexDirection:"row", gap: "10px", marginTop: "10px" }}>
-          <button onClick={handlePDF} className="save-button bg-teal-700 text-white h-6 border-black/10 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "10px",
+            marginTop: "10px",
+          }}
+        >
+          <button
+            onClick={handlePDF}
+            className="save-button bg-teal-700 text-white h-6 border-black/10 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
+          >
             Save as PDF
           </button>
-          <button onClick={handlePrint} className="print-button bg-teal-700 text-sm text-white border-black/10  h-6 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 ">
+          <button
+            onClick={handlePrint}
+            className="print-button bg-teal-700 text-sm text-white border-black/10  h-6 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 "
+          >
             Print Family Tree
           </button>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
 FamilyTreeGraph.propTypes = {
   selectedPerson: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
-}
+};
 
-export default FamilyTreeGraph
+export default FamilyTreeGraph;

@@ -24,6 +24,8 @@ const FooterButtons = ({
         className={
           isMobile
             ? "w-full flex justify-around items-center bg-black rounded-lg p-2"
+            : infoPopup
+            ? "w-full max-w-lg flex justify-around items-center px-3 bg-black rounded-lg"
             : "w-full max-w-lg flex justify-around items-center p-3"
         }
       >

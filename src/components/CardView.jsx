@@ -29,6 +29,7 @@ const CardView = () => {
   const [error, setError] = useState(null);
   const [nextIndex, setNextIndex] = useState(0);
   const [previousIndex, setPreviousIndex] = useState(0);
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const [showSearchPopup, setShowSearchPopup] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -43,12 +44,12 @@ const CardView = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // In your fetchData useEffect (normal card view)
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const url = `${API_URL}/people/${id}/`;
-        console.log("Fetching URL:", url);
         const response = await fetch(url, {
           headers: {
             "Content-Type": "application/json",
@@ -57,26 +58,29 @@ const CardView = () => {
         });
         const result = await response.json();
         const result_data = result.data;
-        console.log(result_data);
-
         setData(result_data);
         setPreviousIndex(result.previous);
         setNextIndex(result.next);
         setLoading(false);
-
+        setIsSearchActive(false); // Normal card view
         if (result_data.length > 0) {
           setCurrentIndex(0);
         } else {
           navigate(`/`);
         }
       } catch (error) {
-        setError(typeof id);
+        setError(error);
         setLoading(false);
       }
     };
-
     fetchData();
   }, [id, navigate]);
+
+  useEffect(() => {
+    if (isSearchActive && data.length > 0) {
+      navigate(`/card/${data[currentIndex].id}`, { replace: true });
+    }
+  }, [currentIndex, data, isSearchActive, navigate]);
 
   const toggleView = () => {
     setIsTableView(!isTableView);
@@ -85,25 +89,32 @@ const CardView = () => {
   const handleFooterGenerate = () => {
     const currentPerson = data[currentIndex];
     if (currentPerson) {
-      setSelectedPerson(currentPerson.name);
+      setSelectedPerson(currentPerson.name || currentPerson.name_in_nepali);
       setIsHorizontal(!isHorizontal);
     }
   };
 
-  const handleToggleInfo = (family) => {
-    if (infoPopup === family.name) {
+  const handleToggleInfo = (person) => {
+    const displayName = person.name || person.name_in_nepali;
+    if (infoPopup === displayName) {
       setInfoPopup(null);
       setIsExpanded(false);
     } else {
-      setInfoPopup(family.name);
+      setInfoPopup(displayName);
       setIsExpanded(true);
     }
   };
 
   const handleSearchResults = (results) => {
-    if (results && results.length > 0) {
-      setData(results);
-      setCurrentIndex(0);
+    if (results) {
+      const resultsArray = Array.isArray(results) ? results : [results];
+      if (resultsArray.length > 0) {
+        setData(resultsArray);
+        setCurrentIndex(0);
+        setIsSearchActive(true);
+      } else {
+        setData([]);
+      }
     } else {
       setData([]);
     }
@@ -111,17 +122,27 @@ const CardView = () => {
   };
 
   const scrollLeft = () => {
-    const newIndex = previousIndex;
     setInfoPopup(false);
     setIsExpanded(false);
-    navigate(`/card/${previousIndex}`);
+    if (isSearchActive) {
+      if (currentIndex > 0) {
+        setCurrentIndex((prevIndex) => prevIndex - 1);
+      }
+    } else {
+      navigate(`/card/${previousIndex}`);
+    }
   };
 
   const scrollRight = () => {
-    const newIndex = nextIndex;
     setInfoPopup(false);
     setIsExpanded(false);
-    navigate(`/card/${nextIndex}`);
+    if (isSearchActive) {
+      if (currentIndex < data.length - 1) {
+        setCurrentIndex((prevIndex) => prevIndex + 1);
+      }
+    } else {
+      navigate(`/card/${nextIndex}`);
+    }
   };
 
   const scrollToCard = (index) => {
@@ -138,7 +159,7 @@ const CardView = () => {
     }
   };
 
-  const handleSwipe = (direction, index) => {
+  const handleSwipe = (direction) => {
     if (direction === "left") {
       scrollRight();
     } else if (direction === "right") {
@@ -164,6 +185,14 @@ const CardView = () => {
 
   if (error) {
     return <div>Error: {error}</div>;
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-white text-lg">No results found.</p>
+      </div>
+    );
   }
 
   const convertToNepaliNumerals = (number) => {
@@ -229,7 +258,7 @@ const CardView = () => {
                         (data[currentIndex].gender === "Male"
                           ? male
                           : data[currentIndex].gender === "Female"
-                          ? "https://img.freepik.com/free-vector/woman-with-long-black-hair_90220-2937.jpg"
+                          ? female
                           : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg")
                       }
                       alt={data[currentIndex].name_in_nepali}
@@ -411,7 +440,7 @@ const CardView = () => {
                       setSelectedPerson(null);
                       setIsHorizontal(false);
                     }}
-                    className="absolute top-10 right-2 text-gray-700 font-bold text-lg"
+                    className="absolute top-2 right-2 text-gray-700 font-bold text-xl"
                   >
                     ✕
                   </button>
@@ -431,11 +460,11 @@ const CardView = () => {
           initialCriteria={{
             name: "",
             pusta_number: "",
-            phone_number: "",
+            phone: "",
             email: "",
             father_name: "",
             mother_name: "",
-            same_vamsha_status: false,
+            same_vamsha_status: true,
           }}
           onSearch={handleSearchResults}
           onClose={() => setShowSearchPopup(false)}
