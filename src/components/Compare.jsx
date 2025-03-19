@@ -77,27 +77,89 @@ const Compare = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const fetchSuggestions = async (
-    pustaNumber,
-    setRightNameSuggestions,
-    rightNameSelectRef,
-    setRightPerson
-  ) => {
-    if (!pustaNumber) return;
+  // const fetchSuggestions = async (
+  //   pustaNumber,
+  //   setRightNameSuggestions,
+  //   rightNameSelectRef,
+  //   setRightPerson
+  // ) => {
+  //   if (!pustaNumber) return;
 
+  //   try {
+  //     const response = await axios.get(
+  //       `${API_URL}/people/people/familyrelations?pusta_number=${pustaNumber}`,
+  //       {
+  //         method: "GET",
+  //         headers: { "Content-Type": "application/json" },
+  //       }
+  //     );
+
+  //     console.log("API Response:", response.data);
+
+  //     const name_suggestions = response.data.current_pusta_data || [];
+
+  //     if (name_suggestions.length === 0) {
+  //       console.warn("No suggestions found for pusta_number:", pustaNumber);
+  //     }
+
+  //     // Add delay before updating UI to prevent flickering
+  //     setTimeout(() => {
+  //       setRightNameSuggestions(name_suggestions);
+
+  //       if (rightNameSelectRef.current) {
+  //         const choices = new Choices(rightNameSelectRef.current, {
+  //           removeItemButton: true,
+  //           shouldSort: false,
+  //           searchEnabled: true,
+  //         });
+
+  //         choices.clearChoices(); // Remove old choices
+
+  //         choices.setChoices(
+  //           name_suggestions.map((sugg) => ({
+  //             value: sugg.name,
+  //             label: `${sugg.name} - ${sugg.father?.name || ""} | ${
+  //               sugg.mother?.name || ""
+  //             }`,
+  //           })),
+  //           "value",
+  //           "label",
+  //           true
+  //         );
+
+  //         rightNameSelectRef.current.addEventListener("change", (event) => {
+  //           const selectedPerson = name_suggestions.find(
+  //             (sugg) => sugg.name === event.target.value
+  //           );
+  //           if (selectedPerson) {
+  //             setRightPerson((prev) => ({
+  //               ...prev,
+  //               name: selectedPerson.name,
+  //               id: selectedPerson.id,
+  //               pusta_number: selectedPerson.pusta_number,
+  //               fatherName: selectedPerson.father?.name || "",
+  //               motherName: selectedPerson.mother?.name || "",
+  //               fatherId: selectedPerson.father?.id || "",
+  //               motherId: selectedPerson.mother?.id || "",
+  //             }));
+  //           }
+  //         });
+  //       }
+  //     }, 500); // Delay for 500ms
+  //   } catch (error) {
+  //     console.error("Error fetching suggestions:", error);
+  //   }
+  // };
+  const fetchSuggestions = async (pustaNumber) => {
+    if (!pustaNumber) return;
     try {
       const response = await axios.get(
         `${API_URL}/people/people/familyrelations?pusta_number=${pustaNumber}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
+        { method: "GET", headers: { "Content-Type": "application/json" } }
       );
 
       console.log("API Response:", response.data);
-
       const name_suggestions = response.data.current_pusta_data || [];
-
       if (name_suggestions.length === 0) {
         console.warn("No suggestions found for pusta_number:", pustaNumber);
       }
@@ -105,16 +167,13 @@ const Compare = () => {
       // Add delay before updating UI to prevent flickering
       setTimeout(() => {
         setRightNameSuggestions(name_suggestions);
-
         if (rightNameSelectRef.current) {
           const choices = new Choices(rightNameSelectRef.current, {
             removeItemButton: true,
             shouldSort: false,
             searchEnabled: true,
           });
-
           choices.clearChoices(); // Remove old choices
-
           choices.setChoices(
             name_suggestions.map((sugg) => ({
               value: sugg.name,
@@ -145,20 +204,21 @@ const Compare = () => {
             }
           });
         }
-      }, 500); // Delay for 500ms
+      }, 500);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
   };
+
   const debouncedFetch = useCallback(
     debounce((pustaNumber) => {
       fetchSuggestions(pustaNumber);
     }, 3000),
     []
   );
-  if (rightPerson.pusta_number) {
-    debouncedFetch(rightPerson.pusta_number);
-  }
+  // if (rightPerson.pusta_number) {
+  //   debouncedFetch(rightPerson.pusta_number);
+  // }
 
   // Suggestion function for right person's father's name
   const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
@@ -261,81 +321,82 @@ const Compare = () => {
     fetchLeftPersonData();
   }, [id]);
   const rightNameSelectRef = useRef(null);
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (!rightPerson.pusta_number) return;
 
-      try {
-        const response = await axios.get(
-          `${API_URL}/people/people/familyrelations?pusta_number=${rightPerson.pusta_number}`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          }
-        );
+  // useEffect(() => {
+  //   const fetchSuggestions = async () => {
+  //     if (!rightPerson.pusta_number) return;
 
-        console.log("API Response:", response.data);
+  //     try {
+  //       const response = await axios.get(
+  //         `${API_URL}/people/people/familyrelations?pusta_number=${rightPerson.pusta_number}`,
+  //         {
+  //           method: "GET",
+  //           headers: { "Content-Type": "application/json" },
+  //         }
+  //       );
 
-        const name_suggestions = response.data.current_pusta_data || [];
+  //       console.log("API Response:", response.data);
 
-        if (name_suggestions.length === 0) {
-          console.warn(
-            "No suggestions found for pusta_number:",
-            rightPerson.pusta_number
-          );
-        }
+  //       const name_suggestions = response.data.current_pusta_data || [];
 
-        // Delay setting state to allow complete data to be received
-        setTimeout(() => {
-          setRightNameSuggestions(name_suggestions);
+  //       if (name_suggestions.length === 0) {
+  //         console.warn(
+  //           "No suggestions found for pusta_number:",
+  //           rightPerson.pusta_number
+  //         );
+  //       }
 
-          if (rightNameSelectRef.current) {
-            const choices = new Choices(rightNameSelectRef.current, {
-              removeItemButton: true,
-              shouldSort: false,
-              searchEnabled: true,
-            });
+  //       // Delay setting state to allow complete data to be received
+  //       setTimeout(() => {
+  //         setRightNameSuggestions(name_suggestions);
 
-            choices.clearChoices(); // Ensure old choices are removed
+  //         if (rightNameSelectRef.current) {
+  //           const choices = new Choices(rightNameSelectRef.current, {
+  //             removeItemButton: true,
+  //             shouldSort: false,
+  //             searchEnabled: true,
+  //           });
 
-            choices.setChoices(
-              name_suggestions.map((sugg) => ({
-                value: sugg.name,
-                label: `${sugg.name} - ${sugg.father?.name || ""} | ${
-                  sugg.mother?.name || ""
-                }`,
-              })),
-              "value",
-              "label",
-              true
-            );
+  //           choices.clearChoices(); // Ensure old choices are removed
 
-            rightNameSelectRef.current.addEventListener("change", (event) => {
-              const selectedPerson = name_suggestions.find(
-                (sugg) => sugg.name === event.target.value
-              );
-              if (selectedPerson) {
-                setRightPerson((prev) => ({
-                  ...prev,
-                  name: selectedPerson.name,
-                  id: selectedPerson.id,
-                  pusta_number: selectedPerson.pusta_number,
-                  fatherName: selectedPerson.father?.name || "",
-                  motherName: selectedPerson.mother?.name || "",
-                  fatherId: selectedPerson.father?.id || "",
-                  motherId: selectedPerson.mother?.id || "",
-                }));
-              }
-            });
-          }
-        }, 500); // **Delay UI update by 500ms**
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-      }
-    };
+  //           choices.setChoices(
+  //             name_suggestions.map((sugg) => ({
+  //               value: sugg.name,
+  //               label: `${sugg.name} - ${sugg.father?.name || ""} | ${
+  //                 sugg.mother?.name || ""
+  //               }`,
+  //             })),
+  //             "value",
+  //             "label",
+  //             true
+  //           );
 
-    fetchSuggestions();
-  }, [rightPerson.pusta_number]);
+  //           rightNameSelectRef.current.addEventListener("change", (event) => {
+  //             const selectedPerson = name_suggestions.find(
+  //               (sugg) => sugg.name === event.target.value
+  //             );
+  //             if (selectedPerson) {
+  //               setRightPerson((prev) => ({
+  //                 ...prev,
+  //                 name: selectedPerson.name,
+  //                 id: selectedPerson.id,
+  //                 pusta_number: selectedPerson.pusta_number,
+  //                 fatherName: selectedPerson.father?.name || "",
+  //                 motherName: selectedPerson.mother?.name || "",
+  //                 fatherId: selectedPerson.father?.id || "",
+  //                 motherId: selectedPerson.mother?.id || "",
+  //               }));
+  //             }
+  //           });
+  //         }
+  //       }, 500); // **Delay UI update by 500ms**
+  //     } catch (error) {
+  //       console.error("Error fetching suggestions:", error);
+  //     }
+  //   };
+
+  //   fetchSuggestions();
+  // }, [rightPerson.pusta_number]);
 
   const handleCompare = async () => {
     await new Promise((resolve) => {
@@ -507,11 +568,9 @@ const Compare = () => {
                     ...prev,
                     pusta_number: value,
                   }));
-                  // Call debouncedFetch on every change
                   debouncedFetch(value);
                 }}
                 onBlur={() => {
-                  // Immediately execute the debounced function when user leaves the field
                   debouncedFetch.flush();
                 }}
                 disabled={isRightConfirmed}

@@ -5,12 +5,11 @@ import { FaArrowDown } from "react-icons/fa";
 import axios from "axios";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
-import { NepaliDatePicker } from "nepali-datepicker-reactjs"
-import "nepali-datepicker-reactjs/dist/index.css"
+import { NepaliDatePicker } from "nepali-datepicker-reactjs";
+import "nepali-datepicker-reactjs/dist/index.css";
 import { style } from "d3-selection";
 import Choices from "choices.js";
 import "choices.js/public/assets/styles/choices.min.css";
-
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
@@ -37,26 +36,27 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   }));
 
   const [suggestions, setSuggestions] = useState([]);
+  const fatherInputRef = useRef(null);
+  const motherInputRef = useRef(null);
+  const fatherChoicesInstance = useRef(null);
+  const motherChoicesInstance = useRef(null);
   const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   //const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
-  const [date, setDate] = useState("")
+  const [date, setDate] = useState("");
   const debounceTimeout = useRef(null);
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
-  const API_URL = import.meta.env.VITE_API_URL
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const today = new Date().toISOString().split("T")[0];
   const hideFatherSuggestionsTimeout = useRef(null);
   const hideMotherSuggestionsTimeout = useRef(null);
-  const fatherInputRef = useRef(null);
-  const motherInputRef = useRef(null);
 
   // const todayNepali = new NepaliDate(today.getFullYear(), today.getMonth() + 1, today.getDate()).toObject();
-
 
   // For father suggestions
   const handleFatherMouseEnter = () => {
@@ -94,7 +94,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,
             { headers: { "Content-Type": "application/json" } }
           );
-
           setSuggestions(response.data.father_pusta || []);
           setMotherSuggestions(response.data.mother_pusta || []);
         } catch (error) {
@@ -107,40 +106,140 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   }, [form.pusta_number, API_URL]);
 
   useEffect(() => {
-    if (formData.id !== form.id) {
-      setForm(formData);
+    if (fatherInputRef.current) {
+      const choicesData = [
+        { value: "", label: "Select Father", disabled: true },
+        ...suggestions.map((s) => ({
+          value: s.name,
+          label: s.name,
+          selected: s.name === form.father_name,
+        })),
+      ];
+      if (fatherChoicesInstance.current) {
+        fatherChoicesInstance.current.setChoices(
+          choicesData,
+          "value",
+          "label",
+          true
+        );
+      } else {
+        fatherChoicesInstance.current = new Choices(fatherInputRef.current, {
+          removeItemButton: true,
+          shouldSort: false,
+          searchEnabled: true,
+          noResultsText: "Not available",
+          placeholder: true,
+          placeholderValue: "Select Father",
+        });
+        fatherChoicesInstance.current.setChoices(
+          choicesData,
+          "value",
+          "label",
+          true
+        );
+      }
     }
-
-    // Fetch suggestions when pusta_number changes
-    const fetchSuggestions = async () => {
-      if (form.pusta_number) {
-        try {
-          const response = await axios.get(
-            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          }
-          );
-          console.log(response.data);
-          console.log(response.data.father_pusta);
-          const fatherSuggestions = response.data.father_pusta;
-          const motherSuggestions = response.data.mother_pusta;
-
-          setSuggestions(fatherSuggestions);
-          setMotherSuggestions(motherSuggestions);
-        } catch (error) {
-          handleBackendError(
-            error,
-            "Error fetching suggestions",
-            "Error fetching suggestions.",
-            false
-          );
-        }
+    return () => {
+      if (fatherChoicesInstance.current) {
+        fatherChoicesInstance.current.destroy();
+        fatherChoicesInstance.current = null;
       }
     };
+  }, [suggestions, form.father_name]);
 
-    fetchSuggestions();
-  }, [form.id, form.pusta_number, API_URL]);
+  useEffect(() => {
+    if (motherInputRef.current) {
+      const motherChoices = new Choices(motherInputRef.current, {
+        removeItemButton: true,
+        shouldSort: false,
+        searchEnabled: true,
+        noResultsText: "Not available",
+        placeholder: true,
+        placeholderValue: "Select Mother",
+      });
+
+      motherChoices.clearStore();
+      motherChoices.setChoices(
+        [
+          { value: "", label: "Select Mother", disabled: true },
+          ...motherSuggestions.map((s) => ({
+            value: s.name,
+            label: s.name,
+            selected: s.name === form.mother_name,
+          })),
+        ],
+        "value",
+        "label",
+        true
+      );
+
+      return () => motherChoices.destroy();
+    }
+  }, [motherSuggestions, form.mother_name]);
+
+  // useEffect(() => {
+  //   const fetchSuggestions = async () => {
+  //     if (form.pusta_number) {
+  //       try {
+  //         const response = await axios.get(
+  //           `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,
+  //           { headers: { "Content-Type": "application/json" } }
+  //         );
+
+  //         setSuggestions(response.data.father_pusta || []);
+  //         setMotherSuggestions(response.data.mother_pusta || []);
+  //       } catch (error) {
+  //         console.error("Error fetching suggestions:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchSuggestions();
+  // }, [form.pusta_number, API_URL]);
+
+  useEffect(() => {
+    if (formData.id) {
+      setForm((prevForm) => ({
+        ...prevForm,
+        father_name: formData.father_name || prevForm.father_name,
+        mother_name: formData.mother_name || prevForm.mother_name,
+        father_id: formData.father_id || prevForm.father_id,
+        mother_id: formData.mother_id || prevForm.mother_id,
+      }));
+    }
+  }, [formData]);
+
+  //   // Fetch suggestions when pusta_number changes
+  //   const fetchSuggestions = async () => {
+  //     if (form.pusta_number) {
+  //       try {
+  //         const response = await axios.get(
+  //           `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,
+  //           {
+  //             method: "GET",
+  //             headers: { "Content-Type": "application/json" },
+  //           }
+  //         );
+  //         console.log(response.data);
+  //         console.log(response.data.father_pusta);
+  //         const fatherSuggestions = response.data.father_pusta;
+  //         const motherSuggestions = response.data.mother_pusta;
+
+  //         setSuggestions(fatherSuggestions);
+  //         setMotherSuggestions(motherSuggestions);
+  //       } catch (error) {
+  //         handleBackendError(
+  //           error,
+  //           "Error fetching suggestions",
+  //           "Error fetching suggestions.",
+  //           false
+  //         );
+  //       }
+  //     }
+  //   };
+
+  //   fetchSuggestions();
+  // }, [form.id, form.pusta_number, API_URL]);
 
   useEffect(() => {
     // Fetch user details only if formData has an ID
@@ -150,14 +249,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           setLoading(true);
           const url = `${API_URL}/people/${formData.id}/`;
           console.log("Fetching URL:", url);
-          const response = await fetch(url,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              }
-            }
-          );
+          const response = await fetch(url, {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          });
           const result = await response.json();
           const result_data = result.data;
           setForm(result_data);
@@ -175,7 +272,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       fetchUserDetails();
     }
   }, [formData.id, API_URL]);
- 
+
   useEffect(() => {
     if (formData.id) {
       setForm((prevForm) => ({
@@ -187,64 +284,90 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       }));
     }
   }, [formData]);
+
+  // useEffect(() => {
+  //   if (fatherInputRef.current && !fatherChoicesInstance.current) {
+  //     fatherChoicesInstance.current = new Choices(fatherInputRef.current, {
+  //       removeItemButton: true,
+  //       shouldSort: false,
+  //       searchEnabled: true,
+  //       noResultsText: "Not available",
+  //       placeholder: true,
+  //       placeholderValue: "Select Father",
+  //     });
+  //   }
+  //   return () => {
+  //     if (fatherChoicesInstance.current) {
+  //       fatherChoicesInstance.current.destroy();
+  //       fatherChoicesInstance.current = null;
+  //     }
+  //   };
+  // }, []);
+
   useEffect(() => {
-    if (fatherInputRef.current && form.father_name) {
-      const fatherChoices = new Choices(fatherInputRef.current, {
-        removeItemButton: true,
-        shouldSort: false,
-        searchEnabled: true,
-        noResultsText: "Not available",
-        placeholder: true,
-        placeholderValue: "Select Father",
-      });
-  
-      fatherChoices.clearStore();
-      fatherChoices.setChoices([
+    if (fatherChoicesInstance.current) {
+      const choicesData = [
         { value: "", label: "Select Father", disabled: true },
         ...suggestions.map((s) => ({
           value: s.name,
           label: s.name,
-          selected: s.name === form.father_name, // Ensure father is preselected
+          selected: s.name === form.father_name,
         })),
-      ]);
-  
-      return () => fatherChoices.destroy();
+      ];
+      fatherChoicesInstance.current.clearStore();
+      fatherChoicesInstance.current.setChoices(
+        choicesData,
+        "value",
+        "label",
+        true
+      );
     }
-  }, [suggestions, form.father_name]); // Re-run when father_name updates
+  }, [suggestions, form.father_name]);
+
+  // useEffect(() => {
+  //   if (motherInputRef.current && !motherChoicesInstance.current) {
+  //     motherChoicesInstance.current = new Choices(motherInputRef.current, {
+  //       removeItemButton: true,
+  //       shouldSort: false,
+  //       searchEnabled: true,
+  //       noResultsText: "Not available",
+  //       placeholder: true,
+  //       placeholderValue: "Select Mother",
+  //     });
+  //   }
+  //   return () => {
+  //     if (motherChoicesInstance.current) {
+  //       motherChoicesInstance.current.destroy();
+  //       motherChoicesInstance.current = null;
+  //     }
+  //   };
+  // }, []);
 
   useEffect(() => {
-    if (motherInputRef.current && form.mother_name) {
-      const motherChoices = new Choices(motherInputRef.current, {
-        removeItemButton: true,
-        shouldSort: false,
-        searchEnabled: true,
-        noResultsText: "Not available",
-        placeholder: true,
-        placeholderValue: "Select Mother",
-      });
-      console.log("Mother",form.mother_name)
-      motherChoices.clearStore();
-      motherChoices.setChoices([
+    if (motherChoicesInstance.current) {
+      const choicesData = [
         { value: "", label: "Select Mother", disabled: true },
         ...motherSuggestions.map((s) => ({
           value: s.name,
           label: s.name,
-          selected: s.name === form.mother_name, // Ensure mother is preselected
+          selected: s.name === form.mother_name,
         })),
-      ]);
-  
-      return () => motherChoices.destroy();
+      ];
+      motherChoicesInstance.current.clearStore();
+      motherChoicesInstance.current.setChoices(
+        choicesData,
+        "value",
+        "label",
+        true
+      );
     }
-  }, [motherSuggestions, form.mother_name]); // Re-run when mother_name updates
-  
-
+  }, [motherSuggestions, form.mother_name]);
 
   const handleSuggestionClick = (suggestion) => {
     setForm((prev) => ({
       ...prev,
       father_name: suggestion.name,
       father_id: suggestion.id,
-
     }));
     setShowSuggestions(false);
   };
@@ -379,15 +502,15 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         dob: value || "", // Set the selected date for dob
       }));
     } else {
-      alert('Please select a date before or on today.');
+      alert("Please select a date before or on today.");
     }
   };
-  
+
   // This handler updates other form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  
+
     if (name === "father_name" || name === "mother_name") {
       clearTimeout(debounceTimeout.current);
       debounceTimeout.current = setTimeout(() => {
@@ -399,8 +522,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       }, 500); // Delay before showing dropdown
     }
   };
-  
-
 
   const translateToNepali = async () => {
     try {
@@ -411,7 +532,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       setForm((prevForm) => ({
         ...prevForm,
         name_in_nepali: convertedtext,
-
       }));
     } catch (error) {
       console.error("Error converting text:", error);
@@ -431,7 +551,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     setLoading(true);
     try {
-      console.log("FORM", form)
+      console.log("FORM", form);
       const payload = {
         name: form.name,
         name_in_nepali: form.name_in_nepali,
@@ -596,7 +716,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </select>
             </div>
 
-
             <div className="w-full">
               <label className="block text-sm pt-3 font-medium text-[#7091E6]">
                 Date of Birth
@@ -611,7 +730,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   placeholder: "Select Date",
                 }}
               />
-
             </div>
 
             <div className="w-full">
@@ -656,8 +774,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                     maxDate: today, // Maximum date is today's date
                   }}
                 />
-
-
               </div>
             )}
           </div>
@@ -667,99 +783,106 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             <h3 className="text-lg font-bold py-3 text-[#7091E6]">
               Family Information
             </h3>
-            {/* Father Name Input */}
-            <div className="relative">
-              {/* <input
-                type="text"
-                name="father_name"
-                value={form.father_name}
-                onChange={handleChange}
-                readOnly
-                onMouseEnter={handleFatherMouseEnter}
-                onMouseLeave={handleFatherMouseLeave}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter father's name"
-              /> */}
-              <select
-                ref={fatherInputRef}
-                name="father_name"
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm"
-                onChange={(e) => setForm({ ...form, father_name: e.target.value })}
-              >
-                <option value="">{form.father_name ? form.father_name : "Select Father"}</option>
-              </select>
 
-              {showSuggestions && suggestions.length > 0 && (
-                <ul
-                  className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
-                  onMouseEnter={handleFatherMouseEnter}
-                  onMouseLeave={handleFatherMouseLeave}
+            {/* Father Name */}
+            <div className="mb-6">
+              <h4 className="text-md font-semibold text-[#7091E6] mb-2">
+                Father Name
+              </h4>
+              <div className="relative">
+                <select
+                  ref={fatherInputRef}
+                  name="father_name"
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm"
+                  onChange={(e) =>
+                    setForm({ ...form, father_name: e.target.value })
+                  }
                 >
-                  {suggestions.map((suggestion, index) => (
-                    <li
-                      key={index}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        handleSuggestionClick(suggestion);
-                      }}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {suggestion.name}{" "}
-                      {suggestion.father?.name && suggestion.mother?.name
-                        ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
-                        : suggestion.father?.name
+                  <option value="">
+                    {form.father_name ? form.father_name : "Select Father"}
+                  </option>
+                </select>
+
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul
+                    className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                    onMouseEnter={handleFatherMouseEnter}
+                    onMouseLeave={handleFatherMouseLeave}
+                  >
+                    {suggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSuggestionClick(suggestion);
+                        }}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                      >
+                        {suggestion.name}{" "}
+                        {suggestion.father?.name && suggestion.mother?.name
+                          ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
+                          : suggestion.father?.name
                           ? `- ${suggestion.father.name}`
                           : suggestion.mother?.name
-                            ? `- ${suggestion.mother.name}`
-                            : ""}
-                    </li>
-                  ))}
-                </ul>
-              )}
+                          ? `- ${suggestion.mother.name}`
+                          : ""}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
 
-            {/* Mother Name Input */}
-            <div className="relative">
-              <select
-                ref={motherInputRef}
-                name="mother_name"
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm"
-                onChange={(e) => setForm({ ...form, mother_name: e.target.value })}
-              >
-                <option value="">{form.mother_name ? form.mother_name : "Select Mother"}</option>
-              </select>
-
-
-
-              {showMotherSuggestions && motherSuggestions.length > 0 && (
-                <ul
-                  className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
-                  onMouseEnter={handleMotherMouseEnter}
-                  onMouseLeave={handleMotherMouseLeave}
+            {/* Mother Name */}
+            <div className="mb-6">
+              <h4 className="text-md font-semibold text-[#7091E6] mb-2">
+                Mother Name
+              </h4>
+              <div className="relative">
+                <select
+                  ref={motherInputRef}
+                  name="mother_name"
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm"
+                  onChange={(e) =>
+                    setForm({ ...form, mother_name: e.target.value })
+                  }
                 >
-                  {motherSuggestions.map((suggestion, index) => (
-                    <li
-                      key={index}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        handleMotherSuggestionClick(suggestion);
-                      }}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {suggestion.name}{" "}
-                      {suggestion.father?.name && suggestion.mother?.name
-                        ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
-                        : suggestion.father?.name
+                  <option value="">
+                    {form.mother_name ? form.mother_name : "Select Mother"}
+                  </option>
+                </select>
+
+                {showMotherSuggestions && motherSuggestions.length > 0 && (
+                  <ul
+                    className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                    onMouseEnter={handleMotherMouseEnter}
+                    onMouseLeave={handleMotherMouseLeave}
+                  >
+                    {motherSuggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleMotherSuggestionClick(suggestion);
+                        }}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                      >
+                        {suggestion.name}{" "}
+                        {suggestion.father?.name && suggestion.mother?.name
+                          ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
+                          : suggestion.father?.name
                           ? `- ${suggestion.father.name}`
                           : suggestion.mother?.name
-                            ? `- ${suggestion.mother.name}`
-                            : ""}
-                    </li>
-                  ))}
-                </ul>
-              )}
+                          ? `- ${suggestion.mother.name}`
+                          : ""}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
+
           <div className="w-full">
             <h3 className="text-lg font-semibold py-3 text-[#7091E6]">
               Vansha Status
@@ -854,8 +977,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             <button
               type="submit"
               disabled={loading}
-              className={`mt-4 bg-blue-500 text-white px-4 py-2 rounded-md ${loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`mt-4 bg-blue-500 text-white px-4 py-2 rounded-md ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               {loading ? "Saving..." : "Save"}
             </button>
