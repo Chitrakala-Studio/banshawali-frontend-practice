@@ -17,7 +17,7 @@ const AdminLogin = () => {
       const user = { username, token: "dummyToken123", role: "admin" };
       localStorage.setItem("user", JSON.stringify(user));
       // Redirect to the protected route or dashboard
-      navigate("/table");
+      navigate("/");
     } else {
       setError("Invalid credentials. Please try again.");
     }

@@ -53,21 +53,11 @@ const Compare = () => {
   const [apiError, setApiError] = useState(""); // For error handling
   const [familyTreeData, setFamilyTreeData] = useState(null); // API response data
 
-  // Suggestion function for right person's name
-  // const fetchRightNameSuggestions = (pustaNumber, query) => {
-  //   return new Promise((resolve) => {
-  //     setTimeout(() => {
-  //       const suggestions = familyMembers.filter((member) => {
-  //         const matchesPusta = member.pusta_number === pustaNumber;
-  //         const matchesQuery =
-  //           query.trim() === "" ||
-  //           member.name.toLowerCase().includes(query.toLowerCase());
-  //         return matchesPusta && matchesQuery;
-  //       });
-  //       resolve(suggestions);
-  //     }, 500);
-  //   });
-  // };
+  useEffect(() => {
+    if (!rightPerson.pusta_number) {
+      setRightNameSuggestions([]);
+    }
+  }, [rightPerson.pusta_number]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -322,82 +312,6 @@ const Compare = () => {
   }, [id]);
   const rightNameSelectRef = useRef(null);
 
-  // useEffect(() => {
-  //   const fetchSuggestions = async () => {
-  //     if (!rightPerson.pusta_number) return;
-
-  //     try {
-  //       const response = await axios.get(
-  //         `${API_URL}/people/people/familyrelations?pusta_number=${rightPerson.pusta_number}`,
-  //         {
-  //           method: "GET",
-  //           headers: { "Content-Type": "application/json" },
-  //         }
-  //       );
-
-  //       console.log("API Response:", response.data);
-
-  //       const name_suggestions = response.data.current_pusta_data || [];
-
-  //       if (name_suggestions.length === 0) {
-  //         console.warn(
-  //           "No suggestions found for pusta_number:",
-  //           rightPerson.pusta_number
-  //         );
-  //       }
-
-  //       // Delay setting state to allow complete data to be received
-  //       setTimeout(() => {
-  //         setRightNameSuggestions(name_suggestions);
-
-  //         if (rightNameSelectRef.current) {
-  //           const choices = new Choices(rightNameSelectRef.current, {
-  //             removeItemButton: true,
-  //             shouldSort: false,
-  //             searchEnabled: true,
-  //           });
-
-  //           choices.clearChoices(); // Ensure old choices are removed
-
-  //           choices.setChoices(
-  //             name_suggestions.map((sugg) => ({
-  //               value: sugg.name,
-  //               label: `${sugg.name} - ${sugg.father?.name || ""} | ${
-  //                 sugg.mother?.name || ""
-  //               }`,
-  //             })),
-  //             "value",
-  //             "label",
-  //             true
-  //           );
-
-  //           rightNameSelectRef.current.addEventListener("change", (event) => {
-  //             const selectedPerson = name_suggestions.find(
-  //               (sugg) => sugg.name === event.target.value
-  //             );
-  //             if (selectedPerson) {
-  //               setRightPerson((prev) => ({
-  //                 ...prev,
-  //                 name: selectedPerson.name,
-  //                 id: selectedPerson.id,
-  //                 pusta_number: selectedPerson.pusta_number,
-  //                 fatherName: selectedPerson.father?.name || "",
-  //                 motherName: selectedPerson.mother?.name || "",
-  //                 fatherId: selectedPerson.father?.id || "",
-  //                 motherId: selectedPerson.mother?.id || "",
-  //               }));
-  //             }
-  //           });
-  //         }
-  //       }, 500); // **Delay UI update by 500ms**
-  //     } catch (error) {
-  //       console.error("Error fetching suggestions:", error);
-  //     }
-  //   };
-
-  //   fetchSuggestions();
-  // }, [rightPerson.pusta_number]);
-
   const handleCompare = async () => {
     await new Promise((resolve) => {
       setTimeout(() => {
@@ -423,25 +337,41 @@ const Compare = () => {
       return;
     }
 
-    const leftPersonId = leftPerson.id;
-    const rightPerson_name = rightPerson.name;
-    const rightPerson_pusta_number = rightPerson.pusta_number;
-    const rightPerson_fatherName = rightPerson.fatherId;
-    const rightPerson_motherName = rightPerson.motherId;
-    const rightPerson_fatherId = rightPerson.fatherId;
-    const rightPerson_motherId = rightPerson.motherId;
+    try {
+      setIsLoading(true);
+      const leftPersonId = leftPerson.id;
+      const rightPerson_name = rightPerson.name;
+      const rightPerson_pusta_number = rightPerson.pusta_number;
+      const rightPerson_fatherName = rightPerson.fatherId;
+      const rightPerson_motherName = rightPerson.motherId;
 
-    const response = await axios.post(`${API_URL}/people/compare/`, {
-      leftPersonId,
-      rightPerson_name,
-      rightPerson_pusta_number,
-      rightPerson_fatherName,
-      rightPerson_motherName,
-    });
+      const response = await axios.post(`${API_URL}/people/compare/`, {
+        leftPersonId,
+        rightPerson_name,
+        rightPerson_pusta_number,
+        rightPerson_fatherName,
+        rightPerson_motherName,
+      });
 
-    console.log(response.data);
-    console.log(response.data.message);
-    setRelationship(response.data.message);
+      console.log(response.data);
+      console.log(response.data.message);
+      setRelationship(response.data.message);
+    } catch (error) {
+      console.error("Error comparing persons:", error);
+      setApiError("Failed to compare persons. Please try again.");
+      Swal.fire({
+        title: "Error",
+        text: "Failed to compare persons",
+        icon: "error",
+        confirmButtonText: "Okay",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCompareAgain = () => {
+    window.location.reload();
   };
 
   const handleGenerateFamilyTree = async () => {
@@ -567,6 +497,11 @@ const Compare = () => {
                   setRightPerson((prev) => ({
                     ...prev,
                     pusta_number: value,
+                    name: "",
+                    fatherName: "",
+                    motherName: "",
+                    fatherId: "",
+                    motherId: "",
                   }));
                   debouncedFetch(value);
                 }}
@@ -696,21 +631,23 @@ const Compare = () => {
           <button
             className="bg-purple-700 text-white px-6 py-2 md:px-10 md:py-2 rounded-lg text-base md:text-xl mb-4"
             onClick={handleCompare}
+            disabled={isLoading}
           >
-            Compare
+            {isLoading ? "Comparing..." : "Compare"}
           </button>
 
           {relationship && (
-            <p className="text-lg font-bold mb-4">{relationship}</p>
+            <>
+              <p className="text-lg font-bold mb-4">{relationship}</p>
+              <button
+                className="bg-blue-600 text-white px-6 py-2 md:px-10 md:py-2 rounded-lg text-base md:text-xl mb-4"
+                onClick={handleCompareAgain}
+              >
+                Compare Again
+              </button>
+            </>
           )}
 
-          {/* <button
-            className="bg-green-600 text-white px-6 py-2 md:px-10 md:py-2 rounded text-base md:text-xl"
-            onClick={handleGenerateFamilyTree}
-            disabled={isLoading}
-          >
-            {isLoading ? "Generating..." : "Generate Family Tree"}
-          </button> */}
           {apiError && <p className="text-red-500 text-sm mt-4">{apiError}</p>}
         </div>
       </div>
