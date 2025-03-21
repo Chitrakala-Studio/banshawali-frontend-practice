@@ -18,14 +18,24 @@ import {
   FaMale,
   FaSkullCrossbones,
   FaUser,
-  FaUserAlt,
-  FaUserAltSlash,
+  FaCopy,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const UserProfileModal = ({ user, onClose }) => {
   console.log(user);
   const [activeTab, setActiveTab] = useState("personal");
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(user.bio)
+      .then(() => {
+        alert("Bio copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
 
   const tabs = [
     { id: "personal", label: "Personal", icon: UserCircle },
@@ -53,7 +63,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <FaBirthdayCake
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "7px" }}>Date of Birth</strong>{" "}
+          <strong style={{ marginRight: "7px" }}>Date of Birth</strong>
           {user.dateOfBirth}
         </p>
       )}
@@ -71,7 +81,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <FaSkullCrossbones
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Date of Death</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Date of Death</strong>
           {user.date_of_death}
         </p>
       )}
@@ -80,7 +90,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <Briefcase
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Profession</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Profession</strong>
           {user.profession}
         </p>
       )}
@@ -99,7 +109,7 @@ const UserProfileModal = ({ user, onClose }) => {
               color: "#3B82F6",
             }}
           />
-          <strong style={{ marginRight: "4px" }}>Grandfather</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Grandfather</strong>
           {user.grandfather.name_in_nepali}
         </p>
       )}
@@ -113,7 +123,7 @@ const UserProfileModal = ({ user, onClose }) => {
               color: "#EC4899",
             }}
           />
-          <strong style={{ marginRight: "4px" }}>Grandmother</strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Grandmother</strong>
           {user.grandmother.name_in_nepali}
         </p>
       )}
@@ -130,6 +140,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <strong style={{ marginRight: "2.5rem" }}>Father</strong>
           <Link
             to={`/${user.father.id}`}
+            onClick={onClose}
             style={{ color: "#3B82F6", marginLeft: "4px" }}
           >
             {user.father.name_in_nepali}
@@ -149,6 +160,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <strong style={{ marginRight: "2.5rem" }}>Mother</strong>
           <Link
             to={`/${user.mother.id}`}
+            onClick={onClose}
             style={{ color: "#3B82F6", marginLeft: "4px" }}
           >
             {user.mother.name_in_nepali}
@@ -183,6 +195,7 @@ const UserProfileModal = ({ user, onClose }) => {
               />
               <Link
                 to={`/${spouse.id}`}
+                onClick={onClose}
                 style={{ color: "#3B82F6", marginLeft: "4px" }}
               >
                 {spouse.name_in_nepali}
@@ -219,6 +232,7 @@ const UserProfileModal = ({ user, onClose }) => {
               />
               <Link
                 to={`/${sibling.id}`}
+                onClick={onClose}
                 style={{ color: "#3B82F6", marginLeft: "4px" }}
               >
                 {sibling.name_in_nepali}
@@ -255,6 +269,7 @@ const UserProfileModal = ({ user, onClose }) => {
               />
               <Link
                 to={`/${child.id}`}
+                onClick={onClose}
                 style={{ color: "#3B82F6", marginLeft: "4px" }}
               >
                 {child.name_in_nepali}
@@ -271,7 +286,7 @@ const UserProfileModal = ({ user, onClose }) => {
       {user.contact_details?.email && (
         <p style={{ display: "flex", alignItems: "center" }}>
           <Mail style={{ width: "20px", height: "20px", marginRight: "8px" }} />
-          <strong style={{ marginRight: "4px" }}>Email </strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Email</strong>{" "}
           {user.contact_details.email}
         </p>
       )}
@@ -280,7 +295,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <Phone
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Phone </strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Phone</strong>{" "}
           {user.contact_details.phone}
         </p>
       )}
@@ -289,7 +304,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <MapPin
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
-          <strong style={{ marginRight: "4px" }}>Address </strong>{" "}
+          <strong style={{ marginRight: "4px" }}>Address</strong>{" "}
           {user.contact_details.address}
         </p>
       )}
@@ -347,7 +362,7 @@ const UserProfileModal = ({ user, onClose }) => {
               style={{
                 width: "150px",
                 height: "150px",
-                borderRadius: "0", // Square shape
+                borderRadius: "0",
                 objectFit: "cover",
                 marginRight: "16px",
                 border: "2px solid #D1D5DB",
@@ -385,7 +400,33 @@ const UserProfileModal = ({ user, onClose }) => {
             >
               {user.name}
             </p>
-            <p style={{ color: "#4B5563", fontStyle: "italic" }}>{user.bio}</p>
+            {user.bio && (
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <p
+                  style={{
+                    color: "#4B5563",
+                    fontStyle: "italic",
+                    margin: "4px 0",
+                  }}
+                >
+                  {user.bio}
+                </p>
+                <button
+                  onClick={handleCopy}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    marginLeft: "8px",
+                  }}
+                  title="Copy bio"
+                >
+                  <FaCopy
+                    style={{ width: "16px", height: "16px", color: "#3B82F6" }}
+                  />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

@@ -294,10 +294,9 @@ const TableView = () => {
     setShowSearchForm(false);
   };
 
-  // Renamed handleGoBack to now be used for "View All Table"
   const handleGoBack = () => {
     if (id) {
-      navigate("/");
+      navigate("/", { replace: true });
     } else if (searchApplied) {
       setFilteredData(data);
       setSearchApplied(false);

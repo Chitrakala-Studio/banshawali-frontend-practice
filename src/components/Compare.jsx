@@ -23,6 +23,7 @@ const Compare = () => {
   const [rightFatherSuggestions, setRightFatherSuggestions] = useState([]);
   const [showRightFatherSuggestions, setShowRightFatherSuggestions] =
     useState(false);
+  const choicesInstanceRef = useRef(null);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
 
@@ -54,6 +55,23 @@ const Compare = () => {
   const [familyTreeData, setFamilyTreeData] = useState(null); // API response data
 
   useEffect(() => {
+    if (rightNameSelectRef.current && !choicesInstanceRef.current) {
+      choicesInstanceRef.current = new Choices(rightNameSelectRef.current, {
+        removeItemButton: true,
+        shouldSort: false,
+        searchEnabled: true,
+        searchFields: ["label", "customProperties.english"],
+      });
+    }
+    return () => {
+      if (choicesInstanceRef.current) {
+        choicesInstanceRef.current.destroy();
+        choicesInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!rightPerson.pusta_number) {
       setRightNameSuggestions([]);
     }
@@ -67,79 +85,6 @@ const Compare = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // const fetchSuggestions = async (
-  //   pustaNumber,
-  //   setRightNameSuggestions,
-  //   rightNameSelectRef,
-  //   setRightPerson
-  // ) => {
-  //   if (!pustaNumber) return;
-
-  //   try {
-  //     const response = await axios.get(
-  //       `${API_URL}/people/people/familyrelations?pusta_number=${pustaNumber}`,
-  //       {
-  //         method: "GET",
-  //         headers: { "Content-Type": "application/json" },
-  //       }
-  //     );
-
-  //     console.log("API Response:", response.data);
-
-  //     const name_suggestions = response.data.current_pusta_data || [];
-
-  //     if (name_suggestions.length === 0) {
-  //       console.warn("No suggestions found for pusta_number:", pustaNumber);
-  //     }
-
-  //     // Add delay before updating UI to prevent flickering
-  //     setTimeout(() => {
-  //       setRightNameSuggestions(name_suggestions);
-
-  //       if (rightNameSelectRef.current) {
-  //         const choices = new Choices(rightNameSelectRef.current, {
-  //           removeItemButton: true,
-  //           shouldSort: false,
-  //           searchEnabled: true,
-  //         });
-
-  //         choices.clearChoices(); // Remove old choices
-
-  //         choices.setChoices(
-  //           name_suggestions.map((sugg) => ({
-  //             value: sugg.name,
-  //             label: `${sugg.name} - ${sugg.father?.name || ""} | ${
-  //               sugg.mother?.name || ""
-  //             }`,
-  //           })),
-  //           "value",
-  //           "label",
-  //           true
-  //         );
-
-  //         rightNameSelectRef.current.addEventListener("change", (event) => {
-  //           const selectedPerson = name_suggestions.find(
-  //             (sugg) => sugg.name === event.target.value
-  //           );
-  //           if (selectedPerson) {
-  //             setRightPerson((prev) => ({
-  //               ...prev,
-  //               name: selectedPerson.name,
-  //               id: selectedPerson.id,
-  //               pusta_number: selectedPerson.pusta_number,
-  //               fatherName: selectedPerson.father?.name || "",
-  //               motherName: selectedPerson.mother?.name || "",
-  //               fatherId: selectedPerson.father?.id || "",
-  //               motherId: selectedPerson.mother?.id || "",
-  //             }));
-  //           }
-  //         });
-  //       }
-  //     }, 500); // Delay for 500ms
-  //   } catch (error) {
-  //     console.error("Error fetching suggestions:", error);
-  //   }
-  // };
   const fetchSuggestions = async (pustaNumber) => {
     if (!pustaNumber) return;
     try {
@@ -158,24 +103,24 @@ const Compare = () => {
       setTimeout(() => {
         setRightNameSuggestions(name_suggestions);
         if (rightNameSelectRef.current) {
-          const choices = new Choices(rightNameSelectRef.current, {
-            removeItemButton: true,
-            shouldSort: false,
-            searchEnabled: true,
-          });
-          choices.clearChoices(); // Remove old choices
-          choices.setChoices(
+          // const choices = new Choices(rightNameSelectRef.current, {
+          //   removeItemButton: true,
+          //   shouldSort: false,
+          //   searchEnabled: true,
+          //   searchFields: ["label", "customProperties.english"],
+          // });
+
+          choicesInstanceRef.current.clearChoices();
+          choicesInstanceRef.current.setChoices(
             name_suggestions.map((sugg) => ({
               value: sugg.name,
-              label: `${sugg.name} - ${sugg.father?.name || ""} | ${
-                sugg.mother?.name || ""
-              }`,
+              label: sugg.name_in_nepali,
+              customProperties: { english: sugg.name },
             })),
             "value",
             "label",
             true
           );
-
           rightNameSelectRef.current.addEventListener("change", (event) => {
             const selectedPerson = name_suggestions.find(
               (sugg) => sugg.name === event.target.value
@@ -514,7 +459,6 @@ const Compare = () => {
 
             <div className="w-full relative">
               <label className="block mb-2 text-sm md:text-base">Name</label>
-              {/* className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base" */}
               <select
                 ref={rightNameSelectRef}
                 id="rightNameSelect"
@@ -543,7 +487,6 @@ const Compare = () => {
                         setShowRightNameSuggestions(false);
                         setRightNameSuggestions([]);
 
-                        // Fetch father's and mother's suggestions based on selected person
                         if (sugg.father?.name) {
                           const parentGeneration = sugg.pusta_number - 1;
                           fetchRightFatherSuggestions(
@@ -628,13 +571,15 @@ const Compare = () => {
         </div>
 
         <div className="text-center w-full max-w-md mt-8 flex flex-col mb-4">
-          <button
-            className="bg-purple-700 text-white px-6 py-2 md:px-10 md:py-2 rounded-lg text-base md:text-xl mb-4"
-            onClick={handleCompare}
-            disabled={isLoading}
-          >
-            {isLoading ? "Comparing..." : "Compare"}
-          </button>
+          {!relationship && (
+            <button
+              className="bg-purple-700 text-white px-6 py-2 md:px-10 md:py-2 rounded-lg text-base md:text-xl mb-4"
+              onClick={handleCompare}
+              disabled={isLoading}
+            >
+              {isLoading ? "Comparing..." : "Compare"}
+            </button>
+          )}
 
           {relationship && (
             <>

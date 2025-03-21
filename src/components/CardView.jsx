@@ -44,8 +44,8 @@ const CardView = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // In your fetchData useEffect (normal card view)
   useEffect(() => {
+    if (isSearchActive) return; // skip fetching when viewing search results
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -62,7 +62,6 @@ const CardView = () => {
         setPreviousIndex(result.previous);
         setNextIndex(result.next);
         setLoading(false);
-        setIsSearchActive(false); // Normal card view
         if (result_data.length > 0) {
           setCurrentIndex(0);
         } else {
@@ -74,7 +73,7 @@ const CardView = () => {
       }
     };
     fetchData();
-  }, [id, navigate]);
+  }, [id, isSearchActive, navigate]);
 
   useEffect(() => {
     if (isSearchActive && data.length > 0) {
