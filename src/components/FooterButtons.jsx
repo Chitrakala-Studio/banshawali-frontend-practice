@@ -16,8 +16,8 @@ const FooterButtons = ({
     <div
       className={
         isMobile
-          ? "w-full max-w-lg flex justify-around items-center px-3 py-2" // Simplified for mobile
-          : "fixed bottom-2 right-2 w-full flex justify-center" // Desktop positioning
+          ? "w-full max-w-lg flex justify-around items-center px-3 py-2"
+          : "fixed bottom-3 right-2 w-full flex justify-center"
       }
     >
       <div
@@ -39,7 +39,8 @@ const FooterButtons = ({
           onClick={onGenerateFamilyTree}
           className="flex-1 w-5/6 flex justify-center items-center text-white text-sm font-medium rounded-full h-8 px-0 bg-white/20 transition-all duration-300 hover:bg-white/40 hover:border-white/30 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
         >
-          <FaSitemap className="mr-2" /> Family Tree
+          <FaSitemap className="mr-2" />
+          Family Tree
         </button>
         <button
           onClick={onSearchButtonClick}
