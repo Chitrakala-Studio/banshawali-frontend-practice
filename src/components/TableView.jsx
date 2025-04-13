@@ -165,15 +165,15 @@ const TableView = () => {
     Swal.fire({
       title: `Submit Suggestion for ${row.name_in_nepali}`,
       html: `
-       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-       <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px;"></textarea>
-       <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
-         <div id="file-picker" style="height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-           <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
-           Drag & drop an image here or click to select 
-           <input type="file" id="file-input" accept="image/*" style="display: none;">
-         </div>
-       </div>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px; background-color: white;"></textarea>
+    <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
+      <div id="file-picker" style="height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
+        Drag & drop an image here or click to select 
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+      </div>
+    </div>
       `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
@@ -248,12 +248,15 @@ const TableView = () => {
         }
         // API Payload
         const payload = {
-          personId: row.id,
+          //personId: row.id,
           suggestion: suggestion,
+          suggestion_to: row.id,
           user:
             JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
+          name_in_nepali: row.name_in_nepali,
           ...(photoUrl && { image: photoUrl }),
         };
+
         try {
           await axios.post(
             `${import.meta.env.VITE_API_URL}/people/suggestions/`,

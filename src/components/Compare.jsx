@@ -60,7 +60,7 @@ const Compare = () => {
         removeItemButton: true,
         shouldSort: false,
         searchEnabled: true,
-        searchFields: ["label", "customProperties.english"],
+        searchFields: ["customProperties.english", "label"],
       });
     }
     return () => {

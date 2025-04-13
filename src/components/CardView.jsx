@@ -414,7 +414,7 @@ const CardView = () => {
                 }
               >
                 {!isMobile && (
-                  <div className="footer w-full bg-white z-20">
+                  <div className="absolute bottom-0 left-0 w-full bg-white z-20">
                     <FooterButtons
                       id={id}
                       onGenerateFamilyTree={handleFooterGenerate}
