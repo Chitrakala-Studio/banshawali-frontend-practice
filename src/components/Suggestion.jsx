@@ -3,10 +3,13 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { FaCheck, FaEye, FaTimes } from "react-icons/fa";
+import SuggestionModal from "./SuggestionModal"; // Import the new card
 
 const Suggestion = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [hasMore, setHasMore] = useState(false);
+  const [selectedSuggestion, setSelectedSuggestion] = useState(null);
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -18,7 +21,6 @@ const Suggestion = () => {
       const response = await axios.get(
         `${API_URL}/people/suggestions/?page=${page}`
       );
-      console.log("API Response:", response.data); // Log the API response
       const suggestionArray = response.data.data;
       if (page === 1) {
         setSuggestions(suggestionArray);
@@ -32,7 +34,6 @@ const Suggestion = () => {
     }
   };
 
-  // Update suggestion status with name_in_nepali
   const updateSuggestionStatus = async (
     id,
     newStatus,
@@ -44,7 +45,7 @@ const Suggestion = () => {
       const payload = {
         status: newStatus,
         suggestion: suggestionText,
-        name_in_nepali: name_in_nepali, // Ensure name_in_nepali is included
+        name_in_nepali: name_in_nepali,
         image: image,
         id: id,
       };
@@ -71,7 +72,6 @@ const Suggestion = () => {
     }
   };
 
-  // Handle accept and reject with name_in_nepali
   const handleAccept = (e, id, name_in_nepali, suggestionText, image) => {
     e.stopPropagation();
     updateSuggestionStatus(
@@ -94,48 +94,10 @@ const Suggestion = () => {
     );
   };
 
-  // Handle view click with name_in_nepali
+  // Open the new SuggestionCard when the eye icon is clicked.
   const handleViewClick = (suggestion) => {
-    console.log("Suggestion Object:", suggestion); // Log the suggestion object
-    Swal.fire({
-      title: `Suggestion Details for ${suggestion.name_in_nepali}`,
-      html: `
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-        <div style="text-align: left;">
-          <p><strong>Suggestion:</strong> ${suggestion.suggestion}</p>
-          ${
-            suggestion.image
-              ? `<img src="${suggestion.image}" alt="Suggestion" style="max-width: 400px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;" />`
-              : "No Image"
-          }
-        </div>
-    `,
-      backdrop: `rgba(10,10,10,0.8)`,
-      showCloseButton: true,
-      showCancelButton: false,
-      confirmButtonText: "Close",
-      didOpen: () => {
-        const titleElement = document.querySelector(".swal2-title");
-        if (titleElement) {
-          titleElement.style.fontSize = "24px";
-          titleElement.style.color = "antiquewhite";
-          titleElement.style.fontFamily = "Times New Roman, sans-serif";
-          titleElement.style.letterSpacing = "1px";
-          titleElement.style.fontWeight = "bold";
-          titleElement.style.marginBottom = "15px";
-          titleElement.style.borderBottom = "2px solid #eaeaea";
-          titleElement.style.paddingBottom = "10px";
-        }
-        const popupElement = document.querySelector(".swal2-popup");
-        if (popupElement) {
-          popupElement.style.backgroundColor = "#0b1d2e";
-          popupElement.style.borderRadius = "10px";
-          popupElement.style.padding = "20px";
-          popupElement.style.border = "2px solid #0b1d2e";
-        }
-      },
-      allowOutsideClick: () => !Swal.isLoading(),
-    });
+    setSelectedSuggestion(suggestion);
+    setShowSuggestionModal(true);
   };
 
   const convertToNepaliNumerals = (number) => {
@@ -195,7 +157,7 @@ const Suggestion = () => {
                           handleAccept(
                             e,
                             suggestion.id,
-                            suggestion.name_in_nepali,
+                            suggestion.suggestion_to?.name_in_nepali,
                             suggestion.suggestion,
                             suggestion.image
                           )
@@ -209,7 +171,7 @@ const Suggestion = () => {
                           handleReject(
                             e,
                             suggestion.id,
-                            suggestion.name_in_nepali,
+                            suggestion.suggestion_to?.name_in_nepali,
                             suggestion.suggestion,
                             suggestion.image
                           )
@@ -258,6 +220,18 @@ const Suggestion = () => {
           </tbody>
         </table>
       </InfiniteScroll>
+
+      {/* Conditionally render the custom SuggestionCard */}
+      {showSuggestionModal && selectedSuggestion && (
+        <SuggestionModal
+          suggestion={selectedSuggestion}
+          onClose={() => {
+            setShowSuggestionModal(false);
+            setSelectedSuggestion(null);
+          }}
+          convertToNepaliNumerals={convertToNepaliNumerals}
+        />
+      )}
     </div>
   );
 };

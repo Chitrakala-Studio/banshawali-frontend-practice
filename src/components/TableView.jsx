@@ -1,5 +1,6 @@
 import { React, useState, useEffect } from "react";
 import axios from "axios";
+import { getGenderRowClass } from "./utils";
 import {
   FaCheck,
   FaTimes,
@@ -595,7 +596,7 @@ const TableView = () => {
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200"
+                        className="border-b-2 border-gray-700 hover:bg-gray-200 ${getGenderRowClass(row.gender)}"
                       >
                         <td className="text-center">
                           <img
