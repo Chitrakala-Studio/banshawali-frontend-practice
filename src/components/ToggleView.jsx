@@ -11,7 +11,7 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
       navigate(`/card/${availableId}`);
     } else if (!isTableView && availableId) {
       navigate(`/${availableId}`);
-    }  else {
+    } else {
       navigate("/");
     }
   };
@@ -33,7 +33,7 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
         >
           <div
             className={`absolute inset-0 rounded-[20px] transition-colors ${
-              isTableView ? "bg-green-200" : "bg-yellow-200"
+              isTableView ? "bg-[#14632F]" : "bg-[#F49D37]"
             }`}
           />
 

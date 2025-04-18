@@ -1,23 +1,8 @@
 import { React, useState, useEffect } from "react";
 import axios from "axios";
 import { getGenderRowClass } from "./utils";
-import {
-  FaCheck,
-  FaTimes,
-  FaCloudUploadAlt,
-  FaFileAlt,
-  FaDownload,
-  FaArrowLeft,
-  FaInfoCircle,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-  FaRegIdCard,
-  FaMale,
-  FaLightbulb,
-  FaFemale,
-  FaClock,
-} from "react-icons/fa";
+import { FaArrowLeft, FaSearch, FaMale, FaFemale } from "react-icons/fa";
+import { NotebookPen, Trash2, Info, IdCard, Lightbulb } from "lucide-react";
 import EditFormModal from "./EditFormModal";
 import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
@@ -105,10 +90,10 @@ const TableView = () => {
       if (user && user.token) {
         setIsAdminLocal(user.role === "admin");
       } else {
-        setIsAdminLocal(false); // Not logged in, but still show TableView
+        setIsAdminLocal(false);
       }
     } else {
-      setIsAdminLocal(false); // No user data found
+      setIsAdminLocal(false);
     }
     fetchData(1);
   }, [id]);
@@ -474,8 +459,8 @@ const TableView = () => {
           transition-all
           hover:scale-110
           hover:shadow-lg
-          bg-blue-600
-          hover:bg-blue-700
+          bg-[#14632F]
+          hover:bg-[#F49D37]
           flex items-center space-x-2
         "
               onClick={() => setShowSearchForm(true)}
@@ -516,8 +501,8 @@ const TableView = () => {
                    transition-all
                    hover:scale-110
                    hover:shadow-lg
-                   bg-purple-600
-                   hover:bg-purple-700
+                    bg-[#14632F]
+          hover:bg-[#F49D37]
                  "
                     onClick={() => navigate("/suggestions")}
                   >
@@ -536,8 +521,8 @@ const TableView = () => {
                   transition-all
                   hover:scale-110
                   hover:shadow-lg
-                  bg-green-600
-                  hover:bg-green-700
+                 bg-[#14632F]
+          hover:bg-[#F49D37]
                   flex items-center space-x-2
                 "
                     onClick={() => {
@@ -615,8 +600,8 @@ const TableView = () => {
                           {(() => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
-                                ? { bg: "bg-green-300 text-green-700" }
-                                : { bg: "bg-orange-300 text-orange-700" };
+                                ? { bg: "bg-[#14632F] text-white" }
+                                : { bg: "bg-[#F49D37] text-white" };
                             return (
                               <div
                                 className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
@@ -676,7 +661,7 @@ const TableView = () => {
                         </td>
                         <td className="text-center">
                           <button onClick={() => handleInfoClick(row)}>
-                            <FaInfoCircle />
+                            <Info color="black" size={18} />
                           </button>
                           {isAdminLocal ? (
                             <>
@@ -684,13 +669,13 @@ const TableView = () => {
                                 className="icon-button edit-button"
                                 onClick={() => handleEditClick(row)}
                               >
-                                <FaEdit />
+                                <NotebookPen color="black" size={18} />
                               </button>
                               <button
                                 className="icon-button delete-button"
                                 onClick={() => handleDelete(row)}
                               >
-                                <FaTrash />
+                                <Trash2 color="black" size={18} />
                               </button>
                             </>
                           ) : (
@@ -698,7 +683,7 @@ const TableView = () => {
                               className="icon-button suggestion-button"
                               onClick={() => handleSuggestionClick(row)}
                             >
-                              <FaLightbulb />
+                              <Lightbulb color="black" size={18} />
                             </button>
                           )}
                           <button
@@ -706,7 +691,10 @@ const TableView = () => {
                             title="View Card"
                             onClick={() => navigate(`/card/${row.id}`)}
                           >
-                            <FaRegIdCard />
+                            <IdCard
+                              color="black"
+                              style={{ paddingTop: "3px" }}
+                            />
                           </button>
                         </td>
                       </tr>
@@ -755,10 +743,10 @@ const TableView = () => {
                             const genColorClass =
                               row.pusta_number % 2 === 0
                                 ? {
-                                    bg: "bg-green-300 text-green-700",
+                                    bg: "bg-[#14632F] text-white",
                                   }
                                 : {
-                                    bg: "bg-orange-300 text-orange-700",
+                                    bg: "bg-[#F49D37] text-white",
                                   };
                             return (
                               <div
@@ -821,7 +809,7 @@ const TableView = () => {
                         </td>
                         <td className="text-center">
                           <button onClick={() => handleInfoClick(row)}>
-                            <FaInfoCircle />
+                            <Info color="black" size={18} />
                           </button>
                           {isAdminLocal ? (
                             <>
@@ -851,7 +839,7 @@ const TableView = () => {
                             title="View Card"
                             onClick={() => navigate(`/card/${row.id}`)}
                           >
-                            <FaRegIdCard />
+                            <IdCard color="black" size={20} />
                           </button>
                         </td>
                       </tr>
