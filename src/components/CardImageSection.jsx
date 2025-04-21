@@ -12,7 +12,7 @@ const CardImageSection = ({
   isMobile,
   maleImage,
   femaleImage,
-
+  convertToNepaliNumerals,
   onToggleInfo,
 }) => {
   return (
@@ -82,7 +82,7 @@ CardImageSection.propTypes = {
   isMobile: PropTypes.bool.isRequired,
   maleImage: PropTypes.string.isRequired,
   femaleImage: PropTypes.string.isRequired,
-
+  convertToNepaliNumerals: PropTypes.func.isRequired,
   onToggleInfo: PropTypes.func.isRequired,
 };
 

@@ -20,9 +20,9 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
     <div className="absolute top-4 left-4 z-50">
       <div className="flex items-center">
         <span
-          className={`text-base font-bold mr-4 ${
-            isTableView ? "text-black" : "text-gray-400"
-          }`}
+          className={`text-base font-bold mr-4 
+           "text-black"
+          `}
         >
           Table
         </span>
@@ -51,9 +51,9 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
         </div>
 
         <span
-          className={`text-base font-bold ml-4 ${
-            isTableView ? "text-gray-400" : "text-black"
-          }`}
+          className={`text-base font-bold ml-4 
+            "text-black"
+          `}
         >
           Card
         </span>

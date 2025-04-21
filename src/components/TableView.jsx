@@ -12,7 +12,10 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserProfileModal from "./UserProfileModal";
 import { useDropzone } from "react-dropzone";
+import "react-tooltip/dist/react-tooltip.css";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import Suggestion from "./Suggestion";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const TableView = () => {
   const { id } = useParams();
@@ -98,35 +101,78 @@ const TableView = () => {
     fetchData(1);
   }, [id]);
 
-  const fetchData = async (page) => {
+  // const fetchData = async (page) => {
+  //   try {
+  //     if (!hasMore) return;
+  //     let response = null;
+
+  //     if (id) {
+  //       response = await fetch(`${API_URL}/people/${id}/`, {
+  //         method: "GET",
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+  //     } else {
+  //       response = await fetch(`${API_URL}/people/people/?page=${page}`, {
+  //         method: "GET",
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+  //     }
+
+  //     const response_data = await response.json();
+  //     const fetchedData = response_data.data;
+  //     console.log("Fetched data:", fetchedData);
+
+  //     if (page === 1) {
+  //       setData(fetchedData);
+  //       setFilteredData(fetchedData);
+  //     } else {
+  //       setData((prevData) => [...prevData, ...fetchedData]);
+  //       setFilteredData((prevData) => [...prevData, ...fetchedData]);
+  //     }
+  //     setHasMore(fetchedData.next !== null);
+  //   } catch (error) {
+  //     console.error("Fetch error:", error);
+  //     setHasMore(false);
+  //   }
+  // };
+
+  const fetchData = async (page = 1) => {
     try {
-      if (!hasMore) return;
-      let response = null;
+      console.log(
+        "Fetching data for:",
+        id ? `person ID ${id}` : `page ${page}`
+      );
 
+      let response_data;
       if (id) {
-        response = await fetch(`${API_URL}/people/${id}/`, {
+        const response = await fetch(`${API_URL}/people/${id}/`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
+        const result = await response.json();
+        console.log("Single person response:", result);
+        response_data = [result.data]; // wrap in array
+        setHasMore(false);
       } else {
-        response = await fetch(`${API_URL}/people/people/?page=${page}`, {
+        const response = await fetch(`${API_URL}/people/people/?page=${page}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
+        const result = await response.json();
+        console.log("People list response:", result);
+        response_data = result.data;
+        setHasMore(result.next !== null);
       }
 
-      const response_data = await response.json();
-      const fetchedData = response_data.data;
-      console.log("Fetched data:", fetchedData);
-
-      if (page === 1) {
-        setData(fetchedData);
-        setFilteredData(fetchedData);
+      if (page === 1 || id) {
+        setData(response_data);
+        setFilteredData(response_data);
       } else {
-        setData((prevData) => [...prevData, ...fetchedData]);
-        setFilteredData((prevData) => [...prevData, ...fetchedData]);
+        setData((prev) => [...prev, ...response_data]);
+        setFilteredData((prev) => [...prev, ...response_data]);
       }
-      setHasMore(fetchedData.next !== null);
+
+      console.log("Visible data after fetch:", response_data);
     } catch (error) {
       console.error("Fetch error:", error);
       setHasMore(false);
@@ -440,8 +486,8 @@ const TableView = () => {
                  transition-all
                  hover:scale-110
                  hover:shadow-lg
-                 bg-gray-600
-                 hover:bg-gray-700
+                 bg-[#14632F]
+          hover:bg-[#F49D37]
                  flex items-center space-x-2
                "
               >
@@ -555,11 +601,9 @@ const TableView = () => {
             next={handleLoadMore}
             hasMore={hasMore && visibleData.length >= 15}
             loader={
-              visibleData.length >= 15 ? (
-                <div className="flex justify-center items-center h-screen">
-                  <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-                </div>
-              ) : null
+              <div className="flex justify-center items-center py-6">
+                <ClipLoader color="#4B5563" loading={true} size={35} />
+              </div>
             }
             style={{ overflow: "hidden" }}
           >
@@ -581,7 +625,9 @@ const TableView = () => {
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className="border-b-2 border-gray-700 hover:bg-gray-200 ${getGenderRowClass(row.gender)}"
+                        className={`border-b-2 border-gray-700 hover:bg-gray-200 ${getGenderRowClass(
+                          row.gender
+                        )}`}
                       >
                         <td className="text-center">
                           <img
@@ -652,7 +698,10 @@ const TableView = () => {
                         </td>
                         <td className="text-center">
                           {row.lifestatus.toLowerCase() === "dead" ? (
-                            <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
+                            <span
+                              className="text-white text-xs font-bold px-2 py-1 rounded"
+                              style={{ backgroundColor: "#800000" }}
+                            >
                               मृत्यु
                             </span>
                           ) : (
@@ -660,41 +709,52 @@ const TableView = () => {
                           )}
                         </td>
                         <td className="text-center">
-                          <button onClick={() => handleInfoClick(row)}>
-                            <Info color="black" size={18} />
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Info"
+                            className="hover:text-blue-500 transition duration-150"
+                            onClick={() => handleInfoClick(row)}
+                          >
+                            <Info size={18} />
                           </button>
+
                           {isAdminLocal ? (
                             <>
                               <button
-                                className="icon-button edit-button"
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Edit"
+                                className="hover:text-green-500 transition duration-150"
                                 onClick={() => handleEditClick(row)}
                               >
-                                <NotebookPen color="black" size={18} />
+                                <NotebookPen size={18} />
                               </button>
+
                               <button
-                                className="icon-button delete-button"
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Delete"
+                                className="hover:text-red-500 transition duration-150"
                                 onClick={() => handleDelete(row)}
                               >
-                                <Trash2 color="black" size={18} />
+                                <Trash2 size={18} />
                               </button>
                             </>
                           ) : (
                             <button
-                              className="icon-button suggestion-button"
+                              data-tooltip-id="tooltip"
+                              data-tooltip-content="Suggest Edit"
+                              className="hover:text-yellow-500 transition duration-150"
                               onClick={() => handleSuggestionClick(row)}
                             >
-                              <Lightbulb color="black" size={18} />
+                              <Lightbulb size={18} />
                             </button>
                           )}
                           <button
-                            className="icon-button card-button text-gray-500 hover:text-blue-500"
-                            title="View Card"
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Card"
+                            className="hover:text-indigo-500 transition duration-150"
                             onClick={() => navigate(`/card/${row.id}`)}
                           >
-                            <IdCard
-                              color="black"
-                              style={{ paddingTop: "3px" }}
-                            />
+                            <IdCard size={18} />
                           </button>
                         </td>
                       </tr>
@@ -905,6 +965,7 @@ const TableView = () => {
           onClose={() => setShowInfoPopup(false)}
         />
       )}
+      <ReactTooltip id="tooltip" place="top" effect="solid" />
     </div>
   );
 };

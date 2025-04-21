@@ -16,6 +16,8 @@ import female from "./female1.png";
 const CardView = () => {
   const { id } = useParams();
   const containerRef = useRef(null);
+
+  /* ───────────────────────── State ───────────────────────── */
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,21 +37,20 @@ const CardView = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
+  /* ───────────── Window‑resize listener for mobile flag ───────────── */
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 800);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 800);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  /* ───────────── Fetch person(s) when id changes or search resets ───────────── */
   useEffect(() => {
-    if (isSearchActive) return; // skip fetching when viewing search results
+    if (isSearchActive) return;
     const fetchData = async () => {
       try {
         setLoading(true);
-        const url = `${API_URL}/people/${id}/`;
-        const response = await fetch(url, {
+        const response = await fetch(`${API_URL}/people/${id}/`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -66,23 +67,23 @@ const CardView = () => {
         } else {
           navigate(`/`);
         }
-      } catch (error) {
-        setError(error);
+      } catch (err) {
+        setError(err);
         setLoading(false);
       }
     };
     fetchData();
   }, [id, isSearchActive, navigate]);
 
+  /* ───────────── Keep URL in sync when searching within list ───────────── */
   useEffect(() => {
     if (isSearchActive && data.length > 0) {
       navigate(`/card/${data[currentIndex].id}`, { replace: true });
     }
   }, [currentIndex, data, isSearchActive, navigate]);
 
-  const toggleView = () => {
-    setIsTableView(!isTableView);
-  };
+  /* ────────────────────── Handlers ────────────────────── */
+  const toggleView = () => setIsTableView(!isTableView);
 
   const handleFooterGenerate = () => {
     const currentPerson = data[currentIndex];
@@ -120,49 +121,28 @@ const CardView = () => {
   };
 
   const scrollLeft = () => {
-    setInfoPopup(false);
+    setInfoPopup(null);
     setIsExpanded(false);
     if (isSearchActive) {
-      if (currentIndex > 0) {
-        setCurrentIndex((prevIndex) => prevIndex - 1);
-      }
+      if (currentIndex > 0) setCurrentIndex((prev) => prev - 1);
     } else {
       navigate(`/card/${previousIndex}`);
     }
   };
 
   const scrollRight = () => {
-    setInfoPopup(false);
+    setInfoPopup(null);
     setIsExpanded(false);
     if (isSearchActive) {
-      if (currentIndex < data.length - 1) {
-        setCurrentIndex((prevIndex) => prevIndex + 1);
-      }
+      if (currentIndex < data.length - 1) setCurrentIndex((prev) => prev + 1);
     } else {
       navigate(`/card/${nextIndex}`);
     }
   };
 
-  const scrollToCard = (index) => {
-    if (containerRef.current) {
-      const cardWidth = containerRef.current.clientWidth;
-      containerRef.current.scrollTo({
-        left: cardWidth * index,
-        behavior: "auto",
-      });
-      containerRef.current.classList.add("animate-pulse");
-      setTimeout(() => {
-        containerRef.current.classList.remove("animate-pulse");
-      }, 300);
-    }
-  };
-
   const handleSwipe = (direction) => {
-    if (direction === "left") {
-      scrollRight();
-    } else if (direction === "right") {
-      scrollLeft();
-    }
+    if (direction === "left") scrollRight();
+    else if (direction === "right") scrollLeft();
   };
 
   const convertToNepaliNumerals = (number) => {
@@ -170,41 +150,42 @@ const CardView = () => {
     return number
       .toString()
       .split("")
-      .map((digit) => nepaliNumerals[digit])
+      .map((d) => nepaliNumerals[d])
       .join("");
   };
 
-  if (loading) {
+  /* ────────────────────── Early returns ────────────────────── */
+  if (loading)
     return (
       <div className="flex justify-center items-center h-screen bg-gradient-to-t from-black via-black/60 to-transparent">
         <Circles
           height="80"
           width="80"
           color="#4fa94d"
-          ariaLabel="circles-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
+          ariaLabel="loading..."
         />
       </div>
     );
-  }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (error) return <div>Error: {error.message || error.toString()}</div>;
 
-  if (!data || data.length === 0) {
+  if (!data || data.length === 0)
     return (
       <div className="flex items-center justify-center h-screen">
         <p className="text-white text-lg">No results found.</p>
       </div>
     );
-  }
+
+  /* ────────────────────── Render ────────────────────── */
+  const currentPerson = data[currentIndex];
+  const isInfoOpen =
+    isExpanded &&
+    infoPopup === (currentPerson?.name || currentPerson?.name_in_nepali);
 
   return (
     <>
       <div className="flex flex-col h-screen bg-gradient-to-t from-black via-black/60 to-transparent">
+        {/* Toggle table/card view button (desktop only) */}
         {!isMobile && (
           <ToggleView
             isTableView={isTableView}
@@ -212,6 +193,8 @@ const CardView = () => {
             availableId={id}
           />
         )}
+
+        {/* Card container */}
         <div
           className={
             isMobile
@@ -219,36 +202,48 @@ const CardView = () => {
               : "w-[40vw] m-auto rounded-2xl overflow-hidden"
           }
         >
-          <TinderCard
-            className="relative w-full h-full snap-center flex flex-col group"
-            preventSwipe={
-              infoPopup === data[currentIndex].name
-                ? ["left", "right", "up", "down"]
-                : ["up", "down"]
-            }
-            style={
-              infoPopup === data[currentIndex].name
-                ? { touchAction: "pan-y" }
-                : {}
-            }
-            onSwipe={(direction) => handleSwipe(direction)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <CardImageSection
-              person={data[currentIndex]}
-              isExpanded={isExpanded}
-              onScrollLeft={scrollLeft}
-              onScrollRight={scrollRight}
-              isHovered={isHovered}
+          {/* ───── Conditional wrapper: plain <div> when info panel open ───── */}
+          {isInfoOpen ? (
+            <div className="relative w-full h-full snap-center flex flex-col group">
+              <CardImageSection
+                person={currentPerson}
+                isExpanded={isExpanded}
+                onScrollLeft={scrollLeft}
+                onScrollRight={scrollRight}
+                isHovered={isHovered}
+                onSwipe={() => {}} // swipes disabled
+                isMobile={isMobile}
+                maleImage={male}
+                femaleImage={female}
+                convertToNepaliNumerals={convertToNepaliNumerals}
+                onToggleInfo={handleToggleInfo}
+              />
+            </div>
+          ) : (
+            <TinderCard
+              className="relative w-full h-full snap-center flex flex-col group"
+              preventSwipe={["up", "down"]} // horizontal swipes allowed
               onSwipe={handleSwipe}
-              isMobile={isMobile}
-              maleImage={male}
-              femaleImage={female}
-              convertToNepaliNumerals={convertToNepaliNumerals}
-              onToggleInfo={handleToggleInfo}
-            />
-          </TinderCard>
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <CardImageSection
+                person={currentPerson}
+                isExpanded={isExpanded}
+                onScrollLeft={scrollLeft}
+                onScrollRight={scrollRight}
+                isHovered={isHovered}
+                onSwipe={handleSwipe}
+                isMobile={isMobile}
+                maleImage={male}
+                femaleImage={female}
+                convertToNepaliNumerals={convertToNepaliNumerals}
+                onToggleInfo={handleToggleInfo}
+              />
+            </TinderCard>
+          )}
+
+          {/* Footer (always present) */}
           <CardFooterSection
             id={id}
             onGenerateFamilyTree={handleFooterGenerate}
@@ -258,10 +253,11 @@ const CardView = () => {
             isExpanded={isExpanded}
             onToggleInfo={handleToggleInfo}
             convertToNepaliNumerals={convertToNepaliNumerals}
-            person={data[currentIndex]}
+            person={currentPerson}
           />
         </div>
 
+        {/* Family‑tree modal */}
         {selectedPerson && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white w-11/12 max-w-5xl p-6 rounded-lg relative">
@@ -287,6 +283,7 @@ const CardView = () => {
           </div>
         )}
       </div>
+
       {showSearchPopup && (
         <SearchForm
           initialCriteria={{

@@ -25,31 +25,48 @@ const CardFooterSection = ({
         z-10
       `}
     >
-      <div className="bg-[#F49D37] rounded-t-lg shadow-lg pt-2 pb-0">
-        <div className="flex justify-between items-center mb-2">
+      <div
+        className="bg-[#14632F] shadow-lg pt-12 pb-4 relative"
+        style={{
+          maskImage:
+            "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
+          WebkitMaskImage:
+            "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
+          minHeight: "150px",
+        }}
+      >
+        <div className="flex justify-between items-center mb-3 px-4">
+          {/* Wrap name and pusta number in a flex container */}
+          <div className="flex items-center gap-1">
+            <h2
+              className="
+                text-[#F49D37]
+                px-1
+                py-2
+                font-semibold
+                text-sm
+              "
+            >
+              {person.name_in_nepali} .
+              {convertToNepaliNumerals(person.pusta_number)}
+            </h2>
+          </div>
+
+          {/* Toggle button remains separate */}
           <button
             className="
-              flex-shrink-0
-              bg-[#d8ac6d]
-              text-black
-              px-3
-              py-1
+              p-2
+              text-[#800000]
+              text-xl
+              bg-[#F49D37]
               rounded-full
-              font-medium
-              text-sm
+              shadow-md
+              hover:bg-white
+              hover:shadow-lg
+              transition-all duration-200
+              focus:outline-none focus:ring-2 focus:ring-white/50
             "
-          >
-            {person.name_in_nepali} ·
-            {convertToNepaliNumerals(person.pusta_number)}
-          </button>
-
-          <button
-            className="p-2 text-blacktext-xl"
             onClick={(e) => {
-              e.stopPropagation();
-              onToggleInfo(person);
-            }}
-            onTouchEnd={(e) => {
               e.stopPropagation();
               onToggleInfo(person);
             }}
