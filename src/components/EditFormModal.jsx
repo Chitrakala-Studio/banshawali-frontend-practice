@@ -7,7 +7,6 @@ import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
 import { NepaliDatePicker } from "nepali-datepicker-reactjs";
 import "nepali-datepicker-reactjs/dist/index.css";
-import { style } from "d3-selection";
 import Choices from "choices.js";
 import "choices.js/public/assets/styles/choices.min.css";
 
@@ -18,9 +17,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     name: formData.name || "",
     name_in_nepali: formData.name_in_nepali || "",
     gender: formData.gender || "",
-    dob: formData.dob || null,
+    dob: formData.dob || "",
     lifestatus: formData.lifestatus || "",
-    death_date: formData.death_date || null,
+    death_date: formData.death_date || "",
     father_name: formData.father_name || "",
     father_id: formData.father_id || null,
     mother_name: formData.mother_name || "",
@@ -35,19 +34,15 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     profileImage: formData.profileImage || "",
   }));
 
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState([]); // Father suggestions
+  const [motherSuggestions, setMotherSuggestions] = useState([]); // Mother suggestions
   const fatherInputRef = useRef(null);
   const motherInputRef = useRef(null);
   const fatherChoicesInstance = useRef(null);
   const motherChoicesInstance = useRef(null);
-  const [motherSuggestions, setMotherSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
-  //const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [familyMembers, setFamilyMembers] = useState([]);
-  const [date, setDate] = useState("");
-  const debounceTimeout = useRef(null);
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
   const API_URL = import.meta.env.VITE_API_URL;
@@ -56,9 +51,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const hideFatherSuggestionsTimeout = useRef(null);
   const hideMotherSuggestionsTimeout = useRef(null);
 
-  // const todayNepali = new NepaliDate(today.getFullYear(), today.getMonth() + 1, today.getDate()).toObject();
-
-  // For father suggestions
+  // Handle mouse events for father suggestions
   const handleFatherMouseEnter = () => {
     if (hideFatherSuggestionsTimeout.current) {
       clearTimeout(hideFatherSuggestionsTimeout.current);
@@ -69,10 +62,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const handleFatherMouseLeave = () => {
     hideFatherSuggestionsTimeout.current = setTimeout(() => {
       setShowSuggestions(false);
-    }, 200); // Adjust the delay as needed
+    }, 200);
   };
 
-  // For mother suggestions
+  // Handle mouse events for mother suggestions
   const handleMotherMouseEnter = () => {
     if (hideMotherSuggestionsTimeout.current) {
       clearTimeout(hideMotherSuggestionsTimeout.current);
@@ -83,28 +76,114 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const handleMotherMouseLeave = () => {
     hideMotherSuggestionsTimeout.current = setTimeout(() => {
       setShowMotherSuggestions(false);
-    }, 200); // Adjust the delay as needed
+    }, 200);
   };
 
+  // Fetch suggestions for father (males) and mother (females) from previous pusta
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (form.pusta_number) {
+      if (
+        form.pusta_number &&
+        !isNaN(form.pusta_number) &&
+        form.pusta_number > 1
+      ) {
+        const prevPusta = parseInt(form.pusta_number, 10) - 1;
         try {
           const response = await axios.get(
-            `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,
+            `${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
             { headers: { "Content-Type": "application/json" } }
           );
-          setSuggestions(response.data.father_pusta || []);
-          setMotherSuggestions(response.data.mother_pusta || []);
+
+          // Log response for debugging
+          console.log("Family Relations Response:", response.data);
+
+          // Normalize response data
+          const data = Array.isArray(response.data.current_pusta_data)
+            ? response.data.current_pusta_data
+            : [];
+
+          // Log invalid entries (missing id or name)
+          const invalidEntries = data.filter(
+            (s) => !s || typeof s.id !== "number" || !s.name
+          );
+          if (invalidEntries.length > 0) {
+            console.warn(
+              `Found ${invalidEntries.length} invalid entries in current_pusta_data:`,
+              invalidEntries
+            );
+          }
+
+          // Filter valid entries
+          const validData = data.filter(
+            (s) => s && typeof s.id === "number" && s.name
+          );
+
+          // Log entries with missing gender
+          const missingGenderEntries = validData.filter(
+            (s) => s.gender === undefined || s.gender === null
+          );
+          if (missingGenderEntries.length > 0) {
+            console.warn(
+              `Found ${missingGenderEntries.length} entries with missing gender:`,
+              missingGenderEntries
+            );
+          }
+
+          // Infer gender based on name patterns
+          const fatherData = validData.filter((s) => {
+            if (s.gender && typeof s.gender === "string") {
+              return s.gender.toLowerCase() === "male";
+            }
+            // Heuristic: Male names often end in 'नाथ', 'प्रसाद', 'कुमार', or consonants
+            const name = (s.name_in_nepali || s.name).toLowerCase();
+            const isLikelyMale =
+              name.endsWith("नाथ") ||
+              name.endsWith("प्रसाद") ||
+              name.endsWith("कुमार") ||
+              !name.endsWith("ा");
+            if (!isLikelyMale) {
+              console.warn(`Assuming non-male for father:`, s);
+            }
+            return isLikelyMale;
+          });
+
+          const motherData = validData.filter((s) => {
+            if (s.gender && typeof s.gender === "string") {
+              return s.gender.toLowerCase() === "female";
+            }
+            // Heuristic: Female names often end in 'ा', 'कुमारी', 'देवी'
+            const name = (s.name_in_nepali || s.name).toLowerCase();
+            const isLikelyFemale =
+              name.endsWith("ा") ||
+              name.endsWith("कुमारी") ||
+              name.endsWith("देवी");
+            if (!isLikelyFemale) {
+              console.warn(`Assuming non-female for mother:`, s);
+            }
+            return isLikelyFemale;
+          });
+
+          console.log("Filtered Father Data:", fatherData);
+          console.log("Filtered Mother Data:", motherData);
+
+          setSuggestions(fatherData);
+          setMotherSuggestions(motherData);
         } catch (error) {
           console.error("Error fetching suggestions:", error);
+          setSuggestions([]);
+          setMotherSuggestions([]);
+          Swal.fire("Error", "Failed to fetch family members.", "error");
         }
+      } else {
+        setSuggestions([]);
+        setMotherSuggestions([]);
       }
     };
 
     fetchSuggestions();
   }, [form.pusta_number, API_URL]);
 
+  // Initialize Choices.js for father dropdown
   useEffect(() => {
     if (fatherInputRef.current) {
       if (!fatherChoicesInstance.current) {
@@ -112,23 +191,27 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           removeItemButton: true,
           shouldSort: false,
           searchEnabled: true,
-          noResultsText: "Not available",
+          noResultsText: "No males found in previous generation",
           placeholder: true,
           placeholderValue: "Select Father",
           searchPlaceholderValue: "Search for a father",
+          searchFields: ["label", "customProperties.name_in_nepali"],
         });
       }
 
       const choicesData = [
         { value: "", label: "Select Father", disabled: true },
-        ...suggestions
-          .filter((s) => s && s.id !== undefined)
-          .map((s) => ({
-            value: s.id.toString(),
-            label: s.name,
-            selected: s.id === form.father_id,
-            customProperties: { id: s.id },
-          })),
+        ...(suggestions.length > 0
+          ? suggestions.map((s) => ({
+              value: s.id.toString(),
+              label: s.name_in_nepali || s.name, // Show only person's name
+              selected: s.id === form.father_id,
+              customProperties: {
+                id: s.id,
+                name_in_nepali: s.name_in_nepali || "",
+              },
+            }))
+          : []),
       ];
 
       fatherChoicesInstance.current.setChoices(
@@ -138,13 +221,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         true
       );
 
-      // Listen for search event to show suggestions
       fatherInputRef.current.addEventListener("search", (event) => {
         const searchTerm = event.detail.value.toLowerCase();
         setShowSuggestions(!!searchTerm);
       });
 
-      // Listen for changes
       fatherInputRef.current.addEventListener("change", (e) => {
         const selectedId = e.target.value;
         const selected = suggestions.find(
@@ -153,7 +234,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         setForm((prev) => ({
           ...prev,
           father_id: selected ? selected.id : null,
-          father_name: selected ? selected.name : "",
+          father_name: selected ? selected.name_in_nepali || selected.name : "",
         }));
         setShowSuggestions(false);
       });
@@ -167,6 +248,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   }, [suggestions, form.father_id]);
 
+  // Initialize Choices.js for mother dropdown
   useEffect(() => {
     if (motherInputRef.current) {
       if (!motherChoicesInstance.current) {
@@ -174,21 +256,27 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           removeItemButton: true,
           shouldSort: false,
           searchEnabled: true,
-          noResultsText: "Not available",
+          noResultsText: "No females found in previous generation",
           placeholder: true,
           placeholderValue: "Select Mother",
           searchPlaceholderValue: "Search for a mother",
+          searchFields: ["label", "customProperties.name_in_nepali"],
         });
       }
 
       const choicesData = [
         { value: "", label: "Select Mother", disabled: true },
-        ...motherSuggestions.map((s) => ({
-          value: s.id.toString(),
-          label: s.name,
-          selected: s.id === form.mother_id,
-          customProperties: { id: s.id },
-        })),
+        ...(motherSuggestions.length > 0
+          ? motherSuggestions.map((s) => ({
+              value: s.id.toString(),
+              label: s.name_in_nepali || s.name, // Show only person's name
+              selected: s.id === form.mother_id,
+              customProperties: {
+                id: s.id,
+                name_in_nepali: s.name_in_nepali || "",
+              },
+            }))
+          : []),
       ];
 
       motherChoicesInstance.current.setChoices(
@@ -198,13 +286,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         true
       );
 
-      // Listen for search event to show suggestions
       motherInputRef.current.addEventListener("search", (event) => {
         const searchTerm = event.detail.value.toLowerCase();
         setShowMotherSuggestions(!!searchTerm);
       });
 
-      // Listen for changes
       motherInputRef.current.addEventListener("change", (e) => {
         const selectedId = e.target.value;
         const selected = motherSuggestions.find(
@@ -213,7 +299,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         setForm((prev) => ({
           ...prev,
           mother_id: selected ? selected.id : null,
-          mother_name: selected ? selected.name : "",
+          mother_name: selected ? selected.name_in_nepali || selected.name : "",
         }));
         setShowMotherSuggestions(false);
       });
@@ -227,70 +313,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   }, [motherSuggestions, form.mother_id]);
 
-  // useEffect(() => {
-  //   if (motherInputRef.current) {
-  //     const motherChoices = new Choices(motherInputRef.current, {
-  //       removeItemButton: true,
-  //       shouldSort: false,
-  //       searchEnabled: true,
-  //       noResultsText: "Not available",
-  //       placeholder: true,
-  //       placeholderValue: "Select Mother",
-  //     });
-
-  //     motherChoices.clearStore();
-  //     motherChoices.setChoices(
-  //       [
-  //         { value: "", label: "Select Mother", disabled: true },
-  //         ...motherSuggestions.map((s) => ({
-  //           value: s.name,
-  //           label: s.name,
-  //           selected: s.name === form.mother_name,
-  //         })),
-  //       ],
-  //       "value",
-  //       "label",
-  //       true
-  //     );
-
-  //     return () => motherChoices.destroy();
-  //   }
-  // }, [motherSuggestions, form.mother_name]);
-
-  // useEffect(() => {
-  //   const fetchSuggestions = async () => {
-  //     if (form.pusta_number) {
-  //       try {
-  //         const response = await axios.get(
-  //           `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,
-  //           { headers: { "Content-Type": "application/json" } }
-  //         );
-
-  //         setSuggestions(response.data.father_pusta || []);
-  //         setMotherSuggestions(response.data.mother_pusta || []);
-  //       } catch (error) {
-  //         console.error("Error fetching suggestions:", error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchSuggestions();
-  // }, [form.pusta_number, API_URL]);
-
-  // useEffect(() => {
-  //   if (formData.id) {
-  //     setForm((prevForm) => ({
-  //       ...prevForm,
-  //       father_name: formData.father_name || prevForm.father_name,
-  //       mother_name: formData.mother_name || prevForm.mother_name,
-  //       father_id: formData.father_id || prevForm.father_id,
-  //       mother_id: formData.mother_id || prevForm.mother_id,
-  //     }));
-  //   }
-  // }, [formData]);
+  // Fetch user details for edit mode
   useEffect(() => {
     if (formData.id) {
-      // Edit mode: Fetch user details
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
@@ -301,35 +326,27 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             }
           );
           const data = response.data;
-          // Ensure all fields are populated, merging with defaults if needed
           setForm({
-            id: data.id || formData.id,
-            pusta_number: data.pusta_number || formData.pusta_number || "",
-            name: data.name || formData.name || "",
-            name_in_nepali:
-              data.name_in_nepali || formData.name_in_nepali || "",
-            gender: data.gender || formData.gender || "",
-            dob: data.date_of_birth || formData.dob || null,
-            lifestatus: data.lifestatus || formData.lifestatus || "",
-            death_date: data.date_of_death || formData.death_date || null,
-            father_name: data.father_name || formData.father_name || "",
-            father_id: data.father_id || formData.father_id || null,
-            mother_name: data.mother_name || formData.mother_name || "",
-            mother_id: data.mother_id || formData.mother_id || null,
-            vansha_status:
-              data.same_vamsha_status || formData.vansha_status || "",
+            id: data.id || null,
+            pusta_number: data.pusta_number || "",
+            name: data.name || "",
+            name_in_nepali: data.name_in_nepali || "",
+            gender: data.gender || "",
+            dob: data.date_of_birth || "",
+            lifestatus: data.lifestatus || "",
+            death_date: data.date_of_death || "",
+            father_name: data.father_name || "",
+            father_id: data.father_id || null,
+            mother_name: data.mother_name || "",
+            mother_id: data.mother_id || null,
+            vansha_status: data.same_vamsha_status || "",
             contact: {
-              email:
-                data.contact_details?.email || formData.contact?.email || "",
-              phone:
-                data.contact_details?.phone || formData.contact?.phone || "",
-              address:
-                data.contact_details?.address ||
-                formData.contact?.address ||
-                "",
+              email: data.contact_details?.email || "",
+              phone: data.contact_details?.phone || "",
+              address: data.contact_details?.address || "",
             },
-            profession: data.profession || formData.profession || "",
-            profileImage: data.photo || formData.profileImage || "",
+            profession: data.profession || "",
+            profileImage: data.photo || "",
           });
         } catch (error) {
           handleBackendError(
@@ -342,286 +359,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         }
       };
       fetchUserDetails();
-    } else {
-      // Create mode: Initialize with defaults or formData
-      setForm({
-        id: null,
-        pusta_number: formData.pusta_number || "",
-        name: formData.name || "",
-        name_in_nepali: formData.name_in_nepali || "",
-        gender: formData.gender || "",
-        dob: formData.dob || null,
-        lifestatus: formData.lifestatus || "",
-        death_date: formData.death_date || null,
-        father_name: formData.father_name || "",
-        father_id: formData.father_id || null,
-        mother_name: formData.mother_name || "",
-        mother_id: formData.mother_id || null,
-        vansha_status: formData.vansha_status || "",
-        contact: {
-          email: formData.contact?.email || "",
-          phone: formData.contact?.phone || "",
-          address: formData.contact?.address || "",
-        },
-        profession: formData.profession || "",
-        profileImage: formData.profileImage || "",
-      });
     }
   }, [formData.id, API_URL]);
-
-  //   // Fetch suggestions when pusta_number changes
-  //   const fetchSuggestions = async () => {
-  //     if (form.pusta_number) {
-  //       try {
-  //         const response = await axios.get(
-  //           `${API_URL}/people/people/familyrelations?pusta_number=${form.pusta_number}`,
-  //           {
-  //             method: "GET",
-  //             headers: { "Content-Type": "application/json" },
-  //           }
-  //         );
-  //         console.log(response.data);
-  //         console.log(response.data.father_pusta);
-  //         const fatherSuggestions = response.data.father_pusta;
-  //         const motherSuggestions = response.data.mother_pusta;
-
-  //         setSuggestions(fatherSuggestions);
-  //         setMotherSuggestions(motherSuggestions);
-  //       } catch (error) {
-  //         handleBackendError(
-  //           error,
-  //           "Error fetching suggestions",
-  //           "Error fetching suggestions.",
-  //           false
-  //         );
-  //       }
-  //     }
-  //   };
-
-  //   fetchSuggestions();
-  // }, [form.id, form.pusta_number, API_URL]);
-
-  // useEffect(() => {
-  //   if (formData.id) {
-  //     // Edit mode: Fetch user details
-  //     const fetchUserDetails = async () => {
-  //       try {
-  //         setLoading(true);
-  //         const response = await axios.get(
-  //           `${API_URL}/people/${formData.id}/`,
-  //           {
-  //             headers: { "Content-Type": "application/json" },
-  //           }
-  //         );
-  //         const data = response.data;
-  //         console.log("Backend Response:", data); // Debug
-  //         setForm({
-  //           id: data.id || formData.id || null,
-  //           pusta_number: data.pusta_number || formData.pusta_number || "",
-  //           name: data.name || formData.name || "",
-  //           name_in_nepali:
-  //             data.name_in_nepali || formData.name_in_nepali || "",
-  //           gender: data.gender || formData.gender || "",
-  //           dob: data.date_of_birth || data.dob || formData.dob || null,
-  //           lifestatus: data.lifestatus || formData.lifestatus || "",
-  //           death_date: data.date_of_death || formData.death_date || null,
-  //           father_name: data.father_name || formData.father_name || "",
-  //           father_id: data.father_id || formData.father_id || null,
-  //           mother_name: data.mother_name || formData.mother_name || "",
-  //           mother_id: data.mother_id || formData.mother_id || null,
-  //           vansha_status:
-  //             data.same_vamsha_status || formData.vansha_status || "",
-  //           contact: {
-  //             email:
-  //               data.contact_details?.email ||
-  //               data.contact?.email ||
-  //               formData.contact?.email ||
-  //               "",
-  //             phone:
-  //               data.contact_details?.phone ||
-  //               data.contact?.phone ||
-  //               formData.contact?.phone ||
-  //               "",
-  //             address:
-  //               data.contact_details?.address ||
-  //               data.contact?.address ||
-  //               formData.contact?.address ||
-  //               "",
-  //           },
-  //           profession: data.profession || formData.profession || "",
-  //           profileImage:
-  //             data.photo || data.profileImage || formData.profileImage || "",
-  //         });
-  //       } catch (error) {
-  //         handleBackendError(
-  //           error,
-  //           "Error fetching user data",
-  //           "Failed to fetch user details."
-  //         );
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-  //     fetchUserDetails();
-  //   } else {
-  //     // Create mode
-  //     setForm({
-  //       id: null,
-  //       pusta_number: formData.pusta_number || "",
-  //       name: formData.name || "",
-  //       name_in_nepali: formData.name_in_nepali || "",
-  //       gender: formData.gender || "",
-  //       dob: formData.dob || null,
-  //       lifestatus: formData.lifestatus || "",
-  //       death_date: formData.death_date || null,
-  //       father_name: formData.father_name || "",
-  //       father_id: formData.father_id || null,
-  //       mother_name: formData.mother_name || "",
-  //       mother_id: formData.mother_id || null,
-  //       vansha_status: formData.vansha_status || "",
-  //       contact: {
-  //         email: formData.contact?.email || "",
-  //         phone: formData.contact?.phone || "",
-  //         address: formData.contact?.address || "",
-  //       },
-  //       profession: formData.profession || "",
-  //       profileImage: formData.profileImage || "",
-  //     });
-  //   }
-  // }, [formData.id, API_URL]);
-
-  useEffect(() => {
-    if (formData.id) {
-      setForm((prevForm) => ({
-        ...prevForm,
-        father_name: formData.father_name || prevForm.father_name,
-        mother_name: formData.mother_name || prevForm.mother_name,
-        father_id: formData.father_id || prevForm.father_id,
-        mother_id: formData.mother_id || prevForm.mother_id,
-      }));
-    }
-  }, [formData]);
-
-  // useEffect(() => {
-  //   if (fatherInputRef.current && !fatherChoicesInstance.current) {
-  //     fatherChoicesInstance.current = new Choices(fatherInputRef.current, {
-  //       removeItemButton: true,
-  //       shouldSort: false,
-  //       searchEnabled: true,
-  //       noResultsText: "Not available",
-  //       placeholder: true,
-  //       placeholderValue: "Select Father",
-  //     });
-  //   }
-  //   return () => {
-  //     if (fatherChoicesInstance.current) {
-  //       fatherChoicesInstance.current.destroy();
-  //       fatherChoicesInstance.current = null;
-  //     }
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   if (motherInputRef.current && !motherChoicesInstance.current) {
-  //     motherChoicesInstance.current = new Choices(motherInputRef.current, {
-  //       removeItemButton: true,
-  //       shouldSort: false,
-  //       searchEnabled: true,
-  //       noResultsText: "Not available",
-  //       placeholder: true,
-  //       placeholderValue: "Select Mother",
-  //     });
-  //   }
-  //   return () => {
-  //     if (motherChoicesInstance.current) {
-  //       motherChoicesInstance.current.destroy();
-  //       motherChoicesInstance.current = null;
-  //     }
-  //   };
-  // }, []);
-
-  const handleSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      father_name: suggestion.name,
-      father_id: suggestion.id,
-    }));
-    setShowSuggestions(false);
-  };
-
-  const handleMotherSuggestionClick = (suggestion) => {
-    setForm((prev) => ({
-      ...prev,
-      mother_name: suggestion.name,
-      mother_id: suggestion.id,
-    }));
-    setShowMotherSuggestions(false);
-  };
-
-  useEffect(() => {
-    // Update form only if it has changed
-    setForm((prevForm) =>
-      JSON.stringify(prevForm) !== JSON.stringify(formData)
-        ? formData
-        : prevForm
-    );
-
-    // Update family members only if new data is available
-    if (formData.familyData) {
-      setFamilyMembers(formData.familyData);
-    }
-
-    // Fetch user details only if formData has an ID
-    if (formData.id) {
-      const fetchUserDetails = async () => {
-        try {
-          setLoading(true);
-          const response = await fetch(`${API_URL}/people/${formData.id}/`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          });
-          const data = response.data;
-          // Transform the data: assign contact_details to contact
-          const transformedData = {
-            ...data,
-            contact: data.contact_details || {
-              email: "",
-              phone: "",
-              address: "",
-            },
-          };
-          setForm(transformedData);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchUserDetails();
-    }
-
-    // Fetch family members only if it's not already set
-    if (!familyMembers.length) {
-      const fetchFamilyMembers = async () => {
-        try {
-          const response = await fetch(`${API_URL}/people/people/`);
-          const data = await response.json();
-          setFamilyMembers(data.data);
-        } catch (error) {
-          console.error("Error fetching family members:", error);
-        }
-      };
-
-      fetchFamilyMembers();
-    }
-  }, [formData, familyMembers.length, API_URL]);
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 1. (Optional) Local preview
     const previewUrl = URL.createObjectURL(file);
     setForm((prevForm) => ({
       ...prevForm,
@@ -632,17 +376,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     data.append("file", file);
     data.append("upload_preset", preset);
 
-    console.log("Uploading with preset:", preset);
-    console.log("Using cloud name:", cloudName);
-
     try {
-      // 3. Upload to Cloudinary
       const response = await axios.post(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         data
       );
-      console.log("Cloudinary response:", response.data);
-      // 4. Replace preview URL with the Cloudinary URL
       const cloudinaryUrl = response.data.secure_url;
       setForm((prevForm) => ({
         ...prevForm,
@@ -654,11 +392,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         "Error uploading image",
         "Failed to upload image."
       );
-      console.error("Error uploading image to Cloudinary:", error);
     }
   };
 
-  // Use this handler to update the nested contact object
   const handleContactChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -669,6 +405,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       },
     }));
   };
+
   const handleDateChange = (value) => {
     const selectedDate = new Date(value);
     const todayDate = new Date(today);
@@ -676,29 +413,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     if (selectedDate <= todayDate) {
       setForm((prevForm) => ({
         ...prevForm,
-        dob: value || "", // Set the selected date for dob
+        dob: value || "",
       }));
     } else {
-      alert("Please select a date before or on today.");
+      Swal.fire("Error", "Please select a date before or on today.", "error");
     }
   };
 
-  // This handler updates other form fields
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setForm((prev) => ({ ...prev, [name]: value }));
-
-  //   if (name === "father_name" || name === "mother_name") {
-  //     clearTimeout(debounceTimeout.current);
-  //     debounceTimeout.current = setTimeout(() => {
-  //       if (name === "father_name") {
-  //         setShowSuggestions(true);
-  //       } else if (name === "mother_name") {
-  //         setShowMotherSuggestions(true);
-  //       }
-  //     }, 500); // Delay before showing dropdown
-  //   }
-  // };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -708,84 +429,31 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     try {
       const text = form.name.toLowerCase();
       const convertedtext = Sanscript.t(text, "itrans", "devanagari");
-      // const converteddate = Sanscript.t(form.dob, "itrans", "devanagari");
-      console.log(convertedtext);
       setForm((prevForm) => ({
         ...prevForm,
         name_in_nepali: convertedtext,
       }));
     } catch (error) {
-      console.error("Error converting text:", error);
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to convert text",
-      });
+      Swal.fire("Error", "Failed to convert text", "error");
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (loading) return;
-
-  //   setLoading(true);
-  //   try {
-  //     console.log("FORM", form);
-  //     const payload = {
-  //       name: form.name,
-  //       name_in_nepali: form.name_in_nepali,
-  //       pusta_number: form.pusta_number,
-  //       contact_details: form.contact,
-  //       father_name: form.father_id,
-  //       mother_name: form.mother_id,
-  //       date_of_birth: form.dob || null,
-  //       lifestatus: form.lifestatus,
-  //       date_of_death: form.death_date || null,
-  //       photo: form.profileImage,
-  //       profession: form.profession,
-  //       gender: form.gender,
-  //       same_vamsha_status: form.vansha_status,
-  //     };
-
-  //     console.log("Payload:", payload);
-
-  //     const response = form.id
-  //       ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
-  //       : await axios.post(`${API_URL}/people/people/`, payload);
-
-  //     onSave(response.data);
-  //     Swal.fire("Saved!", "Your changes have been saved.", "success");
-  //     onClose();
-  //     window.location.reload();
-  //   } catch (error) {
-  //     handleBackendError(error, "Failed to save", "Something went wrong!");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (loading) return;
 
-    // Validate required fields
     if (!form.name || !form.pusta_number || !form.gender || !form.lifestatus) {
       Swal.fire(
         "Error",
         "Please fill in all required fields: Name, Pusta Number, Gender, Status.",
         "error"
       );
-      setLoading(false);
       return;
     }
 
     setLoading(true);
     try {
-      console.log("Form State:", form);
-      console.log("NAME:", form.name);
       const payload = {
         name: form.name || "",
         name_in_nepali: form.name_in_nepali || "",
@@ -806,8 +474,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         same_vamsha_status: form.vansha_status || "",
       };
 
-      console.log("Payload:", payload);
-
       const response = form.id
         ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
         : await axios.post(`${API_URL}/people/people/`, payload);
@@ -825,13 +491,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
       <div className="bg-[#14632f] h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
-        {/* Close Button */}
         <div className="absolute top-2 right-2">
           <button
             onClick={onClose}
             className="sticky top-2 right-2 text-white font-bold text-2xl hover:text-red-500"
           >
-            {/* Circle with a cross */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-8 w-8"
@@ -853,7 +517,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           onSubmit={handleSubmit}
           className="space-y-4 flex flex-col h-full w-full items-center"
         >
-          {/* Profile Picture */}
           <div className="flex justify-center mt-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
               <label
@@ -884,7 +547,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
           </div>
 
-          {/* Personal Information */}
           <div className="w-full">
             <h3 className="text-lg font-bold py-3 text-[#f49D37]">
               Personal Information
@@ -895,13 +557,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Pusta Number
               </label>
               <input
-                type="string"
+                type="number"
                 name="pusta_number"
                 required
                 value={form.pusta_number}
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter your Pusta Number"
+                placeholder="Enter Pusta Number"
               />
             </div>
             <div className="w-full">
@@ -951,6 +613,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
+                <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
               </select>
@@ -962,11 +625,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </label>
               <NepaliDatePicker
                 inputClassName="form-control"
-                value={form.dob || ""}
+                value={form.dob}
                 onChange={handleDateChange}
                 options={{
-                  calenderLocale: "ne", // Nepali Calendar locale
-                  valueLocale: "en", // Gregorian date format in English
+                  calenderLocale: "ne",
+                  valueLocale: "en",
                   placeholder: "Select Date",
                 }}
               />
@@ -980,14 +643,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 name="lifestatus"
                 value={form.lifestatus}
                 required
-                onChange={(value) => {
-                  setForm((prevForm) => ({
-                    ...prevForm,
-                    dob: value, // Set the selected date for death_date
-                  }));
-                }}
+                onChange={handleChange}
                 className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
+                <option value="">Select Status</option>
                 <option value="Alive">Alive</option>
                 <option value="Dead">Dead</option>
               </select>
@@ -1004,28 +663,26 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={(value) => {
                     setForm((prevForm) => ({
                       ...prevForm,
-                      death_date: value, // Set the selected date for death_date
+                      death_date: value || "",
                     }));
                   }}
                   options={{
-                    calenderLocale: "ne", // Nepali Calendar locale
-                    valueLocale: "en", // Gregorian date format in English
-                    minDate: form.dob ? form.dob : "", // Minimum date is set to dob, else blank
-                    maxDate: today, // Maximum date is today's date
+                    calenderLocale: "ne",
+                    valueLocale: "en",
+                    minDate: form.dob || "",
+                    maxDate: today,
                   }}
                 />
               </div>
             )}
           </div>
 
-          {/* Family Information */}
           <div className="w-full mt-4">
             <h3 className="text-lg font-bold py-3 text-[#f49D37]">
               Family Information
             </h3>
           </div>
 
-          {/* --- FATHER NAME FIELD (Updated) --- */}
           <div className="w-full">
             <label className="block text-sm font-medium text-[#f49D37]">
               Father Name
@@ -1034,22 +691,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <select
                 ref={fatherInputRef}
                 name="father_name"
-                className="
-        mt-2
-        block
-        w-full
-        px-4
-        py-3
-        border
-        border-gray-300
-        rounded-md
-        shadow-sm
-        focus:outline-none
-        focus:ring-2
-        focus:ring-blue-500
-        focus:border-transparent
-        transition-all
-      "
+                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
               {showSuggestions && suggestions.length > 0 && (
                 <ul
@@ -1062,18 +704,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                       key={index}
                       onMouseDown={(e) => {
                         e.preventDefault();
-                        handleSuggestionClick(suggestion);
+                        setForm((prev) => ({
+                          ...prev,
+                          father_name:
+                            suggestion.name_in_nepali || suggestion.name,
+                          father_id: suggestion.id,
+                        }));
+                        setShowSuggestions(false);
                       }}
                       className="p-2 hover:bg-gray-100 cursor-pointer"
                     >
-                      {suggestion.name}{" "}
-                      {suggestion.father?.name && suggestion.mother?.name
-                        ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
-                        : suggestion.father?.name
-                        ? `- ${suggestion.father.name}`
-                        : suggestion.mother?.name
-                        ? `- ${suggestion.mother.name}`
-                        : ""}
+                      {suggestion.name_in_nepali || suggestion.name}
                     </li>
                   ))}
                 </ul>
@@ -1081,7 +722,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
           </div>
 
-          {/* --- MOTHER NAME FIELD (Updated) --- */}
           <div className="w-full mt-4">
             <label className="block text-sm font-medium text-[#f49D37]">
               Mother Name
@@ -1090,22 +730,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <select
                 ref={motherInputRef}
                 name="mother_name"
-                className="
-        mt-2
-        block
-        w-full
-        px-4
-        py-3
-        border
-        border-gray-300
-        rounded-md
-        shadow-sm
-        focus:outline-none
-        focus:ring-2
-        focus:ring-blue-500
-        focus:border-transparent
-        transition-all
-      "
+                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
               {showMotherSuggestions && motherSuggestions.length > 0 && (
                 <ul
@@ -1118,18 +743,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                       key={index}
                       onMouseDown={(e) => {
                         e.preventDefault();
-                        handleMotherSuggestionClick(suggestion);
+                        setForm((prev) => ({
+                          ...prev,
+                          mother_name:
+                            suggestion.name_in_nepali || suggestion.name,
+                          mother_id: suggestion.id,
+                        }));
+                        setShowMotherSuggestions(false);
                       }}
                       className="p-2 hover:bg-gray-100 cursor-pointer"
                     >
-                      {suggestion.name}{" "}
-                      {suggestion.father?.name && suggestion.mother?.name
-                        ? `- ${suggestion.father.name} | ${suggestion.mother.name}`
-                        : suggestion.father?.name
-                        ? `- ${suggestion.father.name}`
-                        : suggestion.mother?.name
-                        ? `- ${suggestion.mother.name}`
-                        : ""}
+                      {suggestion.name_in_nepali || suggestion.name}
                     </li>
                   ))}
                 </ul>
@@ -1151,12 +775,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               onChange={handleChange}
               className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
+              <option value="">Select Vansha Status</option>
               <option value="True">Yes</option>
               <option value="False">No</option>
             </select>
           </div>
 
-          {/* Contact Information */}
           <div className="w-full mt-4">
             <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
               Contact Information
@@ -1169,7 +793,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="email"
                 name="email"
-                value={form.contact?.email || ""}
+                value={form.contact.email}
                 onChange={handleContactChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter email address"
@@ -1181,9 +805,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 Phone
               </label>
               <input
-                type="string"
+                type="tel"
                 name="phone"
-                value={form.contact?.phone || ""}
+                value={form.contact.phone}
                 onChange={handleContactChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter phone number"
@@ -1197,7 +821,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <input
                 type="text"
                 name="address"
-                value={form.contact?.address || ""}
+                value={form.contact.address}
                 onChange={handleContactChange}
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter address"
@@ -1205,7 +829,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
           </div>
 
-          {/* Professional Information */}
           <div className="w-full mt-4">
             <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
               Professional Information
@@ -1226,11 +849,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
           </div>
 
-          {/* Save Button */}
           <div className="flex justify-center w-full mb-8">
             <button
               type="submit"
-              //onClick={handleSubmit}
               disabled={loading}
               className={`mt-4 mb-4 bg-[#800000] text-white px-4 py-2 rounded-md ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
