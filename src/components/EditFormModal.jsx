@@ -326,41 +326,96 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             }
           );
           const data = response.data;
+          console.log("Backend Response for Edit:", data); // Debug log
+
+          // Normalize vansha_status
+          const vanshaStatus = data.same_vamsha_status
+            ? String(data.same_vamsha_status) === "true"
+              ? "True"
+              : "False"
+            : formData.vansha_status || "";
+
+          // Handle father and mother names
+          const fatherName =
+            data.father_name ||
+            data.father?.name_in_nepali ||
+            data.father?.name ||
+            formData.father_name ||
+            "";
+          const motherName =
+            data.mother_name ||
+            data.mother?.name_in_nepali ||
+            data.mother?.name ||
+            formData.mother_name ||
+            "";
+
           setForm({
-            id: data.id || null,
-            pusta_number: data.pusta_number || "",
-            name: data.name || "",
-            name_in_nepali: data.name_in_nepali || "",
-            gender: data.gender || "",
-            dob: data.date_of_birth || "",
-            lifestatus: data.lifestatus || "",
-            death_date: data.date_of_death || "",
-            father_name: data.father_name || "",
-            father_id: data.father_id || null,
-            mother_name: data.mother_name || "",
-            mother_id: data.mother_id || null,
-            vansha_status: data.same_vamsha_status || "",
+            id: data.id || formData.id || null,
+            pusta_number: data.pusta_number || formData.pusta_number || "",
+            name: data.name || formData.name || "",
+            name_in_nepali:
+              data.name_in_nepali || formData.name_in_nepali || "",
+            gender: data.gender || formData.gender || "",
+            dob: data.date_of_birth || formData.dob || "",
+            lifestatus: data.lifestatus || formData.lifestatus || "",
+            death_date: data.date_of_death || formData.death_date || "",
+            father_name: fatherName,
+            father_id:
+              data.father_id || (data.father?.id ?? formData.father_id) || null,
+            mother_name: motherName,
+            mother_id:
+              data.mother_id || (data.mother?.id ?? formData.mother_id) || null,
+            vansha_status: vanshaStatus,
             contact: {
-              email: data.contact_details?.email || "",
-              phone: data.contact_details?.phone || "",
-              address: data.contact_details?.address || "",
+              email:
+                data.contact_details?.email || formData.contact?.email || "",
+              phone:
+                data.contact_details?.phone || formData.contact?.phone || "",
+              address:
+                data.contact_details?.address ||
+                formData.contact?.address ||
+                "",
             },
-            profession: data.profession || "",
-            profileImage: data.photo || "",
+            profession: data.profession || formData.profession || "",
+            profileImage: data.photo || formData.profileImage || "",
           });
         } catch (error) {
+          console.error("Error fetching user details:", error);
           handleBackendError(
             error,
             "Error fetching user data",
-            "Failed to fetch user details."
+            "Failed to fetch user details. Using provided data."
           );
+          // Fall back to initial formData
+          setForm({
+            id: formData.id || null,
+            pusta_number: formData.pusta_number || "",
+            name: formData.name || "",
+            name_in_nepali: formData.name_in_nepali || "",
+            gender: formData.gender || "",
+            dob: formData.dob || "",
+            lifestatus: formData.lifestatus || "",
+            death_date: formData.death_date || "",
+            father_name: formData.father_name || "",
+            father_id: formData.father_id || null,
+            mother_name: formData.mother_name || "",
+            mother_id: formData.mother_id || null,
+            vansha_status: formData.vansha_status || "",
+            contact: {
+              email: formData.contact?.email || "",
+              phone: formData.contact?.phone || "",
+              address: formData.contact?.address || "",
+            },
+            profession: formData.profession || "",
+            profileImage: formData.profileImage || "",
+          });
         } finally {
           setLoading(false);
         }
       };
       fetchUserDetails();
     }
-  }, [formData.id, API_URL]);
+  }, [formData, API_URL]);
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -513,354 +568,360 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           </button>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 flex flex-col h-full w-full items-center"
-        >
-          <div className="flex justify-center mt-4">
-            <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-              <label
-                htmlFor="profileImage"
-                className="cursor-pointer w-full h-full flex items-center justify-center"
-              >
-                {form.profileImage ? (
-                  <img
-                    src={form.profileImage}
-                    alt="Profile"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                    }}
-                  />
-                ) : (
-                  <span className="text-3xl text-gray-500">+</span>
-                )}
-              </label>
-              <input
-                type="file"
-                id="profileImage"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <span>Loading...</span>
           </div>
-
-          <div className="w-full">
-            <h3 className="text-lg font-bold py-3 text-[#f49D37]">
-              Personal Information
-            </h3>
-
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Pusta Number
-              </label>
-              <input
-                type="number"
-                name="pusta_number"
-                required
-                value={form.pusta_number}
-                onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter Pusta Number"
-              />
-            </div>
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Name (in English)
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                value={form.name}
-                onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter your name (in English)"
-              />
-              <button
-                type="button"
-                onClick={translateToNepali}
-                className="flex items-center text-[#f49D37] p-5"
-              >
-                <FaArrowDown size={24} />
-                <span className="ml-1 text-[#f49D37]">Translate</span>
-              </button>
-            </div>
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Name (in Nepali)
-              </label>
-              <input
-                type="text"
-                name="name_in_nepali"
-                value={form.name_in_nepali}
-                onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter your name (in Nepali)"
-              />
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 flex flex-col h-full w-full items-center"
+          >
+            <div className="flex justify-center mt-4">
+              <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                <label
+                  htmlFor="profileImage"
+                  className="cursor-pointer w-full h-full flex items-center justify-center"
+                >
+                  {form.profileImage ? (
+                    <img
+                      src={form.profileImage}
+                      alt="Profile"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  ) : (
+                    <span className="text-3xl text-gray-500">+</span>
+                  )}
+                </label>
+                <input
+                  type="file"
+                  id="profileImage"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </div>
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Gender
-              </label>
-              <select
-                name="gender"
-                value={form.gender}
-                required
-                onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
+              <h3 className="text-lg font-bold py-3 text-[#f49D37]">
+                Personal Information
+              </h3>
 
-            <div className="w-full">
-              <label className="block text-sm pt-3 font-medium text-[#f49D37]">
-                Date of Birth
-              </label>
-              <NepaliDatePicker
-                inputClassName="form-control"
-                value={form.dob}
-                onChange={handleDateChange}
-                options={{
-                  calenderLocale: "ne",
-                  valueLocale: "en",
-                  placeholder: "Select Date",
-                }}
-              />
-            </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Pusta Number
+                </label>
+                <input
+                  type="number"
+                  name="pusta_number"
+                  required
+                  value={form.pusta_number}
+                  onChange={handleChange}
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter Pusta Number"
+                />
+              </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Name (in English)
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  value={form.name}
+                  onChange={handleChange}
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter your name (in English)"
+                />
+                <button
+                  type="button"
+                  onClick={translateToNepali}
+                  className="flex items-center text-[#f49D37] p-5"
+                >
+                  <FaArrowDown size={24} />
+                  <span className="ml-1 text-[#f49D37]">Translate</span>
+                </button>
+              </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Name (in Nepali)
+                </label>
+                <input
+                  type="text"
+                  name="name_in_nepali"
+                  value={form.name_in_nepali}
+                  onChange={handleChange}
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter your name (in Nepali)"
+                />
+              </div>
 
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Status
-              </label>
-              <select
-                name="lifestatus"
-                value={form.lifestatus}
-                required
-                onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              >
-                <option value="">Select Status</option>
-                <option value="Alive">Alive</option>
-                <option value="Dead">Dead</option>
-              </select>
-            </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  value={form.gender}
+                  required
+                  onChange={handleChange}
+                  className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
 
-            {form.lifestatus === "Dead" && (
               <div className="w-full">
                 <label className="block text-sm pt-3 font-medium text-[#f49D37]">
-                  Date of Death
+                  Date of Birth
                 </label>
                 <NepaliDatePicker
                   inputClassName="form-control"
-                  value={form.death_date}
-                  onChange={(value) => {
-                    setForm((prevForm) => ({
-                      ...prevForm,
-                      death_date: value || "",
-                    }));
-                  }}
+                  value={form.dob}
+                  onChange={handleDateChange}
                   options={{
                     calenderLocale: "ne",
                     valueLocale: "en",
-                    minDate: form.dob || "",
-                    maxDate: today,
+                    placeholder: "Select Date",
                   }}
                 />
               </div>
-            )}
-          </div>
 
-          <div className="w-full mt-4">
-            <h3 className="text-lg font-bold py-3 text-[#f49D37]">
-              Family Information
-            </h3>
-          </div>
-
-          <div className="w-full">
-            <label className="block text-sm font-medium text-[#f49D37]">
-              Father Name
-            </label>
-            <div className="relative">
-              <select
-                ref={fatherInputRef}
-                name="father_name"
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              {showSuggestions && suggestions.length > 0 && (
-                <ul
-                  className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
-                  onMouseEnter={handleFatherMouseEnter}
-                  onMouseLeave={handleFatherMouseLeave}
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Status
+                </label>
+                <select
+                  name="lifestatus"
+                  value={form.lifestatus}
+                  required
+                  onChange={handleChange}
+                  className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
-                  {suggestions.map((suggestion, index) => (
-                    <li
-                      key={index}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setForm((prev) => ({
-                          ...prev,
-                          father_name:
-                            suggestion.name_in_nepali || suggestion.name,
-                          father_id: suggestion.id,
-                        }));
-                        setShowSuggestions(false);
-                      }}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {suggestion.name_in_nepali || suggestion.name}
-                    </li>
-                  ))}
-                </ul>
+                  <option value="">Select Status</option>
+                  <option value="Alive">Alive</option>
+                  <option value="Dead">Dead</option>
+                </select>
+              </div>
+
+              {form.lifestatus === "Dead" && (
+                <div className="w-full">
+                  <label className="block text-sm pt-3 font-medium text-[#f49D37]">
+                    Date of Death
+                  </label>
+                  <NepaliDatePicker
+                    inputClassName="form-control"
+                    value={form.death_date}
+                    onChange={(value) => {
+                      setForm((prevForm) => ({
+                        ...prevForm,
+                        death_date: value || "",
+                      }));
+                    }}
+                    options={{
+                      calenderLocale: "ne",
+                      valueLocale: "en",
+                      minDate: form.dob || "",
+                      maxDate: today,
+                    }}
+                  />
+                </div>
               )}
             </div>
-          </div>
 
-          <div className="w-full mt-4">
-            <label className="block text-sm font-medium text-[#f49D37]">
-              Mother Name
-            </label>
-            <div className="relative">
+            <div className="w-full mt-4">
+              <h3 className="text-lg font-bold py-3 text-[#f49D37]">
+                Family Information
+              </h3>
+            </div>
+
+            <div className="w-full">
+              <label className="block text-sm font-medium text-[#f49D37]">
+                Father Name
+              </label>
+              <div className="relative">
+                <select
+                  ref={fatherInputRef}
+                  name="father_name"
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul
+                    className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                    onMouseEnter={handleFatherMouseEnter}
+                    onMouseLeave={handleFatherMouseLeave}
+                  >
+                    {suggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setForm((prev) => ({
+                            ...prev,
+                            father_name:
+                              suggestion.name_in_nepali || suggestion.name,
+                            father_id: suggestion.id,
+                          }));
+                          setShowSuggestions(false);
+                        }}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                      >
+                        {suggestion.name_in_nepali || suggestion.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className="w-full mt-4">
+              <label className="block text-sm font-medium text-[#f49D37]">
+                Mother Name
+              </label>
+              <div className="relative">
+                <select
+                  ref={motherInputRef}
+                  name="mother_name"
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                {showMotherSuggestions && motherSuggestions.length > 0 && (
+                  <ul
+                    className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                    onMouseEnter={handleMotherMouseEnter}
+                    onMouseLeave={handleMotherMouseLeave}
+                  >
+                    {motherSuggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setForm((prev) => ({
+                            ...prev,
+                            mother_name:
+                              suggestion.name_in_nepali || suggestion.name,
+                            mother_id: suggestion.id,
+                          }));
+                          setShowMotherSuggestions(false);
+                        }}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                      >
+                        {suggestion.name_in_nepali || suggestion.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className="w-full">
+              <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
+                Vansha Status
+              </h3>
+              <label className="block text-sm font-medium text-[#f49D37]">
+                Same Vansha
+              </label>
               <select
-                ref={motherInputRef}
-                name="mother_name"
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              {showMotherSuggestions && motherSuggestions.length > 0 && (
-                <ul
-                  className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
-                  onMouseEnter={handleMotherMouseEnter}
-                  onMouseLeave={handleMotherMouseLeave}
-                >
-                  {motherSuggestions.map((suggestion, index) => (
-                    <li
-                      key={index}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setForm((prev) => ({
-                          ...prev,
-                          mother_name:
-                            suggestion.name_in_nepali || suggestion.name,
-                          mother_id: suggestion.id,
-                        }));
-                        setShowMotherSuggestions(false);
-                      }}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {suggestion.name_in_nepali || suggestion.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-
-          <div className="w-full">
-            <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
-              Vansha Status
-            </h3>
-            <label className="block text-sm font-medium text-[#f49D37]">
-              Same Vansha
-            </label>
-            <select
-              name="vansha_status"
-              value={form.vansha_status}
-              required
-              onChange={handleChange}
-              className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            >
-              <option value="">Select Vansha Status</option>
-              <option value="True">Yes</option>
-              <option value="False">No</option>
-            </select>
-          </div>
-
-          <div className="w-full mt-4">
-            <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
-              Contact Information
-            </h3>
-
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={form.contact.email}
-                onChange={handleContactChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter email address"
-              />
-            </div>
-
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Phone
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={form.contact.phone}
-                onChange={handleContactChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter phone number"
-              />
-            </div>
-
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={form.contact.address}
-                onChange={handleContactChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter address"
-              />
-            </div>
-          </div>
-
-          <div className="w-full mt-4">
-            <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
-              Professional Information
-            </h3>
-
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Profession
-              </label>
-              <input
-                type="text"
-                name="profession"
-                value={form.profession}
+                name="vansha_status"
+                value={form.vansha_status}
+                required
                 onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter profession"
-              />
+                className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              >
+                <option value="">Select Vansha Status</option>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+              </select>
             </div>
-          </div>
 
-          <div className="flex justify-center w-full mb-8">
-            <button
-              type="submit"
-              disabled={loading}
-              className={`mt-4 mb-4 bg-[#800000] text-white px-4 py-2 rounded-md ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </form>
+            <div className="w-full mt-4">
+              <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
+                Contact Information
+              </h3>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.contact.email}
+                  onChange={handleContactChange}
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.contact.phone}
+                  onChange={handleContactChange}
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={form.contact.address}
+                  onChange={handleContactChange}
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter address"
+                />
+              </div>
+            </div>
+
+            <div className="w-full mt-4">
+              <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
+                Professional Information
+              </h3>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#f49D37]">
+                  Profession
+                </label>
+                <input
+                  type="text"
+                  name="profession"
+                  value={form.profession}
+                  onChange={handleChange}
+                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter profession"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-center w-full mb-8">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`mt-4 mb-4 bg-[#800000] text-white px-4 py-2 rounded-md ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
