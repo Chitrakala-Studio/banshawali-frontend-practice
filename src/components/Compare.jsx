@@ -5,32 +5,20 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "choices.js/public/assets/styles/choices.css";
+
 const Compare = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Family members data used for suggestions
   const [familyMembers, setFamilyMembers] = useState([]);
-  const [pustaNumber, setPustaNumber] = useState("");
-  // const [rightNameSuggestions, setRightNameSuggestions] = useState([]);
-  // State for right person's name suggestions
   const [rightNameSuggestions, setRightNameSuggestions] = useState([]);
-  const [showRightNameSuggestions, setShowRightNameSuggestions] =
-    useState(false);
-
-  // State for right person's father's suggestions
-  const [rightFatherSuggestions, setRightFatherSuggestions] = useState([]);
-  const [showRightFatherSuggestions, setShowRightFatherSuggestions] =
-    useState(false);
   const choicesInstanceRef = useRef(null);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
 
-  // State for right person's mother's suggestions
+  const [rightFatherSuggestions, setRightFatherSuggestions] = useState([]);
   const [rightMotherSuggestions, setRightMotherSuggestions] = useState([]);
-  const [showRightMotherSuggestions, setShowRightMotherSuggestions] =
-    useState(false);
 
   const [leftPerson, setLeftPerson] = useState({
     name: "",
@@ -50,9 +38,11 @@ const Compare = () => {
   const [isLeftConfirmed, setIsLeftConfirmed] = useState(true);
   const [isRightConfirmed, setIsRightConfirmed] = useState(false);
   const [relationship, setRelationship] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // For loading state
-  const [apiError, setApiError] = useState(""); // For error handling
-  const [familyTreeData, setFamilyTreeData] = useState(null); // API response data
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [familyTreeData, setFamilyTreeData] = useState(null);
+
+  const rightNameSelectRef = useRef(null);
 
   useEffect(() => {
     if (rightNameSelectRef.current && !choicesInstanceRef.current) {
@@ -61,6 +51,7 @@ const Compare = () => {
         shouldSort: false,
         searchEnabled: true,
         searchFields: ["customProperties.english", "label"],
+        maxItemCount: 50, // Limit the number of items for better performance
       });
     }
     return () => {
@@ -74,6 +65,15 @@ const Compare = () => {
   useEffect(() => {
     if (!rightPerson.pusta_number) {
       setRightNameSuggestions([]);
+      if (choicesInstanceRef.current) {
+        choicesInstanceRef.current.clearChoices();
+        choicesInstanceRef.current.setChoices(
+          [{ value: "", label: "Select Name" }],
+          "value",
+          "label",
+          true
+        );
+      }
     }
   }, [rightPerson.pusta_number]);
 
@@ -99,47 +99,60 @@ const Compare = () => {
         console.warn("No suggestions found for pusta_number:", pustaNumber);
       }
 
-      // Add delay before updating UI to prevent flickering
-      setTimeout(() => {
-        setRightNameSuggestions(name_suggestions);
-        if (rightNameSelectRef.current) {
-          // const choices = new Choices(rightNameSelectRef.current, {
-          //   removeItemButton: true,
-          //   shouldSort: false,
-          //   searchEnabled: true,
-          //   searchFields: ["label", "customProperties.english"],
-          // });
+      // Log each suggestion to verify data
+      name_suggestions.forEach((sugg, index) => {
+        console.log(
+          `Suggestion ${index}:`,
+          `Name: ${sugg.name}`,
+          `Name in Nepali: ${sugg.name_in_nepali}`,
+          `Father Name: ${sugg.father?.name}`,
+          `Father Name in Nepali: ${sugg.father?.name_in_nepali}`,
+          `Mother Name: ${sugg.mother?.name}`,
+          `Mother Name in Nepali: ${sugg.mother?.name_in_nepali}`
+        );
+      });
 
-          choicesInstanceRef.current.clearChoices();
-          choicesInstanceRef.current.setChoices(
-            name_suggestions.map((sugg) => ({
-              value: sugg.name,
-              label: sugg.name_in_nepali,
-              customProperties: { english: sugg.name },
-            })),
-            "value",
-            "label",
-            true
+      setRightNameSuggestions(name_suggestions);
+      if (rightNameSelectRef.current && choicesInstanceRef.current) {
+        choicesInstanceRef.current.clearChoices();
+        choicesInstanceRef.current.setChoices(
+          name_suggestions.length > 0
+            ? name_suggestions.map((sugg) => ({
+                value: sugg.name,
+                label: `${sugg.name_in_nepali || sugg.name} - ${
+                  sugg.father?.name_in_nepali || sugg.father?.name || ""
+                } | ${sugg.mother?.name_in_nepali || sugg.mother?.name || ""}`,
+                customProperties: { english: sugg.name },
+              }))
+            : [{ value: "", label: "Select Name" }],
+          "value",
+          "label",
+          true
+        );
+        rightNameSelectRef.current.addEventListener("change", (event) => {
+          const selectedPerson = name_suggestions.find(
+            (sugg) => sugg.name === event.target.value
           );
-          rightNameSelectRef.current.addEventListener("change", (event) => {
-            const selectedPerson = name_suggestions.find(
-              (sugg) => sugg.name === event.target.value
-            );
-            if (selectedPerson) {
-              setRightPerson((prev) => ({
-                ...prev,
-                name: selectedPerson.name,
-                id: selectedPerson.id,
-                pusta_number: selectedPerson.pusta_number,
-                fatherName: selectedPerson.father?.name || "",
-                motherName: selectedPerson.mother?.name || "",
-                fatherId: selectedPerson.father?.id || "",
-                motherId: selectedPerson.mother?.id || "",
-              }));
-            }
-          });
-        }
-      }, 500);
+          if (selectedPerson) {
+            setRightPerson((prev) => ({
+              ...prev,
+              name: selectedPerson.name_in_nepali || selectedPerson.name,
+              id: selectedPerson.id,
+              pusta_number: selectedPerson.pusta_number,
+              fatherName:
+                selectedPerson.father?.name_in_nepali ||
+                selectedPerson.father?.name ||
+                "",
+              motherName:
+                selectedPerson.mother?.name_in_nepali ||
+                selectedPerson.mother?.name ||
+                "",
+              fatherId: selectedPerson.father?.id || "",
+              motherId: selectedPerson.mother?.id || "",
+            }));
+          }
+        });
+      }
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
@@ -148,14 +161,10 @@ const Compare = () => {
   const debouncedFetch = useCallback(
     debounce((pustaNumber) => {
       fetchSuggestions(pustaNumber);
-    }, 3000),
+    }, 500), // Reduced to 500ms for better responsiveness
     []
   );
-  // if (rightPerson.pusta_number) {
-  //   debouncedFetch(rightPerson.pusta_number);
-  // }
 
-  // Suggestion function for right person's father's name
   const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -189,7 +198,6 @@ const Compare = () => {
     });
   };
 
-  // Suggestion function for right person's mother's name
   const fetchRightMotherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -223,7 +231,6 @@ const Compare = () => {
     });
   };
 
-  // Fetch left person's data by ID
   useEffect(() => {
     const fetchLeftPersonData = async () => {
       setIsLoading(true);
@@ -255,7 +262,6 @@ const Compare = () => {
 
     fetchLeftPersonData();
   }, [id]);
-  const rightNameSelectRef = useRef(null);
 
   const handleCompare = async () => {
     await new Promise((resolve) => {
@@ -332,6 +338,27 @@ const Compare = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <style>
+        {`
+          .choices__inner {
+            min-width: 300px;
+            white-space: nowrap;
+          }
+          .choices__list--dropdown {
+            max-height: 200px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+          }
+          .choices__list--dropdown .choices__item {
+            white-space: nowrap;
+            overflow-x: auto;
+            transition: background-color 0.2s ease;
+          }
+          .choices__list--dropdown .choices__item:hover {
+            background-color: #f0f0f0;
+          }
+        `}
+      </style>
       <button
         className="absolute top-4 left-4 bg-purple-700 text-white px-4 py-2 rounded-full"
         onClick={() => {
@@ -424,7 +451,6 @@ const Compare = () => {
           </div>
 
           {/* Right Person */}
-
           <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
             <h1 className="text-3xl font-bold text-center -mt-4">Person 2</h1>
 
@@ -462,84 +488,10 @@ const Compare = () => {
               <select
                 ref={rightNameSelectRef}
                 id="rightNameSelect"
-                className="px-4 py-2  bg-white border rounded w-full text-sm md:text-base"
+                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
               >
                 <option value="">Select Name</option>
               </select>
-              {showRightNameSuggestions && rightNameSuggestions.length > 0 && (
-                <ul className="absolute z-10 bg-white border rounded mt-1 max-h-40 overflow-y-auto w-full">
-                  {rightNameSuggestions.map((sugg, index) => (
-                    <li
-                      key={index}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setRightPerson((prev) => ({
-                          ...prev,
-                          name: sugg.name,
-                          id: sugg.id, // Store selected person's ID
-                          pusta_number: sugg.pusta_number,
-                          fatherName: sugg.father?.name || "",
-                          motherName: sugg.mother?.name || "",
-                          fatherId: sugg.father?.id || "",
-                          motherId: sugg.mother?.id || "",
-                        }));
-                        setShowRightNameSuggestions(false);
-                        setRightNameSuggestions([]);
-
-                        if (sugg.father?.name) {
-                          const parentGeneration = sugg.pusta_number - 1;
-                          fetchRightFatherSuggestions(
-                            parentGeneration,
-                            sugg.father.name,
-                            sugg.id
-                          )
-                            .then((suggestions) => {
-                              setRightFatherSuggestions(suggestions);
-                              setShowRightFatherSuggestions(true);
-                            })
-                            .catch((error) =>
-                              console.error(
-                                "Error fetching father suggestions:",
-                                error
-                              )
-                            );
-                        }
-
-                        if (sugg.mother?.name) {
-                          const parentGeneration = sugg.pusta_number - 1;
-                          fetchRightMotherSuggestions(
-                            parentGeneration,
-                            sugg.mother.name,
-                            sugg.id
-                          )
-                            .then((suggestions) => {
-                              setRightMotherSuggestions(suggestions);
-                              setShowRightMotherSuggestions(true);
-                            })
-                            .catch((error) =>
-                              console.error(
-                                "Error fetching mother suggestions:",
-                                error
-                              )
-                            );
-                        }
-                      }}
-                    >
-                      {sugg.name}{" "}
-                      <span className="text-sm text-gray-600">
-                        {sugg.father?.name && sugg.mother?.name
-                          ? `- ${sugg.father.name} | ${sugg.mother.name}`
-                          : sugg.father?.name
-                          ? `- ${sugg.father.name}`
-                          : sugg.mother?.name
-                          ? `- ${sugg.mother.name}`
-                          : ""}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
 
             <div className="w-full relative">

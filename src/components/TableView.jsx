@@ -1,6 +1,5 @@
 import { React, useState, useEffect } from "react";
 import axios from "axios";
-import { getGenderRowClass } from "./utils";
 import { FaArrowLeft, FaSearch, FaMale, FaFemale } from "react-icons/fa";
 import { NotebookPen, Trash2, Info, IdCard, Lightbulb } from "lucide-react";
 import EditFormModal from "./EditFormModal";
@@ -101,66 +100,49 @@ const TableView = () => {
     fetchData(1);
   }, [id]);
 
-  // const fetchData = async (page) => {
-  //   try {
-  //     if (!hasMore) return;
-  //     let response = null;
-
-  //     if (id) {
-  //       response = await fetch(`${API_URL}/people/${id}/`, {
-  //         method: "GET",
-  //         headers: { "Content-Type": "application/json" },
-  //       });
-  //     } else {
-  //       response = await fetch(`${API_URL}/people/people/?page=${page}`, {
-  //         method: "GET",
-  //         headers: { "Content-Type": "application/json" },
-  //       });
-  //     }
-
-  //     const response_data = await response.json();
-  //     const fetchedData = response_data.data;
-  //     console.log("Fetched data:", fetchedData);
-
-  //     if (page === 1) {
-  //       setData(fetchedData);
-  //       setFilteredData(fetchedData);
-  //     } else {
-  //       setData((prevData) => [...prevData, ...fetchedData]);
-  //       setFilteredData((prevData) => [...prevData, ...fetchedData]);
-  //     }
-  //     setHasMore(fetchedData.next !== null);
-  //   } catch (error) {
-  //     console.error("Fetch error:", error);
-  //     setHasMore(false);
-  //   }
-  // };
-
   const fetchData = async (page = 1) => {
     try {
       console.log(
         "Fetching data for:",
         id ? `person ID ${id}` : `page ${page}`
       );
-
       let response_data;
       if (id) {
         const response = await fetch(`${API_URL}/people/${id}/`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const result = await response.json();
         console.log("Single person response:", result);
-        response_data = [result.data]; // wrap in array
+        console.log(
+          "Fetched person data (raw):",
+          JSON.stringify(result.data, null, 2)
+        );
+        if (!result.data) {
+          console.error("No data found for ID:", id);
+          setData([]);
+          setFilteredData([]);
+          setHasMore(false);
+          return;
+        }
+        response_data = Array.isArray(result.data)
+          ? result.data
+          : [result.data];
         setHasMore(false);
       } else {
         const response = await fetch(`${API_URL}/people/people/?page=${page}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const result = await response.json();
         console.log("People list response:", result);
-        response_data = result.data;
+        response_data = result.data || [];
         setHasMore(result.next !== null);
       }
 
@@ -171,10 +153,11 @@ const TableView = () => {
         setData((prev) => [...prev, ...response_data]);
         setFilteredData((prev) => [...prev, ...response_data]);
       }
-
       console.log("Visible data after fetch:", response_data);
     } catch (error) {
       console.error("Fetch error:", error);
+      setData([]);
+      setFilteredData([]);
       setHasMore(false);
     }
   };
@@ -195,17 +178,17 @@ const TableView = () => {
   const handleSuggestionClick = (row) => {
     console.log("Suggestion Clicked:", row);
     Swal.fire({
-      title: `Submit Suggestion for ${row.name_in_nepali}`,
+      title: `Submit Suggestion for ${row.name_in_nepali || "Unknown"}`,
       html: `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-    <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px; background-color: white;"></textarea>
-    <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
-      <div id="file-picker" style="height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
-        Drag & drop an image here or click to select 
-        <input type="file" id="file-input" accept="image/*" style="display: none;">
-      </div>
-    </div>
+        <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px; background-color: white;"></textarea>
+        <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
+          <div id="file-picker" style="height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
+            Drag & drop an image here or click to select 
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+          </div>
+        </div>
       `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
@@ -239,7 +222,7 @@ const TableView = () => {
           if (event.target.files.length > 0) {
             const file = event.target.files[0];
             dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
-            dropzoneContainer.file = file; // Store file for later use
+            dropzoneContainer.file = file;
           }
         });
         dropzoneContainer.addEventListener("dragover", (event) => {
@@ -254,7 +237,7 @@ const TableView = () => {
           const file = event.dataTransfer.files[0];
           if (file) {
             dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
-            dropzoneContainer.file = file; // Store file for later use
+            dropzoneContainer.file = file;
           }
         });
       },
@@ -264,7 +247,6 @@ const TableView = () => {
         const file = dropzoneContainer.file;
         let photoUrl = "";
         if (file) {
-          // Cloudinary Upload Setup
           const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
           const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
           const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
@@ -278,25 +260,19 @@ const TableView = () => {
             Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
           }
         }
-        // API Payload
         const payload = {
-          //personId: row.id,
           suggestion: suggestion,
           suggestion_to: row.id,
           user:
             JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
-          name_in_nepali: row.name_in_nepali,
+          name_in_nepali: row.name_in_nepali || "Unknown",
           ...(photoUrl && { image: photoUrl }),
         };
 
         try {
-          await axios.post(
-            `${import.meta.env.VITE_API_URL}/people/suggestions/`,
-            payload,
-            {
-              headers: { "Content-Type": "application/json" },
-            }
-          );
+          await axios.post(`${API_URL}/people/suggestions/`, payload, {
+            headers: { "Content-Type": "application/json" },
+          });
           return suggestion;
         } catch (error) {
           Swal.showValidationMessage(`Request failed: ${error}`);
@@ -385,7 +361,7 @@ const TableView = () => {
     ) {
       age--;
     }
-    return age === 0 ? "-" : convertToNepaliNumerals(age);
+    return age === 0 ? "-" : convertToNepaliNumerals(age, false);
   };
 
   const handleInfoClick = (row) => {
@@ -417,7 +393,9 @@ const TableView = () => {
   const handleDelete = async (row) => {
     Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to delete ${row.name_in_nepali}? This action cannot be undone.`,
+      text: `Do you want to delete ${
+        row.name_in_nepali || "this record"
+      }? This action cannot be undone.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -430,7 +408,7 @@ const TableView = () => {
           fetchData(1);
           Swal.fire(
             "Deleted!",
-            `${row.name_in_nepali} has been deleted.`,
+            `${row.name_in_nepali || "Record"} has been deleted.`,
             "success"
           );
         } catch (error) {
@@ -450,7 +428,9 @@ const TableView = () => {
     fetchData(nextPage);
   };
 
-  const convertToNepaliNumerals = (number) => {
+  const convertToNepaliNumerals = (number, useNepali = true) => {
+    if (number == null || isNaN(number)) return "-";
+    if (!useNepali) return number.toString();
     const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
     return number
       .toString()
@@ -458,8 +438,6 @@ const TableView = () => {
       .map((digit) => nepaliNumerals[digit])
       .join("");
   };
-
-  console.log("Visible Data:", filteredData);
 
   return (
     <div className="table-view transition-all duration-300 relative">
@@ -470,7 +448,7 @@ const TableView = () => {
             <ToggleView
               isTableView={isTableView}
               toggleView={() => setIsTableView(!isTableView)}
-              availableId={visibleData.length > 0 ? visibleData[0].id : null}
+              availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
             />
           </div>
           <div className="flex gap-4">
@@ -487,7 +465,7 @@ const TableView = () => {
                  hover:scale-110
                  hover:shadow-lg
                  bg-[#14632F]
-          hover:bg-[#F49D37]
+                 hover:bg-[#F49D37]
                  flex items-center space-x-2
                "
               >
@@ -497,18 +475,18 @@ const TableView = () => {
             )}
             <button
               className="
-          px-4 py-2
-          rounded-md
-          shadow-md
-          text-white
-          focus:outline-none
-          transition-all
-          hover:scale-110
-          hover:shadow-lg
-          bg-[#14632F]
-          hover:bg-[#F49D37]
-          flex items-center space-x-2
-        "
+                px-4 py-2
+                rounded-md
+                shadow-md
+                text-white
+                focus:outline-none
+                transition-all
+                hover:scale-110
+                hover:shadow-lg
+                bg-[#14632F]
+                hover:bg-[#F49D37]
+                flex items-center space-x-2
+              "
               onClick={() => setShowSearchForm(true)}
             >
               <FaSearch />
@@ -516,21 +494,20 @@ const TableView = () => {
             </button>
             {isAdminLocal && (
               <>
-                {/* View Table */}
                 {activeTab !== "data" && (
                   <button
                     className="
-                 px-4 py-2
-                 rounded-md
-                 shadow-md
-                 text-white
-                 focus:outline-none
-                 transition-all
-                 hover:scale-110
-                 hover:shadow-lg
-                 bg-indigo-600
-                 hover:bg-indigo-700
-               "
+                     px-4 py-2
+                     rounded-md
+                     shadow-md
+                     text-white
+                     focus:outline-none
+                     transition-all
+                     hover:scale-110
+                     hover:shadow-lg
+                     bg-indigo-600
+                     hover:bg-indigo-700
+                   "
                     onClick={() => navigate("/")}
                   >
                     View Table
@@ -539,38 +516,37 @@ const TableView = () => {
                 {activeTab !== "suggestions" && (
                   <button
                     className="
-                   px-4 py-2
-                   rounded-md
-                   shadow-md
-                   text-white
-                   focus:outline-none
-                   transition-all
-                   hover:scale-110
-                   hover:shadow-lg
-                    bg-[#14632F]
-          hover:bg-[#F49D37]
-                 "
+                     px-4 py-2
+                     rounded-md
+                     shadow-md
+                     text-white
+                     focus:outline-none
+                     transition-all
+                     hover:scale-110
+                     hover:shadow-lg
+                     bg-[#14632F]
+                     hover:bg-[#F49D37]
+                   "
                     onClick={() => navigate("/suggestions")}
                   >
                     View Suggestions
                   </button>
                 )}
-
                 {activeTab === "data" && (
                   <button
                     className="
-                  px-4 py-2
-                  rounded-md
-                  shadow-md
-                  text-white
-                  focus:outline-none
-                  transition-all
-                  hover:scale-110
-                  hover:shadow-lg
-                 bg-[#14632F]
-          hover:bg-[#F49D37]
-                  flex items-center space-x-2
-                "
+                     px-4 py-2
+                     rounded-md
+                     shadow-md
+                     text-white
+                     focus:outline-none
+                     transition-all
+                     hover:scale-110
+                     hover:shadow-lg
+                     bg-[#14632F]
+                     hover:bg-[#F49D37]
+                     flex items-center space-x-2
+                   "
                     onClick={() => {
                       setFormData({
                         username: "",
@@ -588,13 +564,19 @@ const TableView = () => {
                     <span>+ Add New User</span>
                   </button>
                 )}
-                {/* Conditionally show "View All Table" button when (id || searchApplied) is true */}
               </>
             )}
           </div>
         </div>
 
         {/* Main Content */}
+        {activeTab === "data" && filteredData.length === 0 && (
+          <div className="text-center py-4 text-[#800000]">
+            {id
+              ? `No data found for ID ${id}. The record may not exist or has been deleted.`
+              : "No data available. Try adding a new user or searching for existing ones."}
+          </div>
+        )}
         {!id ? (
           <InfiniteScroll
             dataLength={visibleData.length}
@@ -610,55 +592,63 @@ const TableView = () => {
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
-                  <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
+                  <thead className="text-center border-b-2 border-gray-500 bg-gray-100">
                     <tr>
-                      <th className="text-center">नाम</th>
-                      <th className="text-center">पुस्ता नम्बर</th>
-                      <th className="text-center">बाबुको नाम</th>
-                      <th className="text-center">आमाको नाम</th>
-                      <th className="text-center">लिङ्ग</th>
-                      <th className="text-center">उमेर</th>
-                      <th className="text-center">कार्यहरू</th>
+                      <th className="text-center text-[#800000]">नाम</th>
+                      <th className="text-center text-[#800000]">
+                        पुस्ता नम्बर
+                      </th>
+                      <th className="text-center text-[#800000]">बाबुको नाम</th>
+                      <th className="text-center text-[#800000]">आमाको नाम</th>
+                      <th className="text-center text-[#800000]">लिङ्ग</th>
+                      <th className="text-center text-[#800000]">उमेर</th>
+                      <th className="text-center text-[#800000]">कार्यहरू</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className={`border-b-2 border-gray-700 hover:bg-gray-200 ${getGenderRowClass(
-                          row.gender
-                        )}`}
+                        className={`border-b-2 border-gray-300 hover:bg-gray-200 ${
+                          row.gender && row.gender.toLowerCase() === "male"
+                            ? "bg-blue-100"
+                            : row.gender &&
+                              row.gender.toLowerCase() === "female"
+                            ? "bg-pink-100"
+                            : "bg-gray-50"
+                        }`}
                       >
-                        <td className="text-center">
+                        <td className="text-center text-[#800000]">
                           <img
                             src={
                               row.photo ||
-                              (row.gender === "Male"
+                              (row.gender && row.gender.toLowerCase() === "male"
                                 ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg")
+                                : row.gender &&
+                                  row.gender.toLowerCase() === "female"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png")
                             }
                             alt="Profile"
                             className="w-14 h-14 rounded-full object-cover"
                           />
-                          {row.name_in_nepali}
+                          {row.name_in_nepali || "-"}
                         </td>
                         <td className="text-center items-center justify-center">
-                          {(() => {
-                            const genColorClass =
-                              row.pusta_number % 2 === 0
-                                ? { bg: "bg-[#14632F] text-white" }
-                                : { bg: "bg-[#F49D37] text-white" };
-                            return (
-                              <div
-                                className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
-                              >
-                                {convertToNepaliNumerals(row.pusta_number)}
-                              </div>
-                            );
-                          })()}
+                          <div
+                            className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${
+                              row.pusta_number && row.pusta_number % 2 === 0
+                                ? "bg-[#14632F] text-white"
+                                : "bg-[#F49D37] text-white"
+                            }`}
+                          >
+                            {convertToNepaliNumerals(row.pusta_number, true)}
+                          </div>
                         </td>
                         <td className="text-center">
-                          {row.father ? (
+                          {row.father &&
+                          row.father.id &&
+                          row.father.name_in_nepali ? (
                             <span
                               className="cursor-pointer text-blue-600"
                               onClick={() => navigate(`/${row.father.id}`)}
@@ -666,28 +656,31 @@ const TableView = () => {
                               {row.father.name_in_nepali}
                             </span>
                           ) : (
-                            "-"
+                            <span className="text-[#800000]">-</span>
                           )}
                         </td>
                         <td className="text-center">
-                          {row.mother ? (
+                          {row.mother &&
+                          row.mother.id &&
+                          row.mother.name_in_nepali ? (
                             <span
                               className="cursor-pointer text-blue-600"
                               onClick={() => navigate(`/${row.mother.id}`)}
                             >
-                              {row.mothername_in_nepali}
+                              {row.mother.name_in_nepali}
                             </span>
                           ) : (
-                            "-"
+                            <span className="text-[#800000]">-</span>
                           )}
                         </td>
-                        <td className="flex items-center space-x-2 text-gray-700 text-base justify-center">
-                          {row.gender?.toLowerCase() === "male" ? (
+                        <td className="flex items-center space-x-2 text-[#800000] text-base justify-center">
+                          {row.gender && row.gender.toLowerCase() === "male" ? (
                             <>
                               <FaMale className="text-blue-500 text-lg" />
                               <span className="font-medium">पुरुष</span>
                             </>
-                          ) : row.gender?.toLowerCase() === "female" ? (
+                          ) : row.gender &&
+                            row.gender.toLowerCase() === "female" ? (
                             <>
                               <FaFemale className="text-pink-500 text-lg" />
                               <span className="font-medium">महिला</span>
@@ -697,7 +690,8 @@ const TableView = () => {
                           )}
                         </td>
                         <td className="text-center">
-                          {row.lifestatus.toLowerCase() === "dead" ? (
+                          {row.lifestatus &&
+                          row.lifestatus.toLowerCase() === "dead" ? (
                             <span
                               className="text-white text-xs font-bold px-2 py-1 rounded"
                               style={{ backgroundColor: "#800000" }}
@@ -705,7 +699,9 @@ const TableView = () => {
                               मृत्यु
                             </span>
                           ) : (
-                            calculateAge(row.date_of_birth, row.lifestatus)
+                            <span className="text-[#800000]">
+                              {calculateAge(row.date_of_birth, row.lifestatus)}
+                            </span>
                           )}
                         </td>
                         <td className="text-center">
@@ -717,7 +713,6 @@ const TableView = () => {
                           >
                             <Info size={18} />
                           </button>
-
                           {isAdminLocal ? (
                             <>
                               <button
@@ -728,7 +723,6 @@ const TableView = () => {
                               >
                                 <NotebookPen size={18} />
                               </button>
-
                               <button
                                 data-tooltip-id="tooltip"
                                 data-tooltip-content="Delete"
@@ -771,55 +765,63 @@ const TableView = () => {
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
-                  <thead className="text-center bg-gray-100">
+                  <thead className="text-center border-b-2 border-gray-500 bg-gray-100">
                     <tr>
-                      <th className="text-center">नाम</th>
-                      <th className="text-center">पुस्ता नम्बर</th>
-                      <th className="text-center">बाबुको नाम</th>
-                      <th className="text-center">आमाको नाम</th>
-                      <th className="text-center">लिङ्ग</th>
-                      <th className="text-center">उमेर</th>
-                      <th className="text-center">कार्यहरू</th>
+                      <th className="text-center text-[#800000]">नाम</th>
+                      <th className="text-center text-[#800000]">
+                        पुस्ता नम्बर
+                      </th>
+                      <th className="text-center text-[#800000]">बाबुको नाम</th>
+                      <th className="text-center text-[#800000]">आमाको नाम</th>
+                      <th className="text-center text-[#800000]">लिङ्ग</th>
+                      <th className="text-center text-[#800000]">उमेर</th>
+                      <th className="text-center text-[#800000]">कार्यहरू</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredData.map((row, index) => (
-                      <tr key={index} className="hover:bg-gray-200">
-                        <td className="text-center">
+                      <tr
+                        key={index}
+                        className={`border-b-2 border-gray-300 hover:bg-gray-200 ${
+                          row.gender && row.gender.toLowerCase() === "male"
+                            ? "bg-blue-100"
+                            : row.gender &&
+                              row.gender.toLowerCase() === "female"
+                            ? "bg-pink-100"
+                            : "bg-gray-50"
+                        }`}
+                      >
+                        <td className="text-center text-[#800000]">
                           <img
                             src={
                               row.photo ||
-                              (row.gender === "Male"
+                              (row.gender && row.gender.toLowerCase() === "male"
                                 ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg")
+                                : row.gender &&
+                                  row.gender.toLowerCase() === "female"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png")
                             }
                             alt="Profile"
                             className="w-14 h-14 rounded-full object-cover"
                           />
-                          {row.name_in_nepali}
+                          {row.name_in_nepali || "-"}
                         </td>
                         <td className="text-center items-center justify-center">
-                          {(() => {
-                            const genColorClass =
-                              row.pusta_number % 2 === 0
-                                ? {
-                                    bg: "bg-[#14632F] text-white",
-                                  }
-                                : {
-                                    bg: "bg-[#F49D37] text-white",
-                                  };
-                            return (
-                              <div
-                                className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${genColorClass.bg}`}
-                                title={genColorClass.label}
-                              >
-                                {convertToNepaliNumerals(row.pusta_number)}
-                              </div>
-                            );
-                          })()}
+                          <div
+                            className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${
+                              row.pusta_number && row.pusta_number % 2 === 0
+                                ? "bg-[#14632F] text-white"
+                                : "bg-[#F49D37] text-white"
+                            }`}
+                          >
+                            {convertToNepaliNumerals(row.pusta_number, false)}
+                          </div>
                         </td>
                         <td className="text-center">
-                          {row.father ? (
+                          {row.father &&
+                          row.father.id &&
+                          row.father.name_in_nepali ? (
                             <span
                               className="cursor-pointer text-blue-600"
                               onClick={() => navigate(`/${row.father.id}`)}
@@ -827,11 +829,13 @@ const TableView = () => {
                               {row.father.name_in_nepali}
                             </span>
                           ) : (
-                            "-"
+                            <span className="text-[#800000]">-</span>
                           )}
                         </td>
                         <td className="text-center">
-                          {row.mother ? (
+                          {row.mother &&
+                          row.mother.id &&
+                          row.mother.name_in_nepali ? (
                             <span
                               className="cursor-pointer text-blue-600"
                               onClick={() => navigate(`/${row.mother.id}`)}
@@ -839,67 +843,85 @@ const TableView = () => {
                               {row.mother.name_in_nepali}
                             </span>
                           ) : (
-                            "-"
+                            <span className="text-[#800000]">-</span>
                           )}
                         </td>
-
-                        <td className="flex items-center py-12 space-x-2 text-gray-700 text-base justify-center">
-                          {row.gender?.toLowerCase() === "male" ? (
+                        <td className="flex items-center space-x-2 text-[#800000] text-base justify-center">
+                          {row.gender && row.gender.toLowerCase() === "male" ? (
                             <>
                               <FaMale className="text-blue-500 text-lg" />
                               <span className="font-medium">पुरुष</span>
                             </>
-                          ) : row.gender?.toLowerCase() === "female" ? (
+                          ) : row.gender &&
+                            row.gender.toLowerCase() === "female" ? (
                             <>
                               <FaFemale className="text-pink-500 text-lg" />
                               <span className="font-medium">महिला</span>
                             </>
                           ) : (
-                            <span></span>
+                            <span>-</span>
                           )}
                         </td>
                         <td className="text-center">
-                          {row.lifestatus.toLowerCase() === "dead" ? (
-                            <span className="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">
-                              Dead
+                          {row.lifestatus &&
+                          row.lifestatus.toLowerCase() === "dead" ? (
+                            <span
+                              className="text-white text-xs font-bold px-2 py-1 rounded"
+                              style={{ backgroundColor: "#800000" }}
+                            >
+                              मृत्यु
                             </span>
                           ) : (
-                            calculateAge(row.date_of_birth, row.lifestatus)
+                            <span className="text-[#800000]">
+                              {calculateAge(row.date_of_birth, row.lifestatus)}
+                            </span>
                           )}
                         </td>
                         <td className="text-center">
-                          <button onClick={() => handleInfoClick(row)}>
-                            <Info color="black" size={18} />
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Info"
+                            className="hover:text-blue-500 transition duration-150"
+                            onClick={() => handleInfoClick(row)}
+                          >
+                            <Info size={18} />
                           </button>
                           {isAdminLocal ? (
                             <>
                               <button
-                                className="icon-button edit-button"
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Edit"
+                                className="hover:text-green-500 transition duration-150"
                                 onClick={() => handleEditClick(row)}
                               >
-                                <FaEdit />
+                                <NotebookPen size={18} />
                               </button>
                               <button
-                                className="icon-button delete-button"
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Delete"
+                                className="hover:text-red-500 transition duration-150"
                                 onClick={() => handleDelete(row)}
                               >
-                                <FaTrash />
+                                <Trash2 size={18} />
                               </button>
                             </>
                           ) : (
                             <button
-                              className="icon-button suggestion-button"
-                              onClick={handleSuggestionClick}
+                              data-tooltip-id="tooltip"
+                              data-tooltip-content="Suggest Edit"
+                              className="hover:text-yellow-500 transition duration-150"
+                              onClick={() => handleSuggestionClick(row)}
                             >
-                              <FaLightbulb />
+                              <Lightbulb size={18} />
                             </button>
                           )}
                           <button
-                            className="icon-button card-button text-gray-500 hover:text-blue-500"
-                            title="View Card"
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Card"
+                            className="hover:text-indigo-500 transition duration-150"
                             onClick={() => navigate(`/card/${row.id}`)}
                           >
-                            <IdCard color="black" size={20} />
+                            <IdCard size={18} />
                           </button>
                         </td>
                       </tr>
@@ -933,26 +955,26 @@ const TableView = () => {
       {isEditing && (
         <EditFormModal
           formData={{
-            id: selectedRow.id || "",
-            profileImage: selectedRow.photo || "",
-            name: selectedRow.name || "",
-            name_in_nepali: selectedRow.name_in_nepali || "",
-            pusta_number: selectedRow.pusta_number || "",
-            father_name: selectedRow.father?.name || "",
-            mother_name: selectedRow.mother?.name || "",
-            father_id: selectedRow.father?.id || "",
-            mother_id: selectedRow.mother?.id || "",
-            dob: selectedRow.date_of_birth || "",
-            lifestatus: selectedRow.lifestatus || "Alive",
-            death_date: selectedRow.date_of_death || "",
-            profession: selectedRow.profession || "",
-            gender: selectedRow.gender || "",
+            id: selectedRow?.id || "",
+            profileImage: selectedRow?.photo || "",
+            name: selectedRow?.name || "",
+            name_in_nepali: selectedRow?.name_in_nepali || "",
+            pusta_number: selectedRow?.pusta_number || "",
+            father_name: selectedRow?.father?.name || "",
+            mother_name: selectedRow?.mother?.name || "",
+            father_id: selectedRow?.father?.id || "",
+            mother_id: selectedRow?.mother?.id || "",
+            dob: selectedRow?.date_of_birth || "",
+            lifestatus: selectedRow?.lifestatus || "Alive",
+            death_date: selectedRow?.date_of_death || "",
+            profession: selectedRow?.profession || "",
+            gender: selectedRow?.gender || "",
             contact: {
-              email: selectedRow.contact_details?.email || "",
-              phone: selectedRow.contact_details?.phone || "",
-              address: selectedRow.contact_details?.address || "",
+              email: selectedRow?.contact_details?.email || "",
+              phone: selectedRow?.contact_details?.phone || "",
+              address: selectedRow?.contact_details?.address || "",
             },
-            vansha_status: selectedRow.same_vamsha_status ? "True" : "False",
+            vansha_status: selectedRow?.same_vamsha_status ? "True" : "False",
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}
@@ -961,7 +983,7 @@ const TableView = () => {
 
       {showInfoPopup && (
         <UserProfileModal
-          user={{ ...selectedRow, contact: selectedRow.contact_details }}
+          user={{ ...selectedRow, contact: selectedRow?.contact_details }}
           onClose={() => setShowInfoPopup(false)}
         />
       )}

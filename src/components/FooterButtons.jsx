@@ -17,20 +17,20 @@ const FooterButtons = ({
       <div className="w-full flex justify-around items-center bg-[#14632F] rounded-lg p-2 space-x-2">
         <button
           onClick={() => navigate(`/compare/${id}`)}
-          className="flex-1 flex items-center justify-center text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
+          className="flex-1 flex items-center justify-center text-white hover:text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
         >
           <FaExchangeAlt className="mr-2" /> Compare
         </button>
         <button
           onClick={onGenerateFamilyTree}
-          className="flex-1 flex items-center justify-center text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
+          className="flex-1 flex items-center justify-center text-white hover:text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
         >
           <FaSitemap className="mr-2" />
           Family Tree
         </button>
         <button
           onClick={onSearchButtonClick}
-          className="flex-1 flex items-center justify-center text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
+          className="flex-1 flex items-center justify-center text-white hover:text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
         >
           <FaSearch className="mr-2" /> Search
         </button>

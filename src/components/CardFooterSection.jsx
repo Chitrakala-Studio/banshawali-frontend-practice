@@ -43,8 +43,8 @@ const CardFooterSection = ({
                 text-[#F49D37]
                 px-1
                 py-2
-                font-semibold
-                text-sm
+                font-bold
+                text-m
               "
             >
               {person.name_in_nepali} .
