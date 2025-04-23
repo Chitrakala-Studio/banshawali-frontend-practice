@@ -44,8 +44,8 @@ const UserProfileModal = ({ user, onClose }) => {
   ];
 
   const renderPersonalInfo = () => (
-    <div style={{ color: "#1F2937", lineHeight: "1.6" }}>
-      <p style={{ display: "flex", alignItems: "center" }}>
+    <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
+      <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
         {user.gender === "Male" ? (
           <FaMale
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
@@ -59,7 +59,7 @@ const UserProfileModal = ({ user, onClose }) => {
         {user.gender}
       </p>
       {user.dateOfBirth && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <FaBirthdayCake
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -68,7 +68,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.lifestatus && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <FaHeart
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -77,7 +77,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.date_of_death && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <FaSkullCrossbones
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -86,7 +86,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.profession && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <Briefcase
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -98,9 +98,9 @@ const UserProfileModal = ({ user, onClose }) => {
   );
 
   const renderFamilyRelations = () => (
-    <div style={{ color: "#1F2937", lineHeight: "1.6" }}>
+    <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
       {user.grandfather?.name && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <FaMale
             style={{
               width: "20px",
@@ -114,7 +114,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.grandmother?.name && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <FaFemale
             style={{
               width: "20px",
@@ -128,7 +128,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.father?.name && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <FaMale
             style={{
               width: "20px",
@@ -148,7 +148,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.mother?.name && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <FaFemale
             style={{
               width: "20px",
@@ -171,6 +171,7 @@ const UserProfileModal = ({ user, onClose }) => {
         <div>
           <p
             style={{
+              color: "#ffff",
               display: "flex",
               alignItems: "center",
               fontWeight: "bold",
@@ -185,6 +186,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <p
               key={spouse.id}
               style={{
+                color: "#ffff",
                 display: "flex",
                 alignItems: "center",
                 marginLeft: "4rem",
@@ -208,6 +210,7 @@ const UserProfileModal = ({ user, onClose }) => {
         <div style={{ marginBottom: "1rem" }}>
           <p
             style={{
+              color: "#ffff",
               display: "flex",
               alignItems: "center",
               fontWeight: "bold",
@@ -222,6 +225,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <p
               key={sibling.id}
               style={{
+                color: "#ffff",
                 display: "flex",
                 alignItems: "center",
                 marginLeft: "6.3rem",
@@ -245,6 +249,7 @@ const UserProfileModal = ({ user, onClose }) => {
         <div>
           <p
             style={{
+              color: "#ffff",
               display: "flex",
               alignItems: "center",
               fontWeight: "bold",
@@ -259,6 +264,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <p
               key={child.id}
               style={{
+                color: "#ffff",
                 display: "flex",
                 alignItems: "center",
                 marginLeft: "6.5rem",
@@ -282,16 +288,16 @@ const UserProfileModal = ({ user, onClose }) => {
   );
 
   const renderContact = () => (
-    <div style={{ color: "#1F2937", lineHeight: "1.6" }}>
+    <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
       {user.contact_details?.email && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <Mail style={{ width: "20px", height: "20px", marginRight: "8px" }} />
           <strong style={{ marginRight: "4px" }}>Email</strong>{" "}
           {user.contact_details.email}
         </p>
       )}
       {user.contact_details?.phone && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <Phone
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -300,7 +306,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.contact_details?.address && (
-        <p style={{ display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
           <MapPin
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -324,7 +330,7 @@ const UserProfileModal = ({ user, onClose }) => {
     >
       <div
         style={{
-          backgroundColor: "#fff",
+          backgroundColor: "#14632f",
           padding: "24px",
           borderRadius: "8px",
           maxWidth: "520px",
@@ -338,7 +344,7 @@ const UserProfileModal = ({ user, onClose }) => {
           onClick={onClose}
           style={{
             float: "right",
-            color: "#4B5563",
+            color: "#ffff",
             background: "none",
             border: "none",
             cursor: "pointer",
@@ -391,20 +397,18 @@ const UserProfileModal = ({ user, onClose }) => {
           )}
           <div>
             <h2
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#1F2937" }}
+              style={{ fontSize: "24px", fontWeight: "bold", color: "#800000" }}
             >
               {user.name_in_nepali}
             </h2>
-            <p
-              style={{ color: "#4B5563", fontStyle: "italic", margin: "4px 0" }}
-            >
+            <p style={{ color: "#ffff", fontStyle: "italic", margin: "4px 0" }}>
               {user.name}
             </p>
             {user.bio && (
               <div style={{ display: "flex", alignItems: "center" }}>
                 <p
                   style={{
-                    color: "#4B5563",
+                    color: "#ffff",
                     fontStyle: "italic",
                     margin: "4px 0",
                   }}
@@ -448,8 +452,8 @@ const UserProfileModal = ({ user, onClose }) => {
                 alignItems: "center",
                 padding: "8px 16px",
                 transition: "all 0.3s",
-                borderBottom: activeTab === id ? "2px solid #3B82F6" : "none",
-                color: activeTab === id ? "#3B82F6" : "#4B5563",
+                borderBottom: activeTab === id ? "2px solid #f49D37" : "none",
+                color: activeTab === id ? "#f49D37" : "#ffff",
                 fontWeight: activeTab === id ? "bold" : "normal",
                 background: "none",
                 border: "none",
