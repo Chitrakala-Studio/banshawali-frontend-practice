@@ -824,7 +824,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
-      <div className="bg-gray-800 h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
+      <div className="bg-[#14632f] h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
         {/* Close Button */}
         <div className="absolute top-2 right-2">
           <button
@@ -886,12 +886,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           {/* Personal Information */}
           <div className="w-full">
-            <h3 className="text-lg font-bold py-3 text-[#7091E6]">
+            <h3 className="text-lg font-bold py-3 text-[#f49D37]">
               Personal Information
             </h3>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Pusta Number
               </label>
               <input
@@ -905,7 +905,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               />
             </div>
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Name (in English)
               </label>
               <input
@@ -920,14 +920,14 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <button
                 type="button"
                 onClick={translateToNepali}
-                className="flex items-center text-[#7091E6] p-5"
+                className="flex items-center text-[#f49D37] p-5"
               >
                 <FaArrowDown size={24} />
-                <span className="ml-1 text-[#7091E6]">Translate</span>
+                <span className="ml-1 text-[#f49D37]">Translate</span>
               </button>
             </div>
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Name (in Nepali)
               </label>
               <input
@@ -941,7 +941,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Gender
               </label>
               <select
@@ -957,7 +957,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm pt-3 font-medium text-[#7091E6]">
+              <label className="block text-sm pt-3 font-medium text-[#f49D37]">
                 Date of Birth
               </label>
               <NepaliDatePicker
@@ -973,7 +973,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Status
               </label>
               <select
@@ -995,7 +995,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
             {form.lifestatus === "Dead" && (
               <div className="w-full">
-                <label className="block text-sm pt-3 font-medium text-[#7091E6]">
+                <label className="block text-sm pt-3 font-medium text-[#f49D37]">
                   Date of Death
                 </label>
                 <NepaliDatePicker
@@ -1020,14 +1020,14 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           {/* Family Information */}
           <div className="w-full mt-4">
-            <h3 className="text-lg font-bold py-3 text-[#7091E6]">
+            <h3 className="text-lg font-bold py-3 text-[#f49D37]">
               Family Information
             </h3>
           </div>
 
           {/* --- FATHER NAME FIELD (Updated) --- */}
           <div className="w-full">
-            <label className="block text-sm font-medium text-[#7091E6]">
+            <label className="block text-sm font-medium text-[#f49D37]">
               Father Name
             </label>
             <div className="relative">
@@ -1083,7 +1083,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           {/* --- MOTHER NAME FIELD (Updated) --- */}
           <div className="w-full mt-4">
-            <label className="block text-sm font-medium text-[#7091E6]">
+            <label className="block text-sm font-medium text-[#f49D37]">
               Mother Name
             </label>
             <div className="relative">
@@ -1138,10 +1138,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           </div>
 
           <div className="w-full">
-            <h3 className="text-lg font-semibold py-3 text-[#7091E6]">
+            <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
               Vansha Status
             </h3>
-            <label className="block text-sm font-medium text-[#7091E6]">
+            <label className="block text-sm font-medium text-[#f49D37]">
               Same Vansha
             </label>
             <select
@@ -1158,12 +1158,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           {/* Contact Information */}
           <div className="w-full mt-4">
-            <h3 className="text-lg font-semibold py-3 text-[#7091E6]">
+            <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
               Contact Information
             </h3>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Email
               </label>
               <input
@@ -1177,7 +1177,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Phone
               </label>
               <input
@@ -1191,7 +1191,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Address
               </label>
               <input
@@ -1207,12 +1207,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           {/* Professional Information */}
           <div className="w-full mt-4">
-            <h3 className="text-lg font-semibold py-3 text-[#7091E6]">
+            <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
               Professional Information
             </h3>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-[#7091E6]">
+              <label className="block text-sm font-medium text-[#f49D37]">
                 Profession
               </label>
               <input
@@ -1232,7 +1232,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               type="submit"
               //onClick={handleSubmit}
               disabled={loading}
-              className={`mt-4 mb-4 bg-blue-500 text-white px-4 py-2 rounded-md ${
+              className={`mt-4 mb-4 bg-[#800000] text-white px-4 py-2 rounded-md ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
