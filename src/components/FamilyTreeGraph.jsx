@@ -420,13 +420,13 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
         )}
         {isGroupNode && (
           <rect
-            x="-75"
+            x="-55"
             y="-25"
             width="120"
             height="40"
             rx="20"
             ry="20"
-            fill="#f0f4f8"
+            fill="#f49D37"
             stroke="#bbb"
             strokeWidth="1"
             filter="url(#shadow)"
@@ -537,7 +537,12 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div
+      style={{
+        color: "#800000",
+        position: "relative",
+      }}
+    >
       {typeof closePopup === "function" && (
         <button
           aria-label="Close family tree"
@@ -570,7 +575,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
           zIndex: "10",
         }}
       >
-        <h2>{selectedPerson}'s Family Tree</h2>
+        <h2>Family Tree</h2>
         {treeData && (
           <ReactD3Tree
             data={treeData}
