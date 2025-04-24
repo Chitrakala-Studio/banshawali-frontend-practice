@@ -110,15 +110,15 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   const [treeData, setTreeData] = useState(null);
   const [familyData, setFamilyData] = useState(null);
   const treeContainerRef = useRef(null);
-  const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
+  const [dimensions, setDimensions] = useState({ width: 850, height: 600 });
   const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setDimensions({
-      width: isMobile ? 500 : 600,
-      height: isMobile ? 300 : 400,
+      width: isMobile ? 850 : 600,
+      height: isMobile ? 600 : 1000,
     });
   }, [isMobile]);
 
@@ -537,18 +537,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        maxWidth: isMobile ? "90vw" : "80vw",
-        maxHeight: isMobile ? "90vh" : "80vh",
-        backgroundColor: "white",
-        borderRadius: "8px",
-        overflow: "auto",
-        padding: "20px",
-        boxSizing: "border-box",
-      }}
-    >
+    <div style={{ position: "relative" }}>
       {typeof closePopup === "function" && (
         <button
           aria-label="Close family tree"
@@ -569,55 +558,52 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
         ref={treeContainerRef}
         style={{
           position: "relative",
-          width: isMobile ? "60vw" : "90%",
-          height: isMobile ? "80vh" : "40em",
+          width: isMobile ? "80vh" : "100%",
+          height: isMobile ? "160vw" : "50em",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           transform: isMobile ? "rotate(90deg)" : "none",
-          transformOrigin: isMobile ? "center center" : "none",
+          transformOrigin: isMobile ? "down left" : "none",
           overflow: "auto",
           zIndex: "10",
         }}
       >
-        {treeData ? (
-          <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
-            <ReactD3Tree
-              data={treeData}
-              orientation="horizontal"
-              nodeSize={{ x: 180, y: 180 }} // Slightly reduced node size
-              translate={{
-                x: isMobile ? dimensions.width / 4 : dimensions.width / 2,
-                y: isMobile ? dimensions.height / 2 : dimensions.height / 3,
-              }}
-              renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
-              onNodeClick={handleNodeClick}
-              separation={{ siblings: 0.6, nonSiblings: 1.5 }} // Reduced gap between siblings
-              pathFunc="diagonal"
-              pathClassFunc={() => "custom-link"}
-            />
-          </div>
-        ) : (
-          <p>Loading...</p>
+        <h2>{selectedPerson}'s Family Tree</h2>
+        {treeData && (
+          <ReactD3Tree
+            data={treeData}
+            orientation="horizontal"
+            nodeSize={{ x: 200, y: 200 }}
+            translate={{
+              x: isMobile ? dimensions.width / 6 : dimensions.width / 2,
+              y: isMobile ? dimensions.height / 1.3 : dimensions.height / 3,
+            }}
+            renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
+            onNodeClick={handleNodeClick}
+            separation={{ siblings: 1, nonSiblings: 2 }}
+            pathFunc="diagonal"
+            pathClassFunc={() => "custom-link"}
+          />
         )}
         <div
           style={{
             display: "flex",
             flexDirection: "row",
-            gap: "8px",
+            gap: "10px",
             marginTop: "10px",
           }}
         >
           <button
             onClick={handlePDF}
-            className="save-button bg-teal-700 text-white border-black/10 px-3 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-105 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-xs"
+            className="save-button bg-teal-700 text-white h-6 border-black/10 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
           >
             Save as PDF
           </button>
           <button
             onClick={handlePrint}
-            className="print-button bg-teal-700 text-xs text-white border-black/10 px-3 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-105 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2"
+            className="print-button bg-teal-700 text-sm text-white border-black/10 h-6 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2"
           >
             Print Family Tree
           </button>
