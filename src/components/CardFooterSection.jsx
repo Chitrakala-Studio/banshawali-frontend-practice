@@ -14,6 +14,10 @@ const CardFooterSection = ({
   convertToNepaliNumerals,
   person,
 }) => {
+  // Determine if the popup is active for the current person
+  const isPopupActive =
+    isExpanded && infoPopup === (person.name || person.name_in_nepali);
+
   return (
     <div
       className={`
@@ -35,24 +39,27 @@ const CardFooterSection = ({
           minHeight: "150px",
         }}
       >
-        <div className="flex justify-between items-center mb-3 px-4">
-          {/* Wrap name and pusta number in a flex container */}
-          <div className="flex items-center gap-1">
-            <h2
-              className="
-                text-[#F49D37]
-                px-1
-                py-2
-                font-bold
-                text-m
-              "
-            >
-              {person.name_in_nepali} .
-              {convertToNepaliNumerals(person.pusta_number)}
-            </h2>
-          </div>
-
-          {/* Toggle button remains separate */}
+        <div className="flex items-center mb-3 px-4">
+          {/* Conditionally render name and pusta number on the left */}
+          {!isPopupActive && (
+            <div className="flex items-center gap-1">
+              <h2
+                className="
+                  text-[#F49D37]
+                  px-1
+                  py-2
+                  font-bold
+                  text-m
+                "
+              >
+                {person.name_in_nepali} .
+                {convertToNepaliNumerals(person.pusta_number)}
+              </h2>
+            </div>
+          )}
+          {/* Spacer to push toggle button to the right */}
+          <div className="flex-grow"></div>
+          {/* Toggle button always on the right */}
           <button
             className="
               p-2

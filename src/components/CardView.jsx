@@ -260,24 +260,15 @@ const CardView = () => {
         {/* Family‑tree modal */}
         {selectedPerson && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white w-11/12 max-w-5xl p-6 rounded-lg relative">
-              <button
-                onClick={() => {
-                  setSelectedPerson(null);
-                  setIsHorizontal(false);
-                }}
-                onTouchEnd={() => {
-                  setSelectedPerson(null);
-                  setIsHorizontal(false);
-                }}
-                className="absolute top-2 right-2 text-gray-700 font-bold text-xl"
-              >
-                ✕
-              </button>
+            <div className="bg-white w-11/12 max-w-4xl max-h-[90vh] p-6 rounded-lg relative overflow-auto">
               <FamilyTreeGraph
                 id={id}
                 selectedPerson={selectedPerson}
                 isMobile={isMobile}
+                closePopup={() => {
+                  setSelectedPerson(null);
+                  setIsHorizontal(false);
+                }}
               />
             </div>
           </div>

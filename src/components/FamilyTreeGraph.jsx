@@ -4,15 +4,16 @@ import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ReactD3Tree from "react-d3-tree";
 import axios from "axios";
-import { ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "./App.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import Swal from "sweetalert2";
 import "svg2pdf.js";
 import { Canvg } from "canvg";
+import { ChevronRight, X as XIcon } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const fetchFamilyData = async (id) => {
   try {
@@ -68,18 +69,16 @@ const transformToTreeData = (familyData) => {
 const findNodeById = (tree, id) => {
   if (!tree) return null;
 
-  // Direct match
   if (tree.id === id) return tree;
 
-  // If children exist, search through them
   if (tree.children && tree.children.length > 0) {
     for (const child of tree.children) {
       const found = findNodeById(child, id);
-      if (found) return found; // Return the found node immediately
+      if (found) return found;
     }
   }
 
-  return null; // If not found in this branch
+  return null;
 };
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -107,22 +106,30 @@ const convertImagesToBase64 = async (svgElement) => {
   }
 };
 
-const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
+const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   const [treeData, setTreeData] = useState(null);
   const [familyData, setFamilyData] = useState(null);
   const treeContainerRef = useRef(null);
-  const [dimensions, setDimensions] = useState({ width: 850, height: 550 });
+  const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
   const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setDimensions({
+      width: isMobile ? 500 : 600,
+      height: isMobile ? 300 : 400,
+    });
+  }, [isMobile]);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!id) return; // Prevent running when id is undefined
+      if (!id) return;
       console.log(`Fetching data for new ID: ${id}`);
       const data = await fetchFamilyData(id);
       if (data) {
         setFamilyData(data);
-        setTreeData(transformToTreeData(data)); // Update tree
+        setTreeData(transformToTreeData(data));
       }
     };
 
@@ -139,7 +146,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     });
 
     if (confirmation.isConfirmed) {
-      const svgElement = document.querySelector(".rd3t-svg"); // Target the SVG directly
+      const svgElement = document.querySelector(".rd3t-svg");
       if (svgElement) {
         await delay(500);
         await convertImagesToBase64(svgElement);
@@ -172,7 +179,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     }
   };
 
-  // Function to handle downloading the graph as a PDF with Swal confirmation using canvg
   const handlePDF = async () => {
     const confirmation = await Swal.fire({
       title: "Download PDF?",
@@ -183,7 +189,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     });
 
     if (confirmation.isConfirmed) {
-      const svgElement = document.querySelector(".rd3t-svg"); // Target the SVG directly
+      const svgElement = document.querySelector(".rd3t-svg");
       if (svgElement) {
         await delay(500);
         await convertImagesToBase64(svgElement);
@@ -219,12 +225,18 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
     }
   };
 
+  const handleNameClick = (nodeDatum) => {
+    if (!nodeDatum.isCollapsible && nodeDatum.real_id) {
+      if (typeof closePopup === "function") {
+        closePopup();
+      }
+      navigate(`/card/${nodeDatum.real_id}`);
+    }
+  };
+
   const handleNodeClick = async (nodeDatum) => {
     console.log("Node clicked:", nodeDatum);
 
-    console.log("COLLAPASABLE", nodeDatum.isCollapsible);
-
-    // If it's a real person (not "Father" or "Children"), expand instead of resetting the tree
     if (!nodeDatum.isCollapsible) {
       console.log(`Fetching additional data for: ${nodeDatum.name}`);
       const newData = await fetchFamilyData(nodeDatum.real_id);
@@ -232,15 +244,12 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
         setTreeData((prevTree) => {
           if (!prevTree) return null;
 
-          const newTree = JSON.parse(JSON.stringify(prevTree)); // Deep copy
+          const newTree = JSON.parse(JSON.stringify(prevTree));
           const targetNode = findNodeById(newTree, nodeDatum.id);
 
           if (targetNode) {
             targetNode.children = targetNode.children || [];
 
-            console.log("IDDDD", nodeDatum.id);
-
-            // Expand father if available
             if (nodeDatum.id.startsWith("father-")) {
               if (
                 newData.father &&
@@ -266,7 +275,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
             }
 
             if (nodeDatum.id.startsWith("child-")) {
-              // Expand children if available
               if (newData.children && newData.children.length > 0) {
                 newData.children.forEach((child) => {
                   if (
@@ -294,11 +302,10 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
       return;
     }
 
-    // If it's a "Father" or "Children" group, toggle expansion
     setTreeData((prevTree) => {
       if (!prevTree) return null;
 
-      const newTree = JSON.parse(JSON.stringify(prevTree)); // Deep copy
+      const newTree = JSON.parse(JSON.stringify(prevTree));
       const targetNode = findNodeById(newTree, nodeDatum.id);
 
       if (targetNode) {
@@ -307,9 +314,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
 
         if (!targetNode.collapsed && nodeDatum.name === "Father") {
           console.log("Expanding father group");
-          // setexpandfather(true);
           if (familyData.father && familyData.father.id) {
-            // setexpandfather(true);
             targetNode.children = [
               {
                 name: familyData.father.name,
@@ -330,7 +335,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
           console.log("Expanding children group");
 
           if (familyData.children && familyData.children.length > 0) {
-            // setexpandchild(true);
             targetNode.children = familyData.children.map((child) => ({
               name: child.name,
               id: `child-${child.id}`,
@@ -364,40 +368,38 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
         return [];
       }
 
-      // Check if text contains "/"
       if (text.includes("/")) {
         const nameParts = text.split("/").map((part) => part.trim());
 
         if (nameParts.length <= 2) {
-          return [nameParts.join(" / ")]; // If only two names, put them in one line
+          return [nameParts.join(" / ")];
         }
 
-        const firstLine = nameParts.slice(0, 2).join(" / "); // First two names
-        const secondLine = "/ " + nameParts.slice(2).join(" / "); // Remaining names with leading "/"
+        const firstLine = nameParts.slice(0, 2).join(" / ");
+        const secondLine = "/ " + nameParts.slice(2).join(" / ");
 
         return [firstLine, secondLine];
       }
 
-      // If no "/", break text based on word count for balance
       const words = text.split(" ");
-      const mid = Math.ceil(words.length / 2); // Find middle point
+      const mid = Math.ceil(words.length / 2);
 
-      const firstLine = words.slice(0, mid).join(" "); // First half
-      const secondLine = words.slice(mid).join(" "); // Second half
+      const firstLine = words.slice(0, mid).join(" ");
+      const secondLine = words.slice(mid).join(" ");
 
-      return secondLine ? [firstLine, secondLine] : [firstLine]; // Avoid empty second line
+      return secondLine ? [firstLine, secondLine] : [firstLine];
     };
 
-    const nameLines = wrapText(nodeDatum.name, 8);
-    console.log(gender);
+    const nameLines = wrapText(nodeDatum.name);
+
     return (
       <g
-        className="tree"
+        className="tree-node"
         id="family-tree"
         strokeWidth="0.5"
-        fontFamily="sans-sarif"
+        fontFamily="sans-serif"
         cursor="pointer"
-        fontWeight={"200"}
+        fontWeight="200"
         onClick={() => handleNodeClick(nodeDatum)}
       >
         {/* Background */}
@@ -407,25 +409,37 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
             y="-40"
             width="180"
             height="65"
-            rx="30"
-            ry="30"
+            rx="15"
+            ry="15"
             fill={gender === "Male" ? "#d4fff5" : "#ffcee9"}
+            stroke="#ccc"
+            strokeWidth="1"
+            filter="url(#shadow)"
             pointerEvents="all"
           />
         )}
         {isGroupNode && (
           <rect
-            x="-95"
-            y="-40"
-            width="165"
-            height="65"
-            rx="30"
-            ry="30"
-            fill={"#e7e7e7"}
+            x="-75"
+            y="-25"
+            width="120"
+            height="40"
+            rx="20"
+            ry="20"
+            fill="#f0f4f8"
+            stroke="#bbb"
+            strokeWidth="1"
+            filter="url(#shadow)"
             pointerEvents="all"
           />
         )}
-        {/* Only show image for actual persons, not "Father" or "Children" */}
+        {/* Shadow Definition */}
+        <defs>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.2" />
+          </filter>
+        </defs>
+        {/* Image */}
         {!isGroupNode &&
           (nodeDatum.photo && nodeDatum.photo !== "null" ? (
             <image
@@ -452,17 +466,17 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
               pointerEvents="none"
             />
           ))}
-
         {/* Name */}
         {isGroupNode && (
           <text
-            x="-10"
-            y="-10"
+            x="0"
+            y="0"
             textAnchor="middle"
             fontSize="14"
-            fill="black"
+            fill="#333"
             strokeWidth="0"
-            fontWeight={"bold"}
+            fontWeight="bold"
+            pointerEvents="none"
           >
             {nodeDatum.name}
           </text>
@@ -472,119 +486,152 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile }) => {
             x="25"
             y={-13.5 + (nameLines.length > 0 ? -10 : 0)}
             textAnchor="middle"
-            fontSize="14"
-            //  fontFamily="cursive"
+            fontSize="16"
             dominantBaseline="middle"
-            fill="black"
+            fill="#333"
             strokeWidth="0"
-            fontWeight="200"
+            fontWeight="500"
+            cursor="pointer"
+            className="name-text"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNameClick(nodeDatum);
+            }}
           >
             {nameLines.map((line, i) => (
-              <tspan key={i} x="25" dy={i === 0 ? 0 : 20} strokeWidth="0">
+              <tspan key={i} x="25" dy={i === 0 ? 0 : 22} strokeWidth="0">
                 {line}
               </tspan>
             ))}
           </text>
         )}
+
         {/* Pusta (Family Lineage) */}
         {!isGroupNode && (
           <text
             x="20"
-            y="15"
+            y="20"
             textAnchor="middle"
             fontSize="12"
             fontWeight="normal"
+            fill="#666"
+            pointerEvents="none"
           >
             {nodeDatum.pusta}
           </text>
         )}
-
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(45, -10) rotate(${
+            transform={`translate(35, -5) rotate(${
               nodeDatum.collapsed ? 0 : 90
             })`}
             style={{ transition: "transform 0.3s ease" }}
+            pointerEvents="none"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size="18" color="#666" />
           </g>
         )}
       </g>
     );
   };
-  dimensions.width = isMobile ? 850 : 550; // Adjust for mobile and desktop
-  dimensions.height = isMobile ? 550 : 850; // Adjust for mobile and desktop
-  const translateX = isMobile ? dimensions.width / 6 : dimensions.width / 2; //
-  // Adjust for mobile and desktop
-  const translateY = isMobile ? dimensions.height / 1.3 : dimensions.height / 4; // Adjust for mobile and desktop
-  const nodeSize = isMobile ? { x: 160, y: 80 } : { x: 200, y: 150 }; // Smaller nodes on mobile
-  const scale = 1; // Scale down the tree for mobile to fit
 
   return (
-    <>
+    <div
+      style={{
+        position: "relative",
+        maxWidth: isMobile ? "90vw" : "80vw",
+        maxHeight: isMobile ? "90vh" : "80vh",
+        backgroundColor: "white",
+        borderRadius: "8px",
+        overflow: "auto",
+        padding: "20px",
+        boxSizing: "border-box",
+      }}
+    >
+      {typeof closePopup === "function" && (
+        <button
+          aria-label="Close family tree"
+          onClick={closePopup}
+          onTouchStart={closePopup}
+          className="absolute bg-white/70 backdrop-blur p-1 rounded-full shadow z-[1000]"
+          style={{
+            lineHeight: 0,
+            top: "12px",
+            right: "12px",
+          }}
+        >
+          <XIcon size={18} />
+        </button>
+      )}
       <div
         className="tree"
         ref={treeContainerRef}
         style={{
-          width: isMobile ? "80vh" : "100%",
-          height: isMobile ? "160vw" : "32em",
+          position: "relative",
+          width: isMobile ? "60vw" : "90%",
+          height: isMobile ? "80vh" : "40em",
           display: "flex",
-          flexDirection: "column", // Apply row when horizontal layout
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          // position: "relative",
-          transform: isMobile ? "rotate(90deg)" : "none", // Apply rotation only for horizontal layout
-          transformOrigin: isMobile ? "down left" : "none", // Set the origin of the rotation when horizontal
-          overflow: isMobile ? "auto" : "hidden", // Apply overflow for horizontal layout
+          transform: isMobile ? "rotate(90deg)" : "none",
+          transformOrigin: isMobile ? "center center" : "none",
+          overflow: "auto",
           zIndex: "10",
         }}
       >
-        <h2>{selectedPerson}'s Family Tree</h2>
-        {treeData && (
-          <ReactD3Tree
-            data={treeData}
-            orientation="horizontal"
-            nodeSize={{ x: 200, y: 100 }}
-            translate={{
-              x: translateX,
-              y: translateY,
-            }}
-            renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
-            onNodeClick={handleNodeClick} // Keep this to capture clicks
-            separation={{ siblings: 1.5, nonSiblings: 2 }}
-            pathFunc="step"
-          />
+        {treeData ? (
+          <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
+            <ReactD3Tree
+              data={treeData}
+              orientation="horizontal"
+              nodeSize={{ x: 180, y: 180 }} // Slightly reduced node size
+              translate={{
+                x: isMobile ? dimensions.width / 4 : dimensions.width / 2,
+                y: isMobile ? dimensions.height / 2 : dimensions.height / 3,
+              }}
+              renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
+              onNodeClick={handleNodeClick}
+              separation={{ siblings: 0.6, nonSiblings: 1.5 }} // Reduced gap between siblings
+              pathFunc="diagonal"
+              pathClassFunc={() => "custom-link"}
+            />
+          </div>
+        ) : (
+          <p>Loading...</p>
         )}
         <div
           style={{
             display: "flex",
             flexDirection: "row",
-            gap: "10px",
+            gap: "8px",
             marginTop: "10px",
           }}
         >
           <button
             onClick={handlePDF}
-            className="save-button bg-teal-700 text-white h-6 border-black/10 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
+            className="save-button bg-teal-700 text-white border-black/10 px-3 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-105 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-xs"
           >
             Save as PDF
           </button>
           <button
             onClick={handlePrint}
-            className="print-button bg-teal-700 text-sm text-white border-black/10  h-6 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 "
+            className="print-button bg-teal-700 text-xs text-white border-black/10 px-3 py-2 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-105 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2"
           >
             Print Family Tree
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
 FamilyTreeGraph.propTypes = {
   selectedPerson: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
+  isMobile: PropTypes.bool.isRequired,
+  closePopup: PropTypes.func,
 };
 
 export default FamilyTreeGraph;
