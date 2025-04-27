@@ -1,7 +1,14 @@
 import { React, useState, useEffect } from "react";
 import axios from "axios";
 import { FaArrowLeft, FaSearch, FaMale, FaFemale } from "react-icons/fa";
-import { NotebookPen, Trash2, Info, IdCard, Lightbulb } from "lucide-react";
+import {
+  NotebookPen,
+  Trash2,
+  Info,
+  IdCard,
+  Lightbulb,
+  Upload,
+} from "lucide-react";
 import EditFormModal from "./EditFormModal";
 import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
@@ -180,12 +187,41 @@ const TableView = () => {
     Swal.fire({
       title: `Submit Suggestion for ${row.name_in_nepali || "Unknown"}`,
       html: `
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-        <textarea id="suggestion" class="swal2-input" placeholder="Enter your suggestion" style="height: 150px; width:410px; background-color: white;"></textarea>
-        <div id="dropzone-container" class="dropzone border-dashed border-2 p-2 text-center cursor-pointer bg-white mt-3">
-          <div id="file-picker" style="height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <p><i class="fa fa-cloud-upload-alt" style="font-size:40px"></i></p>
-            Drag & drop an image here or click to select 
+        <textarea id="suggestion" placeholder="Enter your suggestion" style="
+          height: 150px; 
+          width: 410px; 
+          background-color: #fffaf0; 
+          border: 2px solid #F49D37; 
+          border-radius: 10px; 
+          padding: 10px; 
+          font-family: 'Merriweather', serif; 
+          font-size: 16px; 
+          color: #374151; 
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          resize: none;
+        "></textarea>
+        <div id="dropzone-container" style="
+          border: 2px dashed #F49D37; 
+          padding: 15px; 
+          text-align: center; 
+          cursor: pointer; 
+          background-color: #fffaf0; 
+          margin-top: 15px; 
+          border-radius: 10px; 
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        ">
+          <div id="file-picker" style="
+            height: 80px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            color: #14632F; 
+            font-family: 'Merriweather', serif; 
+            font-size: 16px;
+          ">
+            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="40px" width="40px" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4v12"/></svg>
+            Drag & drop an image here or click to select
             <input type="file" id="file-input" accept="image/*" style="display: none;">
           </div>
         </div>
@@ -194,49 +230,102 @@ const TableView = () => {
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: "Submit",
-      showLoaderOnConfirm: true,
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#14632F",
+      cancelButtonColor: "#F49D37",
       didOpen: () => {
         const dropzoneContainer = document.getElementById("dropzone-container");
         const fileInput = document.getElementById("file-input");
         const filePicker = document.getElementById("file-picker");
         const titleElement = document.querySelector(".swal2-title");
+        const popupElement = document.querySelector(".swal2-popup");
+        const confirmButton = document.querySelector(".swal2-confirm");
+        const cancelButton = document.querySelector(".swal2-cancel");
+
+        // Style the title
         if (titleElement) {
           titleElement.style.fontSize = "24px";
-          titleElement.style.color = "antiquewhite";
-          titleElement.style.fontFamily = "Times New Roman, sans-serif";
+          titleElement.style.color = "#14632F";
+          titleElement.style.fontFamily = "'Playfair Display', serif";
           titleElement.style.letterSpacing = "1px";
           titleElement.style.fontWeight = "bold";
           titleElement.style.marginBottom = "15px";
-          titleElement.style.borderBottom = "2px solid #eaeaea";
+          titleElement.style.borderBottom = "2px solid #F49D37";
           titleElement.style.paddingBottom = "10px";
+          titleElement.style.textShadow = "1px 1px 2px rgba(0, 0, 0, 0.1)";
         }
-        const popupElement = document.querySelector(".swal2-popup");
+
+        // Style the popup
         if (popupElement) {
-          popupElement.style.backgroundColor = "#0b1d2e";
-          popupElement.style.borderRadius = "10px";
-          popupElement.style.padding = "20px";
-          popupElement.style.border = "2px solid #0b1d2e";
+          popupElement.style.background =
+            "linear-gradient(to bottom, #fffaf0, #ffffff)";
+          popupElement.style.borderRadius = "15px";
+          popupElement.style.padding = "25px";
+          popupElement.style.border = "2px solid #F49D37";
+          popupElement.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.3)";
         }
+
+        // Style the confirm button
+        if (confirmButton) {
+          confirmButton.style.backgroundColor = "#14632F";
+          confirmButton.style.color = "#F49D37";
+          confirmButton.style.borderRadius = "8px";
+          confirmButton.style.padding = "10px 20px";
+          confirmButton.style.fontFamily = "'Playfair Display', serif";
+          confirmButton.style.fontSize = "16px";
+          confirmButton.style.transition =
+            "background-color 0.2s, transform 0.2s";
+          confirmButton.addEventListener("mouseover", () => {
+            confirmButton.style.backgroundColor = "#800000";
+            confirmButton.style.transform = "scale(1.05)";
+          });
+          confirmButton.addEventListener("mouseout", () => {
+            confirmButton.style.backgroundColor = "#14632F";
+            confirmButton.style.transform = "scale(1)";
+          });
+        }
+
+        // Style the cancel button
+        if (cancelButton) {
+          cancelButton.style.backgroundColor = "#F49D37";
+          cancelButton.style.color = "#14632F";
+          cancelButton.style.borderRadius = "8px";
+          cancelButton.style.padding = "10px 20px";
+          cancelButton.style.fontFamily = "'Playfair Display', serif";
+          cancelButton.style.fontSize = "16px";
+          cancelButton.style.transition =
+            "background-color 0.2s, transform 0.2s";
+          cancelButton.addEventListener("mouseover", () => {
+            cancelButton.style.backgroundColor = "#e68b2a";
+            cancelButton.style.transform = "scale(1.05)";
+          });
+          cancelButton.addEventListener("mouseout", () => {
+            cancelButton.style.backgroundColor = "#F49D37";
+            cancelButton.style.transform = "scale(1)";
+          });
+        }
+
+        // File picker event listeners
         filePicker.addEventListener("click", () => fileInput.click());
         fileInput.addEventListener("change", (event) => {
           if (event.target.files.length > 0) {
             const file = event.target.files[0];
-            dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+            dropzoneContainer.innerHTML = `<p style="color: #14632F; font-family: 'Merriweather', serif;">${file.name}</p>`;
             dropzoneContainer.file = file;
           }
         });
         dropzoneContainer.addEventListener("dragover", (event) => {
           event.preventDefault();
-          dropzoneContainer.style.borderColor = "blue";
+          dropzoneContainer.style.borderColor = "#800000";
         });
         dropzoneContainer.addEventListener("dragleave", () => {
-          dropzoneContainer.style.borderColor = "gray";
+          dropzoneContainer.style.borderColor = "#F49D37";
         });
         dropzoneContainer.addEventListener("drop", (event) => {
           event.preventDefault();
           const file = event.dataTransfer.files[0];
           if (file) {
-            dropzoneContainer.innerHTML = `<p>${file.name}</p>`;
+            dropzoneContainer.innerHTML = `<p style="color: #14632F; font-family: 'Merriweather', serif;">${file.name}</p>`;
             dropzoneContainer.file = file;
           }
         });
@@ -285,6 +374,7 @@ const TableView = () => {
           title: "Suggestion Submitted!",
           text: "Your suggestion has been submitted successfully.",
           icon: "success",
+          confirmButtonColor: "#14632F",
         });
       }
     });
@@ -441,6 +531,25 @@ const TableView = () => {
 
   return (
     <div className="table-view transition-all duration-300 relative">
+      {/* Override react-tooltip styles globally */}
+      <style>
+        {`
+          .react-tooltip {
+            background-color: #fffaf0 !important;
+            color: #14632F !important;
+            border: 1px solid #F49D37 !important;
+            border-radius: 8px !important;
+            padding: 8px 12px !important;
+            font-family: 'Playfair Display', serif !important;
+            font-size: 14px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+          }
+          .react-tooltip-arrow {
+            border-color: #F49D37 !important;
+          }
+        `}
+      </style>
+
       <div className={isModalOpen ? "blurred" : ""}>
         {/* Top Bar */}
         <div className="flex items-center justify-between w-full mb-4">
@@ -505,8 +614,8 @@ const TableView = () => {
                      transition-all
                      hover:scale-110
                      hover:shadow-lg
-                     bg-indigo-600
-                     hover:bg-indigo-700
+                      bg-[#14632F]
+                hover:bg-[#F49D37]
                    "
                     onClick={() => navigate("/")}
                   >
@@ -704,7 +813,7 @@ const TableView = () => {
                             </span>
                           )}
                         </td>
-                        <td className="text-center">
+                        <td className="text-center space-x-2">
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="View Info"
@@ -877,7 +986,7 @@ const TableView = () => {
                             </span>
                           )}
                         </td>
-                        <td className="text-center">
+                        <td className="text-center space-x-2">
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="View Info"
@@ -909,10 +1018,9 @@ const TableView = () => {
                             <button
                               data-tooltip-id="tooltip"
                               data-tooltip-content="Suggest Edit"
-                              className="hover:text-yellow-500 transition duration-150"
                               onClick={() => handleSuggestionClick(row)}
                             >
-                              <Lightbulb size={18} />
+                              <Lightbulb size={18} color="#000" />
                             </button>
                           )}
                           <button

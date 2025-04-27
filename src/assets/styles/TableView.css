@@ -7,6 +7,16 @@
   overflow-y: auto; /* Add a scrollbar when the content overflows */
 }
 
+tr.male-row {
+  border-left: 4px solid #3b82f6;
+}
+tr.female-row {
+  border-left: 4px solid #ec4899;
+}
+
+tr.default-row {
+  border-left: 4px solid #d1d5db;
+}
 .table-view img {
   width: 30px;
   height: 30px;
