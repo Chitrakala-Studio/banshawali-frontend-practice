@@ -55,7 +55,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="relative bg-[#14632f] rounded-lg shadow-xl p-4 w-full max-w-md">
+      <div className="relative bg-[#0A6C74] rounded-lg shadow-xl p-4 w-full max-w-md">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -193,7 +193,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
             </div>
             <button
               type="submit"
-              className="bg-[#800000]  hover:bg-[#f49D37] text-white px-4 py-1.5 rounded-md text-sm transition-colors"
+              className="bg-[#800000] hover:bg-[#f49D37] text-white px-4 py-1.5 rounded-md text-sm transition-colors"
             >
               {/* Icon */}
               <FaSearch className="inline-block mr-1" />

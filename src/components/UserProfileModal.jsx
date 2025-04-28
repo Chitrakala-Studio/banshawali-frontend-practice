@@ -97,195 +97,141 @@ const UserProfileModal = ({ user, onClose }) => {
     </div>
   );
 
-  const renderFamilyRelations = () => (
-    <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
-      {user.grandfather?.name && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
-          <FaMale
-            style={{
-              width: "20px",
-              height: "20px",
-              marginRight: "8px",
-              color: "#3B82F6",
-            }}
-          />
-          <strong style={{ marginRight: "4px" }}>Grandfather</strong>
-          {user.grandfather.name_in_nepali}
-        </p>
-      )}
-      {user.grandmother?.name && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
-          <FaFemale
-            style={{
-              width: "20px",
-              height: "20px",
-              marginRight: "8px",
-              color: "#EC4899",
-            }}
-          />
-          <strong style={{ marginRight: "4px" }}>Grandmother</strong>
-          {user.grandmother.name_in_nepali}
-        </p>
-      )}
-      {user.father?.name && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
-          <FaMale
-            style={{
-              width: "20px",
-              height: "20px",
-              marginRight: "8px",
-              color: "#3B82F6",
-            }}
-          />
-          <strong style={{ marginRight: "2.5rem" }}>Father</strong>
-          <Link
-            to={`/${user.father.id}`}
-            onClick={onClose}
-            style={{ color: "#3B82F6", marginLeft: "4px" }}
-          >
-            {user.father.name_in_nepali}
-          </Link>
-        </p>
-      )}
-      {user.mother?.name && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
-          <FaFemale
-            style={{
-              width: "20px",
-              height: "20px",
-              marginRight: "8px",
-              color: "#EC4899",
-            }}
-          />
-          <strong style={{ marginRight: "2.5rem" }}>Mother</strong>
-          <Link
-            to={`/${user.mother.id}`}
-            onClick={onClose}
-            style={{ color: "#3B82F6", marginLeft: "4px" }}
-          >
-            {user.mother.name_in_nepali}
-          </Link>
-        </p>
-      )}
-      {user.spouse && user.spouse.length > 0 && (
-        <div>
-          <p
-            style={{
-              color: "#ffff",
-              display: "flex",
-              alignItems: "center",
-              fontWeight: "bold",
-            }}
-          >
-            <Users
-              style={{ width: "20px", height: "20px", marginRight: "8px" }}
-            />{" "}
-            Spouse
+  const renderFamilyRelations = () => {
+    // Common style objects
+    const iconBase = { width: 20, height: 20, marginRight: 8 };
+    const maleIconStyle = { ...iconBase, color: "#3B82F6" };
+    const femaleIconStyle = { ...iconBase, color: "#EC4899" };
+    const itemStyle = { color: "#ffff", display: "flex", alignItems: "center" };
+    const labelStyle = { marginRight: "2rem" };
+    const linkStyle = { color: "#3B82F6", marginLeft: "4px" };
+    const headerStyle = {
+      color: "#ffff",
+      display: "flex",
+      alignItems: "center",
+      fontWeight: "bold",
+      marginBottom: "0.5rem",
+    };
+
+    return (
+      <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
+        {/* Grandfather (always male) */}
+        {user.grandfather?.name && (
+          <p style={itemStyle}>
+            <FaMale style={maleIconStyle} />
+            <strong style={labelStyle}>Grandfather</strong>
+            {user.grandfather.name_in_nepali}
           </p>
-          {user.spouse.map((spouse) => (
-            <p
-              key={spouse.id}
-              style={{
-                color: "#ffff",
-                display: "flex",
-                alignItems: "center",
-                marginLeft: "4rem",
-              }}
-            >
-              <FaUser
-                style={{ width: "16px", height: "16px", marginRight: "4px" }}
-              />
-              <Link
-                to={`/${spouse.id}`}
-                onClick={onClose}
-                style={{ color: "#3B82F6", marginLeft: "4px" }}
-              >
-                {spouse.name_in_nepali}
-              </Link>
-            </p>
-          ))}
-        </div>
-      )}
-      {user.siblings && user.siblings.length > 0 && (
-        <div style={{ marginBottom: "1rem" }}>
-          <p
-            style={{
-              color: "#ffff",
-              display: "flex",
-              alignItems: "center",
-              fontWeight: "bold",
-            }}
-          >
-            <FaUser
-              style={{ width: "20px", height: "20px", marginRight: "8px" }}
-            />{" "}
-            Siblings
+        )}
+
+        {/* Grandmother (always female) */}
+        {user.grandmother?.name && (
+          <p style={itemStyle}>
+            <FaFemale style={femaleIconStyle} />
+            <strong style={labelStyle}>Grandmother</strong>
+            {user.grandmother.name_in_nepali}
           </p>
-          {user.siblings.map((sibling) => (
-            <p
-              key={sibling.id}
-              style={{
-                color: "#ffff",
-                display: "flex",
-                alignItems: "center",
-                marginLeft: "6.3rem",
-              }}
-            >
-              <FaUser
-                style={{ width: "16px", height: "16px", marginRight: "4px" }}
-              />
-              <Link
-                to={`/${sibling.id}`}
-                onClick={onClose}
-                style={{ color: "#3B82F6", marginLeft: "4px" }}
-              >
-                {sibling.name_in_nepali}
-              </Link>
-            </p>
-          ))}
-        </div>
-      )}
-      {user.children && user.children.length > 0 && (
-        <div>
-          <p
-            style={{
-              color: "#ffff",
-              display: "flex",
-              alignItems: "center",
-              fontWeight: "bold",
-            }}
-          >
-            <Users
-              style={{ width: "20px", height: "20px", marginRight: "8px" }}
-            />{" "}
-            Children
+        )}
+
+        {/* Father (always male) */}
+        {user.father?.id && (
+          <p style={itemStyle}>
+            <FaMale style={maleIconStyle} />
+            <strong style={labelStyle}>Father</strong>
+            <Link to={`/${user.father.id}`} onClick={onClose} style={linkStyle}>
+              {user.father.name_in_nepali}
+            </Link>
           </p>
-          {user.children.map((child) => (
-            <p
-              key={child.id}
-              style={{
-                color: "#ffff",
-                display: "flex",
-                alignItems: "center",
-                marginLeft: "6.5rem",
-              }}
-            >
-              <FaUser
-                style={{ width: "16px", height: "16px", marginRight: "4px" }}
-              />
-              <Link
-                to={`/${child.id}`}
-                onClick={onClose}
-                style={{ color: "#3B82F6", marginLeft: "4px" }}
-              >
-                {child.name_in_nepali}
-              </Link>
+        )}
+
+        {/* Mother (always female) */}
+        {user.mother?.id && (
+          <p style={itemStyle}>
+            <FaFemale style={femaleIconStyle} />
+            <strong style={labelStyle}>Mother</strong>
+            <Link to={`/${user.mother.id}`} onClick={onClose} style={linkStyle}>
+              {user.mother.name_in_nepali}
+            </Link>
+          </p>
+        )}
+
+        {/* Spouse */}
+        {user.spouse?.length > 0 && (
+          <>
+            <p style={headerStyle}>
+              <Users style={{ ...iconBase, marginRight: 8 }} />
+              Spouse
             </p>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+            {user.spouse.map((sp) => (
+              <p key={sp.id} style={{ ...itemStyle, marginLeft: "4rem" }}>
+                {sp.gender === "Female" ? (
+                  <FaFemale style={femaleIconStyle} />
+                ) : (
+                  <FaMale style={maleIconStyle} />
+                )}
+                <Link to={`/${sp.id}`} onClick={onClose} style={linkStyle}>
+                  {sp.name_in_nepali}
+                </Link>
+              </p>
+            ))}
+          </>
+        )}
+
+        {/* Siblings */}
+        {user.siblings?.length > 0 && (
+          <>
+            <p style={headerStyle}>
+              <FaUser style={{ ...iconBase, marginRight: 8 }} />
+              Siblings
+            </p>
+            {user.siblings.map((sib) => {
+              const isFemale = String(sib.gender).toLowerCase() === "female";
+              return (
+                <p key={sib.id} style={{ ...itemStyle, marginLeft: "6.3rem" }}>
+                  {isFemale ? (
+                    <FaFemale style={femaleIconStyle} />
+                  ) : (
+                    <FaMale style={maleIconStyle} />
+                  )}
+                  <Link to={`/${sib.id}`} onClick={onClose} style={linkStyle}>
+                    {sib.name_in_nepali}
+                  </Link>
+                </p>
+              );
+            })}
+          </>
+        )}
+
+        {/* Children */}
+        {user.children?.length > 0 && (
+          <>
+            <p style={headerStyle}>
+              <Users style={{ ...iconBase, marginRight: 8 }} />
+              Children
+            </p>
+            {user.children.map((child) => {
+              const isFemale = String(child.gender).toLowerCase() === "female";
+              return (
+                <p
+                  key={child.id}
+                  style={{ ...itemStyle, marginLeft: "6.5rem" }}
+                >
+                  {isFemale ? (
+                    <FaFemale style={femaleIconStyle} />
+                  ) : (
+                    <FaMale style={maleIconStyle} />
+                  )}
+                  <Link to={`/${child.id}`} onClick={onClose} style={linkStyle}>
+                    {child.name_in_nepali}
+                  </Link>
+                </p>
+              );
+            })}
+          </>
+        )}
+      </div>
+    );
+  };
 
   const renderContact = () => (
     <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
@@ -330,7 +276,7 @@ const UserProfileModal = ({ user, onClose }) => {
     >
       <div
         style={{
-          backgroundColor: "#14632f",
+          backgroundColor: "#0A6C74",
           padding: "24px",
           borderRadius: "8px",
           maxWidth: "520px",

@@ -1,12 +1,20 @@
 import { React, useState, useEffect } from "react";
 import axios from "axios";
-import { FaArrowLeft, FaSearch, FaMale, FaFemale } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaSearch,
+  FaMale,
+  FaFemale,
+  FaSitemap,
+} from "react-icons/fa";
 import {
   NotebookPen,
   Trash2,
   Info,
   IdCard,
   Lightbulb,
+  ArrowLeftRight,
+  X as XIcon,
   Upload,
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
@@ -22,6 +30,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import Suggestion from "./Suggestion";
 import ClipLoader from "react-spinners/ClipLoader";
+import FamilyTreeGraph from "./FamilyTreeGraph";
 
 const TableView = () => {
   const { id } = useParams();
@@ -37,9 +46,12 @@ const TableView = () => {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState("data");
+  const [familyTreePerson, setFamilyTreePerson] = useState(null);
+  const [showFamilyTree, setShowFamilyTree] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
@@ -66,6 +78,21 @@ const TableView = () => {
     e.stopPropagation();
     updateSuggestionStatus(id, "Approved", suggestion, image);
   };
+
+  const handleCompare = (row) => {
+    navigate(`/compare/${row.id}`);
+  };
+
+  const handleFamilyTree = (row) => {
+    setFamilyTreePerson(row);
+    setShowFamilyTree(true);
+  };
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 800);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleReject = (e, id, suggestion, image) => {
     e.stopPropagation();
@@ -216,7 +243,7 @@ const TableView = () => {
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
-            color: #14632F; 
+            color: #0A6C74; 
             font-family: 'Merriweather', serif; 
             font-size: 16px;
           ">
@@ -231,7 +258,7 @@ const TableView = () => {
       showCancelButton: true,
       confirmButtonText: "Submit",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#14632F",
+      confirmButtonColor: "#0A6C74",
       cancelButtonColor: "#F49D37",
       didOpen: () => {
         const dropzoneContainer = document.getElementById("dropzone-container");
@@ -245,7 +272,7 @@ const TableView = () => {
         // Style the title
         if (titleElement) {
           titleElement.style.fontSize = "24px";
-          titleElement.style.color = "#14632F";
+          titleElement.style.color = "#0A6C74";
           titleElement.style.fontFamily = "'Playfair Display', serif";
           titleElement.style.letterSpacing = "1px";
           titleElement.style.fontWeight = "bold";
@@ -267,7 +294,7 @@ const TableView = () => {
 
         // Style the confirm button
         if (confirmButton) {
-          confirmButton.style.backgroundColor = "#14632F";
+          confirmButton.style.backgroundColor = "#0A6C74";
           confirmButton.style.color = "#F49D37";
           confirmButton.style.borderRadius = "8px";
           confirmButton.style.padding = "10px 20px";
@@ -276,11 +303,11 @@ const TableView = () => {
           confirmButton.style.transition =
             "background-color 0.2s, transform 0.2s";
           confirmButton.addEventListener("mouseover", () => {
-            confirmButton.style.backgroundColor = "#800000";
+            confirmButton.style.backgroundColor = "#0E8290";
             confirmButton.style.transform = "scale(1.05)";
           });
           confirmButton.addEventListener("mouseout", () => {
-            confirmButton.style.backgroundColor = "#14632F";
+            confirmButton.style.backgroundColor = "#0A6C74";
             confirmButton.style.transform = "scale(1)";
           });
         }
@@ -288,7 +315,7 @@ const TableView = () => {
         // Style the cancel button
         if (cancelButton) {
           cancelButton.style.backgroundColor = "#F49D37";
-          cancelButton.style.color = "#14632F";
+          cancelButton.style.color = "#0A6C74";
           cancelButton.style.borderRadius = "8px";
           cancelButton.style.padding = "10px 20px";
           cancelButton.style.fontFamily = "'Playfair Display', serif";
@@ -310,7 +337,7 @@ const TableView = () => {
         fileInput.addEventListener("change", (event) => {
           if (event.target.files.length > 0) {
             const file = event.target.files[0];
-            dropzoneContainer.innerHTML = `<p style="color: #14632F; font-family: 'Merriweather', serif;">${file.name}</p>`;
+            dropzoneContainer.innerHTML = `<p style="color: #0A6C74; font-family: 'Merriweather', serif;">${file.name}</p>`;
             dropzoneContainer.file = file;
           }
         });
@@ -325,7 +352,7 @@ const TableView = () => {
           event.preventDefault();
           const file = event.dataTransfer.files[0];
           if (file) {
-            dropzoneContainer.innerHTML = `<p style="color: #14632F; font-family: 'Merriweather', serif;">${file.name}</p>`;
+            dropzoneContainer.innerHTML = `<p style="color: #0A6C74; font-family: 'Merriweather', serif;">${file.name}</p>`;
             dropzoneContainer.file = file;
           }
         });
@@ -374,7 +401,7 @@ const TableView = () => {
           title: "Suggestion Submitted!",
           text: "Your suggestion has been submitted successfully.",
           icon: "success",
-          confirmButtonColor: "#14632F",
+          confirmButtonColor: "#0A6C74",
         });
       }
     });
@@ -536,7 +563,7 @@ const TableView = () => {
         {`
           .react-tooltip {
             background-color: #fffaf0 !important;
-            color: #14632F !important;
+            color: #0A6C74 !important;
             border: 1px solid #F49D37 !important;
             border-radius: 8px !important;
             padding: 8px 12px !important;
@@ -573,8 +600,8 @@ const TableView = () => {
                  transition-all
                  hover:scale-110
                  hover:shadow-lg
-                 bg-[#14632F]
-                 hover:bg-[#F49D37]
+                 bg-[#0A6C74]
+                 hover:bg-[#0E8290]
                  flex items-center space-x-2
                "
               >
@@ -592,8 +619,8 @@ const TableView = () => {
                 transition-all
                 hover:scale-110
                 hover:shadow-lg
-                bg-[#14632F]
-                hover:bg-[#F49D37]
+                bg-[#0A6C74]
+                hover:bg-[#0E8290]
                 flex items-center space-x-2
               "
               onClick={() => setShowSearchForm(true)}
@@ -614,8 +641,8 @@ const TableView = () => {
                      transition-all
                      hover:scale-110
                      hover:shadow-lg
-                      bg-[#14632F]
-                hover:bg-[#F49D37]
+                     bg-[#0A6C74]
+                     hover:bg-[#0E8290]
                    "
                     onClick={() => navigate("/")}
                   >
@@ -633,8 +660,8 @@ const TableView = () => {
                      transition-all
                      hover:scale-110
                      hover:shadow-lg
-                     bg-[#14632F]
-                     hover:bg-[#F49D37]
+                     bg-[#0A6C74]
+                     hover:bg-[#0E8290]
                    "
                     onClick={() => navigate("/suggestions")}
                   >
@@ -652,8 +679,8 @@ const TableView = () => {
                      transition-all
                      hover:scale-110
                      hover:shadow-lg
-                     bg-[#14632F]
-                     hover:bg-[#F49D37]
+                     bg-[#0A6C74]
+                     hover:bg-[#0E8290]
                      flex items-center space-x-2
                    "
                     onClick={() => {
@@ -747,7 +774,7 @@ const TableView = () => {
                           <div
                             className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${
                               row.pusta_number && row.pusta_number % 2 === 0
-                                ? "bg-[#14632F] text-white"
+                                ? "bg-[#0A6C74] text-white"
                                 : "bg-[#F49D37] text-white"
                             }`}
                           >
@@ -859,6 +886,24 @@ const TableView = () => {
                           >
                             <IdCard size={18} />
                           </button>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Compare"
+                            className="hover:text-indigo-500 transition duration-150"
+                            onClick={() => handleCompare(row)}
+                          >
+                            <ArrowLeftRight size={18} />
+                          </button>
+
+                          {/* Family Tree */}
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Family Tree"
+                            className="hover:text-green-500 transition duration-150"
+                            onClick={() => handleFamilyTree(row)}
+                          >
+                            <FaSitemap size={18} />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -920,7 +965,7 @@ const TableView = () => {
                           <div
                             className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${
                               row.pusta_number && row.pusta_number % 2 === 0
-                                ? "bg-[#14632F] text-white"
+                                ? "bg-[#0A6C74] text-white"
                                 : "bg-[#F49D37] text-white"
                             }`}
                           >
@@ -1087,6 +1132,21 @@ const TableView = () => {
           onClose={() => setIsEditing(false)}
           onSave={handleSave}
         />
+      )}
+
+      {showFamilyTree && familyTreePerson && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-[90vw] h-[90vh] overflow-auto relative">
+            <FamilyTreeGraph
+              id={String(familyTreePerson.id)}
+              selectedPerson={
+                familyTreePerson.name_in_nepali || familyTreePerson.name
+              }
+              isMobile={isMobile}
+              closePopup={() => setShowFamilyTree(false)}
+            />
+          </div>
+        </div>
       )}
 
       {showInfoPopup && (

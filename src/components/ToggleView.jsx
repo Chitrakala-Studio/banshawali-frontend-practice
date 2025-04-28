@@ -33,7 +33,7 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
         >
           <div
             className={`absolute inset-0 rounded-[20px] transition-colors ${
-              isTableView ? "bg-[#14632F]" : "bg-[#F49D37]"
+              isTableView ? "bg-[#0A6C74]" : "bg-[#F49D37]"
             }`}
           />
 

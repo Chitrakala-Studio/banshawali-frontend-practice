@@ -14,7 +14,6 @@ const CardFooterSection = ({
   convertToNepaliNumerals,
   person,
 }) => {
-  // Determine if the popup is active for the current person
   const isPopupActive =
     isExpanded && infoPopup === (person.name || person.name_in_nepali);
 
@@ -30,47 +29,50 @@ const CardFooterSection = ({
       `}
     >
       <div
-        className="bg-[#14632F] shadow-lg pt-12 pb-4 relative"
+        className="bg-[#0A6C74] shadow-xl pt-8 pb-4 relative"
         style={{
           maskImage:
             "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
           WebkitMaskImage:
             "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
-          minHeight: "150px",
+          minHeight: "120px",
         }}
       >
-        <div className="flex items-center mb-3 px-4">
-          {/* Conditionally render name and pusta number on the left */}
+        <div className="flex items-center mb-4 px-6">
           {!isPopupActive && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <h2
                 className="
-                  text-[#F49D37]
-                  px-1
-                  py-2
-                  font-bold
-                  text-m
+                  text-white
+                  px-2
+                  py-1
+                  font-semibold
+                  text-lg
+                  bg-[#6F42C1]/20
+                  rounded-md
+                  drop-shadow-md
                 "
               >
-                {person.name_in_nepali} .
-                {convertToNepaliNumerals(person.pusta_number)}
+                {person.name_in_nepali}{" "}
+                <span className="text-[#FFD700]">.</span>{" "}
+                <span className="text-[#FFD700]">
+                  {convertToNepaliNumerals(person.pusta_number)}
+                </span>
               </h2>
             </div>
           )}
-          {/* Spacer to push toggle button to the right */}
           <div className="flex-grow"></div>
-          {/* Toggle button always on the right */}
           <button
             className="
-              p-2
-              text-[#800000]
+              p-3
+              text-white
               text-xl
-              bg-[#F49D37]
+              bg-[#6F42C1]
               rounded-full
               shadow-md
-              hover:bg-white
+              hover:bg-[#FFD700]
               hover:shadow-lg
-              transition-all duration-200
+              transition-all duration-300
               focus:outline-none focus:ring-2 focus:ring-white/50
             "
             onClick={(e) => {
@@ -79,7 +81,11 @@ const CardFooterSection = ({
             }}
             aria-label={isExpanded ? "Collapse info" : "Expand info"}
           >
-            {isExpanded ? <FaArrowDown /> : <FaArrowUp />}
+            {isExpanded ? (
+              <FaArrowDown className="transition-transform duration-300 rotate-0" />
+            ) : (
+              <FaArrowUp className="transition-transform duration-300 rotate-0" />
+            )}
           </button>
         </div>
 

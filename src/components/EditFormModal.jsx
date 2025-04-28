@@ -545,7 +545,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
-      <div className="bg-[#14632f] h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
+      <div className="bg-[#0A6C74] h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
         <div className="absolute top-2 right-2">
           <button
             onClick={onClose}

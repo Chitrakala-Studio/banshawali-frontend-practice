@@ -575,7 +575,9 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
           zIndex: "10",
         }}
       >
-        <h2>Family Tree</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          {selectedPerson} Family Tree
+        </h2>
         {treeData && (
           <ReactD3Tree
             data={treeData}

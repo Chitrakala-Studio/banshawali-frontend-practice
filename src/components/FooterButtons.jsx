@@ -14,25 +14,25 @@ const FooterButtons = ({
 
   return (
     <div className="w-full flex justify-around items-center">
-      <div className="w-full flex justify-around items-center bg-[#14632F] rounded-lg p-2 space-x-2">
+      <div className="w-full flex justify-around items-center bg-transparent rounded-lg p-4 space-x-4">
         <button
           onClick={() => navigate(`/compare/${id}`)}
-          className="flex-1 flex items-center justify-center text-white hover:text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
+          className="flex-1 flex items-center justify-center text-white text-sm font-medium rounded-full h-10 px-6 bg-gradient-to-r from-[#0A6C74] to-[#0A5C64] hover:bg-gradient-to-r hover:from-[#FFD700] hover:to-[#FFD700] transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-95"
         >
-          <FaExchangeAlt className="mr-2" /> Compare
+          <FaExchangeAlt className="mr-2 w-5 h-5" /> Compare
         </button>
         <button
           onClick={onGenerateFamilyTree}
-          className="flex-1 flex items-center justify-center text-white hover:text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
+          className="flex-1 flex items-center justify-center text-white text-sm font-medium rounded-full h-10 px-6 bg-gradient-to-r from-[#0A6C74] to-[#0A5C64] hover:bg-gradient-to-r hover:from-[#FFD700] hover:to-[#FFD700] transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-95"
         >
-          <FaSitemap className="mr-2" />
+          <FaSitemap className="mr-2 w-5 h-5" />
           Family Tree
         </button>
         <button
           onClick={onSearchButtonClick}
-          className="flex-1 flex items-center justify-center text-white hover:text-[#800000] text-sm font-medium rounded-full h-8 px-4 bg-[#F49D37] transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-80"
+          className="flex-1 flex items-center justify-center text-white text-sm font-medium rounded-full h-10 px-6 bg-gradient-to-r from-[#0A6C74] to-[#0A5C64] hover:bg-gradient-to-r hover:from-[#FFD700] hover:to-[#FFD700] transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-95"
         >
-          <FaSearch className="mr-2" /> Search
+          <FaSearch className="mr-2 w-5 h-5" /> Search
         </button>
       </div>
     </div>
