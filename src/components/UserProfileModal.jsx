@@ -26,15 +26,21 @@ const UserProfileModal = ({ user, onClose }) => {
   console.log(user);
   const [activeTab, setActiveTab] = useState("personal");
 
+  if (!user) {
+    return null; // Prevent rendering if user is undefined
+  }
+
   const handleCopy = () => {
-    navigator.clipboard
-      .writeText(user.bio)
-      .then(() => {
-        alert("Bio copied to clipboard!");
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
+    if (user.bio) {
+      navigator.clipboard
+        .writeText(user.bio)
+        .then(() => {
+          alert("Bio copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    }
   };
 
   const tabs = [
@@ -44,8 +50,8 @@ const UserProfileModal = ({ user, onClose }) => {
   ];
 
   const renderPersonalInfo = () => (
-    <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
-      <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
+    <div style={{ color: "#2E4568", lineHeight: "1.6" }}>
+      <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
         {user.gender === "Male" ? (
           <FaMale
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
@@ -56,10 +62,10 @@ const UserProfileModal = ({ user, onClose }) => {
           />
         )}
         <strong style={{ marginRight: "7px" }}>Gender</strong>
-        {user.gender}
+        {user.gender || "-"}
       </p>
       {user.dateOfBirth && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
           <FaBirthdayCake
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -68,7 +74,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.lifestatus && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
           <FaHeart
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -77,7 +83,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.date_of_death && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
           <FaSkullCrossbones
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -86,7 +92,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </p>
       )}
       {user.profession && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
+        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
           <Briefcase
             style={{ width: "20px", height: "20px", marginRight: "8px" }}
           />
@@ -100,13 +106,17 @@ const UserProfileModal = ({ user, onClose }) => {
   const renderFamilyRelations = () => {
     // Common style objects
     const iconBase = { width: 20, height: 20, marginRight: 8 };
-    const maleIconStyle = { ...iconBase, color: "#3B82F6" };
-    const femaleIconStyle = { ...iconBase, color: "#EC4899" };
-    const itemStyle = { color: "#ffff", display: "flex", alignItems: "center" };
+    const maleIconStyle = { ...iconBase, color: "#2E4568" };
+    const femaleIconStyle = { ...iconBase, color: "#E9D4B0" };
+    const itemStyle = {
+      color: "#2E4568",
+      display: "flex",
+      alignItems: "center",
+    };
     const labelStyle = { marginRight: "2rem" };
-    const linkStyle = { color: "#3B82F6", marginLeft: "4px" };
+    const linkStyle = { color: "#2E4568", marginLeft: "4px" };
     const headerStyle = {
-      color: "#ffff",
+      color: "#2E4568",
       display: "flex",
       alignItems: "center",
       fontWeight: "bold",
@@ -114,13 +124,13 @@ const UserProfileModal = ({ user, onClose }) => {
     };
 
     return (
-      <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
+      <div style={{ color: "#2E4568", lineHeight: "1.6" }}>
         {/* Grandfather (always male) */}
         {user.grandfather?.name && (
           <p style={itemStyle}>
             <FaMale style={maleIconStyle} />
             <strong style={labelStyle}>Grandfather</strong>
-            {user.grandfather.name_in_nepali}
+            {user.grandfather.name_in_nepali || user.grandfather.name || "-"}
           </p>
         )}
 
@@ -129,7 +139,7 @@ const UserProfileModal = ({ user, onClose }) => {
           <p style={itemStyle}>
             <FaFemale style={femaleIconStyle} />
             <strong style={labelStyle}>Grandmother</strong>
-            {user.grandmother.name_in_nepali}
+            {user.grandmother.name_in_nepali || user.grandmother.name || "-"}
           </p>
         )}
 
@@ -139,7 +149,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <FaMale style={maleIconStyle} />
             <strong style={labelStyle}>Father</strong>
             <Link to={`/${user.father.id}`} onClick={onClose} style={linkStyle}>
-              {user.father.name_in_nepali}
+              {user.father.name_in_nepali || user.father.name || "-"}
             </Link>
           </p>
         )}
@@ -150,7 +160,7 @@ const UserProfileModal = ({ user, onClose }) => {
             <FaFemale style={femaleIconStyle} />
             <strong style={labelStyle}>Mother</strong>
             <Link to={`/${user.mother.id}`} onClick={onClose} style={linkStyle}>
-              {user.mother.name_in_nepali}
+              {user.mother.name_in_nepali || user.mother.name || "-"}
             </Link>
           </p>
         )}
@@ -170,7 +180,7 @@ const UserProfileModal = ({ user, onClose }) => {
                   <FaMale style={maleIconStyle} />
                 )}
                 <Link to={`/${sp.id}`} onClick={onClose} style={linkStyle}>
-                  {sp.name_in_nepali}
+                  {sp.name_in_nepali || sp.name || "-"}
                 </Link>
               </p>
             ))}
@@ -194,7 +204,7 @@ const UserProfileModal = ({ user, onClose }) => {
                     <FaMale style={maleIconStyle} />
                   )}
                   <Link to={`/${sib.id}`} onClick={onClose} style={linkStyle}>
-                    {sib.name_in_nepali}
+                    {sib.name_in_nepali || sib.name || "-"}
                   </Link>
                 </p>
               );
@@ -222,7 +232,7 @@ const UserProfileModal = ({ user, onClose }) => {
                     <FaMale style={maleIconStyle} />
                   )}
                   <Link to={`/${child.id}`} onClick={onClose} style={linkStyle}>
-                    {child.name_in_nepali}
+                    {child.name_in_nepali || child.name || "-"}
                   </Link>
                 </p>
               );
@@ -233,35 +243,46 @@ const UserProfileModal = ({ user, onClose }) => {
     );
   };
 
-  const renderContact = () => (
-    <div style={{ color: "#f49D37", lineHeight: "1.6" }}>
-      {user.contact_details?.email && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
-          <Mail style={{ width: "20px", height: "20px", marginRight: "8px" }} />
-          <strong style={{ marginRight: "4px" }}>Email</strong>{" "}
-          {user.contact_details.email}
-        </p>
-      )}
-      {user.contact_details?.phone && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
-          <Phone
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
-          <strong style={{ marginRight: "4px" }}>Phone</strong>{" "}
-          {user.contact_details.phone}
-        </p>
-      )}
-      {user.contact_details?.address && (
-        <p style={{ color: "#ffff", display: "flex", alignItems: "center" }}>
-          <MapPin
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
-          <strong style={{ marginRight: "4px" }}>Address</strong>{" "}
-          {user.contact_details.address}
-        </p>
-      )}
-    </div>
-  );
+  const renderContact = () => {
+    const contact = user.contact_details || {};
+    return (
+      <div style={{ color: "#2E4568", lineHeight: "1.6" }}>
+        {contact.email && (
+          <p
+            style={{ color: "#2E4568", display: "flex", alignItems: "center" }}
+          >
+            <Mail
+              style={{ width: "20px", height: "20px", marginRight: "8px" }}
+            />
+            <strong style={{ marginRight: "4px" }}>Email</strong>
+            {contact.email}
+          </p>
+        )}
+        {contact.phone && (
+          <p
+            style={{ color: "#2E4568", display: "flex", alignItems: "center" }}
+          >
+            <Phone
+              style={{ width: "20px", height: "20px", marginRight: "8px" }}
+            />
+            <strong style={{ marginRight: "4px" }}>Phone</strong>
+            {contact.phone}
+          </p>
+        )}
+        {contact.address && (
+          <p
+            style={{ color: "#2E4568", display: "flex", alignItems: "center" }}
+          >
+            <MapPin
+              style={{ width: "20px", height: "20px", marginRight: "8px" }}
+            />
+            <strong style={{ marginRight: "4px" }}>Address</strong>
+            {contact.address}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div
@@ -276,7 +297,7 @@ const UserProfileModal = ({ user, onClose }) => {
     >
       <div
         style={{
-          backgroundColor: "#0A6C74",
+          backgroundColor: "#A6C8A5",
           padding: "24px",
           borderRadius: "8px",
           maxWidth: "520px",
@@ -290,7 +311,7 @@ const UserProfileModal = ({ user, onClose }) => {
           onClick={onClose}
           style={{
             float: "right",
-            color: "#ffff",
+            color: "#2E4568",
             background: "none",
             border: "none",
             cursor: "pointer",
@@ -310,14 +331,14 @@ const UserProfileModal = ({ user, onClose }) => {
           {user.photo ? (
             <img
               src={user.photo}
-              alt={user.name}
+              alt={user.name || "Profile"}
               style={{
                 width: "150px",
                 height: "150px",
                 borderRadius: "0",
                 objectFit: "cover",
                 marginRight: "16px",
-                border: "2px solid #D1D5DB",
+                border: "2px solid #AAABAC",
               }}
             />
           ) : user.gender === "Male" ? (
@@ -327,7 +348,7 @@ const UserProfileModal = ({ user, onClose }) => {
                 width: "150px",
                 height: "150px",
                 marginRight: "16px",
-                border: "2px solid #D1D5DB",
+                border: "2px solid #AAABAC",
               }}
             />
           ) : (
@@ -337,24 +358,26 @@ const UserProfileModal = ({ user, onClose }) => {
                 width: "150px",
                 height: "150px",
                 marginRight: "16px",
-                border: "2px solid #D1D5DB",
+                border: "2px solid #AAABAC",
               }}
             />
           )}
           <div>
             <h2
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#800000" }}
+              style={{ fontSize: "24px", fontWeight: "bold", color: "#2E4568" }}
             >
-              {user.name_in_nepali}
+              {user.name_in_nepali || user.name || "-"}
             </h2>
-            <p style={{ color: "#ffff", fontStyle: "italic", margin: "4px 0" }}>
-              {user.name}
+            <p
+              style={{ color: "#2E4568", fontStyle: "italic", margin: "4px 0" }}
+            >
+              {user.name || "-"}
             </p>
             {user.bio && (
               <div style={{ display: "flex", alignItems: "center" }}>
                 <p
                   style={{
-                    color: "#ffff",
+                    color: "#2E4568",
                     fontStyle: "italic",
                     margin: "4px 0",
                   }}
@@ -372,7 +395,7 @@ const UserProfileModal = ({ user, onClose }) => {
                   title="Copy bio"
                 >
                   <FaCopy
-                    style={{ width: "16px", height: "16px", color: "#3B82F6" }}
+                    style={{ width: "16px", height: "16px", color: "#2E4568" }}
                   />
                 </button>
               </div>
@@ -385,8 +408,10 @@ const UserProfileModal = ({ user, onClose }) => {
             display: "flex",
             justifyContent: "space-around",
             marginBottom: "24px",
-            borderBottom: "1px solid #E5E7EB",
-            paddingBottom: "8px",
+            padding: "8px 16px",
+            backgroundColor: "#B9BAC3",
+            borderRadius: "8px",
+            borderBottom: "1px solid #AAABAC",
           }}
         >
           {tabs.map(({ id, label, icon: Icon }) => (
@@ -397,17 +422,41 @@ const UserProfileModal = ({ user, onClose }) => {
                 display: "flex",
                 alignItems: "center",
                 padding: "8px 16px",
-                transition: "all 0.3s",
-                borderBottom: activeTab === id ? "2px solid #f49D37" : "none",
-                color: activeTab === id ? "#f49D37" : "#ffff",
+                transition: "all 0.3s ease",
+                borderBottom: "none",
+                color: activeTab === id ? "#2E4568" : "#2E4568",
                 fontWeight: activeTab === id ? "bold" : "normal",
-                background: "none",
-                border: "none",
+                background:
+                  activeTab === id
+                    ? "linear-gradient(135deg, #E9D4B0 0%, #C7B299 100%)"
+                    : "none",
+                borderRadius: activeTab === id ? "6px" : "0",
+                boxShadow:
+                  activeTab === id ? "0 2px 4px rgba(0,0,0,0.1)" : "none",
                 cursor: "pointer",
+                border: "none",
+              }}
+              onMouseOver={(e) => {
+                if (activeTab !== id) {
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #B9BAC3 0%, #A6C8A5 100%)";
+                  e.currentTarget.style.borderRadius = "6px";
+                }
+              }}
+              onMouseOut={(e) => {
+                if (activeTab !== id) {
+                  e.currentTarget.style.background = "none";
+                  e.currentTarget.style.borderRadius = "0";
+                }
               }}
             >
               <Icon
-                style={{ width: "20px", height: "20px", marginRight: "8px" }}
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  marginRight: "8px",
+                  color: activeTab === id ? "#2E4568" : "#2E4568",
+                }}
               />
               {label}
             </button>

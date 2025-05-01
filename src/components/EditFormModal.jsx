@@ -622,7 +622,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   required
                   value={form.pusta_number}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   placeholder="Enter Pusta Number"
                 />
               </div>
@@ -636,7 +636,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   required
                   value={form.name}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   placeholder="Enter your name (in English)"
                 />
                 <button
@@ -657,7 +657,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   name="name_in_nepali"
                   value={form.name_in_nepali}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   placeholder="Enter your name (in Nepali)"
                 />
               </div>
@@ -671,7 +671,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   value={form.gender}
                   required
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                 >
                   <option value="">Select Gender</option>
                   <option value="Male">Male</option>
@@ -684,7 +684,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   Date of Birth
                 </label>
                 <NepaliDatePicker
-                  inputClassName="form-control"
+                  inputClassName="form-control mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   value={form.dob}
                   onChange={handleDateChange}
                   options={{
@@ -704,7 +704,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   value={form.lifestatus}
                   required
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                 >
                   <option value="">Select Status</option>
                   <option value="Alive">Alive</option>
@@ -718,7 +718,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                     Date of Death
                   </label>
                   <NepaliDatePicker
-                    inputClassName="form-control"
+                    inputClassName="form-control mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                     value={form.death_date}
                     onChange={(value) => {
                       setForm((prevForm) => ({
@@ -751,11 +751,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 <select
                   ref={fatherInputRef}
                   name="father_name"
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                 />
                 {showSuggestions && suggestions.length > 0 && (
                   <ul
-                    className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                    className="absolute z-10 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-lg mt-1 max-h-40 overflow-y-auto w-full text-[#2E4568]"
                     onMouseEnter={handleFatherMouseEnter}
                     onMouseLeave={handleFatherMouseLeave}
                   >
@@ -772,7 +772,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                           }));
                           setShowSuggestions(false);
                         }}
-                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        className="p-2 hover:bg-[#A6C8A5] cursor-pointer"
                       >
                         {suggestion.name_in_nepali || suggestion.name}
                       </li>
@@ -790,11 +790,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 <select
                   ref={motherInputRef}
                   name="mother_name"
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                 />
                 {showMotherSuggestions && motherSuggestions.length > 0 && (
                   <ul
-                    className="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto w-full"
+                    className="absolute z-10 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-lg mt-1 max-h-40 overflow-y-auto w-full text-[#2E4568]"
                     onMouseEnter={handleMotherMouseEnter}
                     onMouseLeave={handleMotherMouseLeave}
                   >
@@ -811,7 +811,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                           }));
                           setShowMotherSuggestions(false);
                         }}
-                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        className="p-2 hover:bg-[#A6C8A5] cursor-pointer"
                       >
                         {suggestion.name_in_nepali || suggestion.name}
                       </li>
@@ -833,7 +833,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 value={form.vansha_status}
                 required
                 onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
               >
                 <option value="">Select Vansha Status</option>
                 <option value="True">Yes</option>
@@ -855,7 +855,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   name="email"
                   value={form.contact.email}
                   onChange={handleContactChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   placeholder="Enter email address"
                 />
               </div>
@@ -869,7 +869,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   name="phone"
                   value={form.contact.phone}
                   onChange={handleContactChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   placeholder="Enter phone number"
                 />
               </div>
@@ -883,7 +883,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   name="address"
                   value={form.contact.address}
                   onChange={handleContactChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   placeholder="Enter address"
                 />
               </div>
@@ -903,7 +903,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   name="profession"
                   value={form.profession}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
                   placeholder="Enter profession"
                 />
               </div>

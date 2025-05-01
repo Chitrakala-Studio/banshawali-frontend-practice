@@ -14,77 +14,102 @@ const CardFooterSection = ({
   convertToNepaliNumerals,
   person,
 }) => {
+  console.log("CardFooterSection person:", person);
   const isPopupActive =
-    isExpanded && infoPopup === (person.name || person.name_in_nepali);
+    isExpanded && infoPopup === (person?.name || person?.name_in_nepali);
 
   return (
     <div
-      className={`
-        fixed
-        bottom-0
-        left-1/2
-        transform -translate-x-1/2
-        ${isMobile ? "w-[98vw]" : "w-[40vw]"}
-        z-10
-      `}
+      style={{
+        position: "fixed",
+        bottom: "2rem",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: isMobile ? "98vw" : "40vw",
+        zIndex: 10,
+      }}
     >
       <div
-        className="bg-[#0A6C74] shadow-xl pt-8 pb-4 relative"
         style={{
+          backgroundColor: "#2E4568",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+          paddingTop: "2rem",
+          paddingBottom: "1rem",
+          position: "relative",
+          minHeight: "120px",
           maskImage:
             "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
           WebkitMaskImage:
             "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
-          minHeight: "120px",
         }}
       >
-        <div className="flex items-center mb-4 px-6">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "1rem",
+            padding: "0 1.5rem",
+          }}
+        >
           {!isPopupActive && (
-            <div className="flex items-center gap-2">
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
               <h2
-                className="
-                  text-white
-                  px-2
-                  py-1
-                  font-semibold
-                  text-lg
-                  bg-[#6F42C1]/20
-                  rounded-md
-                  drop-shadow-md
-                "
+                style={{
+                  color: "#B9BAC3",
+                  padding: "0.5rem",
+                  fontWeight: "600",
+                  fontSize: "1.125rem",
+                  backgroundColor: "rgba(46,69,104,0.2)",
+                  borderRadius: "0.375rem",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                }}
               >
-                {person.name_in_nepali}{" "}
-                <span className="text-[#FFD700]">.</span>{" "}
-                <span className="text-[#FFD700]">
-                  {convertToNepaliNumerals(person.pusta_number)}
+                {person?.name_in_nepali || person?.name || "-"}{" "}
+                <span style={{ color: "#E9D4B0" }}>.</span>{" "}
+                <span style={{ color: "#E9D4B0" }}>
+                  {person?.pusta_number
+                    ? convertToNepaliNumerals(person.pusta_number)
+                    : "-"}
                 </span>
               </h2>
             </div>
           )}
-          <div className="flex-grow"></div>
+          <div style={{ flexGrow: 1 }}></div>
           <button
-            className="
-              p-3
-              text-white
-              text-xl
-              bg-[#6F42C1]
-              rounded-full
-              shadow-md
-              hover:bg-[#FFD700]
-              hover:shadow-lg
-              transition-all duration-300
-              focus:outline-none focus:ring-2 focus:ring-white/50
-            "
+            style={{
+              padding: "0.75rem",
+              color: "#B9BAC3",
+              fontSize: "1.25rem",
+              background: "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)",
+              border: "1px solid #AAABAC",
+              borderRadius: "9999px",
+              boxShadow:
+                "0 4px 6px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1)",
+              transition: "all 0.3s ease",
+              cursor: "pointer",
+            }}
             onClick={(e) => {
               e.stopPropagation();
               onToggleInfo(person);
             }}
             aria-label={isExpanded ? "Collapse info" : "Expand info"}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #E9D4B0 0%, #C7B299 100%)";
+              e.currentTarget.style.color = "#000000";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)";
+              e.currentTarget.style.color = "#B9BAC3";
+            }}
           >
             {isExpanded ? (
-              <FaArrowDown className="transition-transform duration-300 rotate-0" />
+              <FaArrowDown style={{ transition: "transform 0.3s" }} />
             ) : (
-              <FaArrowUp className="transition-transform duration-300 rotate-0" />
+              <FaArrowUp style={{ transition: "transform 0.3s" }} />
             )}
           </button>
         </div>
@@ -102,7 +127,7 @@ const CardFooterSection = ({
 };
 
 CardFooterSection.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
   onGenerateFamilyTree: PropTypes.func.isRequired,
   infoPopup: PropTypes.any,
   isMobile: PropTypes.bool.isRequired,
@@ -112,6 +137,7 @@ CardFooterSection.propTypes = {
   convertToNepaliNumerals: PropTypes.func.isRequired,
   person: PropTypes.shape({
     name_in_nepali: PropTypes.string,
+    name: PropTypes.string,
     pusta_number: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,
 };

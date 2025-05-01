@@ -217,22 +217,22 @@ const TableView = () => {
         <textarea id="suggestion" placeholder="Enter your suggestion" style="
           height: 150px; 
           width: 410px; 
-          background-color: #fffaf0; 
-          border: 2px solid #F49D37; 
+          background-color: #A6C8A5; 
+          border: 2px solid #E9D4B0; 
           border-radius: 10px; 
           padding: 10px; 
           font-family: 'Merriweather', serif; 
           font-size: 16px; 
-          color: #374151; 
+          color: #2E4568; 
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           resize: none;
         "></textarea>
         <div id="dropzone-container" style="
-          border: 2px dashed #F49D37; 
+          border: 2px dashed #E9D4B0; 
           padding: 15px; 
           text-align: center; 
           cursor: pointer; 
-          background-color: #fffaf0; 
+          background-color: #A6C8A5; 
           margin-top: 15px; 
           border-radius: 10px; 
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -243,7 +243,7 @@ const TableView = () => {
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
-            color: #0A6C74; 
+            color: #2E4568; 
             font-family: 'Merriweather', serif; 
             font-size: 16px;
           ">
@@ -258,8 +258,8 @@ const TableView = () => {
       showCancelButton: true,
       confirmButtonText: "Submit",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#0A6C74",
-      cancelButtonColor: "#F49D37",
+      confirmButtonColor: "#2E4568",
+      cancelButtonColor: "#E9D4B0",
       didOpen: () => {
         const dropzoneContainer = document.getElementById("dropzone-container");
         const fileInput = document.getElementById("file-input");
@@ -272,12 +272,12 @@ const TableView = () => {
         // Style the title
         if (titleElement) {
           titleElement.style.fontSize = "24px";
-          titleElement.style.color = "#0A6C74";
+          titleElement.style.color = "#2E4568";
           titleElement.style.fontFamily = "'Playfair Display', serif";
           titleElement.style.letterSpacing = "1px";
           titleElement.style.fontWeight = "bold";
           titleElement.style.marginBottom = "15px";
-          titleElement.style.borderBottom = "2px solid #F49D37";
+          titleElement.style.borderBottom = "2px solid #E9D4B0";
           titleElement.style.paddingBottom = "10px";
           titleElement.style.textShadow = "1px 1px 2px rgba(0, 0, 0, 0.1)";
         }
@@ -285,17 +285,17 @@ const TableView = () => {
         // Style the popup
         if (popupElement) {
           popupElement.style.background =
-            "linear-gradient(to bottom, #fffaf0, #ffffff)";
+            "linear-gradient(to bottom, #A6C8A5, #B9BAC3)";
           popupElement.style.borderRadius = "15px";
           popupElement.style.padding = "25px";
-          popupElement.style.border = "2px solid #F49D37";
+          popupElement.style.border = "2px solid #E9D4B0";
           popupElement.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.3)";
         }
 
         // Style the confirm button
         if (confirmButton) {
-          confirmButton.style.backgroundColor = "#0A6C74";
-          confirmButton.style.color = "#F49D37";
+          confirmButton.style.backgroundColor = "#2E4568";
+          confirmButton.style.color = "#E9D4B0";
           confirmButton.style.borderRadius = "8px";
           confirmButton.style.padding = "10px 20px";
           confirmButton.style.fontFamily = "'Playfair Display', serif";
@@ -303,19 +303,19 @@ const TableView = () => {
           confirmButton.style.transition =
             "background-color 0.2s, transform 0.2s";
           confirmButton.addEventListener("mouseover", () => {
-            confirmButton.style.backgroundColor = "#0E8290";
+            confirmButton.style.backgroundColor = "#1A2B47";
             confirmButton.style.transform = "scale(1.05)";
           });
           confirmButton.addEventListener("mouseout", () => {
-            confirmButton.style.backgroundColor = "#0A6C74";
+            confirmButton.style.backgroundColor = "#2E4568";
             confirmButton.style.transform = "scale(1)";
           });
         }
 
         // Style the cancel button
         if (cancelButton) {
-          cancelButton.style.backgroundColor = "#F49D37";
-          cancelButton.style.color = "#0A6C74";
+          cancelButton.style.backgroundColor = "#E9D4B0";
+          cancelButton.style.color = "#2E4568";
           cancelButton.style.borderRadius = "8px";
           cancelButton.style.padding = "10px 20px";
           cancelButton.style.fontFamily = "'Playfair Display', serif";
@@ -323,11 +323,11 @@ const TableView = () => {
           cancelButton.style.transition =
             "background-color 0.2s, transform 0.2s";
           cancelButton.addEventListener("mouseover", () => {
-            cancelButton.style.backgroundColor = "#e68b2a";
+            cancelButton.style.backgroundColor = "#D9C4A0";
             cancelButton.style.transform = "scale(1.05)";
           });
           cancelButton.addEventListener("mouseout", () => {
-            cancelButton.style.backgroundColor = "#F49D37";
+            cancelButton.style.backgroundColor = "#E9D4B0";
             cancelButton.style.transform = "scale(1)";
           });
         }
@@ -337,22 +337,22 @@ const TableView = () => {
         fileInput.addEventListener("change", (event) => {
           if (event.target.files.length > 0) {
             const file = event.target.files[0];
-            dropzoneContainer.innerHTML = `<p style="color: #0A6C74; font-family: 'Merriweather', serif;">${file.name}</p>`;
+            dropzoneContainer.innerHTML = `<p style="color: #2E4568; font-family: 'Merriweather', serif;">${file.name}</p>`;
             dropzoneContainer.file = file;
           }
         });
         dropzoneContainer.addEventListener("dragover", (event) => {
           event.preventDefault();
-          dropzoneContainer.style.borderColor = "#800000";
+          dropzoneContainer.style.borderColor = "#2E4568";
         });
         dropzoneContainer.addEventListener("dragleave", () => {
-          dropzoneContainer.style.borderColor = "#F49D37";
+          dropzoneContainer.style.borderColor = "#E9D4B0";
         });
         dropzoneContainer.addEventListener("drop", (event) => {
           event.preventDefault();
           const file = event.dataTransfer.files[0];
           if (file) {
-            dropzoneContainer.innerHTML = `<p style="color: #0A6C74; font-family: 'Merriweather', serif;">${file.name}</p>`;
+            dropzoneContainer.innerHTML = `<p style="color: #2E4568; font-family: 'Merriweather', serif;">${file.name}</p>`;
             dropzoneContainer.file = file;
           }
         });
@@ -401,7 +401,7 @@ const TableView = () => {
           title: "Suggestion Submitted!",
           text: "Your suggestion has been submitted successfully.",
           icon: "success",
-          confirmButtonColor: "#0A6C74",
+          confirmButtonColor: "#2E4568",
         });
       }
     });
@@ -515,8 +515,8 @@ const TableView = () => {
       }? This action cannot be undone.`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      confirmButtonColor: "#E9D4B0",
+      cancelButtonColor: "#AAABAC",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -562,9 +562,9 @@ const TableView = () => {
       <style>
         {`
           .react-tooltip {
-            background-color: #fffaf0 !important;
-            color: #0A6C74 !important;
-            border: 1px solid #F49D37 !important;
+            background-color: #A6C8A5 !important;
+            color: #2E4568 !important;     
+            border: 1px solid #E9D4B0 !important; 
             border-radius: 8px !important;
             padding: 8px 12px !important;
             font-family: 'Playfair Display', serif !important;
@@ -572,7 +572,7 @@ const TableView = () => {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
           }
           .react-tooltip-arrow {
-            border-color: #F49D37 !important;
+            border-color: #E9D4B0 !important;
           }
         `}
       </style>
@@ -600,8 +600,8 @@ const TableView = () => {
                  transition-all
                  hover:scale-110
                  hover:shadow-lg
-                 bg-[#0A6C74]
-                 hover:bg-[#0E8290]
+                 bg-[#2E4568]
+                  hover:bg-[#E9D4B0]
                  flex items-center space-x-2
                "
               >
@@ -619,8 +619,8 @@ const TableView = () => {
                 transition-all
                 hover:scale-110
                 hover:shadow-lg
-                bg-[#0A6C74]
-                hover:bg-[#0E8290]
+                bg-[#2E4568]
+                  hover:bg-[#E9D4B0]
                 flex items-center space-x-2
               "
               onClick={() => setShowSearchForm(true)}
@@ -641,8 +641,8 @@ const TableView = () => {
                      transition-all
                      hover:scale-110
                      hover:shadow-lg
-                     bg-[#0A6C74]
-                     hover:bg-[#0E8290]
+                     bg-[#2E4568]
+                  hover:bg-[#E9D4B0]
                    "
                     onClick={() => navigate("/")}
                   >
@@ -660,8 +660,8 @@ const TableView = () => {
                      transition-all
                      hover:scale-110
                      hover:shadow-lg
-                     bg-[#0A6C74]
-                     hover:bg-[#0E8290]
+                     bg-[#2E4568]
+                  hover:bg-[#E9D4B0]
                    "
                     onClick={() => navigate("/suggestions")}
                   >
@@ -679,8 +679,8 @@ const TableView = () => {
                      transition-all
                      hover:scale-110
                      hover:shadow-lg
-                     bg-[#0A6C74]
-                     hover:bg-[#0E8290]
+                     bg-[#2E4568]
+                  hover:bg-[#E9D4B0]
                      flex items-center space-x-2
                    "
                     onClick={() => {
@@ -707,7 +707,7 @@ const TableView = () => {
 
         {/* Main Content */}
         {activeTab === "data" && filteredData.length === 0 && (
-          <div className="text-center py-4 text-[#800000]">
+          <div className="text-center py-4 text-[#AAABAC]">
             {id
               ? `No data found for ID ${id}. The record may not exist or has been deleted.`
               : "No data available. Try adding a new user or searching for existing ones."}
@@ -720,7 +720,7 @@ const TableView = () => {
             hasMore={hasMore && visibleData.length >= 15}
             loader={
               <div className="flex justify-center items-center py-6">
-                <ClipLoader color="#4B5563" loading={true} size={35} />
+                <ClipLoader color="#B9BAC3" loading={true} size={35} />
               </div>
             }
             style={{ overflow: "hidden" }}
@@ -728,33 +728,33 @@ const TableView = () => {
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
-                  <thead className="text-center border-b-2 border-gray-500 bg-gray-100">
+                  <thead className="text-center border-b-2 border-[#AAABAC] bg-[#B9BAC3]">
                     <tr>
-                      <th className="text-center text-[#800000]">नाम</th>
-                      <th className="text-center text-[#800000]">
+                      <th className="text-center text-[#2E4568]">नाम</th>
+                      <th className="text-center text-[#2E4568]">
                         पुस्ता नम्बर
                       </th>
-                      <th className="text-center text-[#800000]">बाबुको नाम</th>
-                      <th className="text-center text-[#800000]">आमाको नाम</th>
-                      <th className="text-center text-[#800000]">लिङ्ग</th>
-                      <th className="text-center text-[#800000]">उमेर</th>
-                      <th className="text-center text-[#800000]">कार्यहरू</th>
+                      <th className="text-center text-[#2E4568]">बाबुको नाम</th>
+                      <th className="text-center text-[#2E4568]">आमाको नाम</th>
+                      <th className="text-center text-[#2E4568]">लिङ्ग</th>
+                      <th className="text-center text-[#2E4568]">उमेर</th>
+                      <th className="text-center text-[#2E4568]">कार्यहरू</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className={`border-b-2 border-gray-300 hover:bg-gray-200 ${
+                        className={`border-b-2 border-[#AAABAC] hover:bg-[#B9BAC3] ${
                           row.gender && row.gender.toLowerCase() === "male"
-                            ? "bg-blue-100"
+                            ? "bg-[#A6C8A5]"
                             : row.gender &&
                               row.gender.toLowerCase() === "female"
-                            ? "bg-pink-100"
-                            : "bg-gray-50"
+                            ? "bg-[#A6C8A5]"
+                            : "bg-[#B9BAC3]"
                         }`}
                       >
-                        <td className="text-center text-[#800000]">
+                        <td className="text-center text-[#2E4568]">
                           <img
                             src={
                               row.photo ||
@@ -774,8 +774,8 @@ const TableView = () => {
                           <div
                             className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${
                               row.pusta_number && row.pusta_number % 2 === 0
-                                ? "bg-[#0A6C74] text-white"
-                                : "bg-[#F49D37] text-white"
+                                ? "bg-[#2E4568] text-white"
+                                : "bg-[#E9D4B0] text-white"
                             }`}
                           >
                             {convertToNepaliNumerals(row.pusta_number, true)}
@@ -786,13 +786,13 @@ const TableView = () => {
                           row.father.id &&
                           row.father.name_in_nepali ? (
                             <span
-                              className="cursor-pointer text-blue-600"
+                              className="cursor-pointer text-[#2E4568]"
                               onClick={() => navigate(`/${row.father.id}`)}
                             >
                               {row.father.name_in_nepali}
                             </span>
                           ) : (
-                            <span className="text-[#800000]">-</span>
+                            <span className="text-[#2E4568]">-</span>
                           )}
                         </td>
                         <td className="text-center">
@@ -800,25 +800,25 @@ const TableView = () => {
                           row.mother.id &&
                           row.mother.name_in_nepali ? (
                             <span
-                              className="cursor-pointer text-blue-600"
+                              className="cursor-pointer text-[#2E4568]"
                               onClick={() => navigate(`/${row.mother.id}`)}
                             >
                               {row.mother.name_in_nepali}
                             </span>
                           ) : (
-                            <span className="text-[#800000]">-</span>
+                            <span className="text-[#2E4568]">-</span>
                           )}
                         </td>
-                        <td className="flex items-center space-x-2 text-[#800000] text-base justify-center">
+                        <td className="flex items-center space-x-2 text-[#2E4568] text-base justify-center">
                           {row.gender && row.gender.toLowerCase() === "male" ? (
                             <>
-                              <FaMale className="text-blue-500 text-lg" />
+                              <FaMale className="text-[#2E4568] text-lg" />
                               <span className="font-medium">पुरुष</span>
                             </>
                           ) : row.gender &&
                             row.gender.toLowerCase() === "female" ? (
                             <>
-                              <FaFemale className="text-pink-500 text-lg" />
+                              <FaFemale className="text-[#2E4568] text-lg" />
                               <span className="font-medium">महिला</span>
                             </>
                           ) : (
@@ -829,13 +829,13 @@ const TableView = () => {
                           {row.lifestatus &&
                           row.lifestatus.toLowerCase() === "dead" ? (
                             <span
-                              className="text-white text-xs font-bold px-2 py-1 rounded"
-                              style={{ backgroundColor: "#800000" }}
+                              className="text-black text-xs font-bold px-2 py-1 rounded"
+                              style={{ backgroundColor: "#E9D4B0" }}
                             >
                               मृत्यु
                             </span>
                           ) : (
-                            <span className="text-[#800000]">
+                            <span className="text-[#AAABAC]">
                               {calculateAge(row.date_of_birth, row.lifestatus)}
                             </span>
                           )}
@@ -844,7 +844,7 @@ const TableView = () => {
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="View Info"
-                            className="hover:text-blue-500 transition duration-150"
+                            className="hover:text-[#E9D4B0] transition duration-150"
                             onClick={() => handleInfoClick(row)}
                           >
                             <Info size={18} />
@@ -854,7 +854,7 @@ const TableView = () => {
                               <button
                                 data-tooltip-id="tooltip"
                                 data-tooltip-content="Edit"
-                                className="hover:text-green-500 transition duration-150"
+                                className="hover:text-[#E9D4B0] transition duration-150"
                                 onClick={() => handleEditClick(row)}
                               >
                                 <NotebookPen size={18} />
@@ -862,7 +862,7 @@ const TableView = () => {
                               <button
                                 data-tooltip-id="tooltip"
                                 data-tooltip-content="Delete"
-                                className="hover:text-red-500 transition duration-150"
+                                className="hover:text-[#E9D4B0] transition duration-150"
                                 onClick={() => handleDelete(row)}
                               >
                                 <Trash2 size={18} />
@@ -872,7 +872,7 @@ const TableView = () => {
                             <button
                               data-tooltip-id="tooltip"
                               data-tooltip-content="Suggest Edit"
-                              className="hover:text-yellow-500 transition duration-150"
+                              className="hover:text-[#E9D4B0] transition duration-150"
                               onClick={() => handleSuggestionClick(row)}
                             >
                               <Lightbulb size={18} />
@@ -881,7 +881,7 @@ const TableView = () => {
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="View Card"
-                            className="hover:text-indigo-500 transition duration-150"
+                            className="hover:text-[#E9D4B0] transition duration-150"
                             onClick={() => navigate(`/card/${row.id}`)}
                           >
                             <IdCard size={18} />
@@ -889,7 +889,7 @@ const TableView = () => {
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="Compare"
-                            className="hover:text-indigo-500 transition duration-150"
+                            className="hover:text-[#E9D4B0] transition duration-150"
                             onClick={() => handleCompare(row)}
                           >
                             <ArrowLeftRight size={18} />
@@ -899,7 +899,7 @@ const TableView = () => {
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="Family Tree"
-                            className="hover:text-green-500 transition duration-150"
+                            className="hover:text-[#E9D4B0] transition duration-150"
                             onClick={() => handleFamilyTree(row)}
                           >
                             <FaSitemap size={18} />
@@ -919,33 +919,33 @@ const TableView = () => {
             {activeTab === "data" ? (
               <div className="table-wrapper">
                 <table className="ml-3 w-full">
-                  <thead className="text-center border-b-2 border-gray-500 bg-gray-100">
+                  <thead className="text-center border-b-2 border-[#AAABAC] bg-[#B9BAC3]">
                     <tr>
-                      <th className="text-center text-[#800000]">नाम</th>
-                      <th className="text-center text-[#800000]">
+                      <th className="text-center text-[#2E4568]">नाम</th>
+                      <th className="text-center text-[#2E4568]">
                         पुस्ता नम्बर
                       </th>
-                      <th className="text-center text-[#800000]">बाबुको नाम</th>
-                      <th className="text-center text-[#800000]">आमाको नाम</th>
-                      <th className="text-center text-[#800000]">लिङ्ग</th>
-                      <th className="text-center text-[#800000]">उमेर</th>
-                      <th className="text-center text-[#800000]">कार्यहरू</th>
+                      <th className="text-center text-[#2E4568]">बाबुको नाम</th>
+                      <th className="text-center text-[#2E4568]">आमाको नाम</th>
+                      <th className="text-center text-[#2E4568]">लिङ्ग</th>
+                      <th className="text-center text-[#2E4568]">उमेर</th>
+                      <th className="text-center text-[#2E4568]">कार्यहरू</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredData.map((row, index) => (
                       <tr
                         key={index}
-                        className={`border-b-2 border-gray-300 hover:bg-gray-200 ${
+                        className={`border-b-2 border-[#AAABAC] hover:bg-[#B9BAC3] ${
                           row.gender && row.gender.toLowerCase() === "male"
-                            ? "bg-blue-100"
+                            ? "bg-[#A6C8A5]"
                             : row.gender &&
                               row.gender.toLowerCase() === "female"
-                            ? "bg-pink-100"
-                            : "bg-gray-50"
+                            ? "bg-[#A6C8A5]"
+                            : "bg-[#B9BAC3]"
                         }`}
                       >
-                        <td className="text-center text-[#800000]">
+                        <td className="text-center text-[#2E4568]">
                           <img
                             src={
                               row.photo ||
@@ -965,8 +965,8 @@ const TableView = () => {
                           <div
                             className={`flex items-center justify-center w-2/4 m-auto h-6 p-2 rounded-full ${
                               row.pusta_number && row.pusta_number % 2 === 0
-                                ? "bg-[#0A6C74] text-white"
-                                : "bg-[#F49D37] text-white"
+                                ? "bg-[#2E4568] text-white"
+                                : "bg-[#E9D4B0] text-white"
                             }`}
                           >
                             {convertToNepaliNumerals(row.pusta_number, false)}
@@ -977,13 +977,13 @@ const TableView = () => {
                           row.father.id &&
                           row.father.name_in_nepali ? (
                             <span
-                              className="cursor-pointer text-blue-600"
+                              className="cursor-pointer text-[#2E4568]"
                               onClick={() => navigate(`/${row.father.id}`)}
                             >
                               {row.father.name_in_nepali}
                             </span>
                           ) : (
-                            <span className="text-[#800000]">-</span>
+                            <span className="text-[#AAABAC]">-</span>
                           )}
                         </td>
                         <td className="text-center">
@@ -991,25 +991,25 @@ const TableView = () => {
                           row.mother.id &&
                           row.mother.name_in_nepali ? (
                             <span
-                              className="cursor-pointer text-blue-600"
+                              className="cursor-pointer text-[#2E4568]"
                               onClick={() => navigate(`/${row.mother.id}`)}
                             >
                               {row.mother.name_in_nepali}
                             </span>
                           ) : (
-                            <span className="text-[#800000]">-</span>
+                            <span className="text-[#AAABAC]">-</span>
                           )}
                         </td>
-                        <td className="flex items-center space-x-2 text-[#800000] text-base justify-center">
+                        <td className="flex items-center space-x-2 text-[#AAABAC] text-base justify-center">
                           {row.gender && row.gender.toLowerCase() === "male" ? (
                             <>
-                              <FaMale className="text-blue-500 text-lg" />
+                              <FaMale className="text-[#2E4568] text-lg" />
                               <span className="font-medium">पुरुष</span>
                             </>
                           ) : row.gender &&
                             row.gender.toLowerCase() === "female" ? (
                             <>
-                              <FaFemale className="text-pink-500 text-lg" />
+                              <FaFemale className="text-[#2E4568] text-lg" />
                               <span className="font-medium">महिला</span>
                             </>
                           ) : (
@@ -1020,13 +1020,13 @@ const TableView = () => {
                           {row.lifestatus &&
                           row.lifestatus.toLowerCase() === "dead" ? (
                             <span
-                              className="text-white text-xs font-bold px-2 py-1 rounded"
-                              style={{ backgroundColor: "#800000" }}
+                              className="text-black text-xs font-bold px-2 py-1 rounded"
+                              style={{ backgroundColor: "#E9D4B0" }}
                             >
                               मृत्यु
                             </span>
                           ) : (
-                            <span className="text-[#800000]">
+                            <span className="text-[#AAABAC]">
                               {calculateAge(row.date_of_birth, row.lifestatus)}
                             </span>
                           )}
@@ -1035,7 +1035,7 @@ const TableView = () => {
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="View Info"
-                            className="hover:text-blue-500 transition duration-150"
+                            className="hover:text-[#E9D4B0] transition duration-150"
                             onClick={() => handleInfoClick(row)}
                           >
                             <Info size={18} />
@@ -1045,7 +1045,7 @@ const TableView = () => {
                               <button
                                 data-tooltip-id="tooltip"
                                 data-tooltip-content="Edit"
-                                className="hover:text-green-500 transition duration-150"
+                                className="hover:text-[#E9D4B0] transition duration-150"
                                 onClick={() => handleEditClick(row)}
                               >
                                 <NotebookPen size={18} />
@@ -1053,7 +1053,7 @@ const TableView = () => {
                               <button
                                 data-tooltip-id="tooltip"
                                 data-tooltip-content="Delete"
-                                className="hover:text-red-500 transition duration-150"
+                                className="hover:text-[#E9D4B0] transition duration-150"
                                 onClick={() => handleDelete(row)}
                               >
                                 <Trash2 size={18} />
@@ -1065,16 +1065,34 @@ const TableView = () => {
                               data-tooltip-content="Suggest Edit"
                               onClick={() => handleSuggestionClick(row)}
                             >
-                              <Lightbulb size={18} color="#000" />
+                              <Lightbulb size={18} color="#2E4568" />
                             </button>
                           )}
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="View Card"
-                            className="hover:text-indigo-500 transition duration-150"
+                            className="hover:text-[#E9D4B0] transition duration-150"
                             onClick={() => navigate(`/card/${row.id}`)}
                           >
                             <IdCard size={18} />
+                          </button>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Compare"
+                            className="hover:text-[#E9D4B0] transition duration-150"
+                            onClick={() => handleCompare(row)}
+                          >
+                            <ArrowLeftRight size={18} />
+                          </button>
+
+                          {/* Family Tree */}
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Family Tree"
+                            className="hover:text-[#E9D4B0] transition duration-150"
+                            onClick={() => handleFamilyTree(row)}
+                          >
+                            <FaSitemap size={18} />
                           </button>
                         </td>
                       </tr>
@@ -1136,7 +1154,7 @@ const TableView = () => {
 
       {showFamilyTree && familyTreePerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[90vw] h-[90vh] overflow-auto relative">
+          <div className="bg-[#A6C8A5] p-6 rounded-lg w-[90vw] h-[90vh] overflow-auto relative">
             <FamilyTreeGraph
               id={String(familyTreePerson.id)}
               selectedPerson={

@@ -37,7 +37,7 @@ const CardView = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  /* ───────────── Window‑resize listener for mobile flag ───────────── */
+  /* ───────────── Window-resize listener for mobile flag ───────────── */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 800);
     window.addEventListener("resize", handleResize);
@@ -56,11 +56,15 @@ const CardView = () => {
             Accept: "application/json",
           },
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const result = await response.json();
-        const result_data = result.data;
+        const result_data = Array.isArray(result.data) ? result.data : [];
+        console.log("API Response:", result); // Debug API response
         setData(result_data);
-        setPreviousIndex(result.previous);
-        setNextIndex(result.next);
+        setPreviousIndex(result.previous || 0);
+        setNextIndex(result.next || 0);
         setLoading(false);
         if (result_data.length > 0) {
           setCurrentIndex(0);
@@ -77,7 +81,7 @@ const CardView = () => {
 
   /* ───────────── Keep URL in sync when searching within list ───────────── */
   useEffect(() => {
-    if (isSearchActive && data.length > 0) {
+    if (isSearchActive && data.length > 0 && data[currentIndex]?.id) {
       navigate(`/card/${data[currentIndex].id}`, { replace: true });
     }
   }, [currentIndex, data, isSearchActive, navigate]);
@@ -157,22 +161,55 @@ const CardView = () => {
   /* ────────────────────── Early returns ────────────────────── */
   if (loading)
     return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-t from-black via-black/60 to-transparent">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "#B9BAC3",
+        }}
+      >
         <Circles
           height="80"
           width="80"
-          color="#4fa94d"
+          color="#E9D4B0"
           ariaLabel="loading..."
         />
       </div>
     );
 
-  if (error) return <div>Error: {error.message || error.toString()}</div>;
+  if (error)
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          backgroundColor: "#B9BAC3",
+          color: "#2E4568",
+          fontSize: "1.125rem",
+        }}
+      >
+        Error: {error.message || error.toString()}
+      </div>
+    );
 
   if (!data || data.length === 0)
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-white text-lg">No results found.</p>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          backgroundColor: "#B9BAC3",
+          color: "#2E4568",
+          fontSize: "1.125rem",
+        }}
+      >
+        No results found.
       </div>
     );
 
@@ -184,7 +221,15 @@ const CardView = () => {
 
   return (
     <>
-      <div className="flex flex-col h-screen bg-gradient-to-t from-black via-black/60 to-transparent">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          paddingBottom: "4rem",
+          backgroundColor: "#B9BAC3",
+        }}
+      >
         {/* Toggle table/card view button (desktop only) */}
         {!isMobile && (
           <ToggleView
@@ -196,22 +241,32 @@ const CardView = () => {
 
         {/* Card container */}
         <div
-          className={
-            isMobile
-              ? "w-[98vw] m-auto rounded-2xl overflow-hidden"
-              : "w-[40vw] m-auto rounded-2xl overflow-hidden"
-          }
+          style={{
+            width: isMobile ? "98vw" : "40vw",
+            margin: "auto",
+            borderRadius: "1rem",
+            overflow: "hidden",
+          }}
         >
           {/* ───── Conditional wrapper: plain <div> when info panel open ───── */}
           {isInfoOpen ? (
-            <div className="relative w-full h-full snap-center flex flex-col group">
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "100%",
+                scrollSnapAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <CardImageSection
                 person={currentPerson}
                 isExpanded={isExpanded}
                 onScrollLeft={scrollLeft}
                 onScrollRight={scrollRight}
                 isHovered={isHovered}
-                onSwipe={() => {}} // swipes disabled
+                onSwipe={() => {}}
                 isMobile={isMobile}
                 maleImage={male}
                 femaleImage={female}
@@ -221,8 +276,15 @@ const CardView = () => {
             </div>
           ) : (
             <TinderCard
-              className="relative w-full h-full snap-center flex flex-col group"
-              preventSwipe={["up", "down"]} // horizontal swipes allowed
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "100%",
+                scrollSnapAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+              }}
+              preventSwipe={["up", "down"]}
               onSwipe={handleSwipe}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
@@ -257,10 +319,31 @@ const CardView = () => {
           />
         </div>
 
-        {/* Family‑tree modal */}
+        {/* Family-tree modal */}
         {selectedPerson && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white w-11/12 max-w-4xl max-h-[90vh] p-6 rounded-lg relative overflow-auto">
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              backgroundColor: "rgba(0,0,0,0.5)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 50,
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "#A6C8A5",
+                width: "91.666667%",
+                maxWidth: "64rem",
+                maxHeight: "90vh",
+                padding: "1.5rem",
+                borderRadius: "0.5rem",
+                position: "relative",
+                overflow: "auto",
+              }}
+            >
               <FamilyTreeGraph
                 id={id}
                 selectedPerson={selectedPerson}

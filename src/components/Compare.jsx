@@ -51,7 +51,7 @@ const Compare = () => {
         shouldSort: false,
         searchEnabled: true,
         searchFields: ["customProperties.english", "label"],
-        maxItemCount: 50, // Limit the number of items for better performance
+        maxItemCount: 50,
       });
     }
     return () => {
@@ -93,25 +93,7 @@ const Compare = () => {
         { method: "GET", headers: { "Content-Type": "application/json" } }
       );
 
-      console.log("API Response:", response.data);
       const name_suggestions = response.data.current_pusta_data || [];
-      if (name_suggestions.length === 0) {
-        console.warn("No suggestions found for pusta_number:", pustaNumber);
-      }
-
-      // Log each suggestion to verify data
-      name_suggestions.forEach((sugg, index) => {
-        console.log(
-          `Suggestion ${index}:`,
-          `Name: ${sugg.name}`,
-          `Name in Nepali: ${sugg.name_in_nepali}`,
-          `Father Name: ${sugg.father?.name}`,
-          `Father Name in Nepali: ${sugg.father?.name_in_nepali}`,
-          `Mother Name: ${sugg.mother?.name}`,
-          `Mother Name in Nepali: ${sugg.mother?.name_in_nepali}`
-        );
-      });
-
       setRightNameSuggestions(name_suggestions);
       if (rightNameSelectRef.current && choicesInstanceRef.current) {
         choicesInstanceRef.current.clearChoices();
@@ -161,7 +143,7 @@ const Compare = () => {
   const debouncedFetch = useCallback(
     debounce((pustaNumber) => {
       fetchSuggestions(pustaNumber);
-    }, 500), // Reduced to 500ms for better responsiveness
+    }, 500),
     []
   );
 
@@ -176,8 +158,6 @@ const Compare = () => {
         }
 
         const fatherName = person.father?.name || "";
-        console.log("Father's name from database:", fatherName);
-
         const suggestions = familyMembers.filter((member) => {
           const isRightGeneration =
             member.pusta_number === parentGeneration.toString();
@@ -192,7 +172,6 @@ const Compare = () => {
           );
         });
 
-        console.log("Father suggestions:", suggestions);
         resolve(suggestions);
       }, 500);
     });
@@ -209,8 +188,6 @@ const Compare = () => {
         }
 
         const motherName = person.mother?.name || "";
-        console.log("Mother's name from database:", motherName);
-
         const suggestions = familyMembers.filter((member) => {
           const isRightGeneration =
             member.pusta_number === parentGeneration.toString();
@@ -225,7 +202,6 @@ const Compare = () => {
           );
         });
 
-        console.log("Mother suggestions:", suggestions);
         resolve(suggestions);
       }, 500);
     });
@@ -242,7 +218,6 @@ const Compare = () => {
 
         const response_data = await response.json();
         const fetchedData = response_data.data[0];
-        console.log(fetchedData);
         setLeftPerson(fetchedData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -276,9 +251,6 @@ const Compare = () => {
       !rightPerson.name ||
       !rightPerson.pusta_number
     ) {
-      console.log("Missing Information");
-      console.log(leftPerson);
-      console.log(rightPerson);
       Swal.fire({
         title: "Missing Information",
         text: "Both Name and pusta_number fields are required for comparison.",
@@ -304,8 +276,6 @@ const Compare = () => {
         rightPerson_motherName,
       });
 
-      console.log(response.data);
-      console.log(response.data.message);
       setRelationship(response.data.message);
     } catch (error) {
       console.error("Error comparing persons:", error);
@@ -337,30 +307,48 @@ const Compare = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#B9BAC3] bg-gradient-to-b from-[#B9BAC3] to-[#A6C8A5] flex items-center justify-center px-4 py-6">
       <style>
         {`
           .choices__inner {
-            min-width: 300px;
+            min-width: 100%;
             white-space: nowrap;
+            background-color: #A6C8A5;
+            border: 1px solid #AAABAC;
+            border-radius: 8px;
+            padding: 8px;
           }
           .choices__list--dropdown {
             max-height: 200px;
             overflow-y: auto;
             scroll-behavior: smooth;
+            background-color: #A6C8A5;
+            border: 1px solid #AAABAC;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
           }
           .choices__list--dropdown .choices__item {
             white-space: nowrap;
             overflow-x: auto;
             transition: background-color 0.2s ease;
+            padding: 8px 12px;
+            color: #2E4568;
           }
           .choices__list--dropdown .choices__item:hover {
-            background-color: #f0f0f0;
+            background-color: #E9D4B0;
+          }
+          .choices__input {
+            border: none !important;
+            outline: none !important;
+            padding: 4px 8px;
+            color: #2E4568;
           }
         `}
       </style>
+
+      {/* Back Button */}
       <button
-        className="absolute top-4 left-4 bg-purple-700 text-white px-4 py-2 rounded-full"
+        className="absolute top-4 left-4 bg-[#E9D4B0] text-[#2E4568] px-4 py-2 rounded-full hover:bg-[#D9C4A0] transition-colors duration-300 shadow-md"
         onClick={() => {
           isMobile ? navigate(`/card/${id}`) : navigate(`/`);
         }}
@@ -368,164 +356,188 @@ const Compare = () => {
         {isMobile ? "Go Back to Card" : "Go Back to Table"}
       </button>
 
-      <div className="flex flex-col items-center px-4 py-6 pt-20 h-full w-full overflow-y-auto">
-        <h1 className="text-center text-2xl md:text-3xl font-bold mb-6">
-          Compare
+      <div className="w-full max-w-5xl flex flex-col items-center pt-16 pb-8">
+        {/* Page Title */}
+        <h1 className="text-3xl md:text-4xl font-bold text-[#2E4568] mb-8">
+          Compare Family Members
         </h1>
 
-        <div className="flex flex-col lg:flex-row lg:justify-center pt-10 lg:space-x-8 space-y-8 lg:space-y-0 w-full max-w-4xl">
-          {/* Left Person */}
-          <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
-            <h1 className="text-3xl font-bold text-center -mt-4">Person 1</h1>
+        {/* Person Cards */}
+        <div className="flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0 w-full">
+          {/* Left Person Card */}
+          <div className="w-full lg:w-1/2 bg-[#A6C8A5] rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-[#2E4568] text-center mb-6">
+              Person 1
+            </h2>
+            <div className="space-y-4">
+              {/* Pusta Number */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Pusta Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Pusta Number"
+                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
+                  value={leftPerson.pusta_number}
+                  onChange={(e) =>
+                    setLeftPerson((prev) => ({
+                      ...prev,
+                      pusta_number: e.target.value,
+                    }))
+                  }
+                  disabled={isLeftConfirmed}
+                />
+              </div>
 
-            <div className="w-full">
-              <label className="block mb-2 text-sm md:text-base">
-                Pusta Number
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Pusta Number"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.pusta_number}
-                onChange={(e) =>
-                  setLeftPerson((prev) => ({
-                    ...prev,
-                    pusta_number: e.target.value,
-                  }))
-                }
-                disabled={isLeftConfirmed}
-              />
-            </div>
-            <div className="w-full">
-              <label className="block mb-2 text-sm md:text-base">Name</label>
-              <input
-                type="text"
-                placeholder="Enter Full Name"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.name_in_nepali}
-                onChange={(e) =>
-                  setLeftPerson((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                  }))
-                }
-                disabled={isLeftConfirmed}
-              />
-            </div>
-            <div className="w-full">
-              <label className="block mb-2 text-sm md:text-base">
-                Father's Name
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Father's Name"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.father?.name_in_nepali || ""}
-                onChange={(e) =>
-                  setLeftPerson((prev) => ({
-                    ...prev,
-                    fatherName: e.target.value,
-                  }))
-                }
-                disabled={isLeftConfirmed}
-              />
-            </div>
-            <div className="w-full">
-              <label className="block mb-2 text-sm md:text-base">
-                Mother's Name
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Mother's Name"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={leftPerson.mother?.name_in_nepali || ""}
-                onChange={(e) =>
-                  setLeftPerson((prev) => ({
-                    ...prev,
-                    motherName: e.target.value,
-                  }))
-                }
-                disabled={isLeftConfirmed}
-              />
+              {/* Name */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Full Name"
+                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
+                  value={leftPerson.name_in_nepali}
+                  onChange={(e) =>
+                    setLeftPerson((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  disabled={isLeftConfirmed}
+                />
+              </div>
+
+              {/* Father's Name */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Father's Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Father's Name"
+                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
+                  value={leftPerson.father?.name_in_nepali || ""}
+                  onChange={(e) =>
+                    setLeftPerson((prev) => ({
+                      ...prev,
+                      fatherName: e.target.value,
+                    }))
+                  }
+                  disabled={isLeftConfirmed}
+                />
+              </div>
+
+              {/* Mother's Name */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Mother's Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Mother's Name"
+                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
+                  value={leftPerson.mother?.name_in_nepali || ""}
+                  onChange={(e) =>
+                    setLeftPerson((prev) => ({
+                      ...prev,
+                      motherName: e.target.value,
+                    }))
+                  }
+                  disabled={isLeftConfirmed}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Right Person */}
-          <div className="flex flex-col items-center space-y-4 w-full lg:w-1/2">
-            <h1 className="text-3xl font-bold text-center -mt-4">Person 2</h1>
+          {/* Right Person Card */}
+          <div className="w-full lg:w-1/2 bg-[#A6C8A5] rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-[#2E4568] text-center mb-6">
+              Person 2
+            </h2>
+            <div className="space-y-4">
+              {/* Pusta Number */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Pusta Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Pusta Number"
+                  className="w-full bg-[#B9BAC3] px-4 py-2 border border-[#AAABAC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
+                  value={rightPerson.pusta_number || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setRightPerson((prev) => ({
+                      ...prev,
+                      pusta_number: value,
+                      name: "",
+                      fatherName: "",
+                      motherName: "",
+                      fatherId: "",
+                      motherId: "",
+                    }));
+                    debouncedFetch(value);
+                  }}
+                  onBlur={() => {
+                    debouncedFetch.flush();
+                  }}
+                  disabled={isRightConfirmed}
+                />
+              </div>
 
-            <div className="w-full">
-              <label className="block mb-2 text-sm md:text-base">
-                Pusta Number
-              </label>
-              <input
-                type="text"
-                placeholder="Enter pusta_number"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.pusta_number || ""}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setRightPerson((prev) => ({
-                    ...prev,
-                    pusta_number: value,
-                    name: "",
-                    fatherName: "",
-                    motherName: "",
-                    fatherId: "",
-                    motherId: "",
-                  }));
-                  debouncedFetch(value);
-                }}
-                onBlur={() => {
-                  debouncedFetch.flush();
-                }}
-                disabled={isRightConfirmed}
-              />
-            </div>
+              {/* Name */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Name
+                </label>
+                <select
+                  ref={rightNameSelectRef}
+                  id="rightNameSelect"
+                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
+                >
+                  <option value="">Select Name</option>
+                </select>
+              </div>
 
-            <div className="w-full relative">
-              <label className="block mb-2 text-sm md:text-base">Name</label>
-              <select
-                ref={rightNameSelectRef}
-                id="rightNameSelect"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-              >
-                <option value="">Select Name</option>
-              </select>
-            </div>
+              {/* Father's Name */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Father's Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg text-sm md:text-base text-[#2E4568]"
+                  value={rightPerson.fatherName}
+                  disabled
+                  placeholder="Father's Name"
+                />
+              </div>
 
-            <div className="w-full relative">
-              <label className="block mb-2 text-sm md:text-base">
-                Father's Name
-              </label>
-              <input
-                type="text"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.fatherName}
-                disabled
-                placeholder="Father's Name"
-              />
-            </div>
-
-            <div className="w-full relative">
-              <label className="block mb-2 text-sm md:text-base">
-                Mother's Name
-              </label>
-              <input
-                type="text"
-                className="px-4 py-2 bg-white border rounded w-full text-sm md:text-base"
-                value={rightPerson.motherName}
-                disabled
-                placeholder="Mother's Name"
-              />
+              {/* Mother's Name */}
+              <div>
+                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
+                  Mother's Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg text-sm md:text-base text-[#2E4568]"
+                  value={rightPerson.motherName}
+                  disabled
+                  placeholder="Mother's Name"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="text-center w-full max-w-md mt-8 flex flex-col mb-4">
+        {/* Action Buttons and Result */}
+        <div className="text-center w-full max-w-md mt-8 flex flex-col items-center">
           {!relationship && (
             <button
-              className="bg-purple-700 text-white px-6 py-2 md:px-10 md:py-2 rounded-lg text-base md:text-xl mb-4"
+              className="bg-[#E9D4B0] text-[#2E4568] px-8 py-3 rounded-lg text-base md:text-lg font-medium hover:bg-[#D9C4A0] transition-colors duration-300 shadow-md"
               onClick={handleCompare}
               disabled={isLoading}
             >
@@ -535,9 +547,11 @@ const Compare = () => {
 
           {relationship && (
             <>
-              <p className="text-lg font-bold mb-4">{relationship}</p>
+              <p className="text-lg font-semibold text-[#2E4568] mb-4 bg-[#A6C8A5] px-4 py-2 rounded-lg shadow">
+                {relationship}
+              </p>
               <button
-                className="bg-blue-600 text-white px-6 py-2 md:px-10 md:py-2 rounded-lg text-base md:text-xl mb-4"
+                className="bg-[#E9D4B0] text-[#2E4568] px-8 py-3 rounded-lg text-base md:text-lg font-medium hover:bg-[#D9C4A0] transition-colors duration-300 shadow-md"
                 onClick={handleCompareAgain}
               >
                 Compare Again
@@ -545,7 +559,11 @@ const Compare = () => {
             </>
           )}
 
-          {apiError && <p className="text-red-500 text-sm mt-4">{apiError}</p>}
+          {apiError && (
+            <p className="text-[#2E4568] text-sm mt-4 bg-[#E9D4B0] px-4 py-2 rounded-lg shadow">
+              {apiError}
+            </p>
+          )}
         </div>
       </div>
     </div>

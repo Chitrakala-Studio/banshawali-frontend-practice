@@ -54,12 +54,12 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="relative bg-[#0A6C74] rounded-lg shadow-xl p-4 w-full max-w-md">
+    <div className="fixed inset-0 bg-[#2E4568] bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="relative bg-[#A6C8A5] rounded-lg shadow-xl p-4 w-full max-w-md">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-white hover:text-red-500"
+          className="absolute top-3 right-3 text-[#2E4568] hover:text-[#E9D4B0]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -77,7 +77,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
           </svg>
         </button>
 
-        <h2 className="text-xl font-bold text-[#f49D37] mb-3 text-center">
+        <h2 className="text-xl font-bold text-[#2E4568] mb-3 text-center">
           Search User
         </h2>
 
@@ -85,18 +85,18 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
             {/* Row 1: Name & Pusta Number */}
             <div>
-              <label className="block text-xs text-white mb-1">Name</label>
+              <label className="block text-xs text-[#2E4568] mb-1">Name</label>
               <input
                 type="text"
                 name="name"
                 value={criteria.name}
                 onChange={handleChange}
                 placeholder="Enter name"
-                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-black text-sm"
+                className="w-full px-2 py-1 border border-[#AAABAC] rounded focus:outline-none focus:ring-1 focus:ring-[#E9D4B0] bg-[#B9BAC3] text-[#2E4568] text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs text-white mb-1">
+              <label className="block text-xs text-[#2E4568] mb-1">
                 Pusta Number
               </label>
               <input
@@ -105,37 +105,37 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.pusta_number}
                 onChange={handleChange}
                 placeholder="Enter Pusta Number"
-                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-black text-sm"
+                className="w-full px-2 py-1 border border-[#AAABAC] rounded focus:outline-none focus:ring-1 focus:ring-[#E9D4B0] bg-[#B9BAC3] text-[#2E4568] text-sm"
               />
             </div>
 
             {/* Row 2: Phone & Email */}
             <div>
-              <label className="block text-xs text-white mb-1">Phone</label>
+              <label className="block text-xs text-[#2E4568] mb-1">Phone</label>
               <input
                 type="text"
                 name="phone_number"
                 value={criteria.phone_number}
                 onChange={handleChange}
                 placeholder="Enter phone number"
-                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-black text-sm"
+                className="w-full px-2 py-1 border border-[#AAABAC] rounded focus:outline-none focus:ring-1 focus:ring-[#E9D4B0] bg-[#B9BAC3] text-[#2E4568] text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs text-white mb-1">Email</label>
+              <label className="block text-xs text-[#2E4568] mb-1">Email</label>
               <input
                 type="email"
                 name="email"
                 value={criteria.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-black text-sm"
+                className="w-full px-2 py-1 border border-[#AAABAC] rounded focus:outline-none focus:ring-1 focus:ring-[#E9D4B0] bg-[#B9BAC3] text-[#2E4568] text-sm"
               />
             </div>
 
             {/* Row 3: Father Name & Mother Name */}
             <div>
-              <label className="block text-xs text-white mb-1">
+              <label className="block text-xs text-[#2E4568] mb-1">
                 Father Name
               </label>
               <input
@@ -144,11 +144,11 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.father_name}
                 onChange={handleChange}
                 placeholder="Enter father name"
-                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-black text-sm"
+                className="w-full px-2 py-1 border border-[#AAABAC] rounded focus:outline-none focus:ring-1 focus:ring-[#E9D4B0] bg-[#B9BAC3] text-[#2E4568] text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs text-white mb-1">
+              <label className="block text-xs text-[#2E4568] mb-1">
                 Mother Name
               </label>
               <input
@@ -157,7 +157,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                 value={criteria.mother_name}
                 onChange={handleChange}
                 placeholder="Enter mother name"
-                className="w-full px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-black text-sm"
+                className="w-full px-2 py-1 border border-[#AAABAC] rounded focus:outline-none focus:ring-1 focus:ring-[#E9D4B0] bg-[#B9BAC3] text-[#2E4568] text-sm"
               />
             </div>
           </div>
@@ -165,7 +165,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
           {/* Bottom row: Toggle switch on left and Search button on right */}
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center space-x-2">
-              <span className="text-white text-sm">Same Vansha Status</span>
+              <span className="text-[#2E4568] text-sm">Same Vansha Status</span>
               <label
                 htmlFor="same_vamsha_status"
                 className="relative inline-flex items-center cursor-pointer"
@@ -179,24 +179,24 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
                   className="sr-only peer"
                 />
                 <div
-                  className="w-11 h-6 bg-gray-200 rounded-full peer 
+                  className="w-11 h-6 bg-[#B9BAC3] rounded-full peer 
                              peer-focus:outline-none peer-focus:ring-4 
-                             peer-focus:ring-[#800000] dark:bg-white 
-                             peer-checked:bg-[#800000]
+                             peer-focus:ring-[#E9D4B0] dark:bg-[#B9BAC3] 
+                             peer-checked:bg-[#2E4568]
                              after:content-[''] after:absolute after:top-0.5 after:left-[2px]
-                             after:bg-white after:border-gray-300 after:border after:rounded-full 
+                             after:bg-white after:border-[#AAABAC] after:rounded-full 
                              after:h-5 after:w-5 after:transition-all
-                             dark:border-gray-600 peer-checked:after:translate-x-full 
+                             dark:border-[#AAABAC] peer-checked:after:translate-x-full 
                              peer-checked:after:border-white"
                 ></div>
               </label>
             </div>
             <button
               type="submit"
-              className="bg-[#800000] hover:bg-[#f49D37] text-white px-4 py-1.5 rounded-md text-sm transition-colors"
+              className="bg-[#E9D4B0] hover:bg-[#D9C4A0] text-[#2E4568] px-4 py-1.5 rounded-md text-sm transition-colors"
             >
               {/* Icon */}
-              <FaSearch className="inline-block mr-1" />
+              <FaSearch className="inline-block mr-1 text-[#2E4568]" />
               Search
             </button>
           </div>

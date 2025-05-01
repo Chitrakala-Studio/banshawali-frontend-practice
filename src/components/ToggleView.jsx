@@ -21,7 +21,7 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
       <div className="flex items-center">
         <span
           className={`text-base font-bold mr-4 
-           "text-black"
+           "text-[#2E4568]"
           `}
         >
           Table
@@ -33,26 +33,26 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
         >
           <div
             className={`absolute inset-0 rounded-[20px] transition-colors ${
-              isTableView ? "bg-[#0A6C74]" : "bg-[#F49D37]"
+              isTableView ? "bg-[#2E4568]" : "bg-[#E9D4B0]"
             }`}
           />
 
           <div
-            className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-md
+            className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#A6C8A5] shadow-md
               flex items-center justify-center transition-transform duration-300
               ${isTableView ? "left-1" : "left-24"}`}
           >
             {isTableView ? (
-              <FaTable className="text-gray-800" />
+              <FaTable className="text-[#2E4568]" />
             ) : (
-              <FaRegIdCard className="text-gray-800" />
+              <FaRegIdCard className="text-[#2E4568]" />
             )}
           </div>
         </div>
 
         <span
           className={`text-base font-bold ml-4 
-            "text-black"
+            "text-[#2E4568]"
           `}
         >
           Card
