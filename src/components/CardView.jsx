@@ -87,7 +87,7 @@ const CardView = () => {
   const handleFooterGenerate = () => {
     const currentPerson = data[currentIndex];
     if (currentPerson) {
-      setSelectedPerson(currentPerson.name || currentPerson.name_in_nepali);
+      setSelectedPerson(currentPerson.name_in_nepali || currentPerson.name);
       setIsHorizontal(!isHorizontal);
     }
   };
@@ -284,7 +284,7 @@ const CardView = () => {
 
             .card-container {
               width: ${isMobile ? "98vw" : "40vw"};
-              margin: 0 auto;
+              margin: -20px auto 3rem;
               border-radius: 15px;
               overflow: hidden;
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

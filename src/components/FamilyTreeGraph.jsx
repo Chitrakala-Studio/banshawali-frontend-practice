@@ -114,6 +114,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     setDimensions({
@@ -363,34 +364,36 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
     const isGroupNode =
       nodeDatum.name === "Father" || nodeDatum.name === "Children";
     const gender = nodeDatum.gender;
+    const MAX_LINE_LENGTH = 16;
+    const MAX_LINES = 2;
     const wrapText = (text) => {
-      if (!text || text.trim() === "") {
-        return [];
+      if (!text || text.trim() === "") return [];
+      let lines = [];
+      let remaining = text.trim();
+
+      while (remaining.length > MAX_LINE_LENGTH && lines.length < MAX_LINES) {
+        let breakIdx = Math.max(
+          remaining.lastIndexOf("/", MAX_LINE_LENGTH),
+          remaining.lastIndexOf(" ", MAX_LINE_LENGTH)
+        );
+        if (breakIdx <= 0) breakIdx = MAX_LINE_LENGTH;
+        lines.push(remaining.slice(0, breakIdx).trim());
+        remaining = remaining.slice(breakIdx).trim();
       }
-
-      if (text.includes("/")) {
-        const nameParts = text.split("/").map((part) => part.trim());
-
-        if (nameParts.length <= 2) {
-          return [nameParts.join(" / ")];
+      if (remaining) {
+        if (lines.length < MAX_LINES) {
+          lines.push(remaining.length > MAX_LINE_LENGTH ? remaining.slice(0, MAX_LINE_LENGTH - 3) + "..." : remaining);
+        } else {
+          // Truncate last line with ellipsis
+          lines[MAX_LINES - 1] = lines[MAX_LINES - 1].slice(0, MAX_LINE_LENGTH - 3) + "...";
         }
-
-        const firstLine = nameParts.slice(0, 2).join(" / ");
-        const secondLine = "/ " + nameParts.slice(2).join(" / ");
-
-        return [firstLine, secondLine];
       }
-
-      const words = text.split(" ");
-      const mid = Math.ceil(words.length / 2);
-
-      const firstLine = words.slice(0, mid).join(" ");
-      const secondLine = words.slice(mid).join(" ");
-
-      return secondLine ? [firstLine, secondLine] : [firstLine];
+      return lines;
     };
 
     const nameLines = wrapText(nodeDatum.name);
+    const nameBlockHeight = nameLines.length * 22; // 22px per line
+
 
     return (
       <g
@@ -589,8 +592,8 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             }}
             renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
             onNodeClick={handleNodeClick}
-            separation={{ siblings: 1, nonSiblings: 2 }}
-            pathFunc="diagonal"
+            separation={{ siblings: 0.5 , nonSiblings: 0.9 }}
+            pathFunc="step"
             pathClassFunc={() => "custom-link"}
           />
         )}

@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "choices.js/public/assets/styles/choices.css";
+import { FaHome } from "react-icons/fa";
 
 const Compare = () => {
   const { id } = useParams();
@@ -310,6 +311,13 @@ const Compare = () => {
     <div className="compare-container">
       <style>
         {`
+
+        @media (max-width: 799px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
           :root {
             --primary-text: #1F2937;
             --secondary-text: #6B7280;
@@ -320,11 +328,27 @@ const Compare = () => {
             --neutral-gray: #D1D5DB;
             --secondary-bg: #E9D4B0;
             --secondary-bg-hover: #D9C4A0;
+            --background-start: #F8E5C0;
+            --background-end:   #CDE8D0;
+             --secondary-light: #E9D4B0;  
+            --white:           #FFFFFF;
           }
+
+          .flex-center {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 
           .compare-container {
             min-height: 100vh;
     background: linear-gradient(to bottom, #fffaf0, #ffffff);
+    background: radial-gradient(
+            circle at top,
+             var(--background-start) 30%,
+             var(--background-end)   100%
+        );
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -333,29 +357,31 @@ const Compare = () => {
 
           }
 
-          .top-bar {
-          display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    width: 100%;
-     margin: 0 0 16px;  
-          }
+         .top-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 16px;
+}
 
-          .top-bar-btn {
-            background-color: var(--secondary-bg);
-            color: var(--primary-text);
-            padding: 6px 14px;
-            border-radius: 9999px;
-            font-family: 'Merriweather', serif;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-          }
+.top-bar-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   background-color: var(--primary-dark);
+  color:            var(--secondary-light);
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
 
-          .top-bar-btn:hover {
-            background-color: var(--secondary-bg-hover);
-            transform: scale(1.05);
-          }
+.top-bar-btn:hover {
+ background-color: var(--primary-hover);
+  color:            var(--white);
+  transform:        scale(1.05);
+}
 
           .back-btn {
             position: absolute;
@@ -568,25 +594,26 @@ const Compare = () => {
       </style>
 
       <div className="top-bar">
-        <div style={{ display: "flex", gap: "12px" }}>
-          <button
-            className="top-bar-btn"
-            onClick={() =>
-              (window.location.href = "https://gautamfamily.org.np/")
-            }
-          >
-            Home
-          </button>
-          <button className="top-bar-btn" onClick={() => navigate("/")}>
-            View Table
-          </button>
-          <button
-            className="top-bar-btn"
-            onClick={() => navigate(`/card/${id}`)}
-          >
-            Card View
-          </button>
-        </div>
+        <button
+          className="top-bar-btn flex-center"
+          onClick={() =>
+            (window.location.href = "https://gautamfamily.org.np/")
+          }
+        >
+          <FaHome />
+          <span>Home</span>
+        </button>
+
+        <button
+          className="top-bar-btn hide-on-mobile"
+          onClick={() => navigate("/")}
+        >
+          View Table
+        </button>
+
+        <button className="top-bar-btn" onClick={() => navigate(`/card/${id}`)}>
+          Card View
+        </button>
       </div>
 
       <div className="cards-container">
