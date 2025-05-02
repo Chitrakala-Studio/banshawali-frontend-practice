@@ -21,6 +21,27 @@ import {
   FaCopy,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+
+const GenderIcon = ({ gender, label }) => {
+  const iconBase = { width: 20, height: 20, marginRight: 8 };
+  const maleIconStyle = { ...iconBase, color: "#2E4568" };
+  const femaleIconStyle = { ...iconBase, color: "#E9D4B0" };
+  const normalizedGender = gender ? String(gender).toLowerCase() : "";
+
+  // Debugging: Log gender value
+  console.log(
+    `GenderIcon: gender=${gender}, normalized=${normalizedGender}, label=${label}`
+  );
+
+  if (normalizedGender === "female") {
+    return <FaFemale style={femaleIconStyle} aria-label="Female" />;
+  }
+  if (normalizedGender === "male") {
+    return <FaMale style={maleIconStyle} aria-label="Male" />;
+  }
+  return <FaUser style={iconBase} aria-label="Unknown gender" />;
+};
 
 const UserProfileModal = ({ user, onClose }) => {
   const [activeTab, setActiveTab] = useState("personal");
@@ -28,6 +49,9 @@ const UserProfileModal = ({ user, onClose }) => {
   if (!user) {
     return null;
   }
+
+  // Debugging: Log user data
+  console.log("UserProfileModal: user data", user);
 
   const handleCopy = () => {
     if (user.bio) {
@@ -51,11 +75,7 @@ const UserProfileModal = ({ user, onClose }) => {
   const renderPersonalInfo = () => (
     <div className="info-section">
       <p className="info-item">
-        {user.gender === "Male" ? (
-          <FaMale className="info-icon" />
-        ) : (
-          <FaFemale className="info-icon female-icon" />
-        )}
+        <GenderIcon gender={user.gender} label="User Gender" />
         <strong>Gender</strong>
         {user.gender || "-"}
       </p>
@@ -90,132 +110,137 @@ const UserProfileModal = ({ user, onClose }) => {
     </div>
   );
 
-  const renderFamilyRelations = () => {
-    const iconBase = { width: 20, height: 20, marginRight: 8 };
-    const maleIconStyle = { ...iconBase, color: "#2E4568" };
-    const femaleIconStyle = { ...iconBase, color: "#E9D4B0" };
-
-    return (
-      <div className="info-section">
-        {user.grandfather?.name && (
-          <p className="info-item">
-            <FaMale style={maleIconStyle} />
-            <strong className="family-label">Grandfather</strong>
-            {user.grandfather.name_in_nepali || user.grandfather.name || "-"}
-          </p>
-        )}
-
-        {user.grandmother?.name && (
-          <p className="info-item">
-            <FaFemale style={femaleIconStyle} />
-            <strong className="family-label">Grandmother</strong>
-            {user.grandmother.name_in_nepali || user.grandmother.name || "-"}
-          </p>
-        )}
-
-        {user.father?.id && (
-          <p className="info-item">
-            <FaMale style={maleIconStyle} />
-            <strong className="family-label">Father</strong>
+  const renderFamilyRelations = () => (
+    <div className="info-section">
+      {user.grandfather?.name && (
+        <p className="info-item">
+          <GenderIcon gender="male" label="Grandfather" />
+          <strong className="family-label">Grandfather</strong>
+          {user.grandfather.id ? (
             <Link
-              to={`/${user.father.id}`}
+              to={`/${user.grandfather.id}`}
               onClick={onClose}
               className="info-link"
             >
-              {user.father.name_in_nepali || user.father.name || "-"}
+              {user.grandfather.name_in_nepali || user.grandfather.name || "-"}
             </Link>
-          </p>
-        )}
+          ) : (
+            <span>
+              {user.grandfather.name_in_nepali || user.grandfather.name || "-"}
+            </span>
+          )}
+        </p>
+      )}
 
-        {user.mother?.id && (
-          <p className="info-item">
-            <FaFemale style={femaleIconStyle} />
-            <strong className="family-label">Mother</strong>
+      {user.grandmother?.name && (
+        <p className="info-item">
+          <GenderIcon gender="female" label="Grandmother" />
+          <strong className="family-label">Grandmother</strong>
+          {user.grandmother.id ? (
             <Link
-              to={`/${user.mother.id}`}
+              to={`/${user.grandmother.id}`}
               onClick={onClose}
               className="info-link"
             >
-              {user.mother.name_in_nepali || user.mother.name || "-"}
+              {user.grandmother.name_in_nepali || user.grandmother.name || "-"}
             </Link>
+          ) : (
+            <span>
+              {user.grandmother.name_in_nepali || user.grandmother.name || "-"}
+            </span>
+          )}
+        </p>
+      )}
+
+      {user.father?.id && (
+        <p className="info-item">
+          <GenderIcon gender="male" label="Father" />
+          <strong className="family-label">Father</strong>
+          <Link
+            to={`/${user.father.id}`}
+            onClick={onClose}
+            className="info-link"
+          >
+            {user.father.name_in_nepali || user.father.name || "-"}
+          </Link>
+        </p>
+      )}
+
+      {user.mother?.id && (
+        <p className="info-item">
+          <GenderIcon gender="female" label="Mother" />
+          <strong className="family-label">Mother</strong>
+          <Link
+            to={`/${user.mother.id}`}
+            onClick={onClose}
+            className="info-link"
+          >
+            {user.mother.name_in_nepali || user.mother.name || "-"}
+          </Link>
+        </p>
+      )}
+
+      {user.spouse?.length > 0 && (
+        <>
+          <p className="info-header">
+            <Users style={{ width: 20, height: 20, marginRight: 8 }} />
+            Spouse
           </p>
-        )}
-
-        {user.spouse?.length > 0 && (
-          <>
-            <p className="info-header">
-              <Users style={{ width: 20, height: 20, marginRight: 8 }} />
-              Spouse
+          {user.spouse.map((sp) => (
+            <p key={sp.id} className="info-item nested">
+              <GenderIcon
+                gender={sp.gender}
+                label={`Spouse ${sp.name || sp.id}`}
+              />
+              <Link to={`/${sp.id}`} onClick={onClose} className="info-link">
+                {sp.name_in_nepali || sp.name || "-"}
+              </Link>
             </p>
-            {user.spouse.map((sp) => (
-              <p key={sp.id} className="info-item nested">
-                {sp.gender === "Female" ? (
-                  <FaFemale style={femaleIconStyle} />
-                ) : (
-                  <FaMale style={maleIconStyle} />
-                )}
-                <Link to={`/${sp.id}`} onClick={onClose} className="info-link">
-                  {sp.name_in_nepali || sp.name || "-"}
-                </Link>
-              </p>
-            ))}
-          </>
-        )}
+          ))}
+        </>
+      )}
 
-        {user.siblings?.length > 0 && (
-          <>
-            <p className="info-header">
-              <FaUser style={{ width: 20, height: 20, marginRight: 8 }} />
-              Siblings
+      {user.siblings?.length > 0 && (
+        <>
+          <p className="info-header">
+            <FaUser style={{ width: 20, height: 20, marginRight: 8 }} />
+            Siblings
+          </p>
+          {user.siblings.map((sib) => (
+            <p key={sib.id} className="info-item nested">
+              <GenderIcon
+                gender={sib.gender}
+                label={`Sibling ${sib.name || sib.id}`}
+              />
+              <Link to={`/${sib.id}`} onClick={onClose} className="info-link">
+                {sib.name_in_nepali || sib.name || "-"}
+              </Link>
             </p>
-            {user.siblings.map((sib) => {
-              const isFemale = String(sib.gender).toLowerCase() === "female";
-              return (
-                <p key={sib.id} className="info-item nested">
-                  {isFemale ? (
-                    <FaFemale style={femaleIconStyle} />
-                  ) : (
-                    <FaMale style={maleIconStyle} />
-                  )}
-                  <Link to={`/${sib.id}`} onClick={onClose} className="info-link">
-                    {sib.name_in_nepali || sib.name || "-"}
-                  </Link>
-                </p>
-              );
-            })}
-          </>
-        )}
+          ))}
+        </>
+      )}
 
-        {user.children?.length > 0 && (
-          <>
-            <p className="info-header">
-              <Users style={{ width: 20, height: 20, marginRight: 8 }} />
-              Children
+      {user.children?.length > 0 && (
+        <>
+          <p className="info-header">
+            <Users style={{ width: 20, height: 20, marginRight: 8 }} />
+            Children
+          </p>
+          {user.children.map((child) => (
+            <p key={child.id} className="info-item nested">
+              <GenderIcon
+                gender={child.gender}
+                label={`Child ${child.name || child.id}`}
+              />
+              <Link to={`/${child.id}`} onClick={onClose} className="info-link">
+                {child.name_in_nepali || child.name || "-"}
+              </Link>
             </p>
-            {user.children.map((child) => {
-              const isFemale = String(child.gender).toLowerCase() === "female";
-              return (
-                <p key={child.id} className="info-item nested">
-                  {isFemale ? (
-                    <FaFemale style={femaleIconStyle} />
-                  ) : (
-                    <FaMale style={maleIconStyle} />
-                  )}
-                  <Link
-                    to={`/${child.id}`}
-                    onClick={onClose}
-                    className="info-link"
-                  >
-                    {child.name_in_nepali || child.name || "-"}
-                  </Link>
-                </p>
-              );
-            })}
-          </>
-        )}
-      </div>
-    );
-  };
+          ))}
+        </>
+      )}
+    </div>
+  );
 
   const renderContact = () => {
     const contact = user.contact_details || {};
@@ -272,6 +297,7 @@ const UserProfileModal = ({ user, onClose }) => {
           }
 
           .modal-container {
+            position: relative;
             background: linear-gradient(to bottom, #fffaf0, #ffffff);
             border: 2px solid var(--gold-accent);
             padding: 24px;
@@ -284,7 +310,9 @@ const UserProfileModal = ({ user, onClose }) => {
           }
 
           .close-btn {
-            float: right;
+            position: absolute;
+            top: 16px;
+            right: 16px;
             color: var(--header-maroon);
             background-color: var(--gold-accent);
             border-radius: 50%;
@@ -312,8 +340,7 @@ const UserProfileModal = ({ user, onClose }) => {
 
           .header-section {
             display: flex;
-            align-items: center;
-            margin-bottom: 24px;
+            align-items: flex-start;
             gap: 16px;
           }
 
@@ -327,6 +354,7 @@ const UserProfileModal = ({ user, onClose }) => {
 
           .header-content {
             flex: 1;
+            text-align: left;
           }
 
           .name {
@@ -418,6 +446,7 @@ const UserProfileModal = ({ user, onClose }) => {
           .tab-btn svg {
             width: 20px;
             height: 20px;
+ვ: 1px;
             margin-right: 8px;
             color: var(--primary-text);
           }
@@ -496,21 +525,21 @@ const UserProfileModal = ({ user, onClose }) => {
               alt={user.name || "Profile"}
               className="profile-image"
             />
-          ) : user.gender === "Male" ? (
+          ) : user.gender && String(user.gender).toLowerCase() === "male" ? (
             <img
               src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+              alt="Male profile"
               className="profile-image"
             />
           ) : (
             <img
               src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+              alt="Female profile"
               className="profile-image"
             />
           )}
           <div className="header-content">
-            <h2 className="name">
-              {user.name_in_nepali || user.name || "-"}
-            </h2>
+            <h2 className="name">{user.name_in_nepali || user.name || "-"}</h2>
             <p className="sub-name">{user.name || "-"}</p>
             {user.bio && (
               <div className="bio-container">
@@ -548,6 +577,70 @@ const UserProfileModal = ({ user, onClose }) => {
       </div>
     </div>
   );
+};
+
+UserProfileModal.propTypes = {
+  user: PropTypes.shape({
+    name: PropTypes.string,
+    name_in_nepali: PropTypes.string,
+    gender: PropTypes.string,
+    photo: PropTypes.string,
+    bio: PropTypes.string,
+    dateOfBirth: PropTypes.string,
+    lifestatus: PropTypes.string,
+    date_of_death: PropTypes.string,
+    profession: PropTypes.string,
+    contact_details: PropTypes.shape({
+      email: PropTypes.string,
+      phone: PropTypes.string,
+      address: PropTypes.string,
+    }),
+    grandfather: PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      name_in_nepali: PropTypes.string,
+    }),
+    grandmother: PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      name_in_nepali: PropTypes.string,
+    }),
+    father: PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      name_in_nepali: PropTypes.string,
+    }),
+    mother: PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      name_in_nepali: PropTypes.string,
+    }),
+    spouse: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        name_in_nepali: PropTypes.string,
+        gender: PropTypes.string,
+      })
+    ),
+    siblings: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        name_in_nepali: PropTypes.string,
+        gender: PropTypes.string,
+      })
+    ),
+    children: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        name_in_nepali: PropTypes.string,
+        gender: PropTypes.string,
+      })
+    ),
+  }),
+  onClose: PropTypes.func.isRequired,
 };
 
 export default UserProfileModal;

@@ -6,11 +6,17 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
   console.log("Suggestions:", suggestion);
   const person = suggestion.suggestion_to;
   const personName = person?.name_in_nepali || "Unknown";
-  const fatherName = person?.father_name || "Not available";
-  const motherName = person?.mother_name || "Not available";
-  const dob = person?.dob
-    ? new Date(person.dob).toLocaleDateString()
+  // pull out the nested values, falling back gracefully
+  const { father = {}, mother = {}, date_of_birth: birthDate } = person;
+
+  const fatherName = father.name_in_nepali || father.name || "Not available";
+
+  const motherName = mother.name_in_nepali || mother.name || "Not available";
+
+  const dob = birthDate
+    ? new Date(birthDate).toLocaleDateString()
     : "Not available";
+
   const pustaNumber = person?.pusta_number
     ? convertToNepaliNumerals(person.pusta_number)
     : "Not available";
@@ -125,7 +131,7 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
           .right-section {
             flex: 1;
             padding: 24px;
-           justify-content: flex-start;
+            justify-content: flex-start;
           }
 
           .left-section {
@@ -167,7 +173,7 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
 
           .right-section .section-title {
             color: var(--header-maroon);
-            font-size: 28px;
+            font-size: 22px; /* Decreased from 28px to 22px */
           }
 
           .section-text {
@@ -175,6 +181,7 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
             font-size: 16px;
             color: var(--primary-text);
             line-height: 1.6;
+            text-align: left; /* Align suggestion text to the left */
           }
 
           .detail-item {
@@ -182,6 +189,7 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
             font-size: 16px;
             color: var(--primary-text);
             margin-bottom: 12px;
+            text-align: left; /* Align text to the left */
           }
 
           .detail-item strong {
@@ -202,8 +210,8 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
             max-width: 300px;
             max-height: 400px;
             height: auto;
-            object-fit: cover;
-            border-radius: 15px;
+              border-radius: 4px !important;
+  object-fit: contain;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             border: 2px solid var(--gold-accent);
             transition: opacity 0.2s ease;
@@ -249,7 +257,6 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
 
             <div className="left-section">
               <div>
-                <h3 className="section-title">सुझाव</h3>
                 <p className="section-text">{suggestionText}</p>
               </div>
 
