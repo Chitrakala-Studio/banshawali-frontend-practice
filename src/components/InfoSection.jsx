@@ -37,6 +37,7 @@ const InfoSection = ({ person }) => {
             display: flex;
             flex-direction: column;
             gap: 24px;
+            padding-bottom: 15px;
           }
 
           .info-box {
