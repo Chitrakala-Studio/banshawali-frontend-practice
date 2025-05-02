@@ -1,11 +1,30 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTable, FaRegIdCard } from "react-icons/fa";
+import PropTypes from "prop-types";
 
 const ToggleView = ({ isTableView, toggleView, availableId }) => {
   const navigate = useNavigate();
 
-  const handleToggle = () => {
+  const goToTable = () => {
+    if (!isTableView) toggleView();
+    if (availableId) {
+      navigate(`/${availableId}`);
+    } else {
+      navigate("/");
+    }
+  };
+
+  const goToCard = () => {
+    if (isTableView) toggleView();
+    if (availableId) {
+      navigate(`/card/${availableId}`);
+    } else {
+      navigate("/");
+    }
+  };
+
+  const handleToggleClick = () => {
     toggleView();
     if (isTableView && availableId) {
       navigate(`/card/${availableId}`);
@@ -38,6 +57,8 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
             font-size: 16px;
             font-weight: bold;
             color: var(--primary-text);
+            cursor: pointer;
+            user-select: none;
           }
 
           .toggle-container {
@@ -48,11 +69,6 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
             border-radius: 20px;
             background-color: var(--toggle-off);
             transition: background-color 0.3s ease;
-          }
-
-          .toggle-container:focus-within {
-            outline: 2px solid var(--primary-dark);
-            outline-offset: 2px;
           }
 
           .toggle-container.toggled {
@@ -82,31 +98,29 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
         `}
       </style>
 
-      <div className="toggle-view-wrapper">
-        <span className="toggle-label">Table</span>
+      <span className="toggle-label" onClick={goToTable}>
+        Table
+      </span>
 
+      <div
+        className={`toggle-container ${isTableView ? "toggled" : ""}`}
+        onClick={handleToggleClick}
+        onKeyPress={(e) => e.key === "Enter" && handleToggleClick()}
+        tabIndex={0}
+        role="switch"
+        aria-checked={isTableView}
+      >
         <div
-          className={`toggle-container ${isTableView ? "toggled" : ""}`}
-          onClick={handleToggle}
-          onKeyPress={(e) => e.key === "Enter" && handleToggle()}
-          tabIndex={0}
-          role="switch"
-          aria-checked={isTableView}
+          className="toggle-handle"
+          style={{ left: isTableView ? "2px" : "34px" }}
         >
-          <div
-            className="toggle-handle"
-            style={{ left: isTableView ? "2px" : "34px" }}
-          >
-            {isTableView ? (
-              <FaTable />
-            ) : (
-              <FaRegIdCard />
-            )}
-          </div>
+          {isTableView ? <FaTable /> : <FaRegIdCard />}
         </div>
-
-        <span className="toggle-label">Card</span>
       </div>
+
+      <span className="toggle-label" onClick={goToCard}>
+        Card
+      </span>
     </div>
   );
 };
