@@ -964,6 +964,22 @@ const TableView = () => {
                         >
                           <Info size={18} />
                         </button>
+                        <button
+                          data-tooltip-id="tooltip"
+                          data-tooltip-content="Compare"
+                          className="action-btn"
+                          onClick={() => handleCompare(row)}
+                        >
+                          <ArrowLeftRight size={18} />
+                        </button>
+                        <button
+                          data-tooltip-id="tooltip"
+                          data-tooltip-content="Family Tree"
+                          className="action-btn"
+                          onClick={() => handleFamilyTree(row)}
+                        >
+                          <FaSitemap size={18} />
+                        </button>
                         {isAdminLocal ? (
                           <>
                             <button
@@ -1001,22 +1017,7 @@ const TableView = () => {
                         >
                           <IdCard size={18} />
                         </button>
-                        <button
-                          data-tooltip-id="tooltip"
-                          data-tooltip-content="Compare"
-                          className="action-btn"
-                          onClick={() => handleCompare(row)}
-                        >
-                          <ArrowLeftRight size={18} />
-                        </button>
-                        <button
-                          data-tooltip-id="tooltip"
-                          data-tooltip-content="Family Tree"
-                          className="action-btn"
-                          onClick={() => handleFamilyTree(row)}
-                        >
-                          <FaSitemap size={18} />
-                        </button>
+                        
                       </td>
                     </tr>
                   ))

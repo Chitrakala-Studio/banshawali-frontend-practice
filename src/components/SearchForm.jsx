@@ -131,6 +131,10 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
           }
 
+          form {
+            max-width: none;
+          }
+
           .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;

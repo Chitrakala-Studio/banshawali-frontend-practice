@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { FaExchangeAlt, FaSitemap, FaSearch } from "react-icons/fa";
+
 
 const FooterButtons = ({
   onGenerateFamilyTree,
@@ -83,7 +83,7 @@ const FooterButtons = ({
         className="action-btn"
         aria-label="Compare"
       >
-        <FaExchangeAlt className="icon" />
+        
         Compare
       </button>
       <button
@@ -91,7 +91,7 @@ const FooterButtons = ({
         className="action-btn"
         aria-label="Generate Family Tree"
       >
-        <FaSitemap className="icon" />
+        
         Family Tree
       </button>
       <button
@@ -99,7 +99,7 @@ const FooterButtons = ({
         className="action-btn"
         aria-label="Search"
       >
-        <FaSearch className="icon" />
+        
         Search
       </button>
     </div>
