@@ -140,6 +140,8 @@ const CardViewPopup = ({ selectedData, onClose }) => {
           `}
         </style>
 
+        
+
         <div className="popup-container">
           <img
             src={selectedData.photo_url || "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg"}

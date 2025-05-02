@@ -12,6 +12,7 @@ import FamilyTreeCardButton from "./FamilyTreeCardButton";
 import SearchForm from "./SearchForm";
 import male from "./male1.png";
 import female from "./female1.png";
+import { FaHome } from "react-icons/fa";
 
 const CardView = () => {
   const { id } = useParams();
@@ -259,7 +260,17 @@ const CardView = () => {
               --neutral-gray: #D1D5DB;
               --background-start: #F8E5C0;
               --background-end: #CDE8D0;
-            }
+              --primary-dark: #2E4568;
+              --primary-hover: #4A6A9D;
+              --secondary-light: #E9D4B0;
+              --secondary-lighter: #D9C4A0;
+              --primary-dark: #2E4568;
+              --primary-hover: #4A6A9D;
+              --secondary-light: #E9D4B0;
+              --secondary-lighter: #D9C4A0;
+               --white: #FFFFFF;
+            
+          }
 
             .card-view-container {
               padding: 20px;
@@ -291,7 +302,7 @@ const CardView = () => {
             .family-tree-modal {
               position: fixed;
               inset: 0;
-              background-color: rgba(0, 0, 0, 0.6);
+              background-color: rgba(251, 247, 247, 0.6);
               display: flex;
               justify-content: center;
               align-items: center;
@@ -311,16 +322,63 @@ const CardView = () => {
               overflow: auto;
               box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             }
-          `}
-        </style>
 
-        {!isMobile && (
-          <ToggleView
-            isTableView={isTableView}
-            toggleView={toggleView}
-            availableId={id}
-          />
-        )}
+            
+          
+              .top-bar-wrapper {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding: 10px 20px;
+            }
+
+            .top-bar-btn {
+              padding: 8px 16px;
+              border-radius: 6px;
+              color: var(--secondary-light);
+              background-color: var(--primary-dark);
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              font-family: 'Playfair Display', serif;
+              font-size: 14px;
+              transition: all 0.3s ease;
+              text-decoration: none;
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              
+            }
+
+            .top-bar-btn:hover {
+               background-color: var(--primary-hover);
+                color: var(--white);
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .flex-center {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }  
+              `}
+
+        </style>
+        <div className="top-bar-wrapper">
+          {!isMobile && (
+            <ToggleView
+              isTableView={isTableView}
+              toggleView={toggleView}
+              availableId={id}
+            />
+          )}
+
+          <a href="https://gautamfamily.org.np/" className="top-bar-btn flex-center">
+            <FaHome />
+            Homepage
+          </a>
+        </div>
+
+        
 
         <div className="card-container">
           {isInfoOpen ? (
