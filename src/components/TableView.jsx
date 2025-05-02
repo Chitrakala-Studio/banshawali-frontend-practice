@@ -6,6 +6,7 @@ import {
   FaMale,
   FaFemale,
   FaSitemap,
+  FaHome
 } from "react-icons/fa";
 import {
   NotebookPen,
@@ -15,7 +16,7 @@ import {
   Lightbulb,
   ArrowLeftRight,
   X as XIcon,
-  Upload,
+  Upload
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
 import "./../assets/styles/TableView.css";
@@ -781,6 +782,10 @@ const TableView = () => {
             />
           </div>
           <div className="flex gap-4">
+            <button className="top-bar-btn flex-center">
+              <FaHome />
+              <a href="https://gautamfamily.org.np/">Homepage</a>              
+            </button>
             {(id || searchApplied) && (
               <button onClick={handleGoBack} className="top-bar-btn flex-center">
                 <FaArrowLeft />

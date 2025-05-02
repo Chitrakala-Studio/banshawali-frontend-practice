@@ -44,7 +44,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
-  const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "banshawali";
+  const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "Vamshawali";
   const API_URL = import.meta.env.VITE_API_URL;
 
   const today = new Date().toISOString().split("T")[0];

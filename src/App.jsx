@@ -49,7 +49,7 @@ const App = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 764);
 
   return (
-    <Router basename="/Banshali-app/">
+    <Router basename="/Vamshawali/">
       <RedirectOnMobile setIsMobile={setIsMobile} />
       <AppRoutes isMobile={isMobile} />
     </Router>

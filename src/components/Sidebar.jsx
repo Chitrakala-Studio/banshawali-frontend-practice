@@ -31,13 +31,13 @@ const Sidebar = () => {
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 z-40`} // Ensure sidebar has a higher z-index
       >
-        {/* Banshawali with Link to "/" */}
+        {/* Vamshawali with Link to "/" */}
         <Link
           to="/"
           onClick={closeSidebar}
           className="px-4 py-6 text-2xl font-bold"
         >
-          Banshawali
+         Vamshawali
         </Link>
 
         <nav className="flex-1 px-4 py-2">
