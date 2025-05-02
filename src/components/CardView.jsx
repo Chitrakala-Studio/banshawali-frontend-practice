@@ -86,7 +86,7 @@ const CardView = () => {
   const handleFooterGenerate = () => {
     const currentPerson = data[currentIndex];
     if (currentPerson) {
-      setSelectedPerson(currentPerson.name || currentPerson.name_in_nepali);
+      setSelectedPerson(currentPerson.name_in_nepali || currentPerson.name);
       setIsHorizontal(!isHorizontal);
     }
   };
