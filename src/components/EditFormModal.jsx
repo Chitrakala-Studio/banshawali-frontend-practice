@@ -34,8 +34,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     profileImage: formData.profileImage || "",
   }));
 
-  const [suggestions, setSuggestions] = useState([]); // Father suggestions
-  const [motherSuggestions, setMotherSuggestions] = useState([]); // Mother suggestions
+  const [suggestions, setSuggestions] = useState([]);
+  const [motherSuggestions, setMotherSuggestions] = useState([]);
   const fatherInputRef = useRef(null);
   const motherInputRef = useRef(null);
   const fatherChoicesInstance = useRef(null);
@@ -51,7 +51,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const hideFatherSuggestionsTimeout = useRef(null);
   const hideMotherSuggestionsTimeout = useRef(null);
 
-  // Handle mouse events for father suggestions
   const handleFatherMouseEnter = () => {
     if (hideFatherSuggestionsTimeout.current) {
       clearTimeout(hideFatherSuggestionsTimeout.current);
@@ -65,7 +64,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }, 200);
   };
 
-  // Handle mouse events for mother suggestions
   const handleMotherMouseEnter = () => {
     if (hideMotherSuggestionsTimeout.current) {
       clearTimeout(hideMotherSuggestionsTimeout.current);
@@ -79,7 +77,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }, 200);
   };
 
-  // Fetch suggestions for father (males) and mother (females) from previous pusta
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (
@@ -94,77 +91,38 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             { headers: { "Content-Type": "application/json" } }
           );
 
-          // Log response for debugging
-          console.log("Family Relations Response:", response.data);
-
-          // Normalize response data
           const data = Array.isArray(response.data.current_pusta_data)
             ? response.data.current_pusta_data
             : [];
 
-          // Log invalid entries (missing id or name)
-          const invalidEntries = data.filter(
-            (s) => !s || typeof s.id !== "number" || !s.name
-          );
-          if (invalidEntries.length > 0) {
-            console.warn(
-              `Found ${invalidEntries.length} invalid entries in current_pusta_data:`,
-              invalidEntries
-            );
-          }
-
-          // Filter valid entries
           const validData = data.filter(
             (s) => s && typeof s.id === "number" && s.name
           );
 
-          // Log entries with missing gender
-          const missingGenderEntries = validData.filter(
-            (s) => s.gender === undefined || s.gender === null
-          );
-          if (missingGenderEntries.length > 0) {
-            console.warn(
-              `Found ${missingGenderEntries.length} entries with missing gender:`,
-              missingGenderEntries
-            );
-          }
-
-          // Infer gender based on name patterns
           const fatherData = validData.filter((s) => {
             if (s.gender && typeof s.gender === "string") {
               return s.gender.toLowerCase() === "male";
             }
-            // Heuristic: Male names often end in 'नाथ', 'प्रसाद', 'कुमार', or consonants
             const name = (s.name_in_nepali || s.name).toLowerCase();
-            const isLikelyMale =
+            return (
               name.endsWith("नाथ") ||
               name.endsWith("प्रसाद") ||
               name.endsWith("कुमार") ||
-              !name.endsWith("ा");
-            if (!isLikelyMale) {
-              console.warn(`Assuming non-male for father:`, s);
-            }
-            return isLikelyMale;
+              !name.endsWith("ा")
+            );
           });
 
           const motherData = validData.filter((s) => {
             if (s.gender && typeof s.gender === "string") {
               return s.gender.toLowerCase() === "female";
             }
-            // Heuristic: Female names often end in 'ा', 'कुमारी', 'देवी'
             const name = (s.name_in_nepali || s.name).toLowerCase();
-            const isLikelyFemale =
+            return (
               name.endsWith("ा") ||
               name.endsWith("कुमारी") ||
-              name.endsWith("देवी");
-            if (!isLikelyFemale) {
-              console.warn(`Assuming non-female for mother:`, s);
-            }
-            return isLikelyFemale;
+              name.endsWith("देवी")
+            );
           });
-
-          console.log("Filtered Father Data:", fatherData);
-          console.log("Filtered Mother Data:", motherData);
 
           setSuggestions(fatherData);
           setMotherSuggestions(motherData);
@@ -183,7 +141,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     fetchSuggestions();
   }, [form.pusta_number, API_URL]);
 
-  // Initialize Choices.js for father dropdown
   useEffect(() => {
     if (fatherInputRef.current) {
       if (!fatherChoicesInstance.current) {
@@ -204,7 +161,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         ...(suggestions.length > 0
           ? suggestions.map((s) => ({
               value: s.id.toString(),
-              label: s.name_in_nepali || s.name, // Show only person's name
+              label: s.name_in_nepali || s.name,
               selected: s.id === form.father_id,
               customProperties: {
                 id: s.id,
@@ -248,7 +205,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   }, [suggestions, form.father_id]);
 
-  // Initialize Choices.js for mother dropdown
   useEffect(() => {
     if (motherInputRef.current) {
       if (!motherChoicesInstance.current) {
@@ -269,7 +225,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         ...(motherSuggestions.length > 0
           ? motherSuggestions.map((s) => ({
               value: s.id.toString(),
-              label: s.name_in_nepali || s.name, // Show only person's name
+              label: s.name_in_nepali || s.name,
               selected: s.id === form.mother_id,
               customProperties: {
                 id: s.id,
@@ -313,7 +269,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   }, [motherSuggestions, form.mother_id]);
 
-  // Fetch user details for edit mode
   useEffect(() => {
     if (formData.id) {
       const fetchUserDetails = async () => {
@@ -326,16 +281,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             }
           );
           const data = response.data;
-          console.log("Backend Response for Edit:", data); // Debug log
 
-          // Normalize vansha_status
           const vanshaStatus = data.same_vamsha_status
             ? String(data.same_vamsha_status) === "true"
               ? "True"
               : "False"
             : formData.vansha_status || "";
 
-          // Handle father and mother names
           const fatherName =
             data.father_name ||
             data.father?.name_in_nepali ||
@@ -386,7 +338,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             "Error fetching user data",
             "Failed to fetch user details. Using provided data."
           );
-          // Fall back to initial formData
           setForm({
             id: formData.id || null,
             pusta_number: formData.pusta_number || "",
@@ -544,134 +495,329 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 p-5 flex justify-center items-center z-50">
-      <div className="bg-[#0A6C74] h-[600px] w-[700px] rounded-lg relative flex justify-center items-center overflow-y-scroll overflow-hidden">
-        <div className="absolute top-2 right-2">
-          <button
-            onClick={onClose}
-            className="sticky top-2 right-2 text-white font-bold text-2xl hover:text-red-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="white"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+    <div className="edit-form-modal">
+      <style>
+        {`
+          :root {
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --primary-dark: #2E4568;
+            --primary-hover: #4A6A9D;
+            --gold-accent: #F49D37;
+            --header-maroon: #800000;
+            --neutral-gray: #D1D5DB;
+          }
+
+          .edit-form-modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            backdrop-filter: blur(5px);
+          }
+
+          .modal-container {
+            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            border: 2px solid var(--gold-accent);
+            height: 600px;
+            width: 700px;
+            border-radius: 15px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          }
+
+          .close-btn {
+            position: absolute;
+            right: 16px;
+            top: 10px;
+            color: var(--header-maroon);
+            background-color: var(--gold-accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 10;
+          }
+
+          .close-btn:hover,
+          .close-btn:focus {
+            background-color: #e68b2a;
+            transform: scale(1.05);
+            outline: none;
+          }
+
+          .close-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--header-maroon);
+          }
+
+          .form-content {
+            height:inherit;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            padding: 24px;
+            gap: 16px;
+          }
+
+          .profile-image-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+          }
+
+          .profile-image-label {
+            cursor: pointer;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 2px solid var(--neutral-gray);
+            transition: all 0.3s ease;
+          }
+
+          .profile-image-label:hover {
+            background-color: #d1d5db;
+          }
+
+          .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+          }
+
+          .placeholder-text {
+            font-size: 32px;
+            color: #6b7280;
+          }
+
+          .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--gold-accent);
+            margin-top: 16px;
+            margin-bottom: 8px;
+          }
+
+          .form-field {
+            width: 100%;
+          }
+
+          .label {
+            display: block;
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary-text);
+            margin-bottom: 4px;
+          }
+
+          .input,
+          .select {
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(to right, #fffaf0, #ffffff);
+            border: 1px solid var(--neutral-gray);
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+            transition: all 0.3s ease;
+          }
+
+          .input:focus,
+          .select:focus {
+            outline: none;
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 0 3px rgba(244, 157, 55, 0.2);
+          }
+
+          .translate-btn {
+            display: flex;
+            align-items: center;
+            color: var(--gold-accent);
+            padding: 8px 0;
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+          }
+
+          .translate-btn:hover,
+          .translate-btn:focus {
+            color: #e68b2a;
+            transform: translateY(-1px);
+            outline: none;
+          }
+
+          .translate-btn svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 4px;
+          }
+
+          .suggestions-list {
+            position: absolute;
+            z-index: 10;
+            background: linear-gradient(to right, #fffaf0, #ffffff);
+            border: 1px solid var(--neutral-gray);
+            border-radius: 6px;
+            margin-top: 4px;
+            max-height: 160px;
+            overflow-y: auto;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          .suggestion-item {
+            padding: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .suggestion-item:hover {
+            background-color: #f3e8d7;
+          }
+
+          .submit-btn {
+            margin: 16px 0;
+            background-color: var(--header-maroon);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          .submit-btn:hover:not(:disabled),
+          .submit-btn:focus:not(:disabled) {
+            background-color: #9b1c1c;
+            transform: scale(1.05);
+            outline: none;
+          }
+
+          .loading-text {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+          }
+        `}
+      </style>
+      
+      <div className="modal-container">
+        
 
         {loading ? (
-          <div className="flex justify-center items-center h-full">
-            <span>Loading...</span>
-          </div>
+          <div className="loading-text">Loading...</div>
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4 flex flex-col h-full w-full items-center"
-          >
-            <div className="flex justify-center mt-4">
-              <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                <label
-                  htmlFor="profileImage"
-                  className="cursor-pointer w-full h-full flex items-center justify-center"
-                >
-                  {form.profileImage ? (
-                    <img
-                      src={form.profileImage}
-                      alt="Profile"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        borderRadius: "50%",
-                      }}
-                    />
-                  ) : (
-                    <span className="text-3xl text-gray-500">+</span>
-                  )}
-                </label>
-                <input
-                  type="file"
-                  id="profileImage"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="form-content">
+            <div className="profile-image-container">
+              <label htmlFor="profileImage" className="profile-image-label">
+                {form.profileImage ? (
+                  <img
+                    src={form.profileImage}
+                    alt="Profile"
+                    className="profile-image"
+                  />
+                ) : (
+                  <span className="placeholder-text">+</span>
+                )}
+              </label>
+              <input
+                type="file"
+                id="profileImage"
+                onChange={handleImageChange}
+                className="hidden"
+              />
             </div>
 
-            <div className="w-full">
-              <h3 className="text-lg font-bold py-3 text-[#f49D37]">
-                Personal Information
-              </h3>
+            <div className="form-field">
+              <h3 className="section-title">Personal Information</h3>
 
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Pusta Number
-                </label>
+              <div className="form-field">
+                <label className="label">Pusta Number</label>
                 <input
                   type="number"
                   name="pusta_number"
                   required
                   value={form.pusta_number}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="input"
                   placeholder="Enter Pusta Number"
                 />
               </div>
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Name (in English)
-                </label>
+
+              <div className="form-field">
+                <label className="label">Name (in English)</label>
                 <input
                   type="text"
                   name="name"
                   required
                   value={form.name}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="input"
                   placeholder="Enter your name (in English)"
                 />
                 <button
                   type="button"
                   onClick={translateToNepali}
-                  className="flex items-center text-[#f49D37] p-5"
+                  className="translate-btn"
                 >
-                  <FaArrowDown size={24} />
-                  <span className="ml-1 text-[#f49D37]">Translate</span>
+                  <FaArrowDown />
+                  <span>Translate</span>
                 </button>
               </div>
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Name (in Nepali)
-                </label>
+
+              <div className="form-field">
+                <label className="label">Name (in Nepali)</label>
                 <input
                   type="text"
                   name="name_in_nepali"
                   value={form.name_in_nepali}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="input"
                   placeholder="Enter your name (in Nepali)"
                 />
               </div>
 
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Gender
-                </label>
+              <div className="form-field">
+                <label className="label">Gender</label>
                 <select
                   name="gender"
                   value={form.gender}
                   required
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="select"
                 >
                   <option value="">Select Gender</option>
                   <option value="Male">Male</option>
@@ -679,12 +825,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 </select>
               </div>
 
-              <div className="w-full">
-                <label className="block text-sm pt-3 font-medium text-[#f49D37]">
-                  Date of Birth
-                </label>
+              <div className="form-field">
+                <label className="label">Date of Birth</label>
                 <NepaliDatePicker
-                  inputClassName="form-control mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  inputClassName="input"
                   value={form.dob}
                   onChange={handleDateChange}
                   options={{
@@ -695,16 +839,14 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 />
               </div>
 
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Status
-                </label>
+              <div className="form-field">
+                <label className="label">Status</label>
                 <select
                   name="lifestatus"
                   value={form.lifestatus}
                   required
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="select"
                 >
                   <option value="">Select Status</option>
                   <option value="Alive">Alive</option>
@@ -713,12 +855,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
 
               {form.lifestatus === "Dead" && (
-                <div className="w-full">
-                  <label className="block text-sm pt-3 font-medium text-[#f49D37]">
-                    Date of Death
-                  </label>
+                <div className="form-field">
+                  <label className="label">Date of Death</label>
                   <NepaliDatePicker
-                    inputClassName="form-control mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                    inputClassName="input"
                     value={form.death_date}
                     onChange={(value) => {
                       setForm((prevForm) => ({
@@ -737,25 +877,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               )}
             </div>
 
-            <div className="w-full mt-4">
-              <h3 className="text-lg font-bold py-3 text-[#f49D37]">
-                Family Information
-              </h3>
-            </div>
+            <div className="form-field">
+              <h3 className="section-title">Family Information</h3>
 
-            <div className="w-full">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Father Name
-              </label>
-              <div className="relative">
+              <div className="form-field relative">
+                <label className="label">Father Name</label>
                 <select
                   ref={fatherInputRef}
                   name="father_name"
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="select"
                 />
                 {showSuggestions && suggestions.length > 0 && (
                   <ul
-                    className="absolute z-10 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-lg mt-1 max-h-40 overflow-y-auto w-full text-[#2E4568]"
+                    className="suggestions-list"
                     onMouseEnter={handleFatherMouseEnter}
                     onMouseLeave={handleFatherMouseLeave}
                   >
@@ -772,7 +906,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                           }));
                           setShowSuggestions(false);
                         }}
-                        className="p-2 hover:bg-[#A6C8A5] cursor-pointer"
+                        className="suggestion-item"
                       >
                         {suggestion.name_in_nepali || suggestion.name}
                       </li>
@@ -780,21 +914,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   </ul>
                 )}
               </div>
-            </div>
 
-            <div className="w-full mt-4">
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Mother Name
-              </label>
-              <div className="relative">
+              <div className="form-field relative">
+                <label className="label">Mother Name</label>
                 <select
                   ref={motherInputRef}
                   name="mother_name"
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="select"
                 />
                 {showMotherSuggestions && motherSuggestions.length > 0 && (
                   <ul
-                    className="absolute z-10 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-lg mt-1 max-h-40 overflow-y-auto w-full text-[#2E4568]"
+                    className="suggestions-list"
                     onMouseEnter={handleMotherMouseEnter}
                     onMouseLeave={handleMotherMouseLeave}
                   >
@@ -811,7 +941,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                           }));
                           setShowMotherSuggestions(false);
                         }}
-                        className="p-2 hover:bg-[#A6C8A5] cursor-pointer"
+                        className="suggestion-item"
                       >
                         {suggestion.name_in_nepali || suggestion.name}
                       </li>
@@ -821,19 +951,15 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
             </div>
 
-            <div className="w-full">
-              <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
-                Vansha Status
-              </h3>
-              <label className="block text-sm font-medium text-[#f49D37]">
-                Same Vansha
-              </label>
+            <div className="form-field">
+              <h3 className="section-title">Vansha Status</h3>
+              <label className="label">Same Vansha</label>
               <select
                 name="vansha_status"
                 value={form.vansha_status}
                 required
                 onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                className="select"
               >
                 <option value="">Select Vansha Status</option>
                 <option value="True">Yes</option>
@@ -841,87 +967,87 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </select>
             </div>
 
-            <div className="w-full mt-4">
-              <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
-                Contact Information
-              </h3>
+            <div className="form-field">
+              <h3 className="section-title">Contact Information</h3>
 
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Email
-                </label>
+              <div className="form-field">
+                <label className="label">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={form.contact.email}
                   onChange={handleContactChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="input"
                   placeholder="Enter email address"
                 />
               </div>
 
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Phone
-                </label>
+              <div className="form-field">
+                <label className="label">Phone</label>
                 <input
                   type="tel"
                   name="phone"
                   value={form.contact.phone}
                   onChange={handleContactChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="input"
                   placeholder="Enter phone number"
                 />
               </div>
 
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Address
-                </label>
+              <div className="form-field">
+                <label className="label">Address</label>
                 <input
                   type="text"
                   name="address"
                   value={form.contact.address}
                   onChange={handleContactChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="input"
                   placeholder="Enter address"
                 />
               </div>
             </div>
 
-            <div className="w-full mt-4">
-              <h3 className="text-lg font-semibold py-3 text-[#f49D37]">
-                Professional Information
-              </h3>
+            <div className="form-field">
+              <h3 className="section-title">Professional Information</h3>
 
-              <div className="w-full">
-                <label className="block text-sm font-medium text-[#f49D37]">
-                  Profession
-                </label>
+              <div className="form-field">
+                <label className="label">Profession</label>
                 <input
                   type="text"
                   name="profession"
                   value={form.profession}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 bg-gradient-to-r from-[#B9BAC3] to-[#F0E5C8] border-[#AAABAC] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E9D4B0] focus:border-transparent transition-all text-[#2E4568]"
+                  className="input"
                   placeholder="Enter profession"
                 />
               </div>
             </div>
 
-            <div className="flex justify-center w-full mb-8">
+            <div className="flex justify-center w-full">
               <button
                 type="submit"
                 disabled={loading}
-                className={`mt-4 mb-4 bg-[#800000] text-white px-4 py-2 rounded-md ${
-                  loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className="submit-btn"
               >
                 {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </form>
         )}
+        <button className="close-btn" onClick={onClose} aria-label="Close">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   );

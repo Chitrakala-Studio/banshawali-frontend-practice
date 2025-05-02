@@ -23,11 +23,10 @@ import {
 import { Link } from "react-router-dom";
 
 const UserProfileModal = ({ user, onClose }) => {
-  console.log(user);
   const [activeTab, setActiveTab] = useState("personal");
 
   if (!user) {
-    return null; // Prevent rendering if user is undefined
+    return null;
   }
 
   const handleCopy = () => {
@@ -50,53 +49,41 @@ const UserProfileModal = ({ user, onClose }) => {
   ];
 
   const renderPersonalInfo = () => (
-    <div style={{ color: "#2E4568", lineHeight: "1.6" }}>
-      <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
+    <div className="info-section">
+      <p className="info-item">
         {user.gender === "Male" ? (
-          <FaMale
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
+          <FaMale className="info-icon" />
         ) : (
-          <FaFemale
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
+          <FaFemale className="info-icon female-icon" />
         )}
-        <strong style={{ marginRight: "7px" }}>Gender</strong>
+        <strong>Gender</strong>
         {user.gender || "-"}
       </p>
       {user.dateOfBirth && (
-        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
-          <FaBirthdayCake
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
-          <strong style={{ marginRight: "7px" }}>Date of Birth</strong>
+        <p className="info-item">
+          <FaBirthdayCake className="info-icon" />
+          <strong>Date of Birth</strong>
           {user.dateOfBirth}
         </p>
       )}
       {user.lifestatus && (
-        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
-          <FaHeart
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
-          <strong style={{ marginRight: "14px" }}>Status</strong>
+        <p className="info-item">
+          <FaHeart className="info-icon" />
+          <strong>Status</strong>
           {user.lifestatus}
         </p>
       )}
       {user.date_of_death && (
-        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
-          <FaSkullCrossbones
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
-          <strong style={{ marginRight: "4px" }}>Date of Death</strong>
+        <p className="info-item">
+          <FaSkullCrossbones className="info-icon" />
+          <strong>Date of Death</strong>
           {user.date_of_death}
         </p>
       )}
       {user.profession && (
-        <p style={{ color: "#2E4568", display: "flex", alignItems: "center" }}>
-          <Briefcase
-            style={{ width: "20px", height: "20px", marginRight: "8px" }}
-          />
-          <strong style={{ marginRight: "4px" }}>Profession</strong>
+        <p className="info-item">
+          <Briefcase className="info-icon" />
+          <strong>Profession</strong>
           {user.profession}
         </p>
       )}
@@ -104,82 +91,70 @@ const UserProfileModal = ({ user, onClose }) => {
   );
 
   const renderFamilyRelations = () => {
-    // Common style objects
     const iconBase = { width: 20, height: 20, marginRight: 8 };
     const maleIconStyle = { ...iconBase, color: "#2E4568" };
     const femaleIconStyle = { ...iconBase, color: "#E9D4B0" };
-    const itemStyle = {
-      color: "#2E4568",
-      display: "flex",
-      alignItems: "center",
-    };
-    const labelStyle = { marginRight: "2rem" };
-    const linkStyle = { color: "#2E4568", marginLeft: "4px" };
-    const headerStyle = {
-      color: "#2E4568",
-      display: "flex",
-      alignItems: "center",
-      fontWeight: "bold",
-      marginBottom: "0.5rem",
-    };
 
     return (
-      <div style={{ color: "#2E4568", lineHeight: "1.6" }}>
-        {/* Grandfather (always male) */}
+      <div className="info-section">
         {user.grandfather?.name && (
-          <p style={itemStyle}>
+          <p className="info-item">
             <FaMale style={maleIconStyle} />
-            <strong style={labelStyle}>Grandfather</strong>
+            <strong className="family-label">Grandfather</strong>
             {user.grandfather.name_in_nepali || user.grandfather.name || "-"}
           </p>
         )}
 
-        {/* Grandmother (always female) */}
         {user.grandmother?.name && (
-          <p style={itemStyle}>
+          <p className="info-item">
             <FaFemale style={femaleIconStyle} />
-            <strong style={labelStyle}>Grandmother</strong>
+            <strong className="family-label">Grandmother</strong>
             {user.grandmother.name_in_nepali || user.grandmother.name || "-"}
           </p>
         )}
 
-        {/* Father (always male) */}
         {user.father?.id && (
-          <p style={itemStyle}>
+          <p className="info-item">
             <FaMale style={maleIconStyle} />
-            <strong style={labelStyle}>Father</strong>
-            <Link to={`/${user.father.id}`} onClick={onClose} style={linkStyle}>
+            <strong className="family-label">Father</strong>
+            <Link
+              to={`/${user.father.id}`}
+              onClick={onClose}
+              className="info-link"
+            >
               {user.father.name_in_nepali || user.father.name || "-"}
             </Link>
           </p>
         )}
 
-        {/* Mother (always female) */}
         {user.mother?.id && (
-          <p style={itemStyle}>
+          <p className="info-item">
             <FaFemale style={femaleIconStyle} />
-            <strong style={labelStyle}>Mother</strong>
-            <Link to={`/${user.mother.id}`} onClick={onClose} style={linkStyle}>
+            <strong className="family-label">Mother</strong>
+            <Link
+              to={`/${user.mother.id}`}
+              onClick={onClose}
+              className="info-link"
+            >
               {user.mother.name_in_nepali || user.mother.name || "-"}
             </Link>
           </p>
         )}
 
-        {/* Spouse */}
         {user.spouse?.length > 0 && (
           <>
-            <p style={headerStyle}>
-              <Users style={{ ...iconBase, marginRight: 8 }} />
+            <p className="info-header">
+              <Users style={{ width: 20, height: 20, marginRight: 8 }} />
               Spouse
             </p>
             {user.spouse.map((sp) => (
-              <p key={sp.id} style={{ ...itemStyle, marginLeft: "4rem" }}>
+              <p key={sp.id} className="info-item nested">
                 {sp.gender === "Female" ? (
                   <FaFemale style={femaleIconStyle} />
                 ) : (
                   <FaMale style={maleIconStyle} />
                 )}
-                <Link to={`/${sp.id}`} onClick={onClose} style={linkStyle}>
+                <Link to={`/${sp.id}`} onClick={onClose} className="info-link">
                   {sp.name_in_nepali || sp.name || "-"}
                 </Link>
               </p>
@@ -187,23 +162,22 @@ const UserProfileModal = ({ user, onClose }) => {
           </>
         )}
 
-        {/* Siblings */}
         {user.siblings?.length > 0 && (
           <>
-            <p style={headerStyle}>
-              <FaUser style={{ ...iconBase, marginRight: 8 }} />
+            <p className="info-header">
+              <FaUser style={{ width: 20, height: 20, marginRight: 8 }} />
               Siblings
             </p>
             {user.siblings.map((sib) => {
               const isFemale = String(sib.gender).toLowerCase() === "female";
               return (
-                <p key={sib.id} style={{ ...itemStyle, marginLeft: "6.3rem" }}>
+                <p key={sib.id} className="info-item nested">
                   {isFemale ? (
                     <FaFemale style={femaleIconStyle} />
                   ) : (
                     <FaMale style={maleIconStyle} />
                   )}
-                  <Link to={`/${sib.id}`} onClick={onClose} style={linkStyle}>
+                  <Link to={`/${sib.id}`} onClick={onClose} className="info-link">
                     {sib.name_in_nepali || sib.name || "-"}
                   </Link>
                 </p>
@@ -212,26 +186,26 @@ const UserProfileModal = ({ user, onClose }) => {
           </>
         )}
 
-        {/* Children */}
         {user.children?.length > 0 && (
           <>
-            <p style={headerStyle}>
-              <Users style={{ ...iconBase, marginRight: 8 }} />
+            <p className="info-header">
+              <Users style={{ width: 20, height: 20, marginRight: 8 }} />
               Children
             </p>
             {user.children.map((child) => {
               const isFemale = String(child.gender).toLowerCase() === "female";
               return (
-                <p
-                  key={child.id}
-                  style={{ ...itemStyle, marginLeft: "6.5rem" }}
-                >
+                <p key={child.id} className="info-item nested">
                   {isFemale ? (
                     <FaFemale style={femaleIconStyle} />
                   ) : (
                     <FaMale style={maleIconStyle} />
                   )}
-                  <Link to={`/${child.id}`} onClick={onClose} style={linkStyle}>
+                  <Link
+                    to={`/${child.id}`}
+                    onClick={onClose}
+                    className="info-link"
+                  >
                     {child.name_in_nepali || child.name || "-"}
                   </Link>
                 </p>
@@ -246,37 +220,25 @@ const UserProfileModal = ({ user, onClose }) => {
   const renderContact = () => {
     const contact = user.contact_details || {};
     return (
-      <div style={{ color: "#2E4568", lineHeight: "1.6" }}>
+      <div className="info-section">
         {contact.email && (
-          <p
-            style={{ color: "#2E4568", display: "flex", alignItems: "center" }}
-          >
-            <Mail
-              style={{ width: "20px", height: "20px", marginRight: "8px" }}
-            />
-            <strong style={{ marginRight: "4px" }}>Email</strong>
+          <p className="info-item">
+            <Mail className="info-icon" />
+            <strong>Email</strong>
             {contact.email}
           </p>
         )}
         {contact.phone && (
-          <p
-            style={{ color: "#2E4568", display: "flex", alignItems: "center" }}
-          >
-            <Phone
-              style={{ width: "20px", height: "20px", marginRight: "8px" }}
-            />
-            <strong style={{ marginRight: "4px" }}>Phone</strong>
+          <p className="info-item">
+            <Phone className="info-icon" />
+            <strong>Phone</strong>
             {contact.phone}
           </p>
         )}
         {contact.address && (
-          <p
-            style={{ color: "#2E4568", display: "flex", alignItems: "center" }}
-          >
-            <MapPin
-              style={{ width: "20px", height: "20px", marginRight: "8px" }}
-            />
-            <strong style={{ marginRight: "4px" }}>Address</strong>
+          <p className="info-item">
+            <MapPin className="info-icon" />
+            <strong>Address</strong>
             {contact.address}
           </p>
         )}
@@ -285,179 +247,294 @@ const UserProfileModal = ({ user, onClose }) => {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#A6C8A5",
-          padding: "24px",
-          borderRadius: "8px",
-          maxWidth: "520px",
-          width: "100%",
-          maxHeight: "80vh",
-          overflowY: "auto",
-          boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
-        }}
-      >
-        <button
-          onClick={onClose}
-          style={{
-            float: "right",
-            color: "#2E4568",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          <X style={{ width: "24px", height: "24px" }} />
+    <div className="user-profile-modal">
+      <style>
+        {`
+          :root {
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --primary-dark: #2E4568;
+            --primary-hover: #4A6A9D;
+            --gold-accent: #F49D37;
+            --header-maroon: #800000;
+            --neutral-gray: #D1D5DB;
+          }
+
+          .user-profile-modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            backdrop-filter: blur(5px);
+          }
+
+          .modal-container {
+            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            border: 2px solid var(--gold-accent);
+            padding: 24px;
+            border-radius: 15px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          }
+
+          .close-btn {
+            float: right;
+            color: var(--header-maroon);
+            background-color: var(--gold-accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .close-btn:hover,
+          .close-btn:focus {
+            background-color: #e68b2a;
+            transform: scale(1.05);
+            outline: none;
+          }
+
+          .close-btn svg {
+            width: 24px;
+            height: 24px;
+          }
+
+          .header-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+          }
+
+          .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 0;
+            object-fit: cover;
+            border: 2px solid var(--neutral-gray);
+          }
+
+          .header-content {
+            flex: 1;
+          }
+
+          .name {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: 4px;
+          }
+
+          .sub-name {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            font-style: italic;
+            color: var(--secondary-text);
+            margin-bottom: 4px;
+          }
+
+          .bio-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .bio {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            font-style: italic;
+            color: var(--secondary-text);
+            margin: 0;
+          }
+
+          .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .copy-btn:hover,
+          .copy-btn:focus {
+            transform: scale(1.05);
+            outline: none;
+          }
+
+          .copy-btn svg {
+            width: 16px;
+            height: 16px;
+            color: var(--primary-text);
+          }
+
+          .tabs-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 24px;
+            padding: 8px 16px;
+            background-color: #f3e8d7;
+            border-radius: 8px;
+            border-bottom: 1px solid var(--neutral-gray);
+          }
+
+          .tab-btn {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+            background: none;
+            border: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .tab-btn.active {
+            font-weight: 600;
+            background: linear-gradient(135deg, #e9d4b0 0%, #c7b299 100%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          .tab-btn:hover:not(.active),
+          .tab-btn:focus:not(.active) {
+            background: linear-gradient(135deg, #f3e8d7 0%, #e5d9c5 100%);
+            border-radius: 6px;
+            outline: none;
+          }
+
+          .tab-btn svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            color: var(--primary-text);
+          }
+
+          .info-section {
+            color: var(--primary-text);
+            line-height: 1.6;
+          }
+
+          .info-item {
+            display: flex;
+            align-items: center;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+            margin-bottom: 8px;
+          }
+
+          .info-item strong {
+            margin-right: 8px;
+            font-weight: 500;
+          }
+
+          .info-item.nested {
+            margin-left: 40px;
+          }
+
+          .info-header {
+            display: flex;
+            align-items: center;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: 8px;
+          }
+
+          .info-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            color: var(--primary-text);
+          }
+
+          .female-icon {
+            color: #e9d4b0;
+          }
+
+          .family-label {
+            margin-right: 32px;
+          }
+
+          .info-link {
+            color: var(--primary-dark);
+            margin-left: 4px;
+            transition: all 0.3s ease;
+          }
+
+          .info-link:hover,
+          .info-link:focus {
+            color: var(--primary-hover);
+            outline: none;
+          }
+        `}
+      </style>
+
+      <div className="modal-container">
+        <button className="close-btn" onClick={onClose} aria-label="Close">
+          <X />
         </button>
 
-        {/* Header section with image on the left */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "24px",
-          }}
-        >
+        <div className="header-section">
           {user.photo ? (
             <img
               src={user.photo}
               alt={user.name || "Profile"}
-              style={{
-                width: "150px",
-                height: "150px",
-                borderRadius: "0",
-                objectFit: "cover",
-                marginRight: "16px",
-                border: "2px solid #AAABAC",
-              }}
+              className="profile-image"
             />
           ) : user.gender === "Male" ? (
             <img
               src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-              style={{
-                width: "150px",
-                height: "150px",
-                marginRight: "16px",
-                border: "2px solid #AAABAC",
-              }}
+              className="profile-image"
             />
           ) : (
             <img
               src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
-              style={{
-                width: "150px",
-                height: "150px",
-                marginRight: "16px",
-                border: "2px solid #AAABAC",
-              }}
+              className="profile-image"
             />
           )}
-          <div>
-            <h2
-              style={{ fontSize: "24px", fontWeight: "bold", color: "#2E4568" }}
-            >
+          <div className="header-content">
+            <h2 className="name">
               {user.name_in_nepali || user.name || "-"}
             </h2>
-            <p
-              style={{ color: "#2E4568", fontStyle: "italic", margin: "4px 0" }}
-            >
-              {user.name || "-"}
-            </p>
+            <p className="sub-name">{user.name || "-"}</p>
             {user.bio && (
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <p
-                  style={{
-                    color: "#2E4568",
-                    fontStyle: "italic",
-                    margin: "4px 0",
-                  }}
-                >
-                  {user.bio}
-                </p>
+              <div className="bio-container">
+                <p className="bio">{user.bio}</p>
                 <button
                   onClick={handleCopy}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    marginLeft: "8px",
-                  }}
+                  className="copy-btn"
                   title="Copy bio"
                 >
-                  <FaCopy
-                    style={{ width: "16px", height: "16px", color: "#2E4568" }}
-                  />
+                  <FaCopy />
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-around",
-            marginBottom: "24px",
-            padding: "8px 16px",
-            backgroundColor: "#B9BAC3",
-            borderRadius: "8px",
-            borderBottom: "1px solid #AAABAC",
-          }}
-        >
+        <div className="tabs-container">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "8px 16px",
-                transition: "all 0.3s ease",
-                borderBottom: "none",
-                color: activeTab === id ? "#2E4568" : "#2E4568",
-                fontWeight: activeTab === id ? "bold" : "normal",
-                background:
-                  activeTab === id
-                    ? "linear-gradient(135deg, #E9D4B0 0%, #C7B299 100%)"
-                    : "none",
-                borderRadius: activeTab === id ? "6px" : "0",
-                boxShadow:
-                  activeTab === id ? "0 2px 4px rgba(0,0,0,0.1)" : "none",
-                cursor: "pointer",
-                border: "none",
-              }}
-              onMouseOver={(e) => {
-                if (activeTab !== id) {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, #B9BAC3 0%, #A6C8A5 100%)";
-                  e.currentTarget.style.borderRadius = "6px";
-                }
-              }}
-              onMouseOut={(e) => {
-                if (activeTab !== id) {
-                  e.currentTarget.style.background = "none";
-                  e.currentTarget.style.borderRadius = "0";
-                }
-              }}
+              className={`tab-btn ${activeTab === id ? "active" : ""}`}
             >
-              <Icon
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  marginRight: "8px",
-                  color: activeTab === id ? "#2E4568" : "#2E4568",
-                }}
-              />
+              <Icon />
               {label}
             </button>
           ))}

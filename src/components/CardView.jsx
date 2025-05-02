@@ -17,7 +17,6 @@ const CardView = () => {
   const { id } = useParams();
   const containerRef = useRef(null);
 
-  /* ───────────────────────── State ───────────────────────── */
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -37,14 +36,12 @@ const CardView = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  /* ───────────── Window-resize listener for mobile flag ───────────── */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 800);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* ───────────── Fetch person(s) when id changes or search resets ───────────── */
   useEffect(() => {
     if (isSearchActive) return;
     const fetchData = async () => {
@@ -61,7 +58,6 @@ const CardView = () => {
         }
         const result = await response.json();
         const result_data = Array.isArray(result.data) ? result.data : [];
-        console.log("API Response:", result); // Debug API response
         setData(result_data);
         setPreviousIndex(result.previous || 0);
         setNextIndex(result.next || 0);
@@ -79,14 +75,12 @@ const CardView = () => {
     fetchData();
   }, [id, isSearchActive, navigate]);
 
-  /* ───────────── Keep URL in sync when searching within list ───────────── */
   useEffect(() => {
     if (isSearchActive && data.length > 0 && data[currentIndex]?.id) {
       navigate(`/card/${data[currentIndex].id}`, { replace: true });
     }
   }, [currentIndex, data, isSearchActive, navigate]);
 
-  /* ────────────────────── Handlers ────────────────────── */
   const toggleView = () => setIsTableView(!isTableView);
 
   const handleFooterGenerate = () => {
@@ -158,22 +152,32 @@ const CardView = () => {
       .join("");
   };
 
-  /* ────────────────────── Early returns ────────────────────── */
   if (loading)
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          backgroundColor: "#B9BAC3",
-        }}
-      >
+      <div className="loading-container">
+        <style>
+          {`
+            :root {
+              --primary-text: #1F2937;
+              --secondary-text: #6B7280;
+              --gold-accent: #F49D37;
+              --header-maroon: #800000;
+              --neutral-gray: #D1D5DB;
+            }
+
+            .loading-container {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            }
+          `}
+        </style>
         <Circles
           height="80"
           width="80"
-          color="#E9D4B0"
+          color="#F49D37"
           ariaLabel="loading..."
         />
       </div>
@@ -181,39 +185,62 @@ const CardView = () => {
 
   if (error)
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          backgroundColor: "#B9BAC3",
-          color: "#2E4568",
-          fontSize: "1.125rem",
-        }}
-      >
+      <div className="error-container">
+        <style>
+          {`
+            :root {
+              --primary-text: #1F2937;
+              --secondary-text: #6B7280;
+              --gold-accent: #F49D37;
+              --header-maroon: #800000;
+              --neutral-gray: #D1D5DB;
+            }
+
+            .error-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: 100vh;
+              background: linear-gradient(to bottom, #fffaf0, #ffffff);
+              color: var(--primary-text);
+              font-family: 'Merriweather', serif;
+              font-size: 18px;
+            }
+          `}
+        </style>
         Error: {error.message || error.toString()}
       </div>
     );
 
   if (!data || data.length === 0)
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          backgroundColor: "#B9BAC3",
-          color: "#2E4568",
-          fontSize: "1.125rem",
-        }}
-      >
+      <div className="no-results-container">
+        <style>
+          {`
+            :root {
+              --primary-text: #1F2937;
+              --secondary-text: #6B7280;
+              --gold-accent: #F49D37;
+              --header-maroon: #800000;
+              --neutral-gray: #D1D5DB;
+            }
+
+            .no-results-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: 100vh;
+              background: linear-gradient(to bottom, #fffaf0, #ffffff);
+              color: var(--primary-text);
+              font-family: 'Merriweather', serif;
+              font-size: 18px;
+            }
+          `}
+        </style>
         No results found.
       </div>
     );
 
-  /* ────────────────────── Render ────────────────────── */
   const currentPerson = data[currentIndex];
   const isInfoOpen =
     isExpanded &&
@@ -221,16 +248,68 @@ const CardView = () => {
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          paddingBottom: "4rem",
-          backgroundColor: "#B9BAC3",
-        }}
-      >
-        {/* Toggle table/card view button (desktop only) */}
+      <div className="card-view-container">
+        <style>
+          {`
+            :root {
+              --primary-text: #1F2937;
+              --secondary-text: #6B7280;
+              --gold-accent: #F49D37;
+              --header-maroon: #800000;
+              --neutral-gray: #D1D5DB;
+            }
+
+            .card-view-container {
+              display: flex;
+              flex-direction: column;
+              height: 100vh;
+              padding-bottom: 4rem;
+              background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            }
+
+            .card-container {
+              width: ${isMobile ? "98vw" : "40vw"};
+              margin: 0 auto;
+              border-radius: 15px;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            .card-wrapper {
+              position: relative;
+              width: 100%;
+              height: 100%;
+              scroll-snap-align: center;
+              display: flex;
+              flex-direction: column;
+            }
+
+            .family-tree-modal {
+              position: fixed;
+              inset: 0;
+              background-color: rgba(0, 0, 0, 0.6);
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              z-index: 50;
+              backdrop-filter: blur(5px);
+            }
+
+            .family-tree-content {
+              background: linear-gradient(to bottom, #fffaf0, #ffffff);
+              width: 91.666667%;
+              max-width: 64rem;
+              max-height: 90vh;
+              padding: 24px;
+              border-radius: 15px;
+              border: 2px solid var(--gold-accent);
+              position: relative;
+              overflow: auto;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
+          `}
+        </style>
+
         {!isMobile && (
           <ToggleView
             isTableView={isTableView}
@@ -239,27 +318,9 @@ const CardView = () => {
           />
         )}
 
-        {/* Card container */}
-        <div
-          style={{
-            width: isMobile ? "98vw" : "40vw",
-            margin: "auto",
-            borderRadius: "1rem",
-            overflow: "hidden",
-          }}
-        >
-          {/* ───── Conditional wrapper: plain <div> when info panel open ───── */}
+        <div className="card-container">
           {isInfoOpen ? (
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                scrollSnapAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
+            <div className="card-wrapper">
               <CardImageSection
                 person={currentPerson}
                 isExpanded={isExpanded}
@@ -276,14 +337,7 @@ const CardView = () => {
             </div>
           ) : (
             <TinderCard
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                scrollSnapAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-              }}
+              className="card-wrapper"
               preventSwipe={["up", "down"]}
               onSwipe={handleSwipe}
               onMouseEnter={() => setIsHovered(true)}
@@ -305,7 +359,6 @@ const CardView = () => {
             </TinderCard>
           )}
 
-          {/* Footer (always present) */}
           <CardFooterSection
             id={id}
             onGenerateFamilyTree={handleFooterGenerate}
@@ -319,31 +372,9 @@ const CardView = () => {
           />
         </div>
 
-        {/* Family-tree modal */}
         {selectedPerson && (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 50,
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: "#A6C8A5",
-                width: "91.666667%",
-                maxWidth: "64rem",
-                maxHeight: "90vh",
-                padding: "1.5rem",
-                borderRadius: "0.5rem",
-                position: "relative",
-                overflow: "auto",
-              }}
-            >
+          <div className="family-tree-modal">
+            <div className="family-tree-content">
               <FamilyTreeGraph
                 id={id}
                 selectedPerson={selectedPerson}

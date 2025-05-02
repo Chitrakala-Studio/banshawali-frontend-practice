@@ -14,61 +14,103 @@ const CardFooterSection = ({
   convertToNepaliNumerals,
   person,
 }) => {
-  console.log("CardFooterSection person:", person);
   const isPopupActive =
     isExpanded && infoPopup === (person?.name || person?.name_in_nepali);
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: "2rem",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: isMobile ? "98vw" : "40vw",
-        zIndex: 10,
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#2E4568",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          paddingTop: "2rem",
-          paddingBottom: "1rem",
-          position: "relative",
-          minHeight: "120px",
-          maskImage:
-            "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
-          WebkitMaskImage:
-            "radial-gradient(60% 40px at 50% 0, transparent 98%, black)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "1rem",
-            padding: "0 1.5rem",
-          }}
-        >
+    <div className="card-footer-section">
+      <style>
+        {`
+          :root {
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --primary-dark: #2E4568;
+            --primary-hover: #4A6A9D;
+            --gold-accent: #F49D37;
+            --neutral-gray: #D1D5DB;
+          }
+
+          .card-footer-section {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: ${isMobile ? "98vw" : "40vw"};
+            z-index: 10;
+          }
+
+          .footer-container {
+            background-color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 24px 24px 16px;
+            position: relative;
+            border-radius: 15px;
+            mask-image: radial-gradient(60% 40px at 50% 0, transparent 98%, black);
+            -webkit-mask-image: radial-gradient(60% 40px at 50% 0, transparent 98%, black);
+          }
+
+          .footer-content {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+          }
+
+          .person-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .person-name {
+            font-family: 'Merriweather', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #b9bac3;
+            padding: 8px;
+            background-color: rgba(46, 69, 104, 0.2);
+            border-radius: 6px;
+            // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          .highlight {
+            color: #e9d4b0;
+          }
+
+          .toggle-btn {
+            padding: 12px;
+            color: #b9bac3;
+            font-size: 20px;
+            background: linear-gradient(135deg, #2e4568 0%, #5a6f94 100%);
+            border: 1px solid #d1d5db;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2),
+                      inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .toggle-btn:hover,
+          .toggle-btn:focus {
+            background: linear-gradient(135deg, #e9d4b0 0%, #c7b299 100%);
+            color: #000000;
+            transform: scale(1.05);
+            outline: none;
+          }
+
+          .toggle-icon {
+            transition: transform 0.3s ease;
+          }
+        `}
+      </style>
+
+      <div className="footer-container">
+        <div className="footer-content">
           {!isPopupActive && (
-            <div
-              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-            >
-              <h2
-                style={{
-                  color: "#B9BAC3",
-                  padding: "0.5rem",
-                  fontWeight: "600",
-                  fontSize: "1.125rem",
-                  backgroundColor: "rgba(46,69,104,0.2)",
-                  borderRadius: "0.375rem",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                }}
-              >
-                {person?.name_in_nepali || person?.name || "-"}{" "}
-                <span style={{ color: "#E9D4B0" }}>.</span>{" "}
-                <span style={{ color: "#E9D4B0" }}>
+            <div className="person-info">
+              <h2 className="person-name">
+                {person?.name_in_nepali || person?.name || "-"}
+                <span className="highlight">.</span>
+                <span className="highlight">
                   {person?.pusta_number
                     ? convertToNepaliNumerals(person.pusta_number)
                     : "-"}
@@ -76,40 +118,19 @@ const CardFooterSection = ({
               </h2>
             </div>
           )}
-          <div style={{ flexGrow: 1 }}></div>
+          <div style={{ flexGrow: 1 }} />
           <button
-            style={{
-              padding: "0.75rem",
-              color: "#B9BAC3",
-              fontSize: "1.25rem",
-              background: "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)",
-              border: "1px solid #AAABAC",
-              borderRadius: "9999px",
-              boxShadow:
-                "0 4px 6px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1)",
-              transition: "all 0.3s ease",
-              cursor: "pointer",
-            }}
+            className="toggle-btn"
             onClick={(e) => {
               e.stopPropagation();
               onToggleInfo(person);
             }}
             aria-label={isExpanded ? "Collapse info" : "Expand info"}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background =
-                "linear-gradient(135deg, #E9D4B0 0%, #C7B299 100%)";
-              e.currentTarget.style.color = "#000000";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background =
-                "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)";
-              e.currentTarget.style.color = "#B9BAC3";
-            }}
           >
             {isExpanded ? (
-              <FaArrowDown style={{ transition: "transform 0.3s" }} />
+              <FaArrowDown className="toggle-icon" />
             ) : (
-              <FaArrowUp style={{ transition: "transform 0.3s" }} />
+              <FaArrowUp className="toggle-icon" />
             )}
           </button>
         </div>

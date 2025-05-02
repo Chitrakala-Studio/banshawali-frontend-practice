@@ -3,13 +3,16 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { FaCheck, FaEye, FaTimes } from "react-icons/fa";
-import SuggestionModal from "./SuggestionModal"; // Import the new card
+import SuggestionModal from "./SuggestionModal";
+import ClipLoader from "react-spinners/ClipLoader";
+import { Check, Eye,  X } from "lucide-react";
 
 const Suggestion = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  const [loading, setLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -17,6 +20,7 @@ const Suggestion = () => {
   }, []);
 
   const fetchSuggestions = async (page) => {
+    setLoading(true);
     try {
       const response = await axios.get(
         `${API_URL}/people/suggestions/?page=${page}`
@@ -31,6 +35,8 @@ const Suggestion = () => {
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setHasMore(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,7 +100,6 @@ const Suggestion = () => {
     );
   };
 
-  // Open the new SuggestionCard when the eye icon is clicked.
   const handleViewClick = (suggestion) => {
     setSelectedSuggestion(suggestion);
     setShowSuggestionModal(true);
@@ -110,7 +115,139 @@ const Suggestion = () => {
   };
 
   return (
-    <div className="table-wrapper">
+    <div className="suggestion-table-wrapper">
+      <style>
+        {`
+          :root {
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --approved-bg: #10B981;
+            --approved-text: #FFFFFF;
+            --rejected-bg: #EF4444;
+            --rejected-text: #FFFFFF;
+            --header-start: #6B7280;
+            --header-end: #4B5563;
+            --header-text: #FFFFFF;
+            --row-bg: #F9FAFB;
+            --row-alt-bg: #FFFFFF;
+            --row-hover-bg: #E5E7EB;
+            --neutral-gray: #D1D5DB;
+            --action-btn: #2E4568;
+            --action-btn-hover: #4A6A9D;
+          }
+
+          
+
+          .suggestion-table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--row-alt-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+          }
+
+          .suggestion-table-wrapper thead {
+            background: linear-gradient(to bottom, var(--header-start), var(--header-end));
+            color: var(--header-text);
+            text-align: center;
+            border-bottom: 2px solid var(--neutral-gray);
+            font-family: 'Playfair Display', serif;
+          }
+
+          .suggestion-table-wrapper th, .suggestion-table-wrapper td {
+            padding: 12px 16px;
+            text-align: center;
+            vertical-align: middle;
+            font-family: 'Merriweather', serif;
+          }
+
+          .suggestion-table-wrapper tbody tr:nth-child(even) {
+            background-color: var(--row-bg);
+          }
+
+          .suggestion-table-wrapper tbody tr:nth-child(odd) {
+            background-color: var(--row-alt-bg);
+          }
+
+          .suggestion-table-wrapper tbody tr:hover {
+            background-color: var(--row-hover-bg);
+            transition: background-color 0.3s ease;
+          }
+
+          .suggestion-text {
+            color: var(--primary-text);
+            text-align: left;
+          }
+
+          .suggestion-date {
+            color: var(--secondary-text);
+          }
+
+          .status-approved {
+            background-color: var(--approved-bg);
+            color: var(--approved-text);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .status-rejected {
+            background-color: var(--rejected-bg);
+            color: var(--rejected-text);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .action-btn {
+            color: var(--action-btn);
+            transition: color 0.15s ease;
+            padding: 4px;
+          }
+
+          .action-btn:hover,
+          .action-btn:focus {
+            color: var(--action-btn-hover);
+            transform: scale(1.1);
+            outline: none;
+          }
+
+          .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          }
+
+          .no-data {
+            text-align: center;
+            padding: 16px;
+            color: var(--secondary-text);
+            font-family: 'Merriweather', serif;
+          }
+
+          .loading-row {
+            height: 60px;
+          }
+
+          .loading-row td {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+          }
+        `}
+      </style>
+
       <InfiniteScroll
         dataLength={suggestions.length}
         next={() => {
@@ -120,108 +257,112 @@ const Suggestion = () => {
           }
         }}
         hasMore={hasMore}
-        loader={
-          hasMore ? (
-            <div className="flex justify-center items-center h-screen">
-              <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-            </div>
-          ) : null
-        }
         style={{ overflow: "hidden" }}
       >
-        <table className="ml-3 w-full">
-          <thead className="text-center border-b-2 border-gray-700 bg-gray-100">
-            <tr className="text-center">
-              <th className="text-center">सुझाव</th>
-              <th className="text-center">मिति</th>
-              <th className="text-center">कार्यहरू</th>
-            </tr>
-          </thead>
-          <tbody>
-            {suggestions.map((suggestion) => (
-              <tr
-                key={suggestion.id}
-                className="border-b-2 border-gray-700 text-center hover:bg-gray-100"
-              >
-                <td className="text-center">{suggestion.suggestion}</td>
-                <td className="text-center">
-                  {convertToNepaliNumerals(
-                    new Date(suggestion.date).toLocaleDateString()
-                  )}
-                </td>
-                <td className="text-center">
-                  {suggestion.status === "Pending" ? (
-                    <>
-                      <button
-                        onClick={(e) =>
-                          handleAccept(
-                            e,
-                            suggestion.id,
-                            suggestion.suggestion_to?.name_in_nepali,
-                            suggestion.suggestion,
-                            suggestion.image
-                          )
-                        }
-                        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all mr-2"
-                      >
-                        <FaCheck />
-                      </button>
-                      <button
-                        onClick={(e) =>
-                          handleReject(
-                            e,
-                            suggestion.id,
-                            suggestion.suggestion_to?.name_in_nepali,
-                            suggestion.suggestion,
-                            suggestion.image
-                          )
-                        }
-                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
-                      >
-                        <FaTimes />
-                      </button>
-                      <button
-                        onClick={() => handleViewClick(suggestion)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all ml-2"
-                      >
-                        <FaEye />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <span
-                        className={
-                          suggestion.status === "Approved"
-                            ? "bg-green-100 text-green-700 px-2 py-1 rounded inline-flex items-center"
-                            : suggestion.status === "Rejected"
-                            ? "bg-red-100 text-red-700 px-2 py-1 rounded inline-flex items-center"
-                            : ""
-                        }
-                      >
-                        {suggestion.status === "Approved" && (
-                          <FaCheck className="mr-1" />
-                        )}
-                        {suggestion.status === "Rejected" && (
-                          <FaTimes className="mr-1" />
-                        )}
-                        {suggestion.status}
-                      </span>
-                      <button
-                        onClick={() => handleViewClick(suggestion)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all ml-2"
-                      >
-                        <FaEye />
-                      </button>
-                    </>
-                  )}
-                </td>
+        <div className="table-wrapper flex-center">
+         
+          <table>
+            <thead>
+              <tr>
+                <th>सुझाव</th>
+                <th>मिति</th>
+                <th>कार्यहरू</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading && suggestions.length === 0 ? (
+                <tr className="loading-row">
+                  <td colSpan={3} className="flex-center">
+                    <ClipLoader color="var(--neutral-gray)" loading={true} size={35} />
+                  </td>
+                </tr>
+              ) : suggestions.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="no-data">
+                    No suggestions available.
+                  </td>
+                </tr>
+              ) : (
+                suggestions.map((suggestion) => (
+                  <tr key={suggestion.id}>
+                    <td className="suggestion-text">{suggestion.suggestion || "-"}</td>
+                    <td className="suggestion-date">
+                      {convertToNepaliNumerals(
+                        new Date(suggestion.date).toLocaleDateString()
+                      )}
+                    </td>
+                    <td className="flex-center">
+                      {suggestion.status === "Pending" ? (
+                        <>
+                          <button
+                            className="action-btn"
+                            onClick={(e) =>
+                              handleAccept(
+                                e,
+                                suggestion.id,
+                                suggestion.suggestion_to?.name_in_nepali,
+                                suggestion.suggestion,
+                                suggestion.image
+                              )
+                            }
+                            aria-label="Accept Suggestion"
+                          >
+                            <Check size={18} />
+                          </button>
+                          <button
+                            className="action-btn"
+                            onClick={(e) =>
+                              handleReject(
+                                e,
+                                suggestion.id,
+                                suggestion.suggestion_to?.name_in_nepali,
+                                suggestion.suggestion,
+                                suggestion.image
+                              )
+                            }
+                            aria-label="Reject Suggestion"
+                          >
+                            <X size={18} />
+                          </button>
+                          <button
+                            className="action-btn"
+                            onClick={() => handleViewClick(suggestion)}
+                            aria-label="View Suggestion"
+                          >
+                            <Eye size={18} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span
+                            className={
+                              suggestion.status === "Approved"
+                                ? "status-approved"
+                                : "status-rejected"
+                            }
+                          >
+                            {suggestion.status === "Approved" && <FaCheck size={14} />}
+                            {suggestion.status === "Rejected" && <FaTimes size={14} />}
+                            {suggestion.status}
+                          </span>
+                          <button
+                            className="action-btn"
+                            onClick={() => handleViewClick(suggestion)}
+                            aria-label="View Suggestion"
+                          >
+                            <FaEye size={18} />
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </InfiniteScroll>
 
-      {/* Conditionally render the custom SuggestionCard */}
       {showSuggestionModal && selectedSuggestion && (
         <SuggestionModal
           suggestion={selectedSuggestion}

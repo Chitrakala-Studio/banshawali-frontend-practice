@@ -5,55 +5,78 @@
 
 /* 2) Entire modal container */
 .my-swal2-popup {
-  background-color: #0b1d2e !important;
-  border-radius: 10px !important;
-  padding: 20px !important;
-  border: 2px solid #0b1d2e !important;
-  font-family: "Times New Roman", sans-serif !important;
-  color: antiquewhite !important; /* default text color for entire modal */
+  background: linear-gradient(to bottom, #fffaf0, #ffffff) !important;
+  border-radius: 15px !important;
+  padding: 24px !important;
+  border: 2px solid #F49D37 !important;
+  font-family: 'Merriweather', serif !important;
+  color: #1F2937 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* 3) Modal title */
 .my-swal2-title {
   font-size: 24px !important;
-  color: antiquewhite !important;
-  font-family: "Times New Roman", sans-serif !important;
+  color: #1F2937 !important;
+  font-family: 'Playfair Display', serif !important;
   letter-spacing: 1px !important;
   font-weight: bold !important;
   margin-bottom: 15px !important;
-  border-bottom: 2px solid #eaeaea !important;
+  border-bottom: 2px solid #D1D5DB !important;
   padding-bottom: 10px !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* 4) Main HTML container for the modal’s content */
 .my-swal2-html-container {
-  font-family: "Times New Roman", sans-serif !important;
-  color: antiquewhite !important;
-  text-align: center;
+  font-family: 'Merriweather', serif !important;
+  color: #1F2937 !important;
+  text-align: center !important;
 }
 
 /* 5) Confirm (Submit/OK) and Cancel buttons */
 .my-swal2-confirm-button,
 .my-swal2-cancel-button {
-  font-family: "Times New Roman", sans-serif !important;
+  font-family: 'Playfair Display', serif !important;
   font-size: 16px !important;
-  background-color: #4a4ae2 !important; /* example color; adjust as desired */
-  color: #fff !important;
   border: none !important;
   border-radius: 4px !important;
   padding: 0.5rem 1rem !important;
   cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.my-swal2-confirm-button {
+  background-color: #2E4568 !important;
+  color: #FFFFFF !important;
+}
+
+.my-swal2-confirm-button:hover,
+.my-swal2-confirm-button:focus {
+  background-color: #4A6A9D !important;
+  transform: scale(1.05) !important;
+  outline: none !important;
 }
 
 .my-swal2-cancel-button {
-  background-color: #555 !important; /* example for Cancel button */
+  background-color: #E9D4B0 !important;
+  color: #1F2937 !important;
   margin-left: 1rem !important;
 }
 
-/* If you need to style .swal2-input (for textareas) */
+.my-swal2-cancel-button:hover,
+.my-swal2-cancel-button:focus {
+  background-color: #D9C4A0 !important;
+  transform: scale(1.05) !important;
+  outline: none !important;
+}
+
+/* 6) Style for .swal2-input (for textareas) */
 .swal2-input {
-  font-family: "Times New Roman", sans-serif !important;
-  color: antiquewhite !important;
-  background-color: #222 !important; /* example dark background */
-  border: 1px solid #ccc !important;
+  font-family: 'Merriweather', serif !important;
+  color: #1F2937 !important;
+  background: linear-gradient(to right, #F9FAFB, #FFFFFF) !important;
+  border: 1px solid #D1D5DB !important;
+  border-radius: 4px !important;
+  padding: 8px !important;
 }

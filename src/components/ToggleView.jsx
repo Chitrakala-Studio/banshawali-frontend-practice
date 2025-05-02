@@ -17,46 +17,95 @@ const ToggleView = ({ isTableView, toggleView, availableId }) => {
   };
 
   return (
-    <div className="absolute top-4 left-4 z-50">
-      <div className="flex items-center">
-        <span
-          className={`text-base font-bold mr-4 
-           "text-[#2E4568]"
-          `}
-        >
-          Table
-        </span>
+    <div className="toggle-view-wrapper">
+      <style>
+        {`
+          :root {
+            --primary-text: #1F2937;
+            --primary-dark: #2E4568;
+            --toggle-off: #D1D5DB;
+            --neutral-white: #FFFFFF;
+          }
+
+          .toggle-view-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+          }
+
+          .toggle-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-text);
+          }
+
+          .toggle-container {
+            position: relative;
+            width: 64px;
+            height: 32px;
+            cursor: pointer;
+            border-radius: 20px;
+            background-color: var(--toggle-off);
+            transition: background-color 0.3s ease;
+          }
+
+          .toggle-container:focus-within {
+            outline: 2px solid var(--primary-dark);
+            outline-offset: 2px;
+          }
+
+          .toggle-container.toggled {
+            background-color: var(--primary-dark);
+          }
+
+          .toggle-handle {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: var(--neutral-white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: left 0.3s ease;
+          }
+
+          .toggle-handle svg {
+            color: var(--primary-dark);
+            width: 18px;
+            height: 18px;
+          }
+        `}
+      </style>
+
+      <div className="toggle-view-wrapper">
+        <span className="toggle-label">Table</span>
 
         <div
-          className="relative w-32 h-10 cursor-pointer"
+          className={`toggle-container ${isTableView ? "toggled" : ""}`}
           onClick={handleToggle}
+          onKeyPress={(e) => e.key === "Enter" && handleToggle()}
+          tabIndex={0}
+          role="switch"
+          aria-checked={isTableView}
         >
           <div
-            className={`absolute inset-0 rounded-[20px] transition-colors ${
-              isTableView ? "bg-[#2E4568]" : "bg-[#E9D4B0]"
-            }`}
-          />
-
-          <div
-            className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#A6C8A5] shadow-md
-              flex items-center justify-center transition-transform duration-300
-              ${isTableView ? "left-1" : "left-24"}`}
+            className="toggle-handle"
+            style={{ left: isTableView ? "2px" : "34px" }}
           >
             {isTableView ? (
-              <FaTable className="text-[#2E4568]" />
+              <FaTable />
             ) : (
-              <FaRegIdCard className="text-[#2E4568]" />
+              <FaRegIdCard />
             )}
           </div>
         </div>
 
-        <span
-          className={`text-base font-bold ml-4 
-            "text-[#2E4568]"
-          `}
-        >
-          Card
-        </span>
+        <span className="toggle-label">Card</span>
       </div>
     </div>
   );

@@ -1,152 +1,187 @@
-/* Desktop Design */
-.admin-login-container {
+/* Root Variables */
+:root {
+    --primary-text: #1F2937;
+    --secondary-text: #6B7280;
+    --primary-dark: #2E4568;
+    --primary-hover: #4A6A9D;
+    --gold-accent: #F49D37;
+    --header-maroon: #800000;
+    --neutral-gray: #D1D5DB;
+  }
+  
+  /* Desktop Design */
+  .admin-login-container {
     display: flex;
     height: 100vh;
-}
-
-.admin-login-image {
+    background: linear-gradient(to bottom, #fffaf0, #ffffff);
+  }
+  
+  .admin-login-image {
     flex: 1;
     overflow: hidden;
-}
-
-.background-image {
+  }
+  
+  .background-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.admin-login-form {
+  }
+  
+  .admin-login-form {
     flex: 1;
-    padding: 2rem;
+    padding: 32px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: white;
-}
-
-.admin-login-form h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: #2e2e2e;
-}
-
-form {
+    background: linear-gradient(to right, #fffaf0, #ffffff);
+  }
+  
+  .admin-login-form h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--gold-accent);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  
+  form {
     width: 100%;
     max-width: 400px;
-}
-
-form label {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-    display: block;
-    color: #333;
-}
-
-form input {
-    width: 400px;
-    padding: 0.8rem;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
-}
-
-.toggle-options {
     display: flex;
-}
-
-.toggle-options label {
-    display: flex;
-    font-size: 0.9rem;
-    color: #555;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  form label {
+    font-family: 'Merriweather', serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-text);
+  }
+  
+  form input {
     width: 100%;
-}
-
-.toggle-options input {
-    height: 1rem;
-    width: 1rem;
-    margin-right: 1rem;
-}
-
-.submit-button {
-    width: 430px;
-    padding: 0.8rem;
-    font-size: 1rem;
-    color: white;
-    background-color: #53335A;
+    padding: 8px 12px;
+    font-family: 'Merriweather', serif;
+    font-size: 16px;
+    border: 1px solid var(--neutral-gray);
+    border-radius: 6px;
+    background: linear-gradient(to right, #fffaf0, #ffffff);
+    color: var(--primary-text);
+    transition: all 0.3s ease;
+  }
+  
+  form input:focus {
+    outline: none;
+    border-color: var(--gold-accent);
+    box-shadow: 0 0 0 3px rgba(244, 157, 55, 0.2);
+  }
+  
+  .toggle-options {
+    display: flex;
+    align-items: center;
+  }
+  
+  .toggle-options label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--secondary-text);
+    width: 100%;
+  }
+  
+  .toggle-options input {
+    height: 16px;
+    width: 16px;
+    margin-right: 8px;
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 8px 16px;
+    font-family: 'Merriweather', serif;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: var(--primary-dark);
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-}
-
-.submit-button:hover {
-    background-color: #4a2373;
-}
-
-p {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    color: #555;
-}
-
-p a {
-    color: #5b2d8f;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-p a:hover {
+    transition: all 0.3s ease;
+  }
+  
+  .submit-button:hover,
+  .submit-button:focus {
+    background-color: var(--primary-hover);
+    outline: none;
+  }
+  
+  p {
+    margin-top: 16px;
+    font-family: 'Merriweather', serif;
+    font-size: 14px;
+    color: var(--secondary-text);
+    text-align: center;
+  }
+  
+  p a {
+    color: var(--primary-dark);
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  p a:hover,
+  p a:focus {
+    color: var(--primary-hover);
     text-decoration: underline;
-}
-
-/* Mobile View: For screens smaller than 768px */
-@media (max-width: 768px) {
+    outline: none;
+  }
+  
+  /* Mobile View: For screens smaller than 768px */
+  @media (max-width: 768px) {
     .admin-login-container {
-        flex-direction: column;
-        height: auto;
-        align-items: center;
+      flex-direction: column;
+      height: auto;
+      align-items: center;
     }
-
+  
     .admin-login-image {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
     }
-
+  
     .background-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-
+  
     .admin-login-form {
-        width: 90%;
-        max-width: 400px;
-        padding: 1rem;
-        margin-top: 1rem;
+      width: 90%;
+      max-width: 400px;
+      padding: 24px;
+      margin-top: 16px;
     }
-
+  
     .admin-login-form h1 {
-        font-size: 1.8rem;
-        text-align: center;
+      font-size: 28px;
     }
-
+  
     form input {
-        width: 88%;
-        padding: 0.7rem;
-        font-size: 0.9rem;
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 14px;
     }
-
+  
     .submit-button {
-        width: 95%;
-        padding: 0.7rem;
-        font-size: 1rem;
+      width: 100%;
+      padding: 8px 16px;
+      font-size: 14px;
     }
-
+  
     p {
-        font-size: 0.9rem;
-        text-align: center;
+      font-size: 12px;
     }
-}
+  }

@@ -15,57 +15,122 @@ import { Link } from "react-router-dom";
 
 const InfoSection = ({ person }) => {
   return (
-    <div className="pb-10">
-      <div className="w-full space-y-6">
+    <div className="info-section">
+      <style>
+        {`
+          :root {
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --primary-dark: #2E4568;
+            --primary-hover: #4A6A9D;
+            --gold-accent: #F49D37;
+            --header-maroon: #800000;
+            --neutral-gray: #D1D5DB;
+          }
+
+          .info-section {
+            padding-bottom: 40px;
+            width: 100%;
+          }
+
+          .info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+          }
+
+          .info-box {
+            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--neutral-gray);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          }
+
+          .box-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--gold-accent);
+            margin-bottom: 12px;
+          }
+
+          .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .info-item {
+            display: flex;
+            align-items: center;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--neutral-gray);
+          }
+
+          .info-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+          }
+
+          .info-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            color: var(--primary-text);
+          }
+
+          .info-link {
+            color: var(--primary-dark);
+            margin-left: 4px;
+            transition: all 0.3s ease;
+          }
+
+          .info-link:hover,
+          .info-link:focus {
+            color: var(--primary-hover);
+            outline: none;
+          }
+        `}
+      </style>
+
+      <div className="info-container">
         {/* Personal Information Box */}
-        <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
-          <h3 className="font-bold text-lg mb-3 text-[#2E4568]">
-            Personal Information
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center border-b border-gray-300 pb-3">
-              <FaUser className="mr-2 text-xl text-[#2E4568]" />
+        <div className="info-box">
+          <h3 className="box-title">Personal Information</h3>
+          <div className="info-list">
+            <div className="info-item">
+              <FaUser className="info-icon" />
               {person.name && (
-                <p className="text-base text-[#2E4568] mt-1">
-                  {person.name_in_nepali}
-                </p>
+                <p>{person.name_in_nepali}</p>
               )}
             </div>
 
-            <div
-              className={
-                person.date_of_birth !== ""
-                  ? "flex items-center"
-                  : "flex items-center border-b border-gray-300 pb-3"
-              }
-            >
+            <div className="info-item">
               {person.gender === "Male" ? (
-                <FaMale className="mr-2 text-xl text-[#2E4568]" />
+                <FaMale className="info-icon" />
               ) : (
-                <FaFemale className="mr-2 text-xl text-[#2E4568]" />
+                <FaFemale className="info-icon" />
               )}
               {person.gender && (
-                <p className="text-base mt-0 text-[#2E4568]">{person.gender}</p>
+                <p>{person.gender}</p>
               )}
             </div>
+
             {person.date_of_birth && (
-              <div
-                className={`flex items-center ${
-                  person.date_of_death ? "border-b border-gray-300 pb-3" : ""
-                }`}
-              >
-                <FaBirthdayCake className="mr-2 text-xl text-[#2E4568]" />
-                <p className="text-base mt-0 text-[#2E4568]">
-                  {person.date_of_birth}
-                </p>
+              <div className="info-item">
+                <FaBirthdayCake className="info-icon" />
+                <p>{person.date_of_birth}</p>
               </div>
             )}
+
             {person.date_of_death && (
-              <div className="flex items-center">
-                <FaSkullCrossbones className="mr-2 text-xl text-[#2E4568]" />
-                <p className="text-base text-[#2E4568] mt-0">
-                  {person.date_of_death}
-                </p>
+              <div className="info-item">
+                <FaSkullCrossbones className="info-icon" />
+                <p>{person.date_of_death}</p>
               </div>
             )}
           </div>
@@ -78,83 +143,50 @@ const InfoSection = ({ person }) => {
           person.grandmother?.name ||
           person.spouse?.name ||
           person.children?.length > 0) && (
-          <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
-            <h3 className="font-bold text-lg mb-3 text-[#2E4568]">Family</h3>
-            <div className="space-y-3">
+          <div className="info-box">
+            <h3 className="box-title">Family</h3>
+            <div className="info-list">
               {person.father?.name && (
-                <div
-                  className={`flex items-center ${
-                    person.grandfather?.name ||
-                    person.mother?.name ||
-                    person.grandmother?.name ||
-                    person.spouse?.name ||
-                    person.children?.length > 0
-                      ? "border-b border-gray-300 pb-3"
-                      : ""
-                  }`}
-                >
-                  <FaUser className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-1">
-                    {person.father?.name && person.father.name !== "N/A" && (
-                      <>
-                        Father:{" "}
-                        <Link
-                          to={`/${person.father.id}`}
-                          className="text-[#2E4568] hover:text-[#E9D4B0] hover:underline"
-                        >
-                          {person.father.name_in_nepali}
-                        </Link>
-                      </>
-                    )}
+                <div className="info-item">
+                  <FaUser className="info-icon" />
+                  <p>
+                    Father:{" "}
+                    <Link
+                      to={`/${person.father.id}`}
+                      className="info-link"
+                    >
+                      {person.father.name_in_nepali}
+                    </Link>
                   </p>
                 </div>
               )}
 
               {person.mother?.name && (
-                <div
-                  className={`flex items-center ${
-                    person.grandfather?.name ||
-                    person.grandmother?.name ||
-                    person.spouse?.name ||
-                    person.children?.length > 0
-                      ? "border-b border-gray-300 pb-3"
-                      : ""
-                  }`}
-                >
-                  <FaUser className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-1">
-                    {person.mother?.name && person.mother.name !== "N/A" && (
-                      <>
-                        Mother:{" "}
-                        <Link
-                          to={`/${person.mother.id}`}
-                          className="text-[#2E4568] hover:text-[#E9D4B0] hover:underline"
-                        >
-                          {person.mother.name_in_nepali}
-                        </Link>
-                      </>
-                    )}
+                <div className="info-item">
+                  <FaUser className="info-icon" />
+                  <p>
+                    Mother:{" "}
+                    <Link
+                      to={`/${person.mother.id}`}
+                      className="info-link"
+                    >
+                      {person.mother.name_in_nepali}
+                    </Link>
                   </p>
                 </div>
               )}
 
               {(person.grandfather?.name || person.grandmother?.name) && (
-                <div
-                  className={`flex items-center ${
-                    person.spouse?.name || person.children?.length > 0
-                      ? "border-b border-gray-300 pb-3"
-                      : ""
-                  }`}
-                >
-                  <FaUser className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-1">
+                <div className="info-item">
+                  <FaUser className="info-icon" />
+                  <p>
                     {person.grandfather?.name &&
                       person.grandfather.name !== "N/A" && (
                         <>
                           GrandFather:{" "}
                           <Link
                             to={`/${person.grandfather.id}`}
-                            className="text-[#2E4568] hover:text-[#E9D4B0] hover:underline"
+                            className="info-link"
                           >
                             {person.grandfather.name_in_nepali}
                           </Link>
@@ -167,7 +199,7 @@ const InfoSection = ({ person }) => {
                           GrandMother:{" "}
                           <Link
                             to={`/${person.grandmother.id}`}
-                            className="text-[#2E4568] hover:text-[#E9D4B0] hover:underline"
+                            className="info-link"
                           >
                             {person.grandmother.name_in_nepali}
                           </Link>
@@ -178,21 +210,15 @@ const InfoSection = ({ person }) => {
               )}
 
               {person.spouse?.length > 0 && (
-                <div
-                  className={
-                    person.children?.length > 0
-                      ? "border-b border-gray-300 pb-3 flex items-center"
-                      : "flex items-center"
-                  }
-                >
-                  <FaUser className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-1">
+                <div className="info-item">
+                  <FaUser className="info-icon" />
+                  <p>
                     Spouse:{" "}
                     {person.spouse.map((spouse, index) => (
                       <Link
                         key={index}
                         to={`/${spouse.id}`}
-                        className="text-[#2E4568] hover:text-[#E9D4B0] hover:underline"
+                        className="info-link"
                       >
                         {spouse.name_in_nepali}
                         {index < person.spouse.length - 1 ? ", " : ""}
@@ -203,15 +229,15 @@ const InfoSection = ({ person }) => {
               )}
 
               {person.children?.length > 0 && (
-                <div className="flex items-center">
-                  <FaUser className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-1">
+                <div className="info-item">
+                  <FaUser className="info-icon" />
+                  <p>
                     Children:{" "}
                     {person.children.map((child, index) => (
                       <Link
                         key={index}
                         to={`/${child.id}`}
-                        className="text-[#2E4568] hover:text-[#E9D4B0] hover:underline"
+                        className="info-link"
                       >
                         {child.name_in_nepali}
                         {index < person.children.length - 1 ? ", " : ""}
@@ -231,46 +257,25 @@ const InfoSection = ({ person }) => {
             person.contact_details?.email !== "") ||
           (person.contact_details?.address &&
             person.contact_details?.address !== "()")) && (
-          <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
-            <h3 className="font-bold text-base mb-4 text-[#2E4568]">
-              Contact Information
-            </h3>
-            <div className="space-y-3">
+          <div className="info-box">
+            <h3 className="box-title">Contact Information</h3>
+            <div className="info-list">
               {person.contact_details.phone && (
-                <div
-                  className={`flex items-center ${
-                    person.contact_details.email ||
-                    person.contact_details.address
-                      ? "border-b border-gray-300 pb-3"
-                      : ""
-                  }`}
-                >
-                  <FaPhone className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-1">
-                    {person.contact_details.phone || "N/A"}
-                  </p>
+                <div className="info-item">
+                  <FaPhone className="info-icon" />
+                  <p>{person.contact_details.phone || "N/A"}</p>
                 </div>
               )}
               {person.contact_details.email && (
-                <div
-                  className={`flex items-center ${
-                    person.contact_details.address
-                      ? "border-b border-gray-300 pb-3"
-                      : ""
-                  }`}
-                >
-                  <FaEnvelope className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-0">
-                    {person.contact_details.email || "N/A"}
-                  </p>
+                <div className="info-item">
+                  <FaEnvelope className="info-icon" />
+                  <p>{person.contact_details.email || "N/A"}</p>
                 </div>
               )}
               {person.contact_details.address && (
-                <div className="flex items-center">
-                  <FaAddressCard className="mr-2 text-xl text-[#2E4568]" />
-                  <p className="text-base text-[#2E4568] mt-0">
-                    {person.contact_details.address || "N/A"}
-                  </p>
+                <div className="info-item">
+                  <FaAddressCard className="info-icon" />
+                  <p>{person.contact_details.address || "N/A"}</p>
                 </div>
               )}
             </div>
@@ -279,15 +284,13 @@ const InfoSection = ({ person }) => {
 
         {/* Professional Information Box */}
         {person.profession && (
-          <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
-            <h3 className="font-bold text-base mb-4 text-[#2E4568]">
-              Professional Information
-            </h3>
-            <div className="flex items-center">
-              <FaBriefcase className="mr-2 text-xl text-[#2E4568]" />
-              <p className="text-base text-[#2E4568] mt-0">
-                {person.profession || "N/A"}
-              </p>
+          <div className="info-box">
+            <h3 className="box-title">Professional Information</h3>
+            <div className="info-list">
+              <div className="info-item">
+                <FaBriefcase className="info-icon" />
+                <p>{person.profession || "N/A"}</p>
+              </div>
             </div>
           </div>
         )}

@@ -307,264 +307,420 @@ const Compare = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#B9BAC3] bg-gradient-to-b from-[#B9BAC3] to-[#A6C8A5] flex items-center justify-center px-4 py-6">
+    <div className="compare-container">
       <style>
         {`
-          .choices__inner {
-            min-width: 100%;
-            white-space: nowrap;
-            background-color: #A6C8A5;
-            border: 1px solid #AAABAC;
-            border-radius: 8px;
-            padding: 8px;
+          :root {
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --primary-dark: #2E4568;
+            --primary-hover: #4A6A9D;
+            --gold-accent: #F49D37;
+            --header-maroon: #800000;
+            --neutral-gray: #D1D5DB;
+            --secondary-bg: #E9D4B0;
+            --secondary-bg-hover: #D9C4A0;
           }
+
+          .compare-container {
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            justify-content: center;
+          }
+
+          .back-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background-color: var(--secondary-bg);
+            color: var(--primary-text);
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+          }
+
+          .back-btn:hover,
+          .back-btn:focus {
+            background-color: var(--secondary-bg-hover);
+            transform: scale(1.05);
+            outline: none;
+          }
+
+          .title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: 24px;
+            text-align: center;
+          }
+
+          .cards-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1200px;
+            gap: 24px;
+          }
+
+          @media (min-width: 1024px) {
+            .cards-container {
+              flex-direction: row;
+            }
+          }
+
+          .person-card {
+            flex: 1;
+            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            border: 1px solid var(--neutral-gray);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--gold-accent);
+            text-align: center;
+            margin-bottom: 16px;
+          }
+
+          .field-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+
+          .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+
+          .label {
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary-text);
+          }
+
+          .input,
+          .select {
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(to right, #fffaf0, #ffffff);
+            border: 1px solid var(--neutral-gray);
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+            transition: all 0.3s ease;
+          }
+
+          .input:disabled,
+          .select:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+          }
+
+          .input:focus,
+          .select:focus {
+            outline: none;
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 0 3px rgba(244, 157, 55, 0.2);
+          }
+
+          .choices__inner {
+            width: 100%;
+            background: linear-gradient(to right, #fffaf0, #ffffff);
+            border: 1px solid var(--neutral-gray);
+            border-radius: 6px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+          }
+
           .choices__list--dropdown {
             max-height: 200px;
             overflow-y: auto;
-            scroll-behavior: smooth;
-            background-color: #A6C8A5;
-            border: 1px solid #AAABAC;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            border: 1px solid var(--neutral-gray);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           }
+
           .choices__list--dropdown .choices__item {
-            white-space: nowrap;
-            overflow-x: auto;
-            transition: background-color 0.2s ease;
             padding: 8px 12px;
-            color: #2E4568;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-text);
+            transition: background-color 0.2s ease;
           }
+
           .choices__list--dropdown .choices__item:hover {
-            background-color: #E9D4B0;
+            background-color: #f3e8d7;
           }
+
           .choices__input {
             border: none !important;
             outline: none !important;
             padding: 4px 8px;
-            color: #2E4568;
+            color: var(--primary-text);
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+          }
+
+          .action-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-top: 24px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+          }
+
+          .compare-btn,
+          .compare-again-btn {
+            background-color: var(--primary-dark);
+            color: #ffffff;
+            padding: 8px 24px;
+            border-radius: 6px;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          .compare-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          .compare-btn:hover:not(:disabled),
+          .compare-btn:focus:not(:disabled),
+          .compare-again-btn:hover,
+          .compare-again-btn:focus {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+            outline: none;
+          }
+
+          .relationship-text {
+            font-family: 'Merriweather', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-text);
+            background-color: #f3e8d7;
+            padding: 8px 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          .error-text {
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            color: var(--header-maroon);
+            background-color: #fee2e2;
+            padding: 8px 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           }
         `}
       </style>
 
-      {/* Back Button */}
       <button
-        className="absolute top-4 left-4 bg-[#E9D4B0] text-[#2E4568] px-4 py-2 rounded-full hover:bg-[#D9C4A0] transition-colors duration-300 shadow-md"
+        className="back-btn"
         onClick={() => {
           isMobile ? navigate(`/card/${id}`) : navigate(`/`);
         }}
+        aria-label={isMobile ? "Go Back to Card" : "Go Back to Table"}
       >
         {isMobile ? "Go Back to Card" : "Go Back to Table"}
       </button>
 
-      <div className="w-full max-w-5xl flex flex-col items-center pt-16 pb-8">
-        {/* Page Title */}
-        <h1 className="text-3xl md:text-4xl font-bold text-[#2E4568] mb-8">
-          Compare Family Members
-        </h1>
-
-        {/* Person Cards */}
-        <div className="flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0 w-full">
-          {/* Left Person Card */}
-          <div className="w-full lg:w-1/2 bg-[#A6C8A5] rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-[#2E4568] text-center mb-6">
-              Person 1
-            </h2>
-            <div className="space-y-4">
-              {/* Pusta Number */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Pusta Number
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter Pusta Number"
-                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
-                  value={leftPerson.pusta_number}
-                  onChange={(e) =>
-                    setLeftPerson((prev) => ({
-                      ...prev,
-                      pusta_number: e.target.value,
-                    }))
-                  }
-                  disabled={isLeftConfirmed}
-                />
-              </div>
-
-              {/* Name */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter Full Name"
-                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
-                  value={leftPerson.name_in_nepali}
-                  onChange={(e) =>
-                    setLeftPerson((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
-                  }
-                  disabled={isLeftConfirmed}
-                />
-              </div>
-
-              {/* Father's Name */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Father's Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter Father's Name"
-                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
-                  value={leftPerson.father?.name_in_nepali || ""}
-                  onChange={(e) =>
-                    setLeftPerson((prev) => ({
-                      ...prev,
-                      fatherName: e.target.value,
-                    }))
-                  }
-                  disabled={isLeftConfirmed}
-                />
-              </div>
-
-              {/* Mother's Name */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Mother's Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter Mother's Name"
-                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
-                  value={leftPerson.mother?.name_in_nepali || ""}
-                  onChange={(e) =>
-                    setLeftPerson((prev) => ({
-                      ...prev,
-                      motherName: e.target.value,
-                    }))
-                  }
-                  disabled={isLeftConfirmed}
-                />
-              </div>
+      <div className="cards-container">
+        {/* Left Person Card */}
+        <div className="person-card">
+          <h2 className="card-title">Person 1</h2>
+          <div className="field-container">
+            <div className="field">
+              <label className="label">Pusta Number</label>
+              <input
+                type="text"
+                placeholder="Enter Pusta Number"
+                className="input"
+                value={leftPerson.pusta_number}
+                onChange={(e) =>
+                  setLeftPerson((prev) => ({
+                    ...prev,
+                    pusta_number: e.target.value,
+                  }))
+                }
+                disabled={isLeftConfirmed}
+              />
             </div>
-          </div>
 
-          {/* Right Person Card */}
-          <div className="w-full lg:w-1/2 bg-[#A6C8A5] rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-[#2E4568] text-center mb-6">
-              Person 2
-            </h2>
-            <div className="space-y-4">
-              {/* Pusta Number */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Pusta Number
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter Pusta Number"
-                  className="w-full bg-[#B9BAC3] px-4 py-2 border border-[#AAABAC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
-                  value={rightPerson.pusta_number || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setRightPerson((prev) => ({
-                      ...prev,
-                      pusta_number: value,
-                      name: "",
-                      fatherName: "",
-                      motherName: "",
-                      fatherId: "",
-                      motherId: "",
-                    }));
-                    debouncedFetch(value);
-                  }}
-                  onBlur={() => {
-                    debouncedFetch.flush();
-                  }}
-                  disabled={isRightConfirmed}
-                />
-              </div>
+            <div className="field">
+              <label className="label">Name</label>
+              <input
+                type="text"
+                placeholder="Enter Full Name"
+                className="input"
+                value={leftPerson.name_in_nepali}
+                onChange={(e) =>
+                  setLeftPerson((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
+                disabled={isLeftConfirmed}
+              />
+            </div>
 
-              {/* Name */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Name
-                </label>
-                <select
-                  ref={rightNameSelectRef}
-                  id="rightNameSelect"
-                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E4568] text-sm md:text-base text-[#2E4568]"
-                >
-                  <option value="">Select Name</option>
-                </select>
-              </div>
+            <div className="field">
+              <label className="label">Father's Name</label>
+              <input
+                type="text"
+                placeholder="Enter Father's Name"
+                className="input"
+                value={leftPerson.father?.name_in_nepali || ""}
+                onChange={(e) =>
+                  setLeftPerson((prev) => ({
+                    ...prev,
+                    fatherName: e.target.value,
+                  }))
+                }
+                disabled={isLeftConfirmed}
+              />
+            </div>
 
-              {/* Father's Name */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Father's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg text-sm md:text-base text-[#2E4568]"
-                  value={rightPerson.fatherName}
-                  disabled
-                  placeholder="Father's Name"
-                />
-              </div>
-
-              {/* Mother's Name */}
-              <div>
-                <label className="block mb-1 text-sm font-medium text-[#2E4568]">
-                  Mother's Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-[#AAABAC] bg-[#B9BAC3] rounded-lg text-sm md:text-base text-[#2E4568]"
-                  value={rightPerson.motherName}
-                  disabled
-                  placeholder="Mother's Name"
-                />
-              </div>
+            <div className="field">
+              <label className="label">Mother's Name</label>
+              <input
+                type="text"
+                placeholder="Enter Mother's Name"
+                className="input"
+                value={leftPerson.mother?.name_in_nepali || ""}
+                onChange={(e) =>
+                  setLeftPerson((prev) => ({
+                    ...prev,
+                    motherName: e.target.value,
+                  }))
+                }
+                disabled={isLeftConfirmed}
+              />
             </div>
           </div>
         </div>
 
-        {/* Action Buttons and Result */}
-        <div className="text-center w-full max-w-md mt-8 flex flex-col items-center">
-          {!relationship && (
-            <button
-              className="bg-[#E9D4B0] text-[#2E4568] px-8 py-3 rounded-lg text-base md:text-lg font-medium hover:bg-[#D9C4A0] transition-colors duration-300 shadow-md"
-              onClick={handleCompare}
-              disabled={isLoading}
-            >
-              {isLoading ? "Comparing..." : "Compare"}
-            </button>
-          )}
+        {/* Right Person Card */}
+        <div className="person-card">
+          <h2 className="card-title">Person 2</h2>
+          <div className="field-container">
+            <div className="field">
+              <label className="label">Pusta Number</label>
+              <input
+                type="text"
+                placeholder="Enter Pusta Number"
+                className="input"
+                value={rightPerson.pusta_number || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setRightPerson((prev) => ({
+                    ...prev,
+                    pusta_number: value,
+                    name: "",
+                    fatherName: "",
+                    motherName: "",
+                    fatherId: "",
+                    motherId: "",
+                  }));
+                  debouncedFetch(value);
+                }}
+                onBlur={() => {
+                  debouncedFetch.flush();
+                }}
+                disabled={isRightConfirmed}
+              />
+            </div>
 
-          {relationship && (
-            <>
-              <p className="text-lg font-semibold text-[#2E4568] mb-4 bg-[#A6C8A5] px-4 py-2 rounded-lg shadow">
-                {relationship}
-              </p>
-              <button
-                className="bg-[#E9D4B0] text-[#2E4568] px-8 py-3 rounded-lg text-base md:text-lg font-medium hover:bg-[#D9C4A0] transition-colors duration-300 shadow-md"
-                onClick={handleCompareAgain}
+            <div className="field">
+              <label className="label">Name</label>
+              <select
+                ref={rightNameSelectRef}
+                id="rightNameSelect"
+                className="select"
               >
-                Compare Again
-              </button>
-            </>
-          )}
+                <option value="">Select Name</option>
+              </select>
+            </div>
 
-          {apiError && (
-            <p className="text-[#2E4568] text-sm mt-4 bg-[#E9D4B0] px-4 py-2 rounded-lg shadow">
-              {apiError}
-            </p>
-          )}
+            <div className="field">
+              <label className="label">Father's Name</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.fatherName}
+                disabled
+                placeholder="Father's Name"
+              />
+            </div>
+
+            <div className="field">
+              <label className="label">Mother's Name</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.motherName}
+                disabled
+                placeholder="Mother's Name"
+              />
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Action Buttons and Result */}
+      <div className="action-section">
+        {!relationship && (
+          <button
+            className="compare-btn"
+            onClick={handleCompare}
+            disabled={isLoading}
+            aria-label="Compare"
+          >
+            {isLoading ? "Comparing..." : "Compare"}
+          </button>
+        )}
+
+        {relationship && (
+          <>
+            <p className="relationship-text">{relationship}</p>
+            <button
+              className="compare-again-btn"
+              onClick={handleCompareAgain}
+              aria-label="Compare Again"
+            >
+              Compare Again
+            </button>
+          </>
+        )}
+
+        {apiError && <p className="error-text">{apiError}</p>}
       </div>
     </div>
   );

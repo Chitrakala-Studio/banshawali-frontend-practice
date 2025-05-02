@@ -12,107 +12,94 @@ const FooterButtons = ({
 }) => {
   const navigate = useNavigate();
 
-  // Base button styles
-  const buttonStyle = {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    borderRadius: "9999px",
-    height: "2.5rem",
-    padding: "0 1.5rem",
-    background: "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)",
-    border: "1px solid #AAABAC",
-    boxShadow:
-      "0 4px 6px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1)",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-  };
-
-  // Base icon styles
-  const iconStyle = {
-    marginRight: "0.5rem",
-    width: "1.25rem",
-    height: "1.25rem",
-  };
-
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-around",
-        alignItems: "center",
-        padding: "1rem",
-        gap: "1rem",
-      }}
-    >
+    <div className="footer-buttons">
+      <style>
+        {`
+          :root {
+            --primary-text: #1F2937;
+            --secondary-text: #6B7280;
+            --primary-dark: #2E4568;
+            --primary-hover: #4A6A9D;
+            --gold-accent: #F49D37;
+            --header-maroon: #800000;
+            --neutral-gray: #D1D5DB;
+            --secondary-bg: #E9D4B0;
+            --secondary-bg-hover: #D9C4A0;
+          }
+
+          .footer-buttons {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 16px;
+            gap: 16px;
+          }
+
+          .action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #2E4568 0%, #5A6F94 100%);
+            border: 1px solid var(--neutral-gray);
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2),
+                      inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #b9bac3;
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .action-btn:hover,
+          .action-btn:focus {
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--secondary-bg-hover) 100%);
+            color: #000000;
+            outline: none;
+          }
+
+          .action-btn:hover svg,
+          .action-btn:focus svg {
+            color: #000000;
+          }
+
+          .icon {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+            color: #b9bac3;
+            transition: color 0.3s ease;
+          }
+        `}
+      </style>
+
       <button
         onClick={() => navigate(`/compare/${id}`)}
-        style={{
-          ...buttonStyle,
-          color: "#B9BAC3",
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background =
-            "linear-gradient(135deg, #E9D4B0 0%, #C7B299 100%)";
-          e.currentTarget.style.color = "#000000";
-          e.currentTarget.querySelector("svg").style.color = "#000000";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background =
-            "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)";
-          e.currentTarget.style.color = "#B9BAC3";
-          e.currentTarget.querySelector("svg").style.color = "#B9BAC3";
-        }}
+        className="action-btn"
+        aria-label="Compare"
       >
-        <FaExchangeAlt style={{ ...iconStyle, color: "#B9BAC3" }} />
+        <FaExchangeAlt className="icon" />
         Compare
       </button>
       <button
         onClick={onGenerateFamilyTree}
-        style={{
-          ...buttonStyle,
-          color: "#B9BAC3",
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background =
-            "linear-gradient(135deg, #E9D4B0 0%, #C7B299 100%)";
-          e.currentTarget.style.color = "#000000";
-          e.currentTarget.querySelector("svg").style.color = "#000000";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background =
-            "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)";
-          e.currentTarget.style.color = "#B9BAC3";
-          e.currentTarget.querySelector("svg").style.color = "#B9BAC3";
-        }}
+        className="action-btn"
+        aria-label="Generate Family Tree"
       >
-        <FaSitemap style={{ ...iconStyle, color: "#B9BAC3" }} />
+        <FaSitemap className="icon" />
         Family Tree
       </button>
       <button
         onClick={onSearchButtonClick}
-        style={{
-          ...buttonStyle,
-          color: "#B9BAC3",
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background =
-            "linear-gradient(135deg, #E9D4B0 0%, #C7B299 100%)";
-          e.currentTarget.style.color = "#000000";
-          e.currentTarget.querySelector("svg").style.color = "#000000";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background =
-            "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)";
-          e.currentTarget.style.color = "#B9BAC3";
-          e.currentTarget.querySelector("svg").style.color = "#B9BAC3";
-        }}
+        className="action-btn"
+        aria-label="Search"
       >
-        <FaSearch style={{ ...iconStyle, color: "#B9BAC3" }} />
+        <FaSearch className="icon" />
         Search
       </button>
     </div>
