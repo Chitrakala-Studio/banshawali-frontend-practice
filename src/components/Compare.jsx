@@ -324,12 +324,37 @@ const Compare = () => {
 
           .compare-container {
             min-height: 100vh;
-            background: linear-gradient(to bottom, #fffaf0, #ffffff);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 24px;
-            justify-content: center;
+    background: linear-gradient(to bottom, #fffaf0, #ffffff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding:24px;
+    justify-content: flex-start;
+
+          }
+
+          .top-bar {
+          display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    width: 100%;
+     margin: 0 0 16px;  
+          }
+
+          .top-bar-btn {
+            background-color: var(--secondary-bg);
+            color: var(--primary-text);
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+          }
+
+          .top-bar-btn:hover {
+            background-color: var(--secondary-bg-hover);
+            transform: scale(1.05);
           }
 
           .back-btn {
@@ -342,7 +367,7 @@ const Compare = () => {
             border-radius: 9999px;
             font-family: 'Merriweather', serif;
             font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
           }
 
@@ -542,18 +567,29 @@ const Compare = () => {
         `}
       </style>
 
-      <button
-        className="back-btn"
-        onClick={() => {
-          isMobile ? navigate(`/card/${id}`) : navigate(`/`);
-        }}
-        aria-label={isMobile ? "Go Back to Card" : "Go Back to Table"}
-      >
-        {isMobile ? "Go Back to Card" : "Go Back to Table"}
-      </button>
+      <div className="top-bar">
+        <div style={{ display: "flex", gap: "12px" }}>
+          <button
+            className="top-bar-btn"
+            onClick={() =>
+              (window.location.href = "https://gautamfamily.org.np/")
+            }
+          >
+            Home
+          </button>
+          <button className="top-bar-btn" onClick={() => navigate("/")}>
+            View Table
+          </button>
+          <button
+            className="top-bar-btn"
+            onClick={() => navigate(`/card/${id}`)}
+          >
+            Card View
+          </button>
+        </div>
+      </div>
 
       <div className="cards-container">
-        {/* Left Person Card */}
         <div className="person-card">
           <h2 className="card-title">Person 1</h2>
           <div className="field-container">
@@ -627,7 +663,6 @@ const Compare = () => {
           </div>
         </div>
 
-        {/* Right Person Card */}
         <div className="person-card">
           <h2 className="card-title">Person 2</h2>
           <div className="field-container">
@@ -694,7 +729,6 @@ const Compare = () => {
         </div>
       </div>
 
-      {/* Action Buttons and Result */}
       <div className="action-section">
         {!relationship && (
           <button

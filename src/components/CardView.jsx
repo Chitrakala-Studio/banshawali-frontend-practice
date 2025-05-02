@@ -257,6 +257,8 @@ const CardView = () => {
               --gold-accent: #F49D37;
               --header-maroon: #800000;
               --neutral-gray: #D1D5DB;
+              --background-start: #F8E5C0;
+              --background-end: #CDE8D0;
             }
 
             .card-view-container {
@@ -266,6 +268,7 @@ const CardView = () => {
               height: 100vh;
               padding-bottom: 4rem;
               background: linear-gradient(to bottom, #fffaf0, #ffffff);
+              background: radial-gradient(circle at top, var(--background-start) 30%, var(--background-end) 100%)
             }
 
             .card-container {

@@ -647,6 +647,9 @@ const TableView = () => {
           }
 
           .flex-center {
+          
+            // padding: 0px 0px 0px 20px;
+            padding-left: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
