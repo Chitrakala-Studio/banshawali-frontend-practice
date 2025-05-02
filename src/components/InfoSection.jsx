@@ -104,9 +104,7 @@ const InfoSection = ({ person }) => {
           <div className="info-list">
             <div className="info-item">
               <FaUser className="info-icon" />
-              {person.name && (
-                <p>{person.name_in_nepali}</p>
-              )}
+              {person.name && <p>{person.name_in_nepali}</p>}
             </div>
 
             <div className="info-item">
@@ -115,9 +113,7 @@ const InfoSection = ({ person }) => {
               ) : (
                 <FaFemale className="info-icon" />
               )}
-              {person.gender && (
-                <p>{person.gender}</p>
-              )}
+              {person.gender && <p>{person.gender}</p>}
             </div>
 
             {person.date_of_birth && (
@@ -151,10 +147,7 @@ const InfoSection = ({ person }) => {
                   <FaUser className="info-icon" />
                   <p>
                     Father:{" "}
-                    <Link
-                      to={`/${person.father.id}`}
-                      className="info-link"
-                    >
+                    <Link to={`/${person.father.id}`} className="info-link">
                       {person.father.name_in_nepali}
                     </Link>
                   </p>
@@ -166,10 +159,7 @@ const InfoSection = ({ person }) => {
                   <FaUser className="info-icon" />
                   <p>
                     Mother:{" "}
-                    <Link
-                      to={`/${person.mother.id}`}
-                      className="info-link"
-                    >
+                    <Link to={`/${person.mother.id}`} className="info-link">
                       {person.mother.name_in_nepali}
                     </Link>
                   </p>

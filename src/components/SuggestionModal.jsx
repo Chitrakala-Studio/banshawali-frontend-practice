@@ -1,8 +1,9 @@
 import React from "react";
 import { X } from "lucide-react";
+import { FaDownload } from "react-icons/fa";
 
 const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
-  console.log("Suggestions:"  , suggestion);
+  console.log("Suggestions:", suggestion);
   const person = suggestion.suggestion_to;
   const personName = person?.name_in_nepali || "Unknown";
   const fatherName = person?.father_name || "Not available";
@@ -17,6 +18,25 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
   const suggestionText = suggestion.suggestion || "No suggestion provided.";
   const imageUrl = suggestion.image;
 
+  const handleDownload = (imageUrl, id) => {
+    fetch(imageUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `suggestion_image_${id}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => {
+        console.error("Error downloading image:", error);
+        // Optionally show an error alert
+      });
+  };
+
   return (
     <div className="suggestion-modal">
       <style>
@@ -28,6 +48,8 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
             --header-maroon: #800000;
             --gold-accent: #F49D37;
             --neutral-gray: #D1D5DB;
+            --action-btn: #2E4568;
+            --action-btn-hover: #4A6A9D;
           }
 
           .suggestion-modal {
@@ -103,9 +125,7 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
           .right-section {
             flex: 1;
             padding: 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+           justify-content: flex-start;
           }
 
           .left-section {
@@ -169,11 +189,20 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
             font-weight: 600;
           }
 
+          .suggestion-image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+          }
+
           .suggestion-image {
-            width: 100%;
+            width: 75%;
+            max-width: 300px;
             max-height: 400px;
             height: auto;
-            margin: 0 auto;
+            object-fit: cover;
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             border: 2px solid var(--gold-accent);
@@ -183,6 +212,22 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
 
           .suggestion-image:hover {
             opacity: 0.9;
+          }
+
+          .download-btn {
+            color: var(--action-btn);
+            padding: 8px;
+            transition: color 0.15s ease, transform 0.15s ease;
+            background: none;
+            border: none;
+            cursor: pointer;
+          }
+
+          .download-btn:hover,
+          .download-btn:focus {
+            color: var(--action-btn-hover);
+            transform: scale(1.1);
+            outline: none;
           }
 
           .no-image-text {
@@ -210,13 +255,23 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
 
               <div className="mt-6 text-center">
                 {imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt="Suggestion"
-                    className="suggestion-image"
-                    onClick={() => window.open(imageUrl, "_blank")}
-                    title="Click to view in full size"
-                  />
+                  <div className="suggestion-image-container">
+                    <img
+                      src={imageUrl}
+                      alt="Suggestion"
+                      className="suggestion-image"
+                      style={{ width: "70%", height: "auto" }}
+                      onClick={() => window.open(imageUrl, "_blank")}
+                      title="Click to view in full size"
+                    />
+                    <button
+                      className="download-btn"
+                      onClick={() => handleDownload(imageUrl, suggestion.id)}
+                      aria-label="Download Image"
+                    >
+                      <FaDownload size={20} />
+                    </button>
+                  </div>
                 ) : (
                   <p className="no-image-text">No Image Provided.</p>
                 )}
@@ -224,8 +279,8 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
             </div>
 
             <div className="right-section">
-              <h2 className="section-title">{personName}</h2>
-              <div className="space-y-3">
+              <h2 className="section-title">Suggestion for {personName}</h2>
+              <div className="space-y-2">
                 <p className="detail-item">
                   <strong>बुबाको नाम:</strong> {fatherName}
                 </p>

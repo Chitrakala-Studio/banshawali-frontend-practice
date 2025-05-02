@@ -16,108 +16,12 @@ const CardImageSection = ({
   onToggleInfo,
 }) => {
   return (
-    <div className="card-image-section">
-      <style>
-        {`
-          :root {
-            --primary-text: #1F2937;
-            --secondary-text: #6B7280;
-            --gold-accent: #F49D37;
-            --header-maroon: #800000;
-            --neutral-gray: #D1D5DB;
-          }
-
-          .card-image-section {
-            position: relative;
-            width: 100%;
-            height: 85vh;
-            display: flex;
-            flex-direction: column;
-            overflow-y: ${isExpanded ? "auto" : "hidden"};
-            border-radius: 15px 15px 0 0;
-            background-color: #fffaf0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          }
-
-          .image-container {
-            position: relative;
-            width: 100%;
-            height: 85vh;
-            border-radius: 15px 15px 0 0;
-            overflow: hidden;
-          }
-
-          .person-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            user-select: none;
-          }
-
-          .gradient-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-              to top,
-              rgba(0, 0, 0, 0.9),
-              rgba(0, 0, 0, 0.2),
-              transparent
-            );
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: flex-start;
-            padding: 24px;
-            z-index: 10;
-          }
-
-          .nav-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: #fffaf0;
-            padding: 8px;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            opacity: 0;
-            transition: opacity 0.3s ease, transform 0.2s ease;
-          }
-
-          .nav-button:hover,
-          .nav-button:focus {
-            transform: translateY(-50%) scale(1.05);
-            outline: none;
-          }
-
-          .group:hover .nav-button,
-          .nav-button:focus {
-            opacity: 1;
-          }
-
-          .nav-button-left {
-            left: 16px;
-          }
-
-          .nav-button-right {
-            right: 16px;
-          }
-
-          .nav-button img {
-            width: 24px;
-            height: 24px;
-          }
-
-          .spacer {
-            width: 100%;
-            height: ${isMobile ? "48px" : "32px"};
-          }
-        `}
-      </style>
-
-      <div className="image-container group">
+    <div
+      className={`relative w-full h-[85vh] flex flex-col overflow-y-auto ${
+        isExpanded ? "overflow-y-scroll" : "overflow-y-hidden"
+      }`}
+    >
+      <div className="relative w-full h-[85vh] rounded-t-lg shadow-lg bg-white">
         <img
           src={
             person.photo ||
@@ -127,33 +31,40 @@ const CardImageSection = ({
               ? femaleImage
               : "https://www.ncenet.com/wp-content/uploads/2020/04/No-image-found.jpg")
           }
-          alt={person.name_in_nepali || person.name || "Profile"}
-          className="person-image"
+          alt={person.name_in_nepali}
+          className="w-full h-full object-cover select-none"
         />
-        <div className="gradient-overlay">
+        <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
           <button
-            className="nav-button nav-button-left"
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             onClick={onScrollLeft}
             onTouchEnd={onScrollLeft}
-            aria-label="Scroll Left"
           >
             <img
+              className="w-6 h-6"
               src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
               alt="Scroll Left"
             />
           </button>
           <button
-            className="nav-button nav-button-right"
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             onClick={onScrollRight}
             onTouchEnd={onScrollRight}
-            aria-label="Scroll Right"
           >
             <img
+              className="w-6 h-6"
               src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
               alt="Scroll Right"
             />
           </button>
-          <div className="spacer" />
+
+          <div
+            className={
+              isMobile
+                ? "flex justify-start items-center w-full mb-12 relative -top-3"
+                : "flex justify-start items-center w-full mb-8 relative -top-3"
+            }
+          ></div>
         </div>
       </div>
       {isExpanded && <InfoSection person={person} />}

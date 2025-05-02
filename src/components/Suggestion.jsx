@@ -5,7 +5,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { FaCheck, FaEye, FaTimes } from "react-icons/fa";
 import SuggestionModal from "./SuggestionModal";
 import ClipLoader from "react-spinners/ClipLoader";
-import { Check, Eye,  X } from "lucide-react";
+import { Check, Eye, X } from "lucide-react";
 
 const Suggestion = () => {
   const [suggestions, setSuggestions] = useState([]);
@@ -260,7 +260,6 @@ const Suggestion = () => {
         style={{ overflow: "hidden" }}
       >
         <div className="table-wrapper flex-center">
-         
           <table>
             <thead>
               <tr>
@@ -273,7 +272,11 @@ const Suggestion = () => {
               {loading && suggestions.length === 0 ? (
                 <tr className="loading-row">
                   <td colSpan={3} className="flex-center">
-                    <ClipLoader color="var(--neutral-gray)" loading={true} size={35} />
+                    <ClipLoader
+                      color="var(--neutral-gray)"
+                      loading={true}
+                      size={35}
+                    />
                   </td>
                 </tr>
               ) : suggestions.length === 0 ? (
@@ -285,7 +288,9 @@ const Suggestion = () => {
               ) : (
                 suggestions.map((suggestion) => (
                   <tr key={suggestion.id}>
-                    <td className="suggestion-text">{suggestion.suggestion || "-"}</td>
+                    <td className="suggestion-text">
+                      {suggestion.suggestion || "-"}
+                    </td>
                     <td className="suggestion-date">
                       {convertToNepaliNumerals(
                         new Date(suggestion.date).toLocaleDateString()
@@ -341,8 +346,12 @@ const Suggestion = () => {
                                 : "status-rejected"
                             }
                           >
-                            {suggestion.status === "Approved" && <FaCheck size={14} />}
-                            {suggestion.status === "Rejected" && <FaTimes size={14} />}
+                            {suggestion.status === "Approved" && (
+                              <FaCheck size={14} />
+                            )}
+                            {suggestion.status === "Rejected" && (
+                              <FaTimes size={14} />
+                            )}
                             {suggestion.status}
                           </span>
                           <button
