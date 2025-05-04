@@ -7,10 +7,12 @@ import { NotebookPen, Trash2 } from "lucide-react";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import ClipLoader from "react-spinners/ClipLoader";
+import AddAdminForm from "./AddAdminForm";
 
 const AddAdminPage = () => {
   const navigate = useNavigate();
   const [isAdminLocal, setIsAdminLocal] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
@@ -58,102 +60,14 @@ const AddAdminPage = () => {
     }
   };
 
-  const handleAddAdmin = () => {
-    Swal.fire({
-      title: "Add New Admin",
-      html: `
-        <input id="name" type="text" placeholder="Enter name" class="swal-textarea" style="height: 40px; margin-bottom: 10px;" />
-        <input id="username" type="text" placeholder="Enter username" class="swal-textarea" style="height: 40px; margin-bottom: 10px;" />
-        <input id="password" type="password" placeholder="Enter password" class="swal-textarea" style="height: 40px;" />
-      `,
-      backdrop: `rgba(10,10,10,0.8)`,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: "Create",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#2E4568",
-      cancelButtonColor: "#E9D4B0",
-      didOpen: () => {
-        const titleElement = document.querySelector(".swal2-title");
-        const popupElement = document.querySelector(".swal2-popup");
-        const confirmButton = document.querySelector(".swal2-confirm");
-        const cancelButton = document.querySelector(".swal2-cancel");
-
-        if (titleElement) titleElement.classList.add("swal-title");
-        if (popupElement) popupElement.classList.add("swal-popup");
-        if (confirmButton) {
-          confirmButton.classList.add("swal-confirm-btn");
-          confirmButton.addEventListener("mouseover", () => {
-            confirmButton.style.backgroundColor = "#4A6A9D";
-            confirmButton.style.transform = "scale(1.05)";
-          });
-          confirmButton.addEventListener("mouseout", () => {
-            confirmButton.style.backgroundColor = "#2E4568";
-            confirmButton.style.transform = "scale(1)";
-          });
-        }
-        if (cancelButton) {
-          cancelButton.classList.add("swal-cancel-btn");
-          cancelButton.addEventListener("mouseover", () => {
-            cancelButton.style.backgroundColor = "#D9C4A0";
-            cancelButton.style.transform = "scale(1.05)";
-          });
-          cancelButton.addEventListener("mouseout", () => {
-            cancelButton.style.backgroundColor = "#E9D4B0";
-            cancelButton.style.transform = "scale(1)";
-          });
-        }
-      },
-      preConfirm: async () => {
-        const name = document.getElementById("name").value;
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-
-        if (!name || !username || !password) {
-          Swal.showValidationMessage("All fields are required.");
-          return false;
-        }
-
-        const payload = { name, username, password, role: "admin" };
-        try {
-          const user = JSON.parse(localStorage.getItem("user"));
-          await axios.post(`${API_URL}/auth/register/`, payload, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${user?.token}`,
-            },
-          });
-          fetchAdmins();
-          return true;
-        } catch (error) {
-          Swal.showValidationMessage(
-            `Failed to add admin: ${
-              error.response?.data?.message || error.message
-            }`
-          );
-          return false;
-        }
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Success!",
-          text: "Admin has been added successfully.",
-          icon: "success",
-          confirmButtonColor: "#2E4568",
-        });
-      }
-    });
-  };
-
   const handleEditAdmin = (admin) => {
     setSelectedAdmin(admin);
     Swal.fire({
       title: "Edit Admin",
       html: `
-        <input id="name" type="text" value="${admin.name}" placeholder="Enter name" class="swal-textarea" style="height: 40px; margin-bottom: 10px;" />
-        <input id="username" type="text" value="${admin.username}" placeholder="Enter username" class="swal-textarea" style="height: 40px; margin-bottom: 10px;" />
-        <input id="password" type="password" placeholder="Enter new password (leave blank to keep current)" class="swal-textarea" style="height: 40px;" />
+        <input id="name" type="text" value="${admin.name}" placeholder="Enter name" class="swal-textarea" />
+        <input id="username" type="text" value="${admin.username}" placeholder="Enter username" class="swal-textarea" />
+        <input id="password" type="password" placeholder="Enter new password (leave blank to keep current)" class="swal-textarea" />
       `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
@@ -247,6 +161,37 @@ const AddAdminPage = () => {
       confirmButtonColor: "#E9D4B0",
       cancelButtonColor: "#AAABAC",
       confirmButtonText: "Yes, delete it!",
+      didOpen: () => {
+        const titleElement = document.querySelector(".swal2-title");
+        const popupElement = document.querySelector(".swal2-popup");
+        const confirmButton = document.querySelector(".swal2-confirm");
+        const cancelButton = document.querySelector(".swal2-cancel");
+
+        if (titleElement) titleElement.classList.add("swal-title");
+        if (popupElement) popupElement.classList.add("swal-popup");
+        if (confirmButton) {
+          confirmButton.classList.add("swal-confirm-btn");
+          confirmButton.addEventListener("mouseover", () => {
+            confirmButton.style.backgroundColor = "#D9C4A0";
+            confirmButton.style.transform = "scale(1.05)";
+          });
+          confirmButton.addEventListener("mouseout", () => {
+            confirmButton.style.backgroundColor = "#E9D4B0";
+            confirmButton.style.transform = "scale(1)";
+          });
+        }
+        if (cancelButton) {
+          cancelButton.classList.add("swal-cancel-btn");
+          cancelButton.addEventListener("mouseover", () => {
+            cancelButton.style.backgroundColor = "#B9BAC3";
+            cancelButton.style.transform = "scale(1.05)";
+          });
+          cancelButton.addEventListener("mouseout", () => {
+            cancelButton.style.backgroundColor = "#AAABAC";
+            cancelButton.style.transform = "scale(1)";
+          });
+        }
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -258,10 +203,20 @@ const AddAdminPage = () => {
             },
           });
           fetchAdmins();
-          Swal.fire("Deleted!", `${admin.name} has been deleted.`, "success");
+          Swal.fire({
+            title: "Deleted!",
+            text: `${admin.name} has been deleted.`,
+            icon: "success",
+            confirmButtonColor: "#2E4568",
+          });
         } catch (error) {
           console.error("Error deleting admin:", error);
-          Swal.fire("Error!", "Failed to delete admin.", "error");
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to delete admin.",
+            icon: "error",
+            confirmButtonColor: "#2E4568",
+          });
         }
       }
     });
@@ -277,8 +232,11 @@ const AddAdminPage = () => {
             --secondary-light: #E9D4B0;
             --secondary-lighter: #D9C4A0;
             --neutral-gray: #B9BAC3;
+            --neutral-light-gray: #E0E0E0;
             --background-start: #F8E5C0;
             --background-end: #CDE8D0;
+            --row-bg: #F7F7F7;
+            --row-alt-bg: #FFFFFF;
             --white: #FFFFFF;
             --popup-start: #A6C8A5;
             --popup-end: #B9BAC3;
@@ -291,8 +249,12 @@ const AddAdminPage = () => {
           }
 
           .table-wrapper {
+          margin-left: 25px;
             width: 100%;
             margin-top: 20px;
+          
+            border-radius: 15px;
+           
           }
 
           .table-wrapper table {
@@ -309,6 +271,8 @@ const AddAdminPage = () => {
             color: var(--primary-dark);
             text-align: center;
             font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
           }
 
           .table-wrapper th, .table-wrapper td {
@@ -316,18 +280,20 @@ const AddAdminPage = () => {
             text-align: center;
             vertical-align: middle;
             font-family: 'Merriweather', serif;
+            font-size: 16px;
+            color: var(--primary-dark);
           }
 
           .table-wrapper tbody tr:nth-child(even) {
-            background-color: #F7F7F7;
+            background-color: var(--row-bg);
           }
 
           .table-wrapper tbody tr:nth-child(odd) {
-            background-color: #FFFFFF;
+            background-color: var(--row-alt-bg);
           }
 
           .table-wrapper tbody tr:hover {
-            background-color: #E0E0E0;
+            background-color: var(--neutral-light-gray);
             transition: background-color 0.3s ease;
           }
 
@@ -361,13 +327,25 @@ const AddAdminPage = () => {
             padding: 16px;
             color: var(--neutral-gray);
             font-family: 'Merriweather', serif;
+            font-size: 16px;
           }
 
           .loading-row {
             height: 60px;
           }
 
+          .action-btn {
+            color: var(--primary-dark);
+            transition: all 0.3s ease;
+          }
+
+          .action-btn:hover {
+            color: var(--primary-hover);
+            transform: scale(1.1);
+          }
+
           .swal-textarea {
+            height: 40px;
             width: 300px;
             background-color: var(--popup-start);
             border: 2px solid var(--secondary-light);
@@ -377,6 +355,66 @@ const AddAdminPage = () => {
             font-size: 16px;
             color: var(--primary-dark);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+          }
+
+          .swal-textarea:focus {
+            outline: none;
+            border-color: var(--secondary-lighter);
+            box-shadow: 0 0 0 3px rgba(233, 212, 176, 0.2);
+          }
+
+          .swal-title {
+            font-size: 24px;
+            color: var(--primary-dark);
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 1px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--secondary-light);
+            padding-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+          }
+
+          .swal-popup {
+            background: linear-gradient(to bottom, var(--popup-start), var(--popup-end));
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid var(--secondary-light);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          }
+
+          .swal-confirm-btn, .swal-cancel-btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            transition: background-color 0.2s, transform 0.2s;
+          }
+
+          .swal-confirm-btn {
+            background-color: var(--primary-dark);
+            color: var(--secondary-light);
+          }
+
+          .swal-cancel-btn {
+            background-color: var(--secondary-light);
+            color: var(--primary-dark);
+          }
+
+          .react-tooltip {
+            background-color: var(--primary-dark) !important;
+            color: var(--white) !important;
+            border: 1px solid var(--secondary-light) !important;
+            border-radius: 6px !important;
+            padding: 6px 10px !important;
+            font-family: 'Merriweather', serif !important;
+            font-size: 12px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          .react-tooltip-arrow {
+            border-color: var(--secondary-light) !important;
           }
         `}
       </style>
@@ -390,14 +428,28 @@ const AddAdminPage = () => {
           <span>Back to Table</span>
         </button>
         {isAdminLocal && (
-          <button onClick={handleAddAdmin} className="top-bar-btn flex-center">
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="top-bar-btn flex-center"
+          >
             <FaUserPlus />
             <span>Add New Admin</span>
           </button>
         )}
       </div>
 
-      <div className="table-wrapper">
+      {showAddForm && (
+        <AddAdminForm
+          onClose={() => setShowAddForm(false)}
+          onAdminAdded={() => {
+            setShowAddForm(false);
+            fetchAdmins();
+          }}
+          API_URL={API_URL}
+        />
+      )}
+
+      <div className="table-wrapper ">
         <table>
           <thead>
             <tr>
@@ -411,7 +463,11 @@ const AddAdminPage = () => {
               <tr className="loading-row">
                 <td colSpan="3">
                   <div className="flex-center">
-                    <ClipLoader color="#B9BAC3" loading={true} size={35} />
+                    <ClipLoader
+                      color="var(--neutral-gray)"
+                      loading={true}
+                      size={35}
+                    />
                   </div>
                 </td>
               </tr>
