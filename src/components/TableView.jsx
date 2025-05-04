@@ -6,7 +6,8 @@ import {
   FaMale,
   FaFemale,
   FaSitemap,
-  FaHome
+  FaHome,
+  FaUserPlus,
 } from "react-icons/fa";
 import {
   NotebookPen,
@@ -16,7 +17,7 @@ import {
   Lightbulb,
   ArrowLeftRight,
   X as XIcon,
-  Upload
+  Upload,
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
 import "./../assets/styles/TableView.css";
@@ -54,7 +55,7 @@ const TableView = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [showSearchForm, setShowSearchForm] = useState(false);
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(true);
   const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
     username: "",
@@ -137,7 +138,7 @@ const TableView = () => {
   }, [id]);
 
   const fetchData = async (page = 1) => {
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true);
     try {
       console.log(
         "Fetching data for:",
@@ -198,7 +199,7 @@ const TableView = () => {
       setFilteredData([]);
       setHasMore(false);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
   };
 
@@ -505,7 +506,6 @@ const TableView = () => {
 
   return (
     <div className="table-view transition-all duration-300 relative">
-      {/* Global Styles */}
       <style>
         {`
           :root {
@@ -548,7 +548,6 @@ const TableView = () => {
             background: linear-gradient(to bottom, var(--popup-start), var(--popup-end));
             color: var(--primary-dark);
             text-align: center;
-            // border-bottom: 2px solid var(--neutral-gray);
             font-family: 'Playfair Display', serif;
           }
 
@@ -588,13 +587,6 @@ const TableView = () => {
             gap: 12px;
             padding-left: 16px;
           }
-
-          // .pusta-cell {
-          //   display: flex;
-          //   justify-content: center;
-          //   align-items: center;
-          //   height: 100%;
-          // }
 
           .text-primary {
             color: var(--primary-dark);
@@ -647,8 +639,6 @@ const TableView = () => {
           }
 
           .flex-center {
-          
-            // padding: 0px 0px 0px 20px;
             padding-left: 20px;
             display: flex;
             align-items: center;
@@ -775,7 +765,6 @@ const TableView = () => {
       </style>
 
       <div className={isModalOpen ? "blurred" : ""}>
-        {/* Top Bar */}
         <div className="flex items-center justify-between w-full mb-4">
           <div className="flex items-center gap-4">
             <ToggleView
@@ -787,15 +776,21 @@ const TableView = () => {
           <div className="flex gap-4">
             <button className="top-bar-btn flex-center">
               <FaHome />
-              <a href="https://gautamfamily.org.np/">Homepage</a>              
+              <a href="https://gautamfamily.org.np/">Homepage</a>
             </button>
             {(id || searchApplied) && (
-              <button onClick={handleGoBack} className="top-bar-btn flex-center">
+              <button
+                onClick={handleGoBack}
+                className="top-bar-btn flex-center"
+              >
                 <FaArrowLeft />
                 <span>View All Table</span>
               </button>
             )}
-            <button onClick={() => setShowSearchForm(true)} className="top-bar-btn flex-center">
+            <button
+              onClick={() => setShowSearchForm(true)}
+              className="top-bar-btn flex-center"
+            >
               <FaSearch />
               <span>Search User</span>
             </button>
@@ -807,7 +802,10 @@ const TableView = () => {
                   </button>
                 )}
                 {activeTab !== "suggestions" && (
-                  <button onClick={() => navigate("/suggestions")} className="top-bar-btn">
+                  <button
+                    onClick={() => navigate("/suggestions")}
+                    className="top-bar-btn"
+                  >
                     View Suggestions
                   </button>
                 )}
@@ -831,12 +829,20 @@ const TableView = () => {
                     <span>+ Add New User</span>
                   </button>
                 )}
+                {activeTab === "data" && (
+                  <button
+                    onClick={() => navigate("/add-admin")}
+                    className="top-bar-btn flex-center"
+                  >
+                    <FaUserPlus />
+                    <span>Add Admin</span>
+                  </button>
+                )}
               </>
             )}
           </div>
         </div>
 
-        {/* Main Content */}
         {activeTab === "data" && (
           <div className="table-wrapper flex-center">
             <table>
@@ -856,7 +862,11 @@ const TableView = () => {
                   <tr className="loading-row">
                     <td colSpan={7}>
                       <div className="flex-center" style={{ minHeight: 60 }}>
-                        <ClipLoader color="var(--neutral-gray)" loading={true} size={35} />
+                        <ClipLoader
+                          color="var(--neutral-gray)"
+                          loading={true}
+                          size={35}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -870,10 +880,7 @@ const TableView = () => {
                   </tr>
                 ) : (
                   filteredData.map((row, index) => (
-                    <tr
-                      key={index}
-                      
-                    >
+                    <tr key={index}>
                       <td
                         className={`name-cell text-primary ${
                           row.gender?.toLowerCase() === "male"
@@ -885,7 +892,9 @@ const TableView = () => {
                       >
                         <img
                           src={
-                            row.photo && typeof row.photo === "string" && row.photo.startsWith("http")
+                            row.photo &&
+                            typeof row.photo === "string" &&
+                            row.photo.startsWith("http")
                               ? row.photo
                               : row.gender?.toLowerCase() === "male"
                               ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
@@ -1021,7 +1030,6 @@ const TableView = () => {
                         >
                           <IdCard size={18} />
                         </button>
-                        
                       </td>
                     </tr>
                   ))
@@ -1038,7 +1046,11 @@ const TableView = () => {
             hasMore={hasMore && visibleData.length >= 15}
             loader={
               <div className="flex justify-center items-center py-6">
-                <ClipLoader color="var(--neutral-gray)" loading={true} size={35} />
+                <ClipLoader
+                  color="var(--neutral-gray)"
+                  loading={true}
+                  size={35}
+                />
               </div>
             }
             style={{ overflow: "hidden" }}

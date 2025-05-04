@@ -11,7 +11,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Compare from "./components/Compare";
 import TableView from "./components/TableView";
 import CardView from "./components/CardView";
-// import FamilyTreeGraph from "./components/FamilyTreeGraph";
+import AddAdminPage from "./components/AddAdminPage"; // Import AddAdminPage
 
 const RedirectOnMobile = ({ setIsMobile }) => {
   useEffect(() => {
@@ -19,11 +19,11 @@ const RedirectOnMobile = ({ setIsMobile }) => {
       setIsMobile(window.innerWidth < 800);
     };
     window.addEventListener("resize", handleResize);
-    handleResize(); // Run once on mount to set the initial state
+    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, [setIsMobile]);
 
-  return null; // Nothing to render, this is just for side-effects
+  return null;
 };
 
 const AppRoutes = ({ isMobile }) => (
@@ -33,6 +33,8 @@ const AppRoutes = ({ isMobile }) => (
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/card/:id" element={<CardView />} />
       <Route path="/compare/:id" element={<Compare />} />
+      <Route path="/add-admin" element={<AddAdminPage />} />{" "}
+      {/* Add this route */}
       {isMobile ? (
         <Route path="/" element={<Navigate to="/card/1" />} />
       ) : (
