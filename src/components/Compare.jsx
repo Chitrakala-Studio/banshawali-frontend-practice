@@ -5,7 +5,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "choices.js/public/assets/styles/choices.css";
-import { FaHome } from "react-icons/fa";
+import { FaArrowLeft, FaHome } from "react-icons/fa";
+import { IdCard } from "lucide-react";
 
 const Compare = () => {
   const { id } = useParams();
@@ -338,6 +339,7 @@ const Compare = () => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  
 }
 
 
@@ -455,6 +457,7 @@ const Compare = () => {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            
           }
 
           .label {
@@ -476,6 +479,8 @@ const Compare = () => {
             font-size: 16px;
             color: var(--primary-text);
             transition: all 0.3s ease;
+            background: #f3f4f6
+
           }
 
           .input:disabled,
@@ -496,11 +501,13 @@ const Compare = () => {
             background: linear-gradient(to right, #fffaf0, #ffffff);
             border: 1px solid var(--neutral-gray);
             border-radius: 6px;
-            padding: 8px 12px;
+            padding: 4px 6.5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             font-family: 'Merriweather', serif;
             font-size: 16px;
             color: var(--primary-text);
+            background: #f3f4f6
+
           }
 
           .choices__list--dropdown {
@@ -510,6 +517,7 @@ const Compare = () => {
             border: 1px solid var(--neutral-gray);
             border-radius: 6px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
           }
 
           .choices__list--dropdown .choices__item {
@@ -518,6 +526,9 @@ const Compare = () => {
             font-size: 16px;
             color: var(--primary-text);
             transition: background-color 0.2s ease;
+            
+          
+
           }
 
           .choices__list--dropdown .choices__item:hover {
@@ -531,6 +542,7 @@ const Compare = () => {
             color: var(--primary-text);
             font-family: 'Merriweather', serif;
             font-size: 16px;
+            
           }
 
           .action-section {
@@ -605,14 +617,17 @@ const Compare = () => {
         </button>
 
         <button
-          className="top-bar-btn hide-on-mobile"
+          className="top-bar-btn hide-on-mobile flex-center"
           onClick={() => navigate("/")}
         >
+          <FaArrowLeft />
           View Table
         </button>
 
-        <button className="top-bar-btn" onClick={() => navigate(`/card/${id}`)}>
+        <button className="top-bar-btn flex-center" onClick={() => navigate(`/card/${id}`)}>
+          <IdCard />
           Card View
+
         </button>
       </div>
 

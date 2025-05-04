@@ -119,25 +119,33 @@ const CardView = () => {
     setShowSearchPopup(false);
   };
 
-  const scrollLeft = () => {
-    setInfoPopup(null);
-    setIsExpanded(false);
-    if (isSearchActive) {
-      if (currentIndex > 0) setCurrentIndex((prev) => prev - 1);
-    } else {
-      navigate(`/card/${previousIndex}`);
-    }
-  };
-
-  const scrollRight = () => {
-    setInfoPopup(null);
-    setIsExpanded(false);
-    if (isSearchActive) {
-      if (currentIndex < data.length - 1) setCurrentIndex((prev) => prev + 1);
-    } else {
-      navigate(`/card/${nextIndex}`);
-    }
-  };
+   const scrollLeft = () => {
+      setInfoPopup(null);
+      setIsExpanded(false);
+      if (isSearchActive) {
+        if (data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length);
+          setCurrentIndex(randomIndex);
+        }
+      } else {
+        const randomId = data.length > 0 ? data[Math.floor(Math.random() * data.length)].id : previousIndex;
+        navigate(`/card/${randomId}`);
+      }
+    };
+  
+    const scrollRight = () => {
+      setInfoPopup(null);
+      setIsExpanded(false);
+      if (isSearchActive) {
+        if (data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length);
+          setCurrentIndex(randomIndex);
+        }
+      } else {
+        const randomId = data.length > 0 ? data[Math.floor(Math.random() * data.length)].id : nextIndex;
+        navigate(`/card/${randomId}`);
+      }
+    };
 
   const handleSwipe = (direction) => {
     if (direction === "left") scrollRight();
@@ -280,6 +288,7 @@ const CardView = () => {
               padding-bottom: 4rem;
               background: linear-gradient(to bottom, #fffaf0, #ffffff);
               background: radial-gradient(circle at top, var(--background-start) 30%, var(--background-end) 100%)
+              
             }
 
             .card-container {
@@ -324,6 +333,8 @@ const CardView = () => {
             }
 
             
+
+            
           
               .top-bar-wrapper {
               display: flex;
@@ -347,6 +358,7 @@ const CardView = () => {
               gap: 8px;
               
             }
+              
 
             .top-bar-btn:hover {
                background-color: var(--primary-hover);

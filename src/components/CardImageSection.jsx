@@ -34,30 +34,33 @@ const CardImageSection = ({
           alt={person.name_in_nepali}
           className="w-full h-full object-cover select-none"
         />
-        <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10">
-          <button
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            onClick={onScrollLeft}
-            onTouchEnd={onScrollLeft}
-          >
-            <img
-              className="w-6 h-6"
-              src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
-              alt="Scroll Left"
-            />
-          </button>
-          <button
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            onClick={onScrollRight}
-            onTouchEnd={onScrollRight}
-          >
-            <img
-              className="w-6 h-6"
-              src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
-              alt="Scroll Right"
-            />
-          </button>
-
+        <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-end items-start p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent text-white text-left z-10 group">
+          {!isMobile && (
+            <>
+              <button
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={onScrollLeft}
+                onTouchEnd={onScrollLeft}
+              >
+                <img
+                  className="w-6 h-6"
+                  src="https://img.icons8.com/?size=100&id=1806&format=png&color=000000"
+                  alt="Scroll Left"
+                />
+              </button>
+              <button
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-50 p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={onScrollRight}
+                onTouchEnd={onScrollRight}
+              >
+                <img
+                  className="w-6 h-6"
+                  src="https://img.icons8.com/?size=100&id=61&format=png&color=000000"
+                  alt="Scroll Right"
+                />
+              </button>
+            </>
+          )}
           <div
             className={
               isMobile
