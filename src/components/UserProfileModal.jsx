@@ -72,38 +72,39 @@ const UserProfileModal = ({ user, onClose }) => {
     { id: "contact", label: "Contact", icon: Mail },
   ];
 
+
   const renderPersonalInfo = () => (
     <div className="info-section">
       <p className="info-item">
         <GenderIcon gender={user.gender} label="User Gender" />
-        <strong>Gender</strong>
+        <strong>Gender : </strong>
         {user.gender || "-"}
       </p>
       {user.dateOfBirth && (
         <p className="info-item">
           <FaBirthdayCake className="info-icon" />
-          <strong>Date of Birth</strong>
+          <strong>Date of Birth : </strong>
           {user.dateOfBirth}
         </p>
       )}
       {user.lifestatus && (
         <p className="info-item">
           <FaHeart className="info-icon" />
-          <strong>Status</strong>
+          <strong>Status : </strong>
           {user.lifestatus}
         </p>
       )}
       {user.date_of_death && (
         <p className="info-item">
           <FaSkullCrossbones className="info-icon" />
-          <strong>Date of Death</strong>
+          <strong>Date of Death : </strong>
           {user.date_of_death}
         </p>
       )}
       {user.profession && (
         <p className="info-item">
           <Briefcase className="info-icon" />
-          <strong>Profession</strong>
+          <strong>Profession : </strong>
           {user.profession}
         </p>
       )}
@@ -115,7 +116,7 @@ const UserProfileModal = ({ user, onClose }) => {
       {user.grandfather?.name && (
         <p className="info-item">
           <GenderIcon gender="male" label="Grandfather" />
-          <strong className="family-label">Grandfather</strong>
+          <strong className="family-label">Grandfather : </strong>
           {user.grandfather.id ? (
             <Link
               to={`/${user.grandfather.id}`}
@@ -135,7 +136,7 @@ const UserProfileModal = ({ user, onClose }) => {
       {user.grandmother?.name && (
         <p className="info-item">
           <GenderIcon gender="female" label="Grandmother" />
-          <strong className="family-label">Grandmother</strong>
+          <strong className="family-label">Grandmother : </strong>
           {user.grandmother.id ? (
             <Link
               to={`/${user.grandmother.id}`}
@@ -155,7 +156,7 @@ const UserProfileModal = ({ user, onClose }) => {
       {user.father?.id && (
         <p className="info-item">
           <GenderIcon gender="male" label="Father" />
-          <strong className="family-label">Father</strong>
+          <strong className="family-label">Father : </strong>
           <Link
             to={`/${user.father.id}`}
             onClick={onClose}
@@ -169,7 +170,7 @@ const UserProfileModal = ({ user, onClose }) => {
       {user.mother?.id && (
         <p className="info-item">
           <GenderIcon gender="female" label="Mother" />
-          <strong className="family-label">Mother</strong>
+          <strong className="family-label">Mother : </strong>
           <Link
             to={`/${user.mother.id}`}
             onClick={onClose}
@@ -249,21 +250,21 @@ const UserProfileModal = ({ user, onClose }) => {
         {contact.email && (
           <p className="info-item">
             <Mail className="info-icon" />
-            <strong>Email</strong>
+            <strong>Email : </strong>
             {contact.email}
           </p>
         )}
         {contact.phone && (
           <p className="info-item">
             <Phone className="info-icon" />
-            <strong>Phone</strong>
+            <strong>Phone : </strong>
             {contact.phone}
           </p>
         )}
         {contact.address && (
           <p className="info-item">
             <MapPin className="info-icon" />
-            <strong>Address</strong>
+            <strong>Address : </strong>
             {contact.address}
           </p>
         )}
@@ -340,21 +341,34 @@ const UserProfileModal = ({ user, onClose }) => {
 
           .header-section {
             display: flex;
-            align-items: flex-start;
+            flex-direction: row;
+            align-items: stretch;
             gap: 16px;
+            margin-bottom: 16px;
+          }
+
+          .header-image-container {
+            flex: 0 0 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
 
           .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 0;
+            width: 100%;
+            // height: 180px;
             object-fit: cover;
+            border-radius: 8px;
             border: 2px solid var(--neutral-gray);
+            background: #f3e8d7;
           }
 
           .header-content {
-            flex: 1;
+            flex: 0 0 60%;
             text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           }
 
           .name {
@@ -366,6 +380,7 @@ const UserProfileModal = ({ user, onClose }) => {
           }
 
           .sub-name {
+            text-align: left;
             font-family: 'Merriweather', serif;
             font-size: 16px;
             font-style: italic;
@@ -373,7 +388,9 @@ const UserProfileModal = ({ user, onClose }) => {
             margin-bottom: 4px;
           }
 
+
           .bio-container {
+            text-align: left;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -446,7 +463,6 @@ const UserProfileModal = ({ user, onClose }) => {
           .tab-btn svg {
             width: 20px;
             height: 20px;
-ვ: 1px;
             margin-right: 8px;
             color: var(--primary-text);
           }
@@ -467,7 +483,6 @@ const UserProfileModal = ({ user, onClose }) => {
 
           .info-item strong {
             margin-right: 8px;
-            font-weight: 500;
           }
 
           .info-item.nested {
@@ -510,6 +525,23 @@ const UserProfileModal = ({ user, onClose }) => {
             color: var(--primary-hover);
             outline: none;
           }
+
+           /* Responsive: stack columns on small screens */
+          @media (max-width: 600px) {
+            .header-section {
+              flex-direction: column;
+              gap: 8px;
+            }
+            .header-image-container,
+            .header-content {
+              flex: 1 1 100%;
+              width: 100%;
+            }
+            .profile-image {
+              width: 100%;
+              height: 140px;
+            }
+          }
         `}
       </style>
 
@@ -519,25 +551,30 @@ const UserProfileModal = ({ user, onClose }) => {
         </button>
 
         <div className="header-section">
-          {user.photo ? (
-            <img
-              src={user.photo}
-              alt={user.name || "Profile"}
-              className="profile-image"
-            />
-          ) : user.gender && String(user.gender).toLowerCase() === "male" ? (
-            <img
-              src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-              alt="Male profile"
-              className="profile-image"
-            />
-          ) : (
-            <img
-              src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
-              alt="Female profile"
-              className="profile-image"
-            />
-          )}
+          <div class="header-image-container">
+            {user.photo ? (
+              <img
+                src={user.photo}
+                alt={user.name || "Profile"}
+                className="profile-image"
+                style={{ width: "100%", height: "auto" }}
+              />
+            ) : user.gender && String(user.gender).toLowerCase() === "male" ? (
+              <img
+                src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                alt="Male profile"
+                className="profile-image"
+                style={{ width: "100%", height: "auto" }}
+              />
+            ) : (
+              <img
+                src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+                alt="Female profile"
+                className="profile-image"
+                style={{ width: "100%", height: "auto" }}
+              />
+            )}
+          </div>
           <div className="header-content">
             <h2 className="name">{user.name_in_nepali || user.name || "-"}</h2>
             <p className="sub-name">{user.name || "-"}</p>
