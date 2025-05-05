@@ -114,7 +114,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     setDimensions({
@@ -382,10 +381,15 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
       }
       if (remaining) {
         if (lines.length < MAX_LINES) {
-          lines.push(remaining.length > MAX_LINE_LENGTH ? remaining.slice(0, MAX_LINE_LENGTH - 3) + "..." : remaining);
+          lines.push(
+            remaining.length > MAX_LINE_LENGTH
+              ? remaining.slice(0, MAX_LINE_LENGTH - 3) + "..."
+              : remaining
+          );
         } else {
           // Truncate last line with ellipsis
-          lines[MAX_LINES - 1] = lines[MAX_LINES - 1].slice(0, MAX_LINE_LENGTH - 3) + "...";
+          lines[MAX_LINES - 1] =
+            lines[MAX_LINES - 1].slice(0, MAX_LINE_LENGTH - 3) + "...";
         }
       }
       return lines;
@@ -393,7 +397,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
 
     const nameLines = wrapText(nodeDatum.name);
     const nameBlockHeight = nameLines.length * 22; // 22px per line
-
 
     return (
       <g
@@ -592,8 +595,13 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             }}
             renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
             onNodeClick={handleNodeClick}
-            separation={{ siblings: 0.5 , nonSiblings: 0.9 }}
+            separation={{ siblings: 0.5, nonSiblings: 0.9 }}
             pathFunc="step"
+            pathProps={{
+              fill: "none", // kill the fill that’s making trapezoids
+              stroke: "var(--primary-dark)", // your desired line color
+              strokeWidth: 0.5, // a crisp 1px stroke
+            }}
             pathClassFunc={() => "custom-link"}
           />
         )}

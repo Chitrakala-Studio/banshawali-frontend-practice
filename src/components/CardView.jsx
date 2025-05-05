@@ -119,33 +119,39 @@ const CardView = () => {
     setShowSearchPopup(false);
   };
 
-   const scrollLeft = () => {
-      setInfoPopup(null);
-      setIsExpanded(false);
-      if (isSearchActive) {
-        if (data.length > 0) {
-          const randomIndex = Math.floor(Math.random() * data.length);
-          setCurrentIndex(randomIndex);
-        }
-      } else {
-        const randomId = data.length > 0 ? data[Math.floor(Math.random() * data.length)].id : previousIndex;
-        navigate(`/card/${randomId}`);
+  const scrollLeft = () => {
+    setInfoPopup(null);
+    setIsExpanded(false);
+    if (isSearchActive) {
+      if (data.length > 0) {
+        const randomIndex = Math.floor(Math.random() * data.length);
+        setCurrentIndex(randomIndex);
       }
-    };
-  
-    const scrollRight = () => {
-      setInfoPopup(null);
-      setIsExpanded(false);
-      if (isSearchActive) {
-        if (data.length > 0) {
-          const randomIndex = Math.floor(Math.random() * data.length);
-          setCurrentIndex(randomIndex);
-        }
-      } else {
-        const randomId = data.length > 0 ? data[Math.floor(Math.random() * data.length)].id : nextIndex;
-        navigate(`/card/${randomId}`);
+    } else {
+      const randomId =
+        data.length > 0
+          ? data[Math.floor(Math.random() * data.length)].id
+          : previousIndex;
+      navigate(`/card/${randomId}`);
+    }
+  };
+
+  const scrollRight = () => {
+    setInfoPopup(null);
+    setIsExpanded(false);
+    if (isSearchActive) {
+      if (data.length > 0) {
+        const randomIndex = Math.floor(Math.random() * data.length);
+        setCurrentIndex(randomIndex);
       }
-    };
+    } else {
+      const randomId =
+        data.length > 0
+          ? data[Math.floor(Math.random() * data.length)].id
+          : nextIndex;
+      navigate(`/card/${randomId}`);
+    }
+  };
 
   const handleSwipe = (direction) => {
     if (direction === "left") scrollRight();
@@ -272,37 +278,34 @@ const CardView = () => {
               --primary-hover: #4A6A9D;
               --secondary-light: #E9D4B0;
               --secondary-lighter: #D9C4A0;
-              --primary-dark: #2E4568;
-              --primary-hover: #4A6A9D;
-              --secondary-light: #E9D4B0;
-              --secondary-lighter: #D9C4A0;
-               --white: #FFFFFF;
-            
-          }
+              --white: #FFFFFF;
+            }
 
             .card-view-container {
-              padding: 20px;
+              padding: 0; /* Remove padding to extend to top */
               display: flex;
               flex-direction: column;
-              height: 100vh;
-              padding-bottom: 4rem;
               background: linear-gradient(to bottom, #fffaf0, #ffffff);
-              background: radial-gradient(circle at top, var(--background-start) 30%, var(--background-end) 100%)
-              
+              background: radial-gradient(circle at top, var(--background-start) 30%, var(--background-end) 100%);
             }
 
             .card-container {
-              width: ${isMobile ? "98vw" : "40vw"};
-              margin: -20px auto 3rem;
-              border-radius: 15px;
+              width: 100vw;
+              height: calc(100vh - 60px); /* Adjust height to fit below the home icon */
+              margin: 0;
+              border-radius: 0;
               overflow: hidden;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+              box-shadow: none;
+              background-color: #fff; /* Match card background */
+              display: flex;
+              flex-direction: column;
+              
             }
 
             .card-wrapper {
               position: relative;
               width: 100%;
-              height: 100%;
+              flex-grow: 1; /* Allow card to take remaining space */
               scroll-snap-align: center;
               display: flex;
               flex-direction: column;
@@ -321,10 +324,9 @@ const CardView = () => {
 
             .family-tree-content {
               background: linear-gradient(to bottom, #fffaf0, #ffffff);
-              width: 91.666667%;
-              max-width: 64rem;
-              max-height: 90vh;
-              padding: 24px;
+              width: 95%;
+              max-height: 80vh;
+              padding: 12px;
               border-radius: 15px;
               border: 2px solid var(--gold-accent);
               position: relative;
@@ -332,11 +334,7 @@ const CardView = () => {
               box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             }
 
-            
-
-            
-          
-              .top-bar-wrapper {
+            .top-bar-wrapper {
               display: flex;
               align-items: center;
               justify-content: space-between;
@@ -356,25 +354,97 @@ const CardView = () => {
               display: inline-flex;
               align-items: center;
               gap: 8px;
-              
             }
-              
 
             .top-bar-btn:hover {
-               background-color: var(--primary-hover);
-                color: var(--white);
-                transform: scale(1.05);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+              background-color: var(--primary-hover);
+              color: var(--white);
+              transform: scale(1.05);
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .home-icon-container {
+              display: flex;
+              justify-content: flex-start;
+              padding: 10px;
+              background-color: transparent;
+            }
+
+            .home-icon {
+              font-size: 24px;
+              color: var(--primary-dark);
+              transition: all 0.3s ease;
+            }
+
+            .home-icon:hover {
+              color: var(--primary-hover);
+              transform: scale(1.1);
             }
 
             .flex-center {
               display: flex;
               align-items: center;
               gap: 8px;
-            }  
-              `}
+            }
 
+            /* Desktop styles */
+            @media (min-width: 800px) {
+              .card-view-container {
+                padding: 20px;
+                height: 100vh;
+                padding-bottom: 4rem;
+              }
+
+              .card-container {
+                width: 40vw;
+                height: auto;
+                margin: -20px auto 3rem;
+                border-radius: 15px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                background-color: #fff;
+              }
+
+              .home-icon-container {
+                display: none; /* Hide home icon on desktop */
+              }
+
+              .family-tree-content {
+                width: 91.666667%;
+                max-width: 64rem;
+                max-height: 90vh;
+                padding: 24px;
+              }
+            }
+
+            /* Mobile styles */
+            @media (max-width: 799px) {
+              .top-bar-wrapper {
+                display: none; /* Hide the top bar with Homepage button on mobile */
+              }
+                
+              .home-icon-container {
+                 position: absolute !important;
+    top: 8px;    /* tweak up/down */
+    left: 8px;   /* tweak left/right */
+    z-index: 20; /* above the card */
+  }
+              .card-container {
+                border-radius: 0;
+                box-shadow: none;
+                height: calc(100vh - 60px);
+                  position: relative;
+    top: -20px; 
+              }
+            }
+          `}
         </style>
+
+        <div className="home-icon-container">
+          <a href="https://gautamfamily.org.np/" className="home-icon">
+            <FaHome />
+          </a>
+        </div>
+
         <div className="top-bar-wrapper">
           {!isMobile && (
             <ToggleView
@@ -383,14 +453,14 @@ const CardView = () => {
               availableId={id}
             />
           )}
-
-          <a href="https://gautamfamily.org.np/" className="top-bar-btn flex-center">
+          <a
+            href="https://gautamfamily.org.np/"
+            className="top-bar-btn flex-center"
+          >
             <FaHome />
             Homepage
           </a>
         </div>
-
-        
 
         <div className="card-container">
           {isInfoOpen ? (
