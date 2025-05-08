@@ -1,26 +1,53 @@
 import { useState } from "react";
-import login_img from "/src/assets/public/admin-log.png";
+import Swal from "sweetalert2"; // Import SweetAlert2
+import login_img from "/src/assets/public/newloginimage.png";
 import "./../../assets/styles/AdminLogin.css";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    if (username === "admin" && password === "admin") {
-      // Save the user information in local storage as admin
-      const user = { username, token: "dummyToken123", role: "admin" };
-      localStorage.setItem("user", JSON.stringify(user));
-      // Redirect to the protected route or dashboard
-      navigate("/");
-    } else {
-      setError("Invalid credentials. Please try again.");
-    }
+    const URL = `${API_URL}/auth/auth/login/`;
+    const data = {
+      username: username,
+      password: password,
+    };
+
+    axios
+      .post(URL, data)
+      .then((response) => {
+        if (response.status !== 200) {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Login",
+            text: "Invalid username or password. Please try again.",
+          });
+          return;
+        }
+        // Add access token to response.user
+        const user_Details = {
+          username: response.data.user.username,
+          token: response.data.access,
+          role: "admin",
+        };
+        localStorage.setItem("user", JSON.stringify(user_Details));
+        navigate("/");
+      })
+      .catch((error) => {
+        console.error("Login error:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Login",
+          text: "Invalid username or password. Please try again.",
+        });
+      });
   };
 
   const handleContinueWithoutLogin = () => {
@@ -39,7 +66,6 @@ const AdminLogin = () => {
       <div className="admin-login-form">
         <h1>Admin Login</h1>
         <form onSubmit={handleLogin}>
-          {error && <p className="error-message">{error}</p>}
           <div className="form-group">
             <label htmlFor="username">Username:</label>
             <input
@@ -67,15 +93,13 @@ const AdminLogin = () => {
           <button type="submit" className="submit-button">
             Login
           </button>
-        </form>
-        <p>
           <button
-            className="continue-without-login"
+            className="continue-without-login submit-button"
             onClick={handleContinueWithoutLogin}
           >
-            Continue without login
+            Login as Guest
           </button>
-        </p>
+        </form>
       </div>
     </div>
   );

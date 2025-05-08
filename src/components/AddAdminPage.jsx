@@ -40,13 +40,13 @@ const AddAdminPage = () => {
     setLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem("user"));
-      const response = await axios.get(`${API_URL}/auth/admins/`, {
+      const response = await axios.get(`${API_URL}/auth/auth/user-list/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      setAdmins(response.data.data || []);
+      setAdmins(response.data || []);
     } catch (error) {
       console.error("Error fetching admins:", error);
       Swal.fire({
@@ -63,11 +63,39 @@ const AddAdminPage = () => {
   const handleEditAdmin = (admin) => {
     setSelectedAdmin(admin);
     Swal.fire({
-      title: "Edit Admin",
+      title: `<span style="display:block; text-align:center; width:100%;">Edit Admin</span>`,
       html: `
-        <input id="name" type="text" value="${admin.name}" placeholder="Enter name" class="swal-textarea" />
-        <input id="username" type="text" value="${admin.username}" placeholder="Enter username" class="swal-textarea" />
-        <input id="password" type="password" placeholder="Enter new password (leave blank to keep current)" class="swal-textarea" />
+        <button id="custom-close-btn"
+          style="
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+            z-index: 10;
+          ">&times;</button>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <div style="flex: 1;">
+            <label for="firstname" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px;">First Name</label>
+            <input id="firstname" type="text" value="${admin.first_name || ''}" placeholder="Enter first name" style="width: 100%;" class="swal-textarea" />
+          </div>
+          <div style="flex: 1;">
+            <label for="lastname" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px;">Last Name</label>
+            <input id="lastname" type="text" value="${admin.last_name || ''}" placeholder="Enter last name" style="width: 100%;" class="swal-textarea" />
+          </div>
+        </div>
+        <label for="username" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Username</label>
+        <input id="username" type="text" value="${admin.username || ''}" placeholder="Enter username" style="width: 100%;" class="swal-textarea" />
+        <label for="email" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Email</label>
+        <input id="email" type="email" value="${admin.email || ''}" placeholder="Enter email" style="width: 100%;" class="swal-textarea" />
+        <label for="phone" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Phone Number</label>
+        <input id="phone" type="text" value="${admin.phone || ''}" placeholder="Enter phone number" style="width: 100%;" class="swal-textarea" />
+        <label for="password" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">New Password</label>
+        <input id="password" type="password" placeholder="Enter new password (leave blank to keep current)" style="width: 100%;" class="swal-textarea" />
       `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
@@ -77,11 +105,15 @@ const AddAdminPage = () => {
       confirmButtonColor: "#2E4568",
       cancelButtonColor: "#E9D4B0",
       didOpen: () => {
+        const closeBtn = document.getElementById("custom-close-btn");
+        if (closeBtn) {
+          closeBtn.onclick = () => Swal.close();
+        }
         const titleElement = document.querySelector(".swal2-title");
         const popupElement = document.querySelector(".swal2-popup");
         const confirmButton = document.querySelector(".swal2-confirm");
         const cancelButton = document.querySelector(".swal2-cancel");
-
+  
         if (titleElement) titleElement.classList.add("swal-title");
         if (popupElement) popupElement.classList.add("swal-popup");
         if (confirmButton) {
@@ -108,18 +140,21 @@ const AddAdminPage = () => {
         }
       },
       preConfirm: async () => {
-        const name = document.getElementById("name").value;
+        const firstname = document.getElementById("firstname").value;
+        const lastname = document.getElementById("lastname").value;
         const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const phone = document.getElementById("phone").value;
         const password = document.getElementById("password").value;
-
-        if (!name || !username) {
-          Swal.showValidationMessage("Name and username are required.");
+  
+        if (!firstname || !lastname || !username || !email || !phone) {
+          Swal.showValidationMessage("All fields except password are required.");
           return false;
         }
-
-        const payload = { name, username };
+  
+        const payload = { first_name: firstname, last_name: lastname, username, email, phone };
         if (password) payload.password = password;
-
+  
         try {
           const user = JSON.parse(localStorage.getItem("user"));
           await axios.put(`${API_URL}/auth/admins/${admin.id}/`, payload, {
@@ -196,7 +231,7 @@ const AddAdminPage = () => {
       if (result.isConfirmed) {
         try {
           const user = JSON.parse(localStorage.getItem("user"));
-          await axios.delete(`${API_URL}/auth/admins/${admin.id}/`, {
+          await axios.delete(`${API_URL}/auth/auth/user-list/${admin.id}/`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user?.token}`,
@@ -205,7 +240,7 @@ const AddAdminPage = () => {
           fetchAdmins();
           Swal.fire({
             title: "Deleted!",
-            text: `${admin.name} has been deleted.`,
+            text: `${admin.username} has been deleted.`,
             icon: "success",
             confirmButtonColor: "#2E4568",
           });
@@ -226,6 +261,7 @@ const AddAdminPage = () => {
     <div className="table-view transition-all duration-300 relative">
       <style>
         {`
+               
           :root {
             --primary-dark: #2E4568;
             --primary-hover: #4A6A9D;
@@ -310,7 +346,7 @@ const AddAdminPage = () => {
 
           .top-bar-btn:hover {
             background-color: var(--primary-hover);
-            color: var(--white);
+            color: var (--white);
             transform: scale(1.05);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
           }
@@ -347,7 +383,7 @@ const AddAdminPage = () => {
           .swal-textarea {
             height: 40px;
             width: 300px;
-            background-color: var(--popup-start);
+            // background-color: var(--popup-start);
             border: 2px solid var(--secondary-light);
             border-radius: 10px;
             padding: 10px;
@@ -356,6 +392,7 @@ const AddAdminPage = () => {
             color: var(--primary-dark);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 10px;
+            
           }
 
           .swal-textarea:focus {
@@ -377,7 +414,7 @@ const AddAdminPage = () => {
           }
 
           .swal-popup {
-            background: linear-gradient(to bottom, var(--popup-start), var(--popup-end));
+            // background: linear-gradient(to bottom, var(--popup-start), var(--popup-end));
             border-radius: 15px;
             padding: 25px;
             border: 2px solid var(--secondary-light);
@@ -416,6 +453,10 @@ const AddAdminPage = () => {
           .react-tooltip-arrow {
             border-color: var(--secondary-light) !important;
           }
+          
+          table td:first-child {
+            display: block;
+          }
         `}
       </style>
 
@@ -453,7 +494,8 @@ const AddAdminPage = () => {
         <table>
           <thead>
             <tr>
-              <th>Name</th>
+              <th>First Name</th>
+              <th>Last Name</th>
               <th>Username</th>
               <th>Actions</th>
             </tr>
@@ -480,8 +522,9 @@ const AddAdminPage = () => {
             ) : (
               admins.map((admin) => (
                 <tr key={admin.id}>
-                  <td>{admin.name}</td>
-                  <td>{admin.username}</td>
+                  <td>{admin.first_name || "-"}</td>
+                  <td>{admin.last_name || "-"}</td>
+                  <td>{admin.username || "-"}</td>
                   <td className="flex-center space-x-2">
                     <button
                       data-tooltip-id="tooltip"

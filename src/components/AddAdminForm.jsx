@@ -8,14 +8,38 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
       title: "Add New Admin",
       background: "#ffffff",
       html: `
-  <label for="name" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px;">Name</label>
-  <input id="name" type="text" placeholder="Enter name" style="width:420px" class="swal-textarea" />
-  <label for="username" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Username</label>
-  <input id="username" type="text" placeholder="Enter username" style="width:420px" class="swal-textarea" />
-  <label for="password" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Password</label>
-  <input id="password" type="password" placeholder="Enter password" style="width:420px" class="swal-textarea" />
-`,
-
+       <button id="custom-close-btn"
+          style="
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+            z-index: 10;
+          ">&times;</button>
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="firstname" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px;">First Name</label>
+            <input id="firstname" type="text" placeholder="Enter first name" style="width: 100%;" class="swal-textarea" />
+          </div>
+          <div style="flex: 1;">
+            <label for="lastname" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px;">Last Name</label>
+            <input id="lastname" type="text" placeholder="Enter last name" style="width: 100%;" class="swal-textarea" />
+          </div>
+        </div>
+        <label for="username" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Username</label>
+        <input id="username" type="text" placeholder="Enter username" style="width: 100%;" class="swal-textarea" />
+        <label for="email" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Email</label>
+        <input id="email" type="email" placeholder="Enter email" style="width: 100%;" class="swal-textarea" />
+        <label for="phone" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Phone Number</label>
+        <input id="phone" type="text" placeholder="Enter phone number" style="width: 100%;" class="swal-textarea" />
+        <label for="password" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Password</label>
+        <input id="password" type="password" placeholder="Enter password" style="width: 100%;" class="swal-textarea" />
+      `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
       showCancelButton: true,
@@ -23,7 +47,13 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
       cancelButtonText: "Cancel",
       confirmButtonColor: "#2E4568",
       cancelButtonColor: "#E9D4B0",
+      
       didOpen: () => {
+
+        const closeBtn = document.getElementById("custom-close-btn");
+                if (closeBtn) {
+                  closeBtn.onclick = () => Swal.close();
+                }
         const titleElement = document.querySelector(".swal2-title");
         const popupElement = document.querySelector(".swal2-popup");
         const confirmButton = document.querySelector(".swal2-confirm");
@@ -67,19 +97,22 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
         });
       },
       preConfirm: async () => {
-        const name = document.getElementById("name").value;
+        const first_name = document.getElementById("firstname").value;
+        const last_name = document.getElementById("lastname").value;
         const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const phone = document.getElementById("phone").value;
         const password = document.getElementById("password").value;
 
-        if (!name || !username || !password) {
+        if (!first_name || !last_name || !username || !email || !phone || !password) {
           Swal.showValidationMessage("All fields are required.");
           return false;
         }
 
-        const payload = { name, username, password, role: "admin" };
+        const payload = { first_name, last_name, username, email, phone, password, role: "admin" };
         try {
           const user = JSON.parse(localStorage.getItem("user"));
-          await axios.post(`${API_URL}/auth/register/`, payload, {
+          await axios.post(`${API_URL}/auth/auth/register/`, payload, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user?.token}`,
