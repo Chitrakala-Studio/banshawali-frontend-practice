@@ -32,10 +32,11 @@ const CardFooterSection = ({
 
           .card-footer-section {
             position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: ${isMobile ? "98vw" : "40vw"};
+             bottom: ${isMobile ? "0" : "2rem"};
+             left:     ${isMobile ? "0" : "50%"};
+  
+        transform:${isMobile ? "none" : "translateX(-50%)"};
+            width: ${isMobile ? "100vw" : "40vw"};
             z-index: 10;
           }
 
@@ -77,7 +78,7 @@ const CardFooterSection = ({
           }
 
           .toggle-btn {
-            padding: 12px;
+            padding: 3px;
             color: #b9bac3;
             font-size: 20px;
             background: linear-gradient(135deg, #2e4568 0%, #5a6f94 100%);
@@ -99,6 +100,7 @@ const CardFooterSection = ({
 
           .toggle-icon {
             transition: transform 0.3s ease;
+            padding: 3px;
           }
         `}
       </style>

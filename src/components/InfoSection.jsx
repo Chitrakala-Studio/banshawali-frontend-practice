@@ -29,7 +29,7 @@ const InfoSection = ({ person }) => {
           }
 
           .info-section {
-            padding-bottom: 40px;
+            padding-bottom: 140px;
             width: 100%;
           }
 
@@ -95,6 +95,12 @@ const InfoSection = ({ person }) => {
             color: var(--primary-hover);
             outline: none;
           }
+            
+  @media (max-width: 799px) {
+    .info-section {
+      padding-bottom: 140px;
+    }
+  }
         `}
       </style>
 

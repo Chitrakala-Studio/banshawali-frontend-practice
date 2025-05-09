@@ -1,12 +1,12 @@
 /* Root Variables */
 :root {
-  --primary-text: #1F2937;
-  --secondary-text: #6B7280;
-  --primary-dark: #2E4568;
-  --primary-hover: #4A6A9D;
-  --gold-accent: #F49D37;
+  --primary-text: #1f2937;
+  --secondary-text: #6b7280;
+  --primary-dark: #2e4568;
+  --primary-hover: #4a6a9d;
+  --gold-accent: #f49d37;
   --header-maroon: #800000;
-  --neutral-gray: #D1D5DB;
+  --neutral-gray: #d1d5db;
 }
 
 #root {
@@ -22,7 +22,7 @@ image {
 .rd3-node,
 .rd3-leaf-node {
   font-weight: 400;
-  font-family: 'Merriweather', serif;
+  font-family: "Merriweather", serif;
   font-size: 14px;
   color: var(--primary-text);
 }
@@ -45,11 +45,11 @@ image {
   }
 
   .tree {
-    transform: scale(0.60);
+    transform: scale(0.6);
   }
 
   td {
-    font-family: 'Merriweather', serif;
+    font-family: "Merriweather", serif;
     font-size: 14px;
     line-height: 1.5;
   }
@@ -81,7 +81,7 @@ image {
   }
 
   .swal2-popup.custom-popup .swal2-title.custom-title {
-    font-family: 'Playfair Display', serif;
+    font-family: "Playfair Display", serif;
     font-size: 24px;
     color: var(--primary-text);
     font-weight: 600;
