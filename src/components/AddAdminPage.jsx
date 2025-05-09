@@ -498,6 +498,13 @@ const AddAdminPage = () => {
           >
             <span>+ Add New User</span>
           </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="top-bar-btn flex-center"
+          >
+            <FaUserPlus />
+            <span>Add New Admin</span>
+          </button>
           
         </div>
       </div>

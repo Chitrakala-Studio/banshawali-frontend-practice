@@ -8,7 +8,7 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
       title: "Add New Admin",
       background: "#ffffff",
       html: `
-       <button id="custom-close-btn"
+        <button id="custom-close-btn"
           style="
             position: absolute;
             top: 15px;
@@ -106,7 +106,6 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
         const phone = document.getElementById("phone").value;
         const password = document.getElementById("password").value;
 
-        
         if (!username || !password) {
           Swal.showValidationMessage("Username and Password are required.");
           return false;
@@ -115,7 +114,7 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
           Swal.showValidationMessage("Password is too short. It must contain at least 8 characters.");
           return false;
         }
-       
+
         const commonPasswords = [
           "abcdefgh","password", "12345678", "123456789", "qwerty", "abc123", "11111111", "123456", "1234567890", "123123", "password1"
         ];
@@ -144,7 +143,6 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
           });
           return true;
         } catch (error) {
-        
           if (
             error.response &&
             (error.response.data?.username === "A user with that username already exists." ||
@@ -173,7 +171,8 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
       }
       onClose();
     });
-  }, [onClose, onAdminAdded, API_URL]);
+    // eslint-disable-next-line
+  }, []);
 
   return null;
 };
