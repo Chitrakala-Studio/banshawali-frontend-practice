@@ -157,7 +157,7 @@ const AddAdminPage = () => {
   
         try {
           const user = JSON.parse(localStorage.getItem("user"));
-          await axios.put(`${API_URL}/auth/admins/${admin.id}/`, payload, {
+          await axios.put(`${API_URL}/auth/auth/user-list/${admin.id}/`, payload, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user?.token}`,
