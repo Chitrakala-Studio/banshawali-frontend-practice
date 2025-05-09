@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { FaArrowLeft, FaUserPlus } from "react-icons/fa";
+import { FaArrowLeft, FaUserPlus, FaHome, FaSearch } from "react-icons/fa";
 import { NotebookPen, Trash2 } from "lucide-react";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
@@ -190,12 +190,13 @@ const AddAdminPage = () => {
   const handleDeleteAdmin = (admin) => {
     Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to delete ${admin.name}? This action cannot be undone.`,
+      text: `Do you want to delete ${admin.username}? This action cannot be undone.`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E9D4B0",
-      cancelButtonColor: "#AAABAC",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonColor: "#E9D4B0", // Cream color
+      cancelButtonColor: "#B9BAC3",  // Grey color
+      confirmButtonText: `<span style="color: #fff;">Yes, delete it!</span>`,
+      cancelButtonText: "Cancel",
       didOpen: () => {
         const titleElement = document.querySelector(".swal2-title");
         const popupElement = document.querySelector(".swal2-popup");
@@ -206,24 +207,26 @@ const AddAdminPage = () => {
         if (popupElement) popupElement.classList.add("swal-popup");
         if (confirmButton) {
           confirmButton.classList.add("swal-confirm-btn");
+          confirmButton.style.backgroundColor = "#E9D4B0"; // Set cream as background
+          confirmButton.style.color = "#fff";
+          // Cream hover: slightly darker cream
           confirmButton.addEventListener("mouseover", () => {
             confirmButton.style.backgroundColor = "#D9C4A0";
-            confirmButton.style.transform = "scale(1.05)";
           });
           confirmButton.addEventListener("mouseout", () => {
             confirmButton.style.backgroundColor = "#E9D4B0";
-            confirmButton.style.transform = "scale(1)";
           });
         }
         if (cancelButton) {
           cancelButton.classList.add("swal-cancel-btn");
+          cancelButton.style.backgroundColor = "#B9BAC3";
+          cancelButton.style.color = "#2E4568";
+          // No color change on hover for cancel
           cancelButton.addEventListener("mouseover", () => {
             cancelButton.style.backgroundColor = "#B9BAC3";
-            cancelButton.style.transform = "scale(1.05)";
           });
           cancelButton.addEventListener("mouseout", () => {
-            cancelButton.style.backgroundColor = "#AAABAC";
-            cancelButton.style.transform = "scale(1)";
+            cancelButton.style.backgroundColor = "#B9BAC3";
           });
         }
       },
@@ -415,8 +418,8 @@ const AddAdminPage = () => {
 
           .swal-popup {
             // background: linear-gradient(to bottom, var(--popup-start), var(--popup-end));
-            border-radius: 15px;
-            padding: 25px;
+            //border-radius: 15px;
+            padding: 20px;
             border: 2px solid var(--secondary-light);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
           }
@@ -461,22 +464,42 @@ const AddAdminPage = () => {
       </style>
 
       <div className="flex items-center justify-between w-full mb-4">
+        <div className="flex gap-4">
+          <button className="top-bar-btn flex-center">
+            <FaArrowLeft />
+            <span onClick={() => navigate("/")}>Back to Table</span>
+          </button>
+         
+          
+        </div>
+        <div className="flex gap-4">
+        <button className="top-bar-btn flex-center">
+            <FaHome />
+            <a href="https://gautamfamily.org.np/">Homepage</a>
+          </button>
+
         <button
-          onClick={() => navigate("/")}
-          className="top-bar-btn flex-center"
-        >
-          <FaArrowLeft />
-          <span>Back to Table</span>
-        </button>
-        {isAdminLocal && (
-          <button
-            onClick={() => setShowAddForm(true)}
+            onClick={() => setShowSearchForm && setShowSearchForm(true)}
             className="top-bar-btn flex-center"
           >
-            <FaUserPlus />
-            <span>Add New Admin</span>
+            <FaSearch />
+            <span>Search User</span>
           </button>
-        )}
+        
+          <button
+            onClick={() => navigate("/suggestions")}
+            className="top-bar-btn flex-center"
+          >
+            <span>View Suggestions</span>
+          </button>
+          <button
+            onClick={() => setShowAddUserForm && setShowAddUserForm(true)}
+            className="top-bar-btn flex-center"
+          >
+            <span>+ Add New User</span>
+          </button>
+          
+        </div>
       </div>
 
       {showAddForm && (

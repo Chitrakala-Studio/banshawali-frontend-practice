@@ -31,14 +31,17 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
             <input id="lastname" type="text" placeholder="Enter last name" style="width: 100%;" class="swal-textarea" />
           </div>
         </div>
-        <label for="username" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Username</label>
-        <input id="username" type="text" placeholder="Enter username" style="width: 100%;" class="swal-textarea" />
+        <label for="username" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Username <span style="color:red">*</span></label>
+        <input id="username" type="text" placeholder="Enter username" style="width: 100%;" class="swal-textarea" required />
         <label for="email" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Email</label>
         <input id="email" type="email" placeholder="Enter email" style="width: 100%;" class="swal-textarea" />
         <label for="phone" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Phone Number</label>
         <input id="phone" type="text" placeholder="Enter phone number" style="width: 100%;" class="swal-textarea" />
-        <label for="password" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Password</label>
-        <input id="password" type="password" placeholder="Enter password" style="width: 100%;" class="swal-textarea" />
+        <label for="password" style="color: black; font-size: 14px; text-align: left; display: block; margin-bottom: 5px; margin-top: 10px;">Password <span style="color:red">*</span></label>
+        <input id="password" type="password" placeholder="Enter password" style="width: 100%;" class="swal-textarea" required />
+        <div style="color: #888; font-size: 12px; margin-top: 5px;">
+          Password must be at least 8 characters.
+        </div>
       `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
@@ -47,13 +50,12 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
       cancelButtonText: "Cancel",
       confirmButtonColor: "#2E4568",
       cancelButtonColor: "#E9D4B0",
-      
-      didOpen: () => {
 
+      didOpen: () => {
         const closeBtn = document.getElementById("custom-close-btn");
-                if (closeBtn) {
-                  closeBtn.onclick = () => Swal.close();
-                }
+        if (closeBtn) {
+          closeBtn.onclick = () => Swal.close();
+        }
         const titleElement = document.querySelector(".swal2-title");
         const popupElement = document.querySelector(".swal2-popup");
         const confirmButton = document.querySelector(".swal2-confirm");
@@ -104,12 +106,34 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
         const phone = document.getElementById("phone").value;
         const password = document.getElementById("password").value;
 
-        if (!first_name || !last_name || !username || !email || !phone || !password) {
-          Swal.showValidationMessage("All fields are required.");
+        
+        if (!username || !password) {
+          Swal.showValidationMessage("Username and Password are required.");
+          return false;
+        }
+        if (password.length < 8) {
+          Swal.showValidationMessage("Password is too short. It must contain at least 8 characters.");
+          return false;
+        }
+       
+        const commonPasswords = [
+          "abcdefgh","password", "12345678", "123456789", "qwerty", "abc123", "11111111", "123456", "1234567890", "123123", "password1"
+        ];
+        if (commonPasswords.includes(password.toLowerCase())) {
+          Swal.showValidationMessage("This password is too common.");
           return false;
         }
 
-        const payload = { first_name, last_name, username, email, phone, password, role: "admin" };
+        const payload = {
+          username,
+          password,
+          first_name: first_name || undefined,
+          last_name: last_name || undefined,
+          email: email || undefined,
+          phone: phone || undefined,
+          role: "admin"
+        };
+
         try {
           const user = JSON.parse(localStorage.getItem("user"));
           await axios.post(`${API_URL}/auth/auth/register/`, payload, {
@@ -120,11 +144,20 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
           });
           return true;
         } catch (error) {
-          Swal.showValidationMessage(
-            `Failed to add admin: ${
-              error.response?.data?.message || error.message
-            }`
-          );
+        
+          if (
+            error.response &&
+            (error.response.data?.username === "A user with that username already exists." ||
+             (Array.isArray(error.response.data?.username) && error.response.data?.username.includes("A user with that username already exists.")))
+          ) {
+            Swal.showValidationMessage("The username already exists.");
+          } else {
+            Swal.showValidationMessage(
+              `Failed to add admin: ${
+                error.response?.data?.message || error.message
+              }`
+            );
+          }
           return false;
         }
       },
