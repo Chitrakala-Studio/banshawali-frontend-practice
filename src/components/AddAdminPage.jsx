@@ -8,6 +8,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import ClipLoader from "react-spinners/ClipLoader";
 import AddAdminForm from "./AddAdminForm";
+import Suggestion from "./Suggestion";
 
 const AddAdminPage = () => {
   const navigate = useNavigate();
@@ -260,6 +261,10 @@ const AddAdminPage = () => {
     });
   };
 
+  const handleViewSuggestions = () => {
+    navigate("/suggestions");
+  };
+
   return (
     <div className="table-view transition-all duration-300 relative">
       <style>
@@ -465,46 +470,38 @@ const AddAdminPage = () => {
 
       <div className="flex items-center justify-between w-full mb-4">
         <div className="flex gap-4">
-          <button className="top-bar-btn flex-center">
-            <FaArrowLeft />
-            <span onClick={() => navigate("/")}>Back to Table</span>
-          </button>
-         
-          
         </div>
         <div className="flex gap-4">
         <button className="top-bar-btn flex-center">
-            <FaHome />
-            <a href="https://gautamfamily.org.np/">Homepage</a>
+            <FaArrowLeft />
+            <span onClick={() => navigate("/")}>Back to Table</span>
+           
           </button>
 
-        <button
-            onClick={() => setShowSearchForm && setShowSearchForm(true)}
-            className="top-bar-btn flex-center"
-          >
-            <FaSearch />
-            <span>Search User</span>
-          </button>
-        
           <button
-            onClick={() => navigate("/suggestions")}
+            
             className="top-bar-btn flex-center"
+            onClick={() => window.open("https://gautamfamily.org.np/", "_blank")}
+          >
+             <FaHome />
+            <span>Homepage</span>
+          </button>
+
+          <button
+            className="top-bar-btn flex-center"
+            onClick={handleViewSuggestions}
           >
             <span>View Suggestions</span>
           </button>
-          <button
-            onClick={() => setShowAddUserForm && setShowAddUserForm(true)}
-            className="top-bar-btn flex-center"
-          >
-            <span>+ Add New User</span>
-          </button>
-          <button
+
+          <button className="top-bar-btn flex-center"
             onClick={() => setShowAddForm(true)}
-            className="top-bar-btn flex-center"
           >
             <FaUserPlus />
             <span>Add New Admin</span>
           </button>
+
+
           
         </div>
       </div>

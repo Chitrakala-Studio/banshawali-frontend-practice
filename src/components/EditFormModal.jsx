@@ -829,12 +829,14 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 <label className="label">Date of Birth</label>
                 <NepaliDatePicker
                   inputClassName="input"
-                  value={form.dob}
+                  value={""}
                   onChange={handleDateChange}
                   options={{
                     calenderLocale: "ne",
                     valueLocale: "en",
                     placeholder: "Select Date",
+                    maxDate: today,
+                    defaultDate: "", // Try this if supported by the library
                   }}
                 />
               </div>
@@ -859,8 +861,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   <label className="label">Date of Death</label>
                   <NepaliDatePicker
                     inputClassName="input"
-                    value={form.death_date}
+                    value={form.death_date || ""}
                     onChange={(value) => {
+                      if (value && new Date(value) > new Date(today)) {
+                        Swal.fire("Error", "You cannot select a future date.", "error");
+                        return;
+                      }
                       setForm((prevForm) => ({
                         ...prevForm,
                         death_date: value || "",
@@ -870,7 +876,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                       calenderLocale: "ne",
                       valueLocale: "en",
                       minDate: form.dob || "",
-                      maxDate: today,
+                      maxDate: today, 
+                      placeholder: "Select Date",
+                      defaultDate: "", // Try this if supported
                     }}
                   />
                 </div>

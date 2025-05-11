@@ -767,12 +767,20 @@ const TableView = () => {
 
       <div className={isModalOpen ? "blurred" : ""}>
         <div className="flex items-center justify-between w-full mb-4">
-          <div className="flex items-center gap-4">
+          
+          <div
+            className="flex items-center gap-4"
+          >
+            <div
+            style={{ display: activeTab === "suggestions" ? "none" : "flex" }}
+            >
             <ToggleView
               isTableView={isTableView}
               toggleView={() => setIsTableView(!isTableView)}
               availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
             />
+            
+              </div>
           </div>
           <div className="flex gap-4">
             <button className="top-bar-btn flex-center">
@@ -836,7 +844,7 @@ const TableView = () => {
                     className="top-bar-btn flex-center"
                   >
                     <FaUserPlus />
-                    <span>Add Admin</span>
+                    <span>View Admin</span>
                   </button>
                 )}
               </>
@@ -853,8 +861,9 @@ const TableView = () => {
                   <th>पुस्ता नम्बर</th>
                   <th>बाबुको नाम</th>
                   <th>आमाको नाम</th>
-                  <th>लिङ्ग</th>
-                  <th>उमेर</th>
+                  <th>हजुरबुबाको नाम</th>
+                  <th>बाजेको नाम </th>
+
                   <th>कार्यहरू</th>
                 </tr>
               </thead>
@@ -943,30 +952,28 @@ const TableView = () => {
                           <span className="text-secondary">-</span>
                         )}
                       </td>
-                      <td className="flex-center text-base text-secondary">
-                        {row.gender?.toLowerCase() === "male" ? (
-                          <>
-                            <FaMale className="text-primary text-lg" />
-                            <span className="font-medium">पुरुष</span>
-                          </>
-                        ) : row.gender?.toLowerCase() === "female" ? (
-                          <>
-                            <FaFemale className="text-primary text-lg" />
-                            <span className="font-medium">महिला</span>
-                          </>
+                      <td>
+                        {row.grandfather?.id && row.grandfather.name_in_nepali ? (
+                          <span
+                            className="cursor-pointer text-primary"
+                            onClick={() => navigate(`/${row.grandfather.id}`)}
+                          >
+                            {row.grandfather.name_in_nepali}
+                          </span>
                         ) : (
-                          <span>-</span>
+                          <span className="text-secondary">-</span>
                         )}
                       </td>
                       <td>
-                        {row.lifestatus?.toLowerCase() === "dead" ? (
-                          <span className="text-xs font-bold px-2 py-1 rounded bg-status-dead">
-                            मृत्यु
+                        {row.great_grandfather?.id && row.great_grandfather.name_in_nepali ? (
+                          <span
+                            className="cursor-pointer text-primary"
+                            onClick={() => navigate(`/${row.great_grandfather.id}`)}
+                          >
+                            {row.great_grandfather.name_in_nepali}
                           </span>
                         ) : (
-                          <span className="text-secondary">
-                            {calculateAge(row.date_of_birth, row.lifestatus)}
-                          </span>
+                          <span className="text-secondary">-</span>
                         )}
                       </td>
                       <td className="flex-center space-x-2">

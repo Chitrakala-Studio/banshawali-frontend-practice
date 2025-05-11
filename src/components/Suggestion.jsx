@@ -288,7 +288,7 @@ const Suggestion = () => {
               ) : (
                 suggestions.map((suggestion) => (
                   <tr key={suggestion.id}>
-                    <td className="suggestion-text">
+                    <td className="suggestion-text" style={{ display: "block" }}>
                       {suggestion.suggestion || "-"}
                     </td>
                     <td className="suggestion-date">
