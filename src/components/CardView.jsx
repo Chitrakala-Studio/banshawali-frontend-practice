@@ -367,13 +367,19 @@ const CardView = () => {
               display: flex;
               justify-content: flex-start;
               padding: 10px;
-              background-color: transparent;
+              background-color: var(--primary-text);
+              border-radius: 50%;
+              padding: 8px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .home-icon {
               font-size: 24px;
-              color: var(--primary-dark);
+              color: var(--gold-accent);
               transition: all 0.3s ease;
+              background-color:transparent;
+              // Round the background box
+              
             }
 
             .home-icon:hover {

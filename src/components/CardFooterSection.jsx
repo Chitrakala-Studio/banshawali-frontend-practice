@@ -54,6 +54,7 @@ const CardFooterSection = ({
             display: flex;
             align-items: center;
             margin-bottom: 16px;
+            margin-top: 8px;
           }
 
           .person-info {

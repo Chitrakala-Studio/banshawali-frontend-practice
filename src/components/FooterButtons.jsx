@@ -42,7 +42,7 @@ const FooterButtons = ({
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 16px;
+            padding: 8px 6px;
             background: linear-gradient(135deg, #2E4568 0%, #5A6F94 100%);
             border: 1px solid var(--neutral-gray);
             border-radius: 9999px;
