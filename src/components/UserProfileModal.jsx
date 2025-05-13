@@ -66,6 +66,19 @@ const UserProfileModal = ({ user, onClose }) => {
     }
   };
 
+  const handleCopySiblings = () => {
+    if (user.bio_siblings) {
+      navigator.clipboard
+        .writeText(user.bio_siblings)
+        .then(() => {
+          alert("Bio of Siblings copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    }
+  };
+
   const tabs = [
     { id: "personal", label: "Personal", icon: UserCircle },
     { id: "family", label: "Family", icon: Users },
@@ -113,6 +126,30 @@ const UserProfileModal = ({ user, onClose }) => {
 
   const renderFamilyRelations = () => (
     <div className="info-section">
+      {user.great_grandfather?.name && (
+        <p className="info-item">
+          <GenderIcon gender="male" label="Great Grandfather" />
+          <strong className="family-label">Great Grandfather : </strong>
+          {user.great_grandfather.id ? (
+            <Link
+              to={`/${user.great_grandfather.id}`}
+              onClick={onClose}
+              className="info-link"
+            >
+              {user.great_grandfather.name_in_nepali ||
+                user.great_grandfather.name ||
+                "-"}
+            </Link>
+          ) : (
+            <span>
+              {user.great_grandfather.name_in_nepali ||
+                user.great_grandfather.name ||
+                "-"}
+            </span>
+          )}
+        </p>
+      )}
+        
       {user.grandfather?.name && (
         <p className="info-item">
           <GenderIcon gender="male" label="Grandfather" />
@@ -216,6 +253,17 @@ const UserProfileModal = ({ user, onClose }) => {
               <Link to={`/${sib.id}`} onClick={onClose} className="info-link">
                 {sib.name_in_nepali || sib.name || "-"}
               </Link>
+              {Array.isArray(sib.spouses) && sib.spouses.length > 0 && (
+                <>
+                  {" - "}
+                  {sib.spouses
+                    .map(
+                      (sp) =>
+                        sp.name_in_nepali || sp.name || "-"
+                    )
+                    .join(" / ")}
+                </>
+              )}
             </p>
           ))}
         </>
@@ -236,6 +284,17 @@ const UserProfileModal = ({ user, onClose }) => {
               <Link to={`/${child.id}`} onClick={onClose} className="info-link">
                 {child.name_in_nepali || child.name || "-"}
               </Link>
+              {Array.isArray(child.spouses) && child.spouses.length > 0 && (
+                <>
+                  {" - "}
+                  {child.spouses
+                    .map(
+                      (sp) =>
+                        sp.name_in_nepali || sp.name || "-"
+                    )
+                    .join(" / ")}
+                </>
+              )}
             </p>
           ))}
         </>
@@ -585,6 +644,18 @@ const UserProfileModal = ({ user, onClose }) => {
                   onClick={handleCopy}
                   className="copy-btn"
                   title="Copy bio"
+                >
+                  <FaCopy />
+                </button>
+              </div>
+            )}
+            {user.bio_siblings && (
+              <div className="bio-container">
+                <p className="bio">{user.bio_siblings}</p>
+                <button
+                  onClick={handleCopySiblings}
+                  className="copy-btn"
+                  title="Copy bio of Siblings"
                 >
                   <FaCopy />
                 </button>
