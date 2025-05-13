@@ -37,7 +37,7 @@ const AdminDashboard = () => {
             view === "Card View" ? "card-view-centered" : ""
           }`}
         >
-          {view === "Table View" && <TableView />}
+          {view === "Table View" && <TableView data={tableData} />}
           {view === "Card View" && <CardView />}
           {view === "Compare View" && <Compare />}
         </div>

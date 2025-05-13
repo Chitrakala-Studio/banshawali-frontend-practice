@@ -264,6 +264,9 @@ const Suggestion = () => {
             <thead>
               <tr>
                 <th>सुझाव</th>
+                <th>सुझाव दिनेको नाम</th>
+                <th>इमेल</th>
+                <th>फोन</th>
                 <th>मिति</th>
                 <th>कार्यहरू</th>
               </tr>
@@ -288,9 +291,19 @@ const Suggestion = () => {
               ) : (
                 suggestions.map((suggestion) => (
                   <tr key={suggestion.id}>
-                    <td className="suggestion-text">
-                      {suggestion.suggestion || "-"}
+                    <td className="suggestion-text" style={{ display: "block" }}>
+                      {(() => {
+                        const text = suggestion.suggestion || "-";
+                        const words = text.split(" ");
+                        if (words.length > 15) {
+                          return words.slice(0, 15).join(" ") + " ...";
+                        }
+                        return text;
+                      })()}
                     </td>
+                    <td>{suggestion.suggestion_by_name || "-"}</td>
+                    <td>{suggestion.suggestion_by_email || "-"}</td>
+                    <td>{suggestion.suggestion_by_phone || "-"}</td>          
                     <td className="suggestion-date">
                       {convertToNepaliNumerals(
                         new Date(suggestion.date).toLocaleDateString()

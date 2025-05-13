@@ -211,12 +211,40 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
       const svgElement = document.querySelector(".rd3t-svg");
       if (svgElement) {
         await delay(500);
+
+        // Inline all styles
+        function inlineStyles(svg) {
+          const allElements = svg.querySelectorAll("*");
+          allElements.forEach((el) => {
+            const computedStyle = window.getComputedStyle(el);
+            let styleString = "";
+            for (let i = 0; i < computedStyle.length; i++) {
+              const key = computedStyle[i];
+              styleString += `${key}:${computedStyle.getPropertyValue(key)};`;
+            }
+            el.setAttribute("style", styleString);
+          });
+        }
+
+        inlineStyles(svgElement);
+
+        // Fix stroke styling
+        svgElement.querySelectorAll("path, line").forEach((el) => {
+          el.setAttribute("stroke", "#999");
+          el.setAttribute("stroke-width", "2");
+        });
+
         await convertImagesToBase64(svgElement);
+
         try {
+          const scale = 2;
           const canvas = document.createElement("canvas");
-          canvas.width = svgElement.clientWidth * 2;
-          canvas.height = svgElement.clientHeight * 2;
+          canvas.width = svgElement.clientWidth * scale;
+          canvas.height = svgElement.clientHeight * scale;
+
           const ctx = canvas.getContext("2d");
+          ctx.scale(scale, scale);
+
           const v = Canvg.fromString(ctx, svgElement.outerHTML);
           await v.render();
 
@@ -226,14 +254,17 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             unit: "px",
             format: [canvas.width, canvas.height],
           });
+
           pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
           pdf.save("FamilyTree.pdf");
+
           Swal.fire(
             "Downloaded!",
             "Your family tree PDF has been saved.",
             "success"
           );
         } catch (error) {
+          console.error(error);
           Swal.fire(
             "Error",
             "There was a problem downloading the PDF.",

@@ -224,14 +224,22 @@ const TableView = () => {
     Swal.fire({
       title: `Submit Suggestion for ${row.name_in_nepali || "Unknown"}`,
       html: `
-        <textarea id="suggestion" placeholder="Enter your suggestion" class="swal-textarea"></textarea>
-        <div id="dropzone-container" class="swal-dropzone">
-          <div id="file-picker" class="swal-file-picker">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="40px" width="40px" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4v12"/></svg>
-            Drag & drop an image here or click to select
-            <input type="file" id="file-input" accept="image/*" style="display: none;">
+          <div class="swal-suggestion-by-section">
+            <label class="swal-label">Name <span style="color:red">*</span></label>
+            <input id="suggestion-by-name" class="swal-input" placeholder="Your Name" required>
+            <label class="swal-label">Email</label>
+            <input id="suggestion-by-email" class="swal-input" placeholder="Your Email">
+            <label class="swal-label">Phone <span style="color:red">*</span></label>
+            <input id="suggestion-by-phone" class="swal-input" placeholder="Your Phone" required>
           </div>
-        </div>
+          <textarea id="suggestion" placeholder="Enter your suggestion" class="swal-textarea"></textarea>
+          <div id="dropzone-container" class="swal-dropzone">
+            <div id="file-picker" class="swal-file-picker">
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="40px" width="40px" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4v12"/></svg>
+              Drag & drop an image here or click to select
+              <input type="file" id="file-input" accept="image/*" style="display: none;">
+            </div>
+          </div>
       `,
       backdrop: `rgba(10,10,10,0.8)`,
       focusConfirm: false,
@@ -306,9 +314,19 @@ const TableView = () => {
         });
       },
       preConfirm: async () => {
+        const name = document.getElementById("suggestion-by-name").value.trim();
+        const email = document.getElementById("suggestion-by-email").value.trim();
+        const phone = document.getElementById("suggestion-by-phone").value.trim();    
         const suggestion = document.getElementById("suggestion").value;
         const dropzoneContainer = document.getElementById("dropzone-container");
         const file = dropzoneContainer.file;
+
+        // Validate required fields
+        if (!name || !phone) {
+          Swal.showValidationMessage("Name and Phone are required.");
+          return false;
+        }
+
         let photoUrl = "";
         if (file) {
           const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -327,9 +345,9 @@ const TableView = () => {
         const payload = {
           suggestion: suggestion,
           suggestion_to: row.id,
-          user:
-            JSON.parse(localStorage.getItem("user"))?.username || "Anonymous",
-          name_in_nepali: row.name_in_nepali || "Unknown",
+          suggestion_by_name: name,
+          suggestion_by_email: email,
+          suggestion_by_phone: phone,
           ...(photoUrl && { image: photoUrl }),
         };
 
@@ -683,6 +701,31 @@ const TableView = () => {
           .react-tooltip-arrow {
             border-color: var(--secondary-light) !important;
           }
+          
+          .swal-suggestion-by-section {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .swal-label {
+            text-align: left;
+            font-family: 'Merriweather', serif;
+            font-size: 15px;
+            color: var(--primary-dark);
+            margin-bottom: 2px;
+          }
+          .swal-input {
+            padding: 8px 10px;
+            border-radius: 10px;
+            background-color: var(--popup-start);
+            color: var(--primary-dark);
+            border: 1.5px solid var(--secondary-light);
+            font-size: 16px;
+            font-family: 'Merriweather', serif;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
 
           .swal-textarea {
             height: 150px;
@@ -767,12 +810,20 @@ const TableView = () => {
 
       <div className={isModalOpen ? "blurred" : ""}>
         <div className="flex items-center justify-between w-full mb-4">
-          <div className="flex items-center gap-4">
+          
+          <div
+            className="flex items-center gap-4"
+          >
+            <div
+            style={{ display: activeTab === "suggestions" ? "none" : "flex" }}
+            >
             <ToggleView
               isTableView={isTableView}
               toggleView={() => setIsTableView(!isTableView)}
               availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
             />
+            
+              </div>
           </div>
           <div className="flex gap-4">
             <button className="top-bar-btn flex-center">
@@ -836,7 +887,7 @@ const TableView = () => {
                     className="top-bar-btn flex-center"
                   >
                     <FaUserPlus />
-                    <span>Add Admin</span>
+                    <span>View Admin</span>
                   </button>
                 )}
               </>
@@ -853,8 +904,9 @@ const TableView = () => {
                   <th>पुस्ता नम्बर</th>
                   <th>बाबुको नाम</th>
                   <th>आमाको नाम</th>
-                  <th>लिङ्ग</th>
-                  <th>उमेर</th>
+                  <th>हजुरबुबाको नाम</th>
+                  <th>बाजेको नाम </th>
+
                   <th>कार्यहरू</th>
                 </tr>
               </thead>
@@ -943,30 +995,28 @@ const TableView = () => {
                           <span className="text-secondary">-</span>
                         )}
                       </td>
-                      <td className="flex-center text-base text-secondary">
-                        {row.gender?.toLowerCase() === "male" ? (
-                          <>
-                            <FaMale className="text-primary text-lg" />
-                            <span className="font-medium">पुरुष</span>
-                          </>
-                        ) : row.gender?.toLowerCase() === "female" ? (
-                          <>
-                            <FaFemale className="text-primary text-lg" />
-                            <span className="font-medium">महिला</span>
-                          </>
+                      <td>
+                        {row.grandfather?.id && row.grandfather.name_in_nepali ? (
+                          <span
+                            className="cursor-pointer text-primary"
+                            onClick={() => navigate(`/${row.grandfather.id}`)}
+                          >
+                            {row.grandfather.name_in_nepali}
+                          </span>
                         ) : (
-                          <span>-</span>
+                          <span className="text-secondary">-</span>
                         )}
                       </td>
                       <td>
-                        {row.lifestatus?.toLowerCase() === "dead" ? (
-                          <span className="text-xs font-bold px-2 py-1 rounded bg-status-dead">
-                            मृत्यु
+                        {row.great_grandfather?.id && row.great_grandfather.name_in_nepali ? (
+                          <span
+                            className="cursor-pointer text-primary"
+                            onClick={() => navigate(`/${row.great_grandfather.id}`)}
+                          >
+                            {row.great_grandfather.name_in_nepali}
                           </span>
                         ) : (
-                          <span className="text-secondary">
-                            {calculateAge(row.date_of_birth, row.lifestatus)}
-                          </span>
+                          <span className="text-secondary">-</span>
                         )}
                       </td>
                       <td className="flex-center space-x-2">
