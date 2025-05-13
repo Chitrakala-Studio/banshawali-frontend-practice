@@ -449,18 +449,23 @@ const UserProfileModal = ({ user, onClose }) => {
 
 
           .bio-container {
+            position: relative;
             text-align: left;
             display: flex;
             align-items: center;
             gap: 8px;
+            width: 100%;
           }
 
           .bio {
-            font-family: 'Merriweather', serif;
-            font-size: 16px;
-            font-style: italic;
-            color: var(--secondary-text);
+            width: 100%;
             margin: 0;
+            padding-right: 36px; /* Ensures text doesn't go under the icon */
+            box-sizing: border-box;
+          }
+
+          .bio.justify-text {
+            text-align: justify;
           }
 
           .copy-btn {
@@ -480,6 +485,19 @@ const UserProfileModal = ({ user, onClose }) => {
             width: 16px;
             height: 16px;
             color: var(--primary-text);
+          }
+
+          .bio-copy-fixed {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: none; /* Remove animation to prevent movement */
+            padding: 4px;
+            z-index: 1;
           }
 
           .tabs-container {
@@ -637,30 +655,39 @@ const UserProfileModal = ({ user, onClose }) => {
           <div className="header-content">
             <h2 className="name">{user.name_in_nepali || user.name || "-"}</h2>
             <p className="sub-name">{user.name || "-"}</p>
+            {/* Main bio with copy icon */}
             {user.bio && (
               <div className="bio-container">
-                <p className="bio">{user.bio}</p>
+                <p className="bio justify-text" style={{ marginRight: "36px" }}>{user.bio}</p>
                 <button
                   onClick={handleCopy}
-                  className="copy-btn"
+                  className="copy-btn bio-copy-fixed"
                   title="Copy bio"
+                  style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)" }}
                 >
                   <FaCopy />
                 </button>
               </div>
             )}
-            {user.bio_siblings && (
-              <div className="bio-container">
-                <p className="bio">{user.bio_siblings}</p>
-                <button
-                  onClick={handleCopySiblings}
-                  className="copy-btn"
-                  title="Copy bio of Siblings"
-                >
-                  <FaCopy />
-                </button>
-              </div>
+            {/* Sibling bio */}
+            {Array.isArray(user.bio_siblings) && user.bio_siblings.length > 0 && user.bio_siblings[0].trim() && (
+
+              <>
+                <hr style={{ margin: "8px 0", border: "none", borderTop: "1px solid #e5e7eb" }} />
+                <div className="bio-container">
+                  <p className="bio justify-text" style={{ marginRight: "36px" }}>{user.bio_siblings}</p>
+                  <button
+                    onClick={handleCopySiblings}
+                    className="copy-btn bio-copy-fixed"
+                    title="Copy bio of Siblings"
+                    style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)" }}
+                  >
+                    <FaCopy />
+                  </button>
+                </div>
+              </>
             )}
+            
           </div>
         </div>
 
