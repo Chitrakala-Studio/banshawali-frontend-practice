@@ -102,21 +102,22 @@ const Compare = () => {
         choicesInstanceRef.current.setChoices(
           name_suggestions.length > 0
             ? name_suggestions.map((sugg) => ({
-                value: sugg.name,
-                label: `${sugg.name_in_nepali || sugg.name} - ${
-                  sugg.father?.name_in_nepali || sugg.father?.name || ""
+              value: sugg.id,
+              label: `${sugg.name_in_nepali || sugg.name} - ${sugg.father?.name_in_nepali || sugg.father?.name || ""
                 } | ${sugg.mother?.name_in_nepali || sugg.mother?.name || ""}`,
-                customProperties: { english: sugg.name },
-              }))
+              customProperties: { english: sugg.name },
+            }))
             : [{ value: "", label: "Select Name" }],
           "value",
           "label",
           true
         );
         rightNameSelectRef.current.addEventListener("change", (event) => {
+          const selectedId = event.target.value;
           const selectedPerson = name_suggestions.find(
-            (sugg) => sugg.name === event.target.value
+            (sugg) => sugg.id == selectedId // Match by unique ID
           );
+          console.log("selectedperson", selectedPerson)
           if (selectedPerson) {
             setRightPerson((prev) => ({
               ...prev,
@@ -134,6 +135,7 @@ const Compare = () => {
               fatherId: selectedPerson.father?.id || "",
               motherId: selectedPerson.mother?.id || "",
             }));
+           
           }
         });
       }
