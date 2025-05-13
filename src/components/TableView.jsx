@@ -8,6 +8,7 @@ import {
   FaSitemap,
   FaHome,
   FaUserPlus,
+  FaPlus,
 } from "react-icons/fa";
 import {
   NotebookPen,
@@ -18,8 +19,10 @@ import {
   ArrowLeftRight,
   X as XIcon,
   Upload,
+  Baby,
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
+import AddRelationModal from "./AddRelationModal";
 import "./../assets/styles/TableView.css";
 import Swal from "sweetalert2";
 import ToggleView from "./ToggleView";
@@ -45,6 +48,7 @@ const TableView = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingChild, setIsAddingChild] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState("data");
@@ -53,10 +57,14 @@ const TableView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
+  const [showAddRelationModal, setShowAddRelationModal] = useState(false);
+  const [selectedPerson, setSelectedPerson] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const isModalOpen = isAdding || isEditing || showSearchForm || showInfoPopup;
+  const [childFormData, setChildFormData] = useState(null);
+  const isModalOpen =
+    isAdding || isEditing || isAddingChild || showSearchForm || showInfoPopup;
   const [formData, setFormData] = useState({
     username: "",
     pusta_number: "",
@@ -77,65 +85,39 @@ const TableView = () => {
     same_vamsha_status: true,
   });
 
-  const handleAccept = (e, id, suggestion, image) => {
-    e.stopPropagation();
-    updateSuggestionStatus(id, "Approved", suggestion, image);
-  };
-
-  const handleCompare = (row) => {
-    navigate(`/compare/${row.id}`);
-  };
-
-  const handleFamilyTree = (row) => {
-    setFamilyTreePerson(row);
-    setShowFamilyTree(true);
-  };
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 800);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const handleReject = (e, id, suggestion, image) => {
-    e.stopPropagation();
-    updateSuggestionStatus(id, "Rejected", suggestion, image);
-  };
-
   const API_URL = import.meta.env.VITE_API_URL;
 
+  // Consolidated useEffect for initial setup and data fetching
   useEffect(() => {
-    fetchData(1);
-  }, []);
+    console.log("Running consolidated useEffect for initial setup");
 
-  useEffect(() => {
-    fetchData(1);
-  }, [id]);
+    // Set up admin status
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      setIsAdminLocal(user && user.token && user.role === "admin");
+    } else {
+      setIsAdminLocal(false);
+    }
 
-  useEffect(() => {
+    // Determine active tab and fetch data
     if (location.pathname === "/suggestions") {
+      console.log("Path is /suggestions, setting activeTab to suggestions");
       setActiveTab("suggestions");
       fetchSuggestions();
     } else {
+      console.log("Path is not /suggestions, setting activeTab to data");
       setActiveTab("data");
       fetchData(1);
     }
   }, [location.pathname, id]);
 
+  // useEffect for window resize
   useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      if (user && user.token) {
-        setIsAdminLocal(user.role === "admin");
-      } else {
-        setIsAdminLocal(false);
-      }
-    } else {
-      setIsAdminLocal(false);
-    }
-    fetchData(1);
-  }, [id]);
+    const handleResize = () => setIsMobile(window.innerWidth < 800);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchData = async (page = 1) => {
     setLoading(true);
@@ -217,6 +199,98 @@ const TableView = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAccept = (e, id, suggestion, image) => {
+    e.stopPropagation();
+    updateSuggestionStatus(id, "Approved", suggestion, image);
+  };
+
+  const handleReject = (e, id, suggestion, image) => {
+    e.stopPropagation();
+    updateSuggestionStatus(id, "Rejected", suggestion, image);
+  };
+
+  const handleAddRelationClick = (row) => {
+    setSelectedPerson(row);
+    setShowAddRelationModal(true);
+  };
+
+  const handleAddChildClick = async (row) => {
+    setSelectedPerson(row);
+    let spouses = [];
+
+    try {
+      const response = await axios.get(`${API_URL}/people/${row.id}/spouses/`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      spouses = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.data)
+        ? response.data.data
+        : Array.isArray(response.data?.results)
+        ? response.data.results
+        : [];
+    } catch (error) {
+      console.error("Error fetching spouse data:", error);
+      spouses = [];
+    }
+
+    let fatherData = { name: "", id: null };
+    let motherData = { name: "", id: null };
+    let spouseOptions = spouses.map((spouse) => ({
+      id: spouse.id,
+      name: spouse.name_in_nepali || spouse.name || "Unknown",
+    }));
+
+    if (row.gender?.toLowerCase() === "male") {
+      fatherData = {
+        name: row.name_in_nepali || row.name || "Unknown",
+        id: row.id,
+      };
+      if (spouses.length === 1) {
+        motherData = {
+          name: spouses[0].name_in_nepali || spouses[0].name || "Unknown",
+          id: spouses[0].id,
+        };
+      }
+    } else if (row.gender?.toLowerCase() === "female") {
+      motherData = {
+        name: row.name_in_nepali || row.name || "Unknown",
+        id: row.id,
+      };
+      if (spouses.length === 1) {
+        fatherData = {
+          name: spouses[0].name_in_nepali || spouses[0].name || "Unknown",
+          id: spouses[0].id,
+        };
+      }
+    }
+
+    setChildFormData({
+      pusta_number: (parseInt(row.pusta_number, 10) + 1).toString() || "1",
+      father_name: fatherData.name,
+      father_id: fatherData.id,
+      mother_name: motherData.name,
+      mother_id: motherData.id,
+      spouseOptions,
+      gender: "Male",
+      lifestatus: "Alive",
+      name: "",
+      name_in_nepali: "",
+      dob: "",
+      death_date: "",
+      profession: "",
+      contact: { email: "", phone: "", address: "" },
+      vansha_status: "True",
+      profileImage: "",
+    });
+    setIsAddingChild(true);
+  };
+
+  const handleFamilyTree = (row) => {
+    setFamilyTreePerson(row);
+    setShowFamilyTree(true);
   };
 
   const handleSuggestionClick = (row) => {
@@ -315,13 +389,16 @@ const TableView = () => {
       },
       preConfirm: async () => {
         const name = document.getElementById("suggestion-by-name").value.trim();
-        const email = document.getElementById("suggestion-by-email").value.trim();
-        const phone = document.getElementById("suggestion-by-phone").value.trim();    
+        const email = document
+          .getElementById("suggestion-by-email")
+          .value.trim();
+        const phone = document
+          .getElementById("suggestion-by-phone")
+          .value.trim();
         const suggestion = document.getElementById("suggestion").value;
         const dropzoneContainer = document.getElementById("dropzone-container");
         const file = dropzoneContainer.file;
 
-        // Validate required fields
         if (!name || !phone) {
           Swal.showValidationMessage("Name and Phone are required.");
           return false;
@@ -453,13 +530,22 @@ const TableView = () => {
     setShowInfoPopup(true);
   };
 
+  const handleCompare = (row) => {
+    navigate(`/compare/${row.id}`);
+  };
+
   const handleSave = async (updatedRow) => {
     try {
-      await axios.put(`${API_URL}/data/${updatedRow.id}`, updatedRow);
+      await axios.put(`${API_URL}/people/${updatedRow.id}/`, updatedRow);
       fetchData(1);
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating data:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update data.",
+        icon: "error",
+      });
     }
   };
 
@@ -468,8 +554,14 @@ const TableView = () => {
       await axios.post(`${API_URL}/people/`, newData);
       fetchData(1);
       setIsAdding(false);
+      setIsAddingChild(false);
     } catch (error) {
       console.error("Error adding data:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to add data.",
+        icon: "error",
+      });
     }
   };
 
@@ -810,20 +902,16 @@ const TableView = () => {
 
       <div className={isModalOpen ? "blurred" : ""}>
         <div className="flex items-center justify-between w-full mb-4">
-          
-          <div
-            className="flex items-center gap-4"
-          >
+          <div className="flex items-center gap-4">
             <div
-            style={{ display: activeTab === "suggestions" ? "none" : "flex" }}
+              style={{ display: activeTab === "suggestions" ? "none" : "flex" }}
             >
-            <ToggleView
-              isTableView={isTableView}
-              toggleView={() => setIsTableView(!isTableView)}
-              availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
-            />
-            
-              </div>
+              <ToggleView
+                isTableView={isTableView}
+                toggleView={() => setIsTableView(!isTableView)}
+                availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
+              />
+            </div>
           </div>
           <div className="flex gap-4">
             <button className="top-bar-btn flex-center">
@@ -906,7 +994,6 @@ const TableView = () => {
                   <th>आमाको नाम</th>
                   <th>हजुरबुबाको नाम</th>
                   <th>बाजेको नाम </th>
-
                   <th>कार्यहरू</th>
                 </tr>
               </thead>
@@ -984,19 +1071,21 @@ const TableView = () => {
                         )}
                       </td>
                       <td>
-                        {row.mother?.id && row.mother.name_in_nepali ? (
+                        {row.mother?.id &&
+                        (row.mother.name_in_nepali || row.mother.name) ? (
                           <span
                             className="cursor-pointer text-primary"
                             onClick={() => navigate(`/${row.mother.id}`)}
                           >
-                            {row.mother.name_in_nepali}
+                            {row.mother.name_in_nepali || row.mother.name}
                           </span>
                         ) : (
                           <span className="text-secondary">-</span>
                         )}
                       </td>
                       <td>
-                        {row.grandfather?.id && row.grandfather.name_in_nepali ? (
+                        {row.grandfather?.id &&
+                        row.grandfather.name_in_nepali ? (
                           <span
                             className="cursor-pointer text-primary"
                             onClick={() => navigate(`/${row.grandfather.id}`)}
@@ -1008,10 +1097,13 @@ const TableView = () => {
                         )}
                       </td>
                       <td>
-                        {row.great_grandfather?.id && row.great_grandfather.name_in_nepali ? (
+                        {row.great_grandfather?.id &&
+                        row.great_grandfather.name_in_nepali ? (
                           <span
                             className="cursor-pointer text-primary"
-                            onClick={() => navigate(`/${row.great_grandfather.id}`)}
+                            onClick={() =>
+                              navigate(`/${row.great_grandfather.id}`)
+                            }
                           >
                             {row.great_grandfather.name_in_nepali}
                           </span>
@@ -1061,6 +1153,22 @@ const TableView = () => {
                               onClick={() => handleDelete(row)}
                             >
                               <Trash2 size={18} />
+                            </button>
+                            <button
+                              data-tooltip-id="tooltip"
+                              data-tooltip-content="Add Relation"
+                              className="action-btn"
+                              onClick={() => handleAddRelationClick(row)}
+                            >
+                              <FaPlus size={18} />
+                            </button>
+                            <button
+                              data-tooltip-id="tooltip"
+                              data-tooltip-content="Add Child"
+                              className="action-btn"
+                              onClick={() => handleAddChildClick(row)}
+                            >
+                              <Baby size={18} />
                             </button>
                           </>
                         ) : (
@@ -1158,6 +1266,17 @@ const TableView = () => {
         />
       )}
 
+      {isAddingChild && childFormData && (
+        <EditFormModal
+          formData={childFormData}
+          onClose={() => {
+            setIsAddingChild(false);
+            setChildFormData(null);
+          }}
+          onSave={handleSaveNew}
+        />
+      )}
+
       {showFamilyTree && familyTreePerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-[#A6C8A5] p-6 rounded-lg w-[90vw] h-[90vh] overflow-auto relative">
@@ -1177,6 +1296,17 @@ const TableView = () => {
         <UserProfileModal
           user={{ ...selectedRow, contact: selectedRow?.contact_details }}
           onClose={() => setShowInfoPopup(false)}
+        />
+      )}
+      {showAddRelationModal && selectedPerson && (
+        <AddRelationModal
+          person={selectedPerson}
+          onClose={() => {
+            setShowAddRelationModal(false);
+            setSelectedPerson(null);
+          }}
+          onSave={() => fetchData(1)}
+          API_URL={API_URL}
         />
       )}
       <ReactTooltip id="tooltip" place="top" effect="solid" />

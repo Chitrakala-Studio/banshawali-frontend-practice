@@ -733,10 +733,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           }
         `}
       </style>
-      
-      <div className="modal-container">
-        
 
+      <div className="modal-container">
         {loading ? (
           <div className="loading-text">Loading...</div>
         ) : (
@@ -864,7 +862,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                     value={form.death_date || ""}
                     onChange={(value) => {
                       if (value && new Date(value) > new Date(today)) {
-                        Swal.fire("Error", "You cannot select a future date.", "error");
+                        Swal.fire(
+                          "Error",
+                          "You cannot select a future date.",
+                          "error"
+                        );
                         return;
                       }
                       setForm((prevForm) => ({
@@ -876,7 +878,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                       calenderLocale: "ne",
                       valueLocale: "en",
                       minDate: form.dob || "",
-                      maxDate: today, 
+                      maxDate: today,
                       placeholder: "Select Date",
                       defaultDate: "", // Try this if supported
                     }}
@@ -1032,11 +1034,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             </div>
 
             <div className="flex justify-center w-full">
-              <button
-                type="submit"
-                disabled={loading}
-                className="submit-btn"
-              >
+              <button type="submit" disabled={loading} className="submit-btn">
                 {loading ? "Saving..." : "Save"}
               </button>
             </div>

@@ -81,6 +81,25 @@ const findNodeById = (tree, id) => {
   return null;
 };
 
+const handlePrint = async () => {
+  const confirmation = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to print the family tree?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, print it!",
+  });
+
+  if (confirmation.isConfirmed) {
+    window.print(); // Trigger the browser's print dialog
+    Swal.fire(
+      "Printed!",
+      "Your family tree has been sent to the printer.",
+      "success"
+    );
+  }
+};
+
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const convertImagesToBase64 = async (svgElement) => {
@@ -144,70 +163,40 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
       showCancelButton: true,
       confirmButtonText: "Yes, print it!",
     });
-  
+
     if (confirmation.isConfirmed) {
       const svgElement = document.querySelector(".rd3t-svg");
       if (svgElement) {
         await delay(500);
-  
-        // Inline styles to retain visual formatting
-        function inlineStyles(svgElement) {
-          const allElements = svgElement.querySelectorAll('*');
-          allElements.forEach(el => {
-            const computedStyle = window.getComputedStyle(el);
-            let styleString = '';
-            for (let i = 0; i < computedStyle.length; i++) {
-              const key = computedStyle[i];
-              styleString += `${key}:${computedStyle.getPropertyValue(key)};`;
-            }
-            el.setAttribute('style', styleString);
-          });
-        }
-        
-  
-        inlineStyles(svgElement);
-        svgElement.querySelectorAll('path, line').forEach(el => {
-          el.setAttribute('stroke', '#999');
-          el.setAttribute('stroke-width', '2');
-        });
-        
         await convertImagesToBase64(svgElement);
-  
         try {
-          const scale = 2;
-          const bbox = svgElement.getBBox();
           const canvas = document.createElement("canvas");
-          canvas.width = bbox.width * scale;
-          canvas.height = bbox.height * scale;
-  
+          canvas.width = svgElement.clientWidth * 2;
+          canvas.height = svgElement.clientHeight * 2;
           const ctx = canvas.getContext("2d");
-          ctx.scale(scale, scale);
-          ctx.translate(-bbox.x, -bbox.y); // shift to start of bounding box
-  
           const v = Canvg.fromString(ctx, svgElement.outerHTML);
           await v.render();
-  
+
           const image = canvas.toDataURL("image/png");
           const newWindow = window.open();
-          newWindow.document.write(`
-            <html>
-              <head><title>Print Family Tree</title></head>
-              <body style="margin:0;padding:0;">
-                <img src='${image}' style="width:100%;height:auto;" />
-                <script>window.onload = function() { window.print(); }</script>
-              </body>
-            </html>
-          `);
-  
-          Swal.fire("Printed!", "Your family tree has been sent to the printer.", "success");
+          newWindow.document.write(`<img src='${image}' />`);
+          newWindow.print();
+          Swal.fire(
+            "Printed!",
+            "Your family tree has been sent to the printer.",
+            "success"
+          );
         } catch (error) {
           console.log(error);
-          Swal.fire("Error", "There was a problem printing the family tree.", "error");
+          Swal.fire(
+            "Error",
+            "There was a problem printing the family tree.",
+            "error"
+          );
         }
       }
     }
   };
-  
 
   const handlePDF = async () => {
     const confirmation = await Swal.fire({
@@ -217,12 +206,12 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
       showCancelButton: true,
       confirmButtonText: "Yes, download it!",
     });
-  
+
     if (confirmation.isConfirmed) {
       const svgElement = document.querySelector(".rd3t-svg");
       if (svgElement) {
         await delay(500);
-  
+
         // Inline all styles
         function inlineStyles(svg) {
           const allElements = svg.querySelectorAll("*");
@@ -236,48 +225,55 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             el.setAttribute("style", styleString);
           });
         }
-  
+
         inlineStyles(svgElement);
-  
+
         // Fix stroke styling
         svgElement.querySelectorAll("path, line").forEach((el) => {
           el.setAttribute("stroke", "#999");
           el.setAttribute("stroke-width", "2");
         });
-  
+
         await convertImagesToBase64(svgElement);
-  
+
         try {
           const scale = 2;
           const canvas = document.createElement("canvas");
           canvas.width = svgElement.clientWidth * scale;
           canvas.height = svgElement.clientHeight * scale;
-  
+
           const ctx = canvas.getContext("2d");
           ctx.scale(scale, scale);
-  
+
           const v = Canvg.fromString(ctx, svgElement.outerHTML);
           await v.render();
-  
+
           const image = canvas.toDataURL("image/png");
           const pdf = new jsPDF({
             orientation: "landscape",
             unit: "px",
             format: [canvas.width, canvas.height],
           });
-  
+
           pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
           pdf.save("FamilyTree.pdf");
-  
-          Swal.fire("Downloaded!", "Your family tree PDF has been saved.", "success");
+
+          Swal.fire(
+            "Downloaded!",
+            "Your family tree PDF has been saved.",
+            "success"
+          );
         } catch (error) {
           console.error(error);
-          Swal.fire("Error", "There was a problem downloading the PDF.", "error");
+          Swal.fire(
+            "Error",
+            "There was a problem downloading the PDF.",
+            "error"
+          );
         }
       }
     }
   };
-  
 
   const handleNameClick = (nodeDatum) => {
     if (!nodeDatum.isCollapsible && nodeDatum.real_id) {
@@ -583,8 +579,9 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(35, -5) rotate(${nodeDatum.collapsed ? 0 : 90
-              })`}
+            transform={`translate(35, -5) rotate(${
+              nodeDatum.collapsed ? 0 : 90
+            })`}
             style={{ transition: "transform 0.3s ease" }}
             pointerEvents="none"
           >
