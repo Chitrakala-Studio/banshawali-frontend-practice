@@ -81,6 +81,7 @@ const InfoSection = ({ person }) => {
             width: 20px;
             height: 20px;
             margin-right: 8px;
+            margin-top: 10px;
             color: var(--primary-text);
           }
 
@@ -146,106 +147,114 @@ const InfoSection = ({ person }) => {
           person.grandmother?.name ||
           person.spouse?.name ||
           person.children?.length > 0) && (
-          <div className="info-box">
-            <h3 className="box-title">Family</h3>
-            <div className="info-list">
-              {person.father?.name && (
-                <div className="info-item">
-                  <FaUser className="info-icon" />
-                  <p>
-                    Father:{" "}
-                    <Link to={`/${person.father.id}`} className="info-link">
-                      {person.father.name_in_nepali}
-                    </Link>
-                  </p>
-                </div>
-              )}
-
-              {person.mother?.name && (
-                <div className="info-item">
-                  <FaUser className="info-icon" />
-                  <p>
-                    Mother:{" "}
-                    <Link to={`/${person.mother.id}`} className="info-link">
-                      {person.mother.name_in_nepali}
-                    </Link>
-                  </p>
-                </div>
-              )}
-
-              {(person.grandfather?.name || person.grandmother?.name) && (
-                <div className="info-item">
-                  <FaUser className="info-icon" />
-                  <p>
-                    {person.grandfather?.name &&
-                      person.grandfather.name !== "N/A" && (
-                        <>
-                          GrandFather:{" "}
-                          <Link
-                            to={`/${person.grandfather.id}`}
-                            className="info-link"
-                          >
-                            {person.grandfather.name_in_nepali}
-                          </Link>
-                        </>
-                      )}
-                    {person.grandmother?.name &&
-                      person.grandmother.name !== "N/A" && (
-                        <>
-                          {" "}
-                          GrandMother:{" "}
-                          <Link
-                            to={`/${person.grandmother.id}`}
-                            className="info-link"
-                          >
-                            {person.grandmother.name_in_nepali}
-                          </Link>
-                        </>
-                      )}
-                  </p>
-                </div>
-              )}
-
-              {person.spouse?.length > 0 && (
-                <div className="info-item">
-                  <FaUser className="info-icon" />
-                  <p>
-                    Spouse:{" "}
-                    {person.spouse.map((spouse, index) => (
-                      <Link
-                        key={index}
-                        to={`/${spouse.id}`}
-                        className="info-link"
-                      >
-                        {spouse.name_in_nepali}
-                        {index < person.spouse.length - 1 ? ", " : ""}
+            <div className="info-box">
+              <h3 className="box-title">Family</h3>
+              <div className="info-list">
+                {person.father?.name && (
+                  <div className="info-item">
+                    <FaUser className="info-icon" />
+                    <p>
+                      Father:{" "}
+                      <Link to={`/${person.father.id}`} className="info-link">
+                        {person.father.name_in_nepali}
                       </Link>
-                    ))}
-                  </p>
-                </div>
-              )}
+                    </p>
+                  </div>
+                )}
 
-              {person.children?.length > 0 && (
-                <div className="info-item">
-                  <FaUser className="info-icon" />
-                  <p>
-                    Children:{" "}
-                    {person.children.map((child, index) => (
-                      <Link
-                        key={index}
-                        to={`/${child.id}`}
-                        className="info-link"
-                      >
-                        {child.name_in_nepali}
-                        {index < person.children.length - 1 ? ", " : ""}
+                {person.mother?.name && (
+                  <div className="info-item">
+                    <FaUser className="info-icon" />
+                    <p>
+                      Mother:{" "}
+                      <Link to={`/${person.mother.id}`} className="info-link">
+                        {person.mother.name_in_nepali}
                       </Link>
-                    ))}
-                  </p>
-                </div>
-              )}
+                    </p>
+                  </div>
+                )}
+
+                {(person.grandfather?.name || person.grandmother?.name) && (
+                  <>
+                    <div className="info-item">
+                      <FaUser className="info-icon" />
+                      <p>
+                        {person.grandfather?.name &&
+                          person.grandfather.name !== "N/A" && (
+                            <>
+                              GrandFather:{" "}
+                              <Link
+                                to={`/${person.grandfather.id}`}
+                                className="info-link"
+                              >
+                                {person.grandfather.name_in_nepali}
+                              </Link>
+                            </>
+                          )}
+                      </p>
+
+                    </div>
+                    <div className="info-item">
+                      <FaUser className="info-icon" />
+                      <p>
+                        {person.grandmother?.name &&
+                          person.grandmother.name !== "N/A" && (
+                            <>
+                              {" "}
+                              GrandMother:{" "}
+                              <Link
+                                to={`/${person.grandmother.id}`}
+                                className="info-link"
+                              >
+                                {person.grandmother.name_in_nepali}
+                              </Link>
+                            </>
+                          )}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {person.spouse?.length > 0 && (
+                  <div className="info-item">
+                    <FaUser className="info-icon" />
+                    <p>
+                      Spouse:{" "}
+                      {person.spouse.map((spouse, index) => (
+                        <Link
+                          key={index}
+                          to={`/${spouse.id}`}
+                          className="info-link"
+                        >
+                          {spouse.name_in_nepali}
+                          {index < person.spouse.length - 1 ? ", " : ""}
+                        </Link>
+                      ))}
+                    </p>
+                  </div>
+                )}
+
+                {person.children?.length > 0 && (
+                  <div className="info-item">
+                    <FaUser className="info-icon" />
+                    <p>
+                      Children:{" "}
+                      {person.children.map((child, index) => (
+                        <Link
+                          key={index}
+                          to={`/${child.id}`}
+                          className="info-link"
+                        >
+                          {child.name_in_nepali}
+                          {index < person.children.length - 1 ? ", " : ""}
+                        </Link>
+                      ))}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Contact Information Box */}
         {((person.contact_details?.phone &&
@@ -254,30 +263,30 @@ const InfoSection = ({ person }) => {
             person.contact_details?.email !== "") ||
           (person.contact_details?.address &&
             person.contact_details?.address !== "()")) && (
-          <div className="info-box">
-            <h3 className="box-title">Contact Information</h3>
-            <div className="info-list">
-              {person.contact_details.phone && (
-                <div className="info-item">
-                  <FaPhone className="info-icon" />
-                  <p>{person.contact_details.phone || "N/A"}</p>
-                </div>
-              )}
-              {person.contact_details.email && (
-                <div className="info-item">
-                  <FaEnvelope className="info-icon" />
-                  <p>{person.contact_details.email || "N/A"}</p>
-                </div>
-              )}
-              {person.contact_details.address && (
-                <div className="info-item">
-                  <FaAddressCard className="info-icon" />
-                  <p>{person.contact_details.address || "N/A"}</p>
-                </div>
-              )}
+            <div className="info-box">
+              <h3 className="box-title">Contact Information</h3>
+              <div className="info-list">
+                {person.contact_details.phone && (
+                  <div className="info-item">
+                    <FaPhone className="info-icon" />
+                    <p>{person.contact_details.phone || "N/A"}</p>
+                  </div>
+                )}
+                {person.contact_details.email && (
+                  <div className="info-item">
+                    <FaEnvelope className="info-icon" />
+                    <p>{person.contact_details.email || "N/A"}</p>
+                  </div>
+                )}
+                {person.contact_details.address && (
+                  <div className="info-item">
+                    <FaAddressCard className="info-icon" />
+                    <p>{person.contact_details.address || "N/A"}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Professional Information Box */}
         {person.profession && (
