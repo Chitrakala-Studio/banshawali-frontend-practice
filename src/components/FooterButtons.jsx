@@ -82,6 +82,7 @@ const FooterButtons = ({
         onClick={() => navigate(`/compare/${id}`)}
         className="action-btn"
         aria-label="Compare"
+        
       >
         
         Compare
