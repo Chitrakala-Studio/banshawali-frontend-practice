@@ -65,6 +65,14 @@ const TableView = () => {
   const [childFormData, setChildFormData] = useState(null);
   const isModalOpen =
     isAdding || isEditing || isAddingChild || showSearchForm || showInfoPopup;
+
+  useEffect(() => {
+    document.body.style.overflow = isModalOpen ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isModalOpen]);
+
   const [formData, setFormData] = useState({
     username: "",
     pusta_number: "",

@@ -14,7 +14,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
     id: formData.id || null,
     pusta_number: formData.pusta_number || "",
-    name: formData.name || "",
+    name: formData.name || null,
     name_in_nepali: formData.name_in_nepali || "",
     gender: formData.gender || "",
     dob: formData.dob || "",
@@ -827,14 +827,14 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 <label className="label">Date of Birth</label>
                 <NepaliDatePicker
                   inputClassName="input"
-                  value={""}
+                  value={form.dob || undefined}
                   onChange={handleDateChange}
                   options={{
                     calenderLocale: "ne",
                     valueLocale: "en",
                     placeholder: "Select Date",
                     maxDate: today,
-                    defaultDate: "", // Try this if supported by the library
+                    hideDefaultValue: true,
                   }}
                 />
               </div>
