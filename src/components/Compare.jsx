@@ -1,33 +1,28 @@
-import debounce from "lodash.debounce";
 import axios from "axios";
-import Choices from "choices.js";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import "choices.js/public/assets/styles/choices.css";
-import { FaArrowLeft, FaHome } from "react-icons/fa";
+import { FaArrowLeft, FaHome, FaSearch } from "react-icons/fa";
 import { IdCard } from "lucide-react";
 
+// Main component for comparing two persons
 const Compare = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL;
+  const { id } = useParams(); // Get person ID from URL parameters
+  const navigate = useNavigate(); // Navigation function for routing
+  const API_URL = import.meta.env.VITE_API_URL; // Base API URL from environment variables
 
-  const [familyMembers, setFamilyMembers] = useState([]);
-  const [rightNameSuggestions, setRightNameSuggestions] = useState([]);
-  const choicesInstanceRef = useRef(null);
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
-
-  const [rightFatherSuggestions, setRightFatherSuggestions] = useState([]);
-  const [rightMotherSuggestions, setRightMotherSuggestions] = useState([]);
-
+  // State management for various data and UI states
+  const [familyMembers, setFamilyMembers] = useState([]); // Store family members data
+  const [rightNameSuggestions, setRightNameSuggestions] = useState([]); // Store name suggestions for Person 2
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 800); // Detect mobile view
+  const [rightFatherSuggestions, setRightFatherSuggestions] = useState([]); // Store father suggestions
+  const [rightMotherSuggestions, setRightMotherSuggestions] = useState([]); // Store mother suggestions
   const [leftPerson, setLeftPerson] = useState({
     name: "",
     pusta_number: "",
     fatherName: "",
     motherName: "",
-  });
+  }); // State for Person 1 data
   const [rightPerson, setRightPerson] = useState({
     name: "",
     pusta_number: "",
@@ -35,50 +30,18 @@ const Compare = () => {
     fatherId: "",
     motherName: "",
     motherId: "",
-  });
+  }); // State for Person 2 data
+  const [isLeftConfirmed, setIsLeftConfirmed] = useState(true); // Track if Person 1 is confirmed
+  const [isRightConfirmed, setIsRightConfirmed] = useState(false); // Track if Person 2 is confirmed
+  const [relationship, setRelationship] = useState(""); // Store the comparison result
+  const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
+  const [apiError, setApiError] = useState(""); // Store any API errors
+  const [searchQuery, setSearchQuery] = useState(""); // Current search query for Person 2
+  const [showSuggestions, setShowSuggestions] = useState(false); // Control visibility of the dropdown
 
-  const [isLeftConfirmed, setIsLeftConfirmed] = useState(true);
-  const [isRightConfirmed, setIsRightConfirmed] = useState(false);
-  const [relationship, setRelationship] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState("");
-  const [familyTreeData, setFamilyTreeData] = useState(null);
+  const searchFieldRef = useRef(null); // Ref to handle clicks outside the search field
 
-  const rightNameSelectRef = useRef(null);
-
-  useEffect(() => {
-    if (rightNameSelectRef.current && !choicesInstanceRef.current) {
-      choicesInstanceRef.current = new Choices(rightNameSelectRef.current, {
-        removeItemButton: true,
-        shouldSort: false,
-        searchEnabled: true,
-        searchFields: ["customProperties.english", "label"],
-        maxItemCount: 50,
-      });
-    }
-    return () => {
-      if (choicesInstanceRef.current) {
-        choicesInstanceRef.current.destroy();
-        choicesInstanceRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!rightPerson.pusta_number) {
-      setRightNameSuggestions([]);
-      if (choicesInstanceRef.current) {
-        choicesInstanceRef.current.clearChoices();
-        choicesInstanceRef.current.setChoices(
-          [{ value: "", label: "Select Name" }],
-          "value",
-          "label",
-          true
-        );
-      }
-    }
-  }, [rightPerson.pusta_number]);
-
+  // Handle window resize to update mobile view
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 800);
@@ -87,70 +50,83 @@ const Compare = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const fetchSuggestions = async (pustaNumber) => {
-    if (!pustaNumber) return;
+  // Fetch name suggestions for Person 2 based on search query
+  const fetchNameSuggestions = async (query) => {
+    if (!query.trim()) {
+      setRightNameSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    setIsLoading(true);
     try {
+      console.log("Fetching suggestions for query:", query);
       const response = await axios.get(
-        `${API_URL}/people/people/familyrelations?pusta_number=${pustaNumber}`,
-        { method: "GET", headers: { "Content-Type": "application/json" } }
+        `${API_URL}/people/search?name=${encodeURIComponent(query)}`,
+        { headers: { "Content-Type": "application/json" } }
       );
-
-      const name_suggestions = response.data.current_pusta_data || [];
-      setRightNameSuggestions(name_suggestions);
-      if (rightNameSelectRef.current && choicesInstanceRef.current) {
-        choicesInstanceRef.current.clearChoices();
-        choicesInstanceRef.current.setChoices(
-          name_suggestions.length > 0
-            ? name_suggestions.map((sugg) => ({
-              value: sugg.id,
-              label: `${sugg.name_in_nepali || sugg.name} - ${sugg.father?.name_in_nepali || sugg.father?.name || ""
-                } | ${sugg.mother?.name_in_nepali || sugg.mother?.name || ""}`,
-              customProperties: { english: sugg.name },
-            }))
-            : [{ value: "", label: "Select Name" }],
-          "value",
-          "label",
-          true
-        );
-        rightNameSelectRef.current.addEventListener("change", (event) => {
-          const selectedId = event.target.value;
-          const selectedPerson = name_suggestions.find(
-            (sugg) => sugg.id == selectedId // Match by unique ID
-          );
-          console.log("selectedperson", selectedPerson)
-          if (selectedPerson) {
-            setRightPerson((prev) => ({
-              ...prev,
-              name: selectedPerson.name_in_nepali || selectedPerson.name,
-              id: selectedPerson.id,
-              pusta_number: selectedPerson.pusta_number,
-              fatherName:
-                selectedPerson.father?.name_in_nepali ||
-                selectedPerson.father?.name ||
-                "",
-              motherName:
-                selectedPerson.mother?.name_in_nepali ||
-                selectedPerson.mother?.name ||
-                "",
-              fatherId: selectedPerson.father?.id || "",
-              motherId: selectedPerson.mother?.id || "",
-            }));
-           
-          }
-        });
+      console.log("API response:", response.data);
+      const suggestions = response.data.data || [];
+      setRightNameSuggestions(suggestions);
+      setShowSuggestions(true); // Show dropdown after fetching suggestions
+      if (suggestions.length === 0) {
+        setApiError("No results found for the search query.");
+      } else {
+        setApiError("");
       }
     } catch (error) {
-      console.error("Error fetching suggestions:", error);
+      console.error("Error fetching name suggestions:", error);
+      setApiError("Failed to fetch name suggestions. Please try again.");
+      Swal.fire({
+        title: "Error",
+        text: "Failed to fetch name suggestions.",
+        icon: "error",
+        confirmButtonText: "Okay",
+      });
+      setShowSuggestions(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const debouncedFetch = useCallback(
-    debounce((pustaNumber) => {
-      fetchSuggestions(pustaNumber);
-    }, 500),
-    []
-  );
+  // Trigger search when button is clicked
+  const handleSearch = () => {
+    fetchNameSuggestions(searchQuery);
+  };
 
+  // Trigger search when Enter key is pressed
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      fetchNameSuggestions(searchQuery);
+    }
+  };
+
+  // Handle selection of a suggestion and update Person 2 data
+  const handleSelectSuggestion = (sugg) => {
+    setRightPerson({
+      name: sugg.name_in_nepali || sugg.name,
+      id: sugg.id,
+      pusta_number: sugg.pusta_number,
+      fatherName: sugg.father?.name_in_nepali || sugg.father?.name || "",
+      motherName: sugg.mother?.name_in_nepali || sugg.mother?.name || "",
+      fatherId: sugg.father?.id || "",
+      motherId: sugg.mother?.id || "",
+    });
+    setSearchQuery("");
+    setShowSuggestions(false); // Hide dropdown after selection
+  };
+
+  // Close dropdown when clicking outside the search field
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchFieldRef.current && !searchFieldRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch father suggestions (simulated with timeout)
   const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -163,17 +139,11 @@ const Compare = () => {
 
         const fatherName = person.father?.name || "";
         const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration =
-            member.pusta_number === parentGeneration.toString();
-          const matchesQuery =
-            query.trim() === "" ||
-            member.name.toLowerCase().includes(query.toLowerCase());
-          const isMale =
-            member.gender && member.gender.toLowerCase() === "male";
+          const isRightGeneration = member.pusta_number === parentGeneration.toString();
+          const matchesQuery = query.trim() === "" || member.name.toLowerCase().includes(query.toLowerCase());
+          const isMale = member.gender && member.gender.toLowerCase() === "male";
           const matchesFatherName = member.name === fatherName;
-          return (
-            isRightGeneration && matchesQuery && isMale && matchesFatherName
-          );
+          return isRightGeneration && matchesQuery && isMale && matchesFatherName;
         });
 
         resolve(suggestions);
@@ -181,6 +151,7 @@ const Compare = () => {
     });
   };
 
+  // Fetch mother suggestions (simulated with timeout)
   const fetchRightMotherSuggestions = (parentGeneration, query, personId) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -193,17 +164,11 @@ const Compare = () => {
 
         const motherName = person.mother?.name || "";
         const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration =
-            member.pusta_number === parentGeneration.toString();
-          const matchesQuery =
-            query.trim() === "" ||
-            member.name.toLowerCase().includes(query.toLowerCase());
-          const isFemale =
-            member.gender && member.gender.toLowerCase() === "female";
+          const isRightGeneration = member.pusta_number === parentGeneration.toString();
+          const matchesQuery = query.trim() === "" || member.name.toLowerCase().includes(query.toLowerCase());
+          const isFemale = member.gender && member.gender.toLowerCase() === "female";
           const matchesMotherName = member.name === motherName;
-          return (
-            isRightGeneration && matchesQuery && isFemale && matchesMotherName
-          );
+          return isRightGeneration && matchesQuery && isFemale && matchesMotherName;
         });
 
         resolve(suggestions);
@@ -211,6 +176,7 @@ const Compare = () => {
     });
   };
 
+  // Fetch data for Person 1
   useEffect(() => {
     const fetchLeftPersonData = async () => {
       setIsLoading(true);
@@ -225,9 +191,7 @@ const Compare = () => {
         setLeftPerson(fetchedData);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setApiError(
-          "Failed to fetch left person's data. Please try again later."
-        );
+        setApiError("Failed to fetch left person's data. Please try again later.");
         Swal.fire({
           title: "Error",
           text: "There was an issue fetching the left person's data.",
@@ -242,6 +206,7 @@ const Compare = () => {
     fetchLeftPersonData();
   }, [id]);
 
+  // Handle comparison of the two persons
   const handleCompare = async () => {
     await new Promise((resolve) => {
       setTimeout(() => {
@@ -314,12 +279,11 @@ const Compare = () => {
     <div className="compare-container">
       <style>
         {`
-
         @media (max-width: 799px) {
-  .hide-on-mobile {
-    display: none !important;
-  }
-}
+          .hide-on-mobile {
+            display: none !important;
+          }
+        }
 
           :root {
             --primary-text: #1F2937;
@@ -333,59 +297,56 @@ const Compare = () => {
             --secondary-bg-hover: #D9C4A0;
             --background-start: #F8E5C0;
             --background-end:   #CDE8D0;
-             --secondary-light: #E9D4B0;  
+            --secondary-light: #E9D4B0;  
             --white:           #FFFFFF;
           }
 
           .flex-center {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  
-}
-
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+          }
 
           .compare-container {
             min-height: 100vh;
-    background: linear-gradient(to bottom, #fffaf0, #ffffff);
-    background: radial-gradient(
-            circle at top,
-             var(--background-start) 30%,
-             var(--background-end)   100%
-        );
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding:24px;
-    justify-content: flex-start;
-
+            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            background: radial-gradient(
+              circle at top,
+              var(--background-start) 30%,
+              var(--background-end) 100%
+            );
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            justify-content: flex-start;
           }
 
-         .top-bar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  width: 100%;
-  margin-bottom: 16px;
-}
+          .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 16px;
+          }
 
-.top-bar-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-   background-color: var(--primary-dark);
-  color:            var(--secondary-light);
-  font-family: 'Playfair Display', serif;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
+          .top-bar-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: var(--primary-dark);
+            color: var(--secondary-light);
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
 
-.top-bar-btn:hover {
- background-color: var(--primary-hover);
-  color:            var(--white);
-  transform:        scale(1.05);
-}
+          .top-bar-btn:hover {
+            background-color: var(--primary-hover);
+            color: var(--white);
+            transform: scale(1.05);
+          }
 
           .back-btn {
             position: absolute;
@@ -397,7 +358,7 @@ const Compare = () => {
             border-radius: 9999px;
             font-family: 'Merriweather', serif;
             font-size: 14px;
-            box  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
           }
 
@@ -459,7 +420,10 @@ const Compare = () => {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            
+          }
+
+          .search-field {
+            position: relative; /* Enable absolute positioning for dropdown */
           }
 
           .label {
@@ -469,10 +433,9 @@ const Compare = () => {
             color: var(--primary-text);
           }
 
-          .input,
-          .select {
+          .input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 8px 40px 8px 12px; /* Adjusted padding for search icon */
             background: linear-gradient(to right, #fffaf0, #ffffff);
             border: 1px solid var(--neutral-gray);
             border-radius: 6px;
@@ -481,70 +444,74 @@ const Compare = () => {
             font-size: 16px;
             color: var(--primary-text);
             transition: all 0.3s ease;
-            background: #f3f4f6
-
+            background: #f3f4f6;
           }
 
-          .input:disabled,
-          .select:disabled {
+          /* Modify input border when dropdown is open to blend with it */
+          .input.dropdown-open {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: none; /* Remove bottom border for seamless integration */
+          }
+
+          .input:disabled {
             background: #f3f4f6;
             cursor: not-allowed;
           }
 
-          .input:focus,
-          .select:focus {
+          .input:focus {
             outline: none;
             border-color: var(--gold-accent);
             box-shadow: 0 0 0 3px rgba(244, 157, 55, 0.2);
           }
 
-          .choices__inner {
-            width: 100%;
-            background: linear-gradient(to right, #fffaf0, #ffffff);
-            border: 1px solid var(--neutral-gray);
-            border-radius: 6px;
-            padding: 4px 6.5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            font-family: 'Merriweather', serif;
-            font-size: 16px;
-            color: var(--primary-text);
-            background: #f3f4f6
-
+          .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 5px;
+            background: transparent;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
           }
 
-          .choices__list--dropdown {
+          .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          /* Style the dropdown to appear as part of the input */
+          .suggestions-dropdown {
+            position: absolute;
+            top: 100%; /* Position immediately below the input */
+            left: 0;
+            right: 0;
             max-height: 200px;
             overflow-y: auto;
             background: linear-gradient(to bottom, #fffaf0, #ffffff);
             border: 1px solid var(--neutral-gray);
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
+            border-top: none; /* Remove top border to blend with input */
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Shadow effect as requested */
+            z-index: 10;
           }
 
-          .choices__list--dropdown .choices__item {
+          .suggestion-item {
             padding: 8px 12px;
             font-family: 'Merriweather', serif;
             font-size: 16px;
             color: var(--primary-text);
+            cursor: pointer;
             transition: background-color 0.2s ease;
-            
-          
-
           }
 
-          .choices__list--dropdown .choices__item:hover {
+          .suggestion-item:hover {
             background-color: #f3e8d7;
-          }
-
-          .choices__input {
-            border: none !important;
-            outline: none !important;
-            padding: 4px 8px;
-            color: var(--primary-text);
-            font-family: 'Merriweather', serif;
-            font-size: 16px;
-            
           }
 
           .action-section {
@@ -610,9 +577,7 @@ const Compare = () => {
       <div className="top-bar">
         <button
           className="top-bar-btn flex-center"
-          onClick={() =>
-            (window.location.href = "https://gautamfamily.org.np/")
-          }
+          onClick={() => (window.location.href = "https://gautamfamily.org.np/")}
         >
           <FaHome />
           <span>Home</span>
@@ -629,7 +594,6 @@ const Compare = () => {
         <button className="top-bar-btn flex-center" onClick={() => navigate(`/card/${id}`)}>
           <IdCard />
           Card View
-
         </button>
       </div>
 
@@ -710,42 +674,45 @@ const Compare = () => {
         <div className="person-card">
           <h2 className="card-title">Person 2</h2>
           <div className="field-container">
-            <div className="field">
-              <label className="label">Pusta Number</label>
-              <input
-                type="text"
-                placeholder="Enter Pusta Number"
-                className="input"
-                value={rightPerson.pusta_number || ""}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setRightPerson((prev) => ({
-                    ...prev,
-                    pusta_number: value,
-                    name: "",
-                    fatherName: "",
-                    motherName: "",
-                    fatherId: "",
-                    motherId: "",
-                  }));
-                  debouncedFetch(value);
-                }}
-                onBlur={() => {
-                  debouncedFetch.flush();
-                }}
-                disabled={isRightConfirmed}
-              />
-            </div>
-
-            <div className="field">
-              <label className="label">Name</label>
-              <select
-                ref={rightNameSelectRef}
-                id="rightNameSelect"
-                className="select"
-              >
-                <option value="">Select Name</option>
-              </select>
+            <div className="search-field" ref={searchFieldRef}>
+              <div className="field">
+                <label className="label">Search Name</label>
+                <div style={{ position: "relative" }}>
+                  {/* Add 'dropdown-open' class when suggestions are visible to integrate dropdown visually */}
+                  <input
+                    type="text"
+                    placeholder="Enter Name to Search"
+                    className={`input ${showSuggestions ? "dropdown-open" : ""}`}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={isRightConfirmed}
+                  />
+                  <button
+                    className="search-btn"
+                    onClick={handleSearch}
+                    disabled={isRightConfirmed || !searchQuery.trim()}
+                  >
+                    <FaSearch className="text-black" />
+                  </button>
+                  {/* Dropdown integrated into the input field, shown only after search */}
+                  {showSuggestions && rightNameSuggestions.length > 0 && (
+                    <div className="suggestions-dropdown">
+                      {rightNameSuggestions.map((sugg) => (
+                        <div
+                          key={sugg.id}
+                          className="suggestion-item"
+                          onClick={() => handleSelectSuggestion(sugg)}
+                        >
+                          {sugg.name_in_nepali || sugg.name} -{" "}
+                          {sugg.father?.name_in_nepali || sugg.father?.name || ""} |{" "}
+                          {sugg.mother?.name_in_nepali || sugg.mother?.name || ""}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="field">
