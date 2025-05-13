@@ -155,48 +155,48 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
     fetchData();
   }, [id]);
 
-  // const handlePrint = async () => {
-  //   const confirmation = await Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "Do you want to print the family tree?",
-  //     icon: "question",
-  //     showCancelButton: true,
-  //     confirmButtonText: "Yes, print it!",
-  //   });
+  const handlePrint = async () => {
+    const confirmation = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to print the family tree?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, print it!",
+    });
 
-  //   if (confirmation.isConfirmed) {
-  //     const svgElement = document.querySelector(".rd3t-svg");
-  //     if (svgElement) {
-  //       await delay(500);
-  //       await convertImagesToBase64(svgElement);
-  //       try {
-  //         const canvas = document.createElement("canvas");
-  //         canvas.width = svgElement.clientWidth * 2;
-  //         canvas.height = svgElement.clientHeight * 2;
-  //         const ctx = canvas.getContext("2d");
-  //         const v = Canvg.fromString(ctx, svgElement.outerHTML);
-  //         await v.render();
+    if (confirmation.isConfirmed) {
+      const svgElement = document.querySelector(".rd3t-svg");
+      if (svgElement) {
+        await delay(500);
+        await convertImagesToBase64(svgElement);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = svgElement.clientWidth * 2;
+          canvas.height = svgElement.clientHeight * 2;
+          const ctx = canvas.getContext("2d");
+          const v = Canvg.fromString(ctx, svgElement.outerHTML);
+          await v.render();
 
-  //         const image = canvas.toDataURL("image/png");
-  //         const newWindow = window.open();
-  //         newWindow.document.write(`<img src='${image}' />`);
-  //         newWindow.print();
-  //         Swal.fire(
-  //           "Printed!",
-  //           "Your family tree has been sent to the printer.",
-  //           "success"
-  //         );
-  //       } catch (error) {
-  //         console.log(error);
-  //         Swal.fire(
-  //           "Error",
-  //           "There was a problem printing the family tree.",
-  //           "error"
-  //         );
-  //       }
-  //     }
-  //   }
-  // };
+          const image = canvas.toDataURL("image/png");
+          const newWindow = window.open();
+          newWindow.document.write(`<img src='${image}' />`);
+          newWindow.print();
+          Swal.fire(
+            "Printed!",
+            "Your family tree has been sent to the printer.",
+            "success"
+          );
+        } catch (error) {
+          console.log(error);
+          Swal.fire(
+            "Error",
+            "There was a problem printing the family tree.",
+            "error"
+          );
+        }
+      }
+    }
+  };
 
   const handlePDF = async () => {
     const confirmation = await Swal.fire({
