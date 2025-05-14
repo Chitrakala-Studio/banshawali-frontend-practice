@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
-import { FaArrowDown } from "react-icons/fa";
+import { FaArrowDown, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
@@ -24,6 +24,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     father_id: formData.father_id || null,
     mother_name: formData.mother_name || "",
     mother_id: formData.mother_id || null,
+    spouses: formData.spouses || [{ id: null, name: "" }],
     vansha_status: formData.vansha_status || "",
     contact: {
       email: formData.contact?.email || "",
@@ -71,75 +72,147 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setShowMotherSuggestions(true);
   };
 
+  const handleSpouseChange = (index, name) => {
+    const updated = [...form.spouses];
+    updated[index] = { ...updated[index], name };
+    setForm((prev) => ({ ...prev, spouses: updated }));
+  };
+
+  const handleSpouseIdSelect = (index, selectedOption) => {
+    const updated = [...form.spouses];
+    updated[index] = {
+      id: selectedOption.id,
+      name: selectedOption.name_in_nepali || selectedOption.name,
+    };
+    setForm((prev) => ({ ...prev, spouses: updated }));
+  };
+
+  const addSpouseField = () => {
+    setForm((prev) => ({
+      ...prev,
+      spouses: [...prev.spouses, { id: null, name: "" }],
+    }));
+  };
+
+  const removeSpouseField = (index) => {
+    const updated = [...form.spouses];
+    updated.splice(index, 1);
+    setForm((prev) => ({ ...prev, spouses: updated }));
+  };
+
   const handleMotherMouseLeave = () => {
     hideMotherSuggestionsTimeout.current = setTimeout(() => {
       setShowMotherSuggestions(false);
     }, 200);
   };
 
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (
-        form.pusta_number &&
-        !isNaN(form.pusta_number) &&
-        form.pusta_number > 1
-      ) {
-        const prevPusta = parseInt(form.pusta_number, 10) - 1;
-        try {
-          const response = await axios.get(
-            `${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
-            { headers: { "Content-Type": "application/json" } }
-          );
+  const fetchSuggestions = async () => {
+    if (Array.isArray(formData.spouseOptions)) {
+      // Add Child mode: Use spouseOptions
+      const spouseOpts = formData.spouseOptions;
+      const hasFather = !!formData.father_id;
+      const hasMother = !!formData.mother_id;
 
-          const data = Array.isArray(response.data.current_pusta_data)
-            ? response.data.current_pusta_data
-            : [];
-
-          const validData = data.filter(
-            (s) => s && typeof s.id === "number" && s.name
-          );
-
-          const fatherData = validData.filter((s) => {
-            if (s.gender && typeof s.gender === "string") {
-              return s.gender.toLowerCase() === "male";
-            }
-            const name = (s.name_in_nepali || s.name).toLowerCase();
-            return (
-              name.endsWith("नाथ") ||
-              name.endsWith("प्रसाद") ||
-              name.endsWith("कुमार") ||
-              !name.endsWith("ा")
-            );
-          });
-
-          const motherData = validData.filter((s) => {
-            if (s.gender && typeof s.gender === "string") {
-              return s.gender.toLowerCase() === "female";
-            }
-            const name = (s.name_in_nepali || s.name).toLowerCase();
-            return (
-              name.endsWith("ा") ||
-              name.endsWith("कुमारी") ||
-              name.endsWith("देवी")
-            );
-          });
-
-          setSuggestions(fatherData);
-          setMotherSuggestions(motherData);
-        } catch (error) {
-          console.error("Error fetching suggestions:", error);
-          setSuggestions([]);
-          setMotherSuggestions([]);
-          Swal.fire("Error", "Failed to fetch family members.", "error");
-        }
+      if (hasFather && !hasMother) {
+        setSuggestions([
+          {
+            id: formData.father_id,
+            name: formData.father_name,
+            gender: "male",
+          },
+        ]);
+        setMotherSuggestions(
+          spouseOpts.filter(
+            (s) => s.gender?.toLowerCase() === "female" || !s.gender
+          )
+        );
+      } else if (hasMother && !hasFather) {
+        setMotherSuggestions([
+          {
+            id: formData.mother_id,
+            name: formData.mother_name,
+            gender: "female",
+          },
+        ]);
+        setSuggestions(
+          spouseOpts.filter(
+            (s) => s.gender?.toLowerCase() === "male" || !s.gender
+          )
+        );
       } else {
-        setSuggestions([]);
-        setMotherSuggestions([]);
+        setSuggestions(
+          spouseOpts.filter(
+            (s) => s.gender?.toLowerCase() === "male" || !s.gender
+          )
+        );
+        setMotherSuggestions(
+          spouseOpts.filter(
+            (s) => s.gender?.toLowerCase() === "female" || !s.gender
+          )
+        );
       }
-    };
+      return;
+    }
 
+    // Non-Add-Child mode: Fetch from API
+    const p = parseInt(form.pusta_number, 10);
+    if (isNaN(p) || p <= 1) {
+      setSuggestions([]);
+      setMotherSuggestions([]);
+      return;
+    }
+
+    try {
+      const prevPusta = p - 1;
+      const response = await axios.get(
+        `${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      const data = Array.isArray(response.data.current_pusta_data)
+        ? response.data.current_pusta_data
+        : [];
+
+      const validData = data.filter(
+        (s) => s && typeof s.id === "number" && s.name
+      );
+
+      const fatherData = validData.filter((s) => {
+        if (s.gender) return s.gender.toLowerCase() === "male";
+        const nm = (s.name_in_nepali || s.name).toLowerCase();
+        return (
+          nm.endsWith("नाथ") ||
+          nm.endsWith("प्रसाद") ||
+          nm.endsWith("कुमार") ||
+          !nm.endsWith("ा")
+        );
+      });
+
+      const motherData = validData.filter((s) => {
+        if (s.gender) return s.gender.toLowerCase() === "female";
+        const nm = (s.name_in_nepali || s.name).toLowerCase();
+        return nm.endsWith("ा") || nm.endsWith("कुमारी") || nm.endsWith("देवी");
+      });
+
+      setSuggestions(fatherData);
+      setMotherSuggestions(motherData);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setSuggestions([]);
+      setMotherSuggestions([]);
+      Swal.fire("Error", "Failed to fetch family members.", "error");
+    }
+  };
+
+  useEffect(() => {
     fetchSuggestions();
-  }, [form.pusta_number, API_URL]);
+  }, [
+    form.pusta_number,
+    formData.spouseOptions,
+    formData.father_id,
+    formData.mother_id,
+    API_URL,
+  ]);
 
   useEffect(() => {
     if (fatherInputRef.current) {
@@ -148,7 +221,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           removeItemButton: true,
           shouldSort: false,
           searchEnabled: true,
-          noResultsText: "No males found in previous generation",
+          noResultsText: formData.spouseOptions
+            ? "No male options available"
+            : "No males found in previous generation",
           placeholder: true,
           placeholderValue: "Select Father",
           searchPlaceholderValue: "Search for a father",
@@ -156,20 +231,61 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         });
       }
 
-      const choicesData = [
-        { value: "", label: "Select Father", disabled: true },
-        ...(suggestions.length > 0
-          ? suggestions.map((s) => ({
+      const choicesData = formData.spouseOptions
+        ? [
+            { value: "", label: "Select Father", disabled: true },
+            ...(form.father_id &&
+            form.father_name &&
+            !suggestions.some((s) => s.id === form.father_id)
+              ? [
+                  {
+                    value: form.father_id.toString(),
+                    label: form.father_name,
+                    selected: true,
+                    customProperties: {
+                      id: form.father_id,
+                      name_in_nepali: form.father_name,
+                    },
+                  },
+                ]
+              : []),
+            ...suggestions.map((s) => ({
               value: s.id.toString(),
               label: s.name_in_nepali || s.name,
               selected: s.id === form.father_id,
               customProperties: {
                 id: s.id,
-                name_in_nepali: s.name_in_nepali || "",
+                name_in_nepali: s.name_in_nepali || s.name,
               },
-            }))
-          : []),
-      ];
+            })),
+          ]
+        : [
+            { value: "", label: "Select Father", disabled: true },
+            ...(form.father_id &&
+            form.father_name &&
+            !suggestions.some((s) => s.id === form.father_id)
+              ? [
+                  {
+                    value: form.father_id.toString(),
+                    label: form.father_name,
+                    selected: true,
+                    customProperties: {
+                      id: form.father_id,
+                      name_in_nepali: form.father_name,
+                    },
+                  },
+                ]
+              : []),
+            ...suggestions.map((s) => ({
+              value: s.id.toString(),
+              label: s.name_in_nepali || s.name,
+              selected: s.id === form.father_id,
+              customProperties: {
+                id: s.id,
+                name_in_nepali: s.name_in_nepali || s.name,
+              },
+            })),
+          ];
 
       fatherChoicesInstance.current.setChoices(
         choicesData,
@@ -185,9 +301,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       fatherInputRef.current.addEventListener("change", (e) => {
         const selectedId = e.target.value;
-        const selected = suggestions.find(
-          (s) => s.id.toString() === selectedId
-        );
+        const source = formData.spouseOptions
+          ? formData.spouseOptions
+          : suggestions;
+        const selected = source.find((s) => s.id.toString() === selectedId);
         setForm((prev) => ({
           ...prev,
           father_id: selected ? selected.id : null,
@@ -195,15 +312,15 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         }));
         setShowSuggestions(false);
       });
-
-      return () => {
-        if (fatherChoicesInstance.current) {
-          fatherChoicesInstance.current.destroy();
-          fatherChoicesInstance.current = null;
-        }
-      };
     }
-  }, [suggestions, form.father_id]);
+
+    return () => {
+      if (fatherChoicesInstance.current) {
+        fatherChoicesInstance.current.destroy();
+        fatherChoicesInstance.current = null;
+      }
+    };
+  }, [suggestions, form.father_id, form.father_name, formData.spouseOptions]);
 
   useEffect(() => {
     if (motherInputRef.current) {
@@ -212,7 +329,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           removeItemButton: true,
           shouldSort: false,
           searchEnabled: true,
-          noResultsText: "No females found in previous generation",
+          noResultsText: formData.spouseOptions
+            ? "No female options available"
+            : "No females found in previous generation",
           placeholder: true,
           placeholderValue: "Select Mother",
           searchPlaceholderValue: "Search for a mother",
@@ -220,20 +339,61 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         });
       }
 
-      const choicesData = [
-        { value: "", label: "Select Mother", disabled: true },
-        ...(motherSuggestions.length > 0
-          ? motherSuggestions.map((s) => ({
+      const choicesData = formData.spouseOptions
+        ? [
+            { value: "", label: "Select Mother", disabled: true },
+            ...(form.mother_id &&
+            form.mother_name &&
+            !motherSuggestions.some((s) => s.id === form.mother_id)
+              ? [
+                  {
+                    value: form.mother_id.toString(),
+                    label: form.mother_name,
+                    selected: true,
+                    customProperties: {
+                      id: form.mother_id,
+                      name_in_nepali: form.mother_name,
+                    },
+                  },
+                ]
+              : []),
+            ...motherSuggestions.map((s) => ({
               value: s.id.toString(),
               label: s.name_in_nepali || s.name,
               selected: s.id === form.mother_id,
               customProperties: {
                 id: s.id,
-                name_in_nepali: s.name_in_nepali || "",
+                name_in_nepali: s.name_in_nepali || s.name,
               },
-            }))
-          : []),
-      ];
+            })),
+          ]
+        : [
+            { value: "", label: "Select Mother", disabled: true },
+            ...(form.mother_id &&
+            form.mother_name &&
+            !motherSuggestions.some((s) => s.id === form.mother_id)
+              ? [
+                  {
+                    value: form.mother_id.toString(),
+                    label: form.mother_name,
+                    selected: true,
+                    customProperties: {
+                      id: form.mother_id,
+                      name_in_nepali: form.mother_name,
+                    },
+                  },
+                ]
+              : []),
+            ...motherSuggestions.map((s) => ({
+              value: s.id.toString(),
+              label: s.name_in_nepali || s.name,
+              selected: s.id === form.mother_id,
+              customProperties: {
+                id: s.id,
+                name_in_nepali: s.name_in_nepali || s.name,
+              },
+            })),
+          ];
 
       motherChoicesInstance.current.setChoices(
         choicesData,
@@ -249,9 +409,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       motherInputRef.current.addEventListener("change", (e) => {
         const selectedId = e.target.value;
-        const selected = motherSuggestions.find(
-          (s) => s.id.toString() === selectedId
-        );
+        const source = formData.spouseOptions
+          ? formData.spouseOptions
+          : motherSuggestions;
+        const selected = source.find((s) => s.id.toString() === selectedId);
         setForm((prev) => ({
           ...prev,
           mother_id: selected ? selected.id : null,
@@ -259,15 +420,20 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         }));
         setShowMotherSuggestions(false);
       });
-
-      return () => {
-        if (motherChoicesInstance.current) {
-          motherChoicesInstance.current.destroy();
-          motherChoicesInstance.current = null;
-        }
-      };
     }
-  }, [motherSuggestions, form.mother_id]);
+
+    return () => {
+      if (motherChoicesInstance.current) {
+        motherChoicesInstance.current.destroy();
+        motherChoicesInstance.current = null;
+      }
+    };
+  }, [
+    motherSuggestions,
+    form.mother_id,
+    form.mother_name,
+    formData.spouseOptions,
+  ]);
 
   useEffect(() => {
     if (formData.id) {
@@ -317,6 +483,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             mother_name: motherName,
             mother_id:
               data.mother_id || (data.mother?.id ?? formData.mother_id) || null,
+            spouses: data.spouses ||
+              formData.spouses || [{ id: null, name: "" }],
             vansha_status: vanshaStatus,
             contact: {
               email:
@@ -478,6 +646,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         profession: form.profession || "",
         gender: form.gender || "",
         same_vamsha_status: form.vansha_status || "",
+        spouses: form.spouses
+          .filter((s) => s.id && s.name)
+          .map((s) => ({ id: s.id, name: s.name })),
       };
 
       const response = form.id
@@ -880,7 +1051,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                       minDate: form.dob || "",
                       maxDate: today,
                       placeholder: "Select Date",
-                      defaultDate: "", // Try this if supported
+                      defaultDate: "",
                     }}
                   />
                 </div>
@@ -958,6 +1129,44 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                     ))}
                   </ul>
                 )}
+              </div>
+
+              <div className="form-field">
+                <h3 className="section-title">Spouse(s)</h3>
+
+                {form.spouses.map((spouse, index) => (
+                  <div key={index} className="flex gap-2 items-center mb-2">
+                    <input
+                      type="text"
+                      className="input"
+                      placeholder={`Spouse Name ${index + 1}`}
+                      value={spouse.name}
+                      onChange={(e) =>
+                        handleSpouseChange(index, e.target.value)
+                      }
+                    />
+
+                    {form.spouses.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeSpouseField(index)}
+                        className="text-red-500 hover:text-red-700 font-semibold"
+                        title="Remove Spouse"
+                      >
+                        ✖
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addSpouseField}
+                  className="translate-btn"
+                >
+                  <FaPlus className="mr-1" />
+                  Add Another Spouse
+                </button>
               </div>
             </div>
 
@@ -1071,6 +1280,7 @@ EditFormModal.propTypes = {
     death_date: PropTypes.string,
     father_name: PropTypes.string,
     mother_name: PropTypes.string,
+    spouses: PropTypes.arrayOf(PropTypes.string),
     profession: PropTypes.string,
     contact: PropTypes.shape({
       email: PropTypes.string,
