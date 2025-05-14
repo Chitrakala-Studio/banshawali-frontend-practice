@@ -55,7 +55,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
             }
           });
         } else {
-          onSearch(data.data);
+          onSearch(criteria);
           setCriteria(initialCriteria); // Clear form if results found
         }
       })

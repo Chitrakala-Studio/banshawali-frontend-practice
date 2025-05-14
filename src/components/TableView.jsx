@@ -69,6 +69,8 @@ const TableView = () => {
   const [childFormData, setChildFormData] = useState(null);
   const isModalOpen =
     isAdding || isEditing || isAddingChild || showSearchForm || showInfoPopup;
+  const [lastSearchCriteria, setLastSearchCriteria] = useState(null);
+
 
   useEffect(() => {
     document.body.style.overflow = isModalOpen ? "hidden" : "auto";
@@ -435,12 +437,53 @@ const TableView = () => {
       setFilteredData(data);
       setSearchApplied(false);
       setShowSearchForm(false);
+      setLastSearchCriteria(null);
+      setCurrentPage(1);
       return;
     }
-    setFilteredData(criteria);
     setSearchApplied(true);
     setShowSearchForm(false);
+    setLastSearchCriteria(criteria);
+    setCurrentPage(1);
+    fetchSearchResults(criteria, 1, true);
   };
+
+  const fetchSearchResults = async (criteria, page = 1, replace = false) => {
+  setLoading(true);
+  try {
+    // Only include primitive values, skip objects/arrays and empty values
+    const paramsObj = {};
+    Object.entries(criteria).forEach(([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        typeof value !== "object"
+      ) {
+        paramsObj[key] = value;
+      }
+    });
+    paramsObj.page = page;
+    const params = new URLSearchParams(paramsObj).toString();
+    const response = await fetch(`${API_URL}/people/people/search/?${params}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) throw new Error("Search failed");
+    const result = await response.json();
+    const results = Array.isArray(result.data) ? result.data : [];
+    setFilteredData(prev =>
+      replace ? results : [...prev, ...results]
+    );
+    setHasMore(result.next !== null);
+  } catch (error) {
+    setFilteredData([]);
+    setHasMore(false);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleGoBack = () => {
     if (id) {
@@ -569,7 +612,11 @@ const TableView = () => {
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
     setCurrentPage(nextPage);
-    fetchData(nextPage);
+    if (searchApplied && lastSearchCriteria) {
+      fetchSearchResults(lastSearchCriteria, nextPage, false);
+    } else {
+      fetchData(nextPage);
+    }
   };
 
   const convertToNepaliNumerals = (number, useNepali = true) => {
@@ -929,7 +976,7 @@ const TableView = () => {
                     <span>View Suggestions</span>
                   </button>
                 )}
-                {activeTab === "data" && !id && (
+                {activeTab !== "suggestions" && !id && (
                   <button
                     onClick={() => {
                       setFormData({
@@ -949,7 +996,7 @@ const TableView = () => {
                     <span>+ Add New User</span>
                   </button>
                 )}
-                {activeTab === "data" && !id && (
+                {activeTab !== "suggestions" && !id && (
                   <button
                     onClick={() => navigate("/add-admin")}
                     className="top-bar-btn flex-center"
@@ -963,7 +1010,7 @@ const TableView = () => {
             )}
 
             {/* Add this block for Download button */}
-            {activeTab === "data" && id && (
+            {activeTab !== "suggestions" && id && (
               <button
                 onClick={async () => {
                   try {
@@ -984,7 +1031,7 @@ const TableView = () => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = `person_${id}.xlsx`;
+                    a.download = `${filteredData[0]?.name_in_nepali || filteredData[0]?.name || id}_वंशज.xlsx`;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
@@ -1261,8 +1308,8 @@ const TableView = () => {
             name: selectedRow?.name || "",
             name_in_nepali: selectedRow?.name_in_nepali || "",
             pusta_number: selectedRow?.pusta_number || "",
-            father_name: selectedRow?.father?.name || "",
-            mother_name: selectedRow?.mother?.name || "",
+            father_name: selectedRow?.father?.name_in_nepali || "",
+            mother_name: selectedRow?.mother?.name_in_nepali || "",
             father_id: selectedRow?.father?.id || "",
             mother_id: selectedRow?.mother?.id || "",
             dob: selectedRow?.date_of_birth || "",
@@ -1276,8 +1323,13 @@ const TableView = () => {
               address: selectedRow?.contact_details?.address || "",
             },
             vansha_status: selectedRow?.same_vamsha_status ? "True" : "False",
-            spouses: selectedRow?.spouses || [{ id: null, name: "" }],
-            spouseOptions: data, // 👈 ADD THIS LINE — your full people list
+            spouses: Array.isArray(selectedRow?.spouse)
+              ? selectedRow.spouse.map(s => ({
+                  id: s.id,
+                  name: s.name_in_nepali || s.name,
+                }))
+              : [{ id: null, name: "" }],
+            spouseOptions: data,
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}

@@ -16,7 +16,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
     id: formData.id || null,
     pusta_number: formData.pusta_number || "",
-    name: formData.name || null,
+    name: formData.name || "",
     name_in_nepali: formData.name_in_nepali || "",
     gender: formData.gender || "",
     dob: formData.dob || "",
@@ -43,13 +43,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const motherInputRef = useRef(null);
   const fatherChoicesInstance = useRef(null);
   const motherChoicesInstance = useRef(null);
+  const spouseInputRef = useRef(null);
+  const spouseChoicesInstance = useRef(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
-  const spouseOptions = Array.isArray(formData.spouseOptions)
-    ? formData.spouseOptions
-    : [];
+  const [spouseOptions, setSpouseOptions] = useState([]);
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "Vamshawali";
   const API_URL = import.meta.env.VITE_API_URL;
@@ -65,16 +65,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setShowSuggestions(true);
   };
 
-  const filteredSpouseOptions = Array.isArray(formData.spouseOptions)
-    ? formData.spouseOptions.filter((p) => {
-        const formPusta = parseInt(form.pusta_number, 10);
-        return (
-          parseInt(p.pusta_number, 10) === formPusta &&
-          ((form.gender === "Male" && p.gender === "Female") ||
-            (form.gender === "Female" && p.gender === "Male"))
-        );
-      })
-    : [];
+  const filteredSpouseOptions = Array.isArray(spouseOptions)
+  ? spouseOptions
+  : [];
 
   const handleFatherMouseLeave = () => {
     hideFatherSuggestionsTimeout.current = setTimeout(() => {
@@ -130,147 +123,145 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   };
 
   const fetchSuggestions = async () => {
-    setSuggestionsLoading(true);
-    if (Array.isArray(formData.spouseOptions)) {
-      // Add Child mode: Use spouseOptions
-      const spouseOpts = formData.spouseOptions;
-      const hasFather = !!formData.father_id;
-      const hasMother = !!formData.mother_id;
+  setSuggestionsLoading(true);
 
-      if (hasFather && !hasMother) {
-        setSuggestions([
-          {
-            id: formData.father_id,
-            name: formData.father_name,
-            gender: "male",
-          },
-        ]);
-        setMotherSuggestions(
-          spouseOpts.filter(
-            (s) => s.gender?.toLowerCase() === "female" || !s.gender
-          )
+  // Always call API in edit mode (when formData.id exists)
+  const p = parseInt(form.pusta_number, 10);
+  if (isNaN(p) || p <= 1) {
+    setSuggestions([]);
+    setMotherSuggestions([]);
+    setSuggestionsLoading(false);
+    return;
+  }
+
+  try {
+    const prevPusta = p - 1;
+    const response = await axios.get(
+      `${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    const data = Array.isArray(response.data.current_pusta_data)
+      ? response.data.current_pusta_data
+      : [];
+
+    const validData = data.filter(
+      (s) => s && typeof s.id === "number" && s.name
+    );
+    const mappedData = validData.map((person) => ({
+      id: person.id,
+      name: person.name || "",
+      name_in_nepali: person.name_in_nepali || "",
+      gender: person.gender || "",
+      father: person.father || { name: "", father: { name: "" } },
+      mother: person.mother || { name: "" },
+    }));
+
+    const fatherData = mappedData
+      .filter((s) => {
+        if (s.gender && typeof s.gender === "string") {
+          return s.gender.toLowerCase() === "male";
+        }
+        const name = s.name.toLowerCase();
+        return (
+          name.endsWith("नाथ") ||
+          name.endsWith("प्रसाद") ||
+          name.endsWith("कुमार") ||
+          !name.endsWith("ा")
         );
-      } else if (hasMother && !hasFather) {
-        setMotherSuggestions([
-          {
-            id: formData.mother_id,
-            name: formData.mother_name,
-            gender: "female",
-          },
-        ]);
-        setSuggestions(
-          spouseOpts.filter(
-            (s) => s.gender?.toLowerCase() === "male" || !s.gender
-          )
+      })
+      .map((s) => {
+        const personName = s.name_in_nepali || s.name;
+        const fatherName = s.father?.name || "";
+        const motherName = s.mother?.name || "";
+        const grandFatherName = s.father?.father?.name || "";
+        return {
+          ...s,
+          displayText: `${personName}|${fatherName}-${motherName}|${grandFatherName}`,
+        };
+      });
+
+    const motherData = mappedData
+      .filter((s) => {
+        if (s.gender && typeof s.gender === "string") {
+          return s.gender.toLowerCase() === "female";
+        }
+        const name = (s.name_in_nepali || s.name).toLowerCase();
+        return (
+          name.endsWith("ा") ||
+          name.endsWith("कुमारी") ||
+          name.endsWith("देवी")
         );
-      } else {
-        setSuggestions(
-          spouseOpts.filter(
-            (s) => s.gender?.toLowerCase() === "male" || !s.gender
-          )
-        );
-        setMotherSuggestions(
-          spouseOpts.filter(
-            (s) => s.gender?.toLowerCase() === "female" || !s.gender
-          )
-        );
-      }
-        setSuggestionsLoading(false);
-      return;
+      })
+      .map((s) => {
+        const personName = s.name_in_nepali || s.name;
+        const fatherName = s.father?.name || "";
+        const motherName = s.mother?.name || "";
+        const grandFatherName = s.father?.father?.name || "";
+        return {
+          ...s,
+          displayText: `${personName}|${fatherName}-${motherName}|${grandFatherName}`,
+        };
+      });
+
+    setSuggestions(fatherData);
+    setMotherSuggestions(motherData);
+    setSuggestionsLoading(false);
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+    setSuggestions([]);
+    setMotherSuggestions([]);
+    setSuggestionsLoading(false);
+    Swal.fire("Error", "Failed to fetch family members.", "error");
+  }
+};
+
+
+const fetchSpouseOptions = async () => {
+  if (!form.pusta_number || !form.gender) {
+    setSpouseOptions([]);
+    return;
+  }
+  const oppositeGender = form.gender === "Male" ? "Female" : "Male";
+  try {
+    const response = await axios.get(
+      `${API_URL}/people/people/search/?pusta_number=${form.pusta_number}&gender=${oppositeGender}`,
+      { headers: { "Content-Type": "application/json" } }
+    );
+    let data = response.data;
+    // If paginated, use data.data
+    if (data && Array.isArray(data.data)) {
+      data = data.data;
     }
-
-    // Non-Add-Child mode: Fetch from API
-    const p = parseInt(form.pusta_number, 10);
-    if (isNaN(p) || p <= 1) {
-      setSuggestions([]);
-      setMotherSuggestions([]);
-      setSuggestionsLoading(false);
-      return;
+    let options = [];
+    if (Array.isArray(data)) {
+      options = data;
+    } else if (data && typeof data === "object") {
+      options = [data];
     }
+    const mapped = options.map((person) => {
+      const personName = person.name_in_nepali || person.name;
+      const fatherName = person.father?.name || "";
+      const motherName = person.mother?.name || "";
+      const grandFatherName = person.father?.father?.name || "";
+      return {
+        ...person,
+        displayText: `${personName} | ${fatherName} - ${motherName} | ${grandFatherName}`,
+      };
+    });
+    setSpouseOptions(mapped);
+    console.log("Spouse options:", mapped);
+  } catch (error) {
+    setSpouseOptions([]);
+    console.error("Error fetching spouse options:", error);
+    Swal.fire("Error", "Failed to fetch spouse options.", "error");
+  }
+};
 
-    try {
-      const prevPusta = p - 1;
-      const response = await axios.get(
-        ` ${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      const data = Array.isArray(response.data.current_pusta_data)
-        ? response.data.current_pusta_data
-        : [];
-
-      const validData = data.filter(
-        (s) => s && typeof s.id === "number" && s.name
-      );
-      const mappedData = validData.map((person) => ({
-        id: person.id,
-        name: person.name || "",
-        gender: person.gender || "",
-        father: person.father || { name: "", father: { name: "" } },
-        mother: person.mother || { name: "" },
-      }));
-
-      const fatherData = mappedData
-        .filter((s) => {
-          if (s.gender && typeof s.gender === "string") {
-            return s.gender.toLowerCase() === "male";
-          }
-          const name = s.name.toLowerCase();
-          return (
-            name.endsWith("नाथ") ||
-            name.endsWith("प्रसाद") ||
-            name.endsWith("कुमार") ||
-            !name.endsWith("ा")
-          );
-        })
-        .map((s) => {
-          const personName = s.name;
-          const fatherName = s.father?.name || "";
-          const motherName = s.mother?.name || "";
-          const grandFatherName = s.father?.father?.name || "";
-          return {
-            ...s,
-            displayText: `${personName}|${fatherName}-${motherName}|${grandFatherName}`,
-          };
-        });
-
-      const motherData = mappedData
-        .filter((s) => {
-          if (s.gender && typeof s.gender === "string") {
-            return s.gender.toLowerCase() === "female";
-          }
-          const name = (s.name_in_nepali || s.name).toLowerCase();
-          return (
-            name.endsWith("ा") ||
-            name.endsWith("कुमारी") ||
-            name.endsWith("देवी")
-          );
-        })
-        .map((s) => {
-          const personName = s.name;
-          const fatherName = s.father?.name || "";
-          const motherName = s.mother?.name || "";
-          const grandFatherName = s.father?.father?.name || "";
-          return {
-            ...s,
-            displayText: `${personName}|${fatherName}-${motherName}|${grandFatherName}`,
-          };
-        });
-      setSuggestions(fatherData);
-      setMotherSuggestions(motherData);
-      setSuggestionsLoading(false);
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-      setSuggestions([]);
-      setMotherSuggestions([]);
-      setSuggestionsLoading(false);
-      Swal.fire("Error", "Failed to fetch family members.", "error");
-    }
-  };
-
-  useEffect(() => {
-    console.log("Spouse Options:", formData.spouseOptions);
-  }, [formData.spouseOptions]);
+useEffect(() => {
+  fetchSpouseOptions();
+  // eslint-disable-next-line
+}, [form.pusta_number, form.gender]);
 
   useEffect(() => {
     fetchSuggestions();
@@ -282,213 +273,222 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     API_URL,
   ]);
 
+  // Father Choices useEffect
+useEffect(() => {
+  if (fatherInputRef.current) {
+    if (!fatherChoicesInstance.current) {
+      fatherChoicesInstance.current = new Choices(fatherInputRef.current, {
+        removeItemButton: true,
+        shouldSort: false,
+        searchEnabled: true,
+        noResultsText: "No males found in previous generation",
+        placeholder: true,
+        placeholderValue: "Select Father",
+        searchPlaceholderValue: "Search for a father",
+        searchFields: ["label"],
+      });
+    }
+
+    // Always add selected father if not in suggestions
+    const choicesData = suggestionsLoading
+      ? [{ value: "", label: "Loading...", disabled: true }]
+      : [
+          { value: "", label: "Select Father", disabled: true },
+          ...(form.father_id &&
+          form.father_name &&
+          !suggestions.some((s) => s.id === form.father_id)
+            ? [
+                {
+                  value: form.father_id.toString(),
+                  label: form.father_name,
+                  selected: true,
+                  customProperties: {
+                    id: form.father_id,
+                    name_in_nepali: form.father_name,
+                  },
+                },
+              ]
+            : []),
+          ...suggestions.map((s) => ({
+            value: s.id.toString(),
+            label: s.displayText,
+            selected: s.id === form.father_id,
+            customProperties: {
+              id: s.id,
+              name_in_nepali: s.name_in_nepali || s.name,
+            },
+          })),
+        ];
+    fatherChoicesInstance.current.setChoices(choicesData, "value", "label", true);
+
+    fatherInputRef.current.addEventListener("search", (event) => {
+      const searchTerm = event.detail.value.toLowerCase();
+      setShowSuggestions(!!searchTerm);
+    });
+
+    fatherInputRef.current.addEventListener("change", (e) => {
+      const selectedId = e.target.value;
+      const selected = suggestions.find((s) => s.id.toString() === selectedId)
+        || (form.father_id && form.father_id.toString() === selectedId
+            ? { id: form.father_id, name: form.father_name }
+            : null);
+      setForm((prev) => ({
+        ...prev,
+        father_id: selected ? selected.id : null,
+        father_name: selected ? selected.name_in_nepali || selected.name : "",
+      }));
+      setShowSuggestions(false);
+    });
+  }
+
+  return () => {
+    if (fatherChoicesInstance.current) {
+      fatherChoicesInstance.current.destroy();
+      fatherChoicesInstance.current = null;
+    }
+  };
+}, [suggestions, form.father_id, form.father_name, suggestionsLoading]);
+
+// Mother Choices useEffect
+useEffect(() => {
+  if (motherInputRef.current) {
+    if (!motherChoicesInstance.current) {
+      motherChoicesInstance.current = new Choices(motherInputRef.current, {
+        removeItemButton: true,
+        shouldSort: false,
+        searchEnabled: true,
+        noResultsText: "No females found in previous generation",
+        placeholder: true,
+        placeholderValue: "Select Mother",
+        searchPlaceholderValue: "Search for a mother",
+        searchFields: ["label"],
+      });
+    }
+
+    // Always add selected mother if not in suggestions
+    const choicesData = suggestionsLoading
+      ? [{ value: "", label: "Loading...", disabled: true }]
+      : [
+          { value: "", label: "Select Mother", disabled: true },
+          ...(form.mother_id &&
+          form.mother_name &&
+          !motherSuggestions.some((s) => s.id === form.mother_id)
+            ? [
+                {
+                  value: form.mother_id.toString(),
+                  label: form.mother_name,
+                  selected: true,
+                  customProperties: {
+                    id: form.mother_id,
+                    name_in_nepali: form.mother_name,
+                  },
+                },
+              ]
+            : []),
+          ...motherSuggestions.map((s) => ({
+            value: s.id.toString(),
+            label: s.displayText,
+            selected: s.id === form.mother_id,
+            customProperties: {
+              id: s.id,
+              name_in_nepali: s.name_in_nepali || s.name,
+            },
+          })),
+        ];
+
+    motherChoicesInstance.current.setChoices(choicesData, "value", "label", true);
+
+    motherInputRef.current.addEventListener("search", (event) => {
+      const searchTerm = event.detail.value.toLowerCase();
+      setShowMotherSuggestions(!!searchTerm);
+    });
+
+    motherInputRef.current.addEventListener("change", (e) => {
+      const selectedId = e.target.value;
+      const selected = motherSuggestions.find((s) => s.id.toString() === selectedId)
+        || (form.mother_id && form.mother_id.toString() === selectedId
+            ? { id: form.mother_id, name: form.mother_name }
+            : null);
+      setForm((prev) => ({
+        ...prev,
+        mother_id: selected ? selected.id : null,
+        mother_name: selected ? selected.name_in_nepali || selected.name : "",
+      }));
+      setShowMotherSuggestions(false);
+    });
+  }
+
+  return () => {
+    if (motherChoicesInstance.current) {
+      motherChoicesInstance.current.destroy();
+      motherChoicesInstance.current = null;
+    }
+  };
+}, [motherSuggestions, form.mother_id, form.mother_name, suggestionsLoading]);
+
   useEffect(() => {
-    if (fatherInputRef.current) {
-      if (!fatherChoicesInstance.current) {
-        fatherChoicesInstance.current = new Choices(fatherInputRef.current, {
-          removeItemButton: true,
-          shouldSort: false,
-          searchEnabled: true,
-          noResultsText: formData.spouseOptions
-            ? "No male options available"
-            : "No males found in previous generation",
-          placeholder: true,
-          placeholderValue: "Select Father",
-          searchPlaceholderValue: "Search for a father",
-          searchFields: ["label"],
-        });
-      }
-
-      const choicesData = suggestionsLoading
-        ? [{ value: "", label: "Loading...", disabled: true }]
-        : formData.spouseOptions
-        ? [
-            { value: "", label: "Select Father", disabled: true },
-            ...(form.father_id &&
-            form.father_name &&
-            !suggestions.some((s) => s.id === form.father_id)
-              ? [
-                  {
-                    value: form.father_id.toString(),
-                    label: form.father_name,
-                    selected: true,
-                    customProperties: {
-                      id: form.father_id,
-                      name_in_nepali: form.father_name,
-                    },
-                  },
-                ]
-              : []),
-            ...suggestions.map((s) => ({
-              value: s.id.toString(),
-              label: s.displayText,
-              selected: s.id === form.father_id,
-              customProperties: {
-                id: s.id,
-                name_in_nepali: s.name_in_nepali || s.name,
-              },
-            })),
-          ]
-        : [
-            { value: "", label: "Select Father", disabled: true },
-            ...(form.father_id &&
-            form.father_name &&
-            !suggestions.some((s) => s.id === form.father_id)
-              ? [
-                  {
-                    value: form.father_id.toString(),
-                    label: form.father_name,
-                    selected: true,
-                    customProperties: {
-                      id: form.father_id,
-                      name_in_nepali: form.father_name,
-                    },
-                  },
-                ]
-              : []),
-            ...suggestions.map((s) => ({
-              value: s.id.toString(),
-              label: s.displayText,
-              selected: s.id === form.father_id,
-              customProperties: {
-                id: s.id,
-                name_in_nepali: s.name_in_nepali || s.name,
-              },
-            })),
-          ];
-
-      fatherChoicesInstance.current.setChoices(choicesData, "value", "label", true);
-
-      fatherInputRef.current.addEventListener("search", (event) => {
-        const searchTerm = event.detail.value.toLowerCase();
-        setShowSuggestions(!!searchTerm);
-      });
-
-      fatherInputRef.current.addEventListener("change", (e) => {
-        const selectedId = e.target.value;
-        const source = formData.spouseOptions ? formData.spouseOptions : suggestions;
-        const selected = source.find((s) => s.id.toString() === selectedId);
-        setForm((prev) => ({
-          ...prev,
-          father_id: selected ? selected.id : null,
-          father_name: selected ? selected.name_in_nepali || selected.name : "",
-        }));
-        setShowSuggestions(false);
+  if (spouseInputRef.current) {
+    if (!spouseChoicesInstance.current) {
+      spouseChoicesInstance.current = new Choices(spouseInputRef.current, {
+        removeItemButton: true,
+        shouldSort: false,
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: "Select Spouse(s)",
+        searchPlaceholderValue: "Search for a spouse",
+        searchFields: ["label"],
+        maxItemCount: -1, // unlimited
+        duplicateItemsAllowed: false,
       });
     }
 
-    return () => {
-      if (fatherChoicesInstance.current) {
-        fatherChoicesInstance.current.destroy();
-        fatherChoicesInstance.current = null;
-      }
-    };
-  }, [suggestions, form.father_id, form.father_name, formData.spouseOptions,suggestionsLoading]);
+    const selectedSpouseIds = form.spouses.map((sp) => sp.id);
+    const missingSpouses = form.spouses.filter(
+      (sp) => sp.id && !filteredSpouseOptions.some((opt) => opt.id === sp.id)
+    );
 
- useEffect(() => {
-    if (motherInputRef.current) {
-      if (!motherChoicesInstance.current) {
-        motherChoicesInstance.current = new Choices(motherInputRef.current, {
-          removeItemButton: true,
-          shouldSort: false,
-          searchEnabled: true,
-          noResultsText: formData.spouseOptions
-            ? "No female options available"
-            : "No females found in previous generation",
-          placeholder: true,
-          placeholderValue: "Select Mother",
-          searchPlaceholderValue: "Search for a mother",
-          searchFields: ["label"],
-        });
-      }
+  const choicesData = [
+      ...missingSpouses.map((sp) => ({
+        value: sp.id ? sp.id.toString() : "",
+        label: sp.name,
+        selected: true,
+        customProperties: {
+          id: sp.id,
+          name_in_nepali: sp.name,
+        },
+      })),
+      ...filteredSpouseOptions.map((s) => ({
+        value: s.id ? s.id.toString() : "",
+        label: s.displayText || s.name_in_nepali || s.name,
+        selected: selectedSpouseIds.includes(s.id),
+        customProperties: {
+          id: s.id,
+          name_in_nepali: s.name_in_nepali || s.name,
+        },
+      })),
+    ];
 
-      const choicesData = suggestionsLoading
-        ? [{ value: "", label: "Loading...", disabled: true }]
-        : formData.spouseOptions
-        ? [
-            { value: "", label: "Select Mother", disabled: true },
-            ...(form.mother_id &&
-            form.mother_name &&
-            !motherSuggestions.some((s) => s.id === form.mother_id)
-              ? [
-                  {
-                    value: form.mother_id.toString(),
-                    label: form.mother_name,
-                    selected: true,
-                    customProperties: {
-                      id: form.mother_id,
-                      name_in_nepali: form.mother_name,
-                    },
-                  },
-                ]
-              : []),
-            ...motherSuggestions.map((s) => ({
-              value: s.id.toString(),
-              label: s.displayText,
-              selected: s.id === form.mother_id,
-              customProperties: {
-                id: s.id,
-                name_in_nepali: s.name_in_nepali || s.name,
-              },
-            })),
-          ]
-        : [
-            { value: "", label: "Select Mother", disabled: true },
-            ...(form.mother_id &&
-            form.mother_name &&
-            !motherSuggestions.some((s) => s.id === form.mother_id)
-              ? [
-                  {
-                    value: form.mother_id.toString(),
-                    label: form.mother_name,
-                    selected: true,
-                    customProperties: {
-                      id: form.mother_id,
-                      name_in_nepali: form.mother_name,
-                    },
-                  },
-                ]
-              : []),
-            ...motherSuggestions.map((s) => ({
-              value: s.id.toString(),
-              label: s.displayText,
-              selected: s.id === form.mother_id,
-              customProperties: {
-                id: s.id,
-                name_in_nepali: s.name_in_nepali || s.name,
-              },
-            })),
-          ];
+    spouseChoicesInstance.current.setChoices(choicesData, "value", "label", true);
 
-      motherChoicesInstance.current.setChoices(choicesData, "value", "label", true);
+    spouseInputRef.current.addEventListener("change", (e) => {
+      const selectedOptions = Array.from(e.target.selectedOptions).map((opt) => ({
+        id: parseInt(opt.value, 10),
+        name: opt.textContent,
+      }));
+      setForm((prev) => ({
+        ...prev,
+        spouses: selectedOptions,
+      }));
+    });
+  }
 
-      motherInputRef.current.addEventListener("search", (event) => {
-        const searchTerm = event.detail.value.toLowerCase();
-        setShowMotherSuggestions(!!searchTerm);
-      });
-
-      motherInputRef.current.addEventListener("change", (e) => {
-        const selectedId = e.target.value;
-        const source = formData.spouseOptions
-          ? formData.spouseOptions
-          : motherSuggestions;
-        const selected = source.find((s) => s.id.toString() === selectedId);
-        setForm((prev) => ({
-          ...prev,
-          mother_id: selected ? selected.id : null,
-          mother_name: selected ? selected.name_in_nepali || selected.name : "",
-        }));
-        setShowMotherSuggestions(false);
-      });
+  return () => {
+    if (spouseChoicesInstance.current) {
+      spouseChoicesInstance.current.destroy();
+      spouseChoicesInstance.current = null;
     }
-
-    return () => {
-      if (motherChoicesInstance.current) {
-        motherChoicesInstance.current.destroy();
-        motherChoicesInstance.current = null;
-      }
-    };
-  }, [motherSuggestions, form.mother_id, form.mother_name, formData.spouseOptions,suggestionsLoading]);
+  };
+}, [filteredSpouseOptions, form.spouses]);
 
   useEffect(() => {
     if (formData.id) {
@@ -683,8 +683,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       const response = await axios.post(
-        ` https://api.cloudinary.com/v1_1/${cloudName}/image/upload,
-        data`
+        ` https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        data
       );
       const cloudinaryUrl = response.data.secure_url;
       setForm((prevForm) => ({
@@ -777,9 +777,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       profession: form.profession || "",
       gender: form.gender || "",
       same_vamsha_status: form.vansha_status || "",
-      spouses: form.spouses
-        .filter((s) => s.id && s.name)
-        .map((s) => ({ id: s.id, name: s.name })),
+            spouses: form.spouses
+        .filter((s) => s.id)
+        .map((s) => s.id),
     };
 
       const response = form.id
@@ -1163,9 +1163,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                     }));
                   }}
                   options={{
-                    minDate: "2000-01-01", // adjust as needed
                     maxDate: today,
                     placeholder: "Select Date",
+                    
                   }}
                 />
               </div>
@@ -1289,18 +1289,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
 
               <div className="form-field">
-                <h3 className="section-title">Spouse(s)</h3>
-
-                {renderSpouseDropdowns()}
-
-                <button
-                  type="button"
-                  onClick={addSpouseField}
-                  className="translate-btn"
-                >
-                  <FaPlus className="mr-1" />
-                  Add Another Spouse
-                </button>
+                <label className="label">Spouse(s)</label>
+                <select
+                  ref={spouseInputRef}
+                  name="spouses"
+                  className="select"
+                  multiple
+                />
               </div>
             </div>
 
