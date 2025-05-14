@@ -9,19 +9,18 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
   // pull out the nested values, falling back gracefully
   const { father = {}, mother = {}, date_of_birth: birthDate } = person;
 
-  const fatherName = father.name_in_nepali || father.name || "Not available";
+  const fatherName = father.name_in_nepali || father.name || "-";
 
-  const motherName = mother.name_in_nepali || mother.name || "Not available";
-
+  const motherName = mother.name_in_nepali || mother.name || "-"
   const dob = birthDate
     ? new Date(birthDate).toLocaleDateString()
-    : "Not available";
+    : "-";
 
   const pustaNumber = person?.pusta_number
     ? convertToNepaliNumerals(person.pusta_number)
-    : "Not available";
+    : "-";
 
-  const suggestionText = suggestion.suggestion || "No suggestion provided.";
+  const suggestionText = suggestion.suggestion || "उपलब्ध छैन";
   const imageUrl = suggestion.image;
 
   const handleDownload = (imageUrl, id) => {
@@ -280,13 +279,13 @@ const SuggestionModal = ({ suggestion, onClose, convertToNepaliNumerals }) => {
                     </button>
                   </div>
                 ) : (
-                  <p className="no-image-text">No Image Provided.</p>
+                  <p className="no-image-text"><strong>उपलब्ध छैन</strong></p>
                 )}
               </div>
             </div>
 
             <div className="right-section">
-              <h2 className="section-title">Suggestion for {personName}</h2>
+              <h2 className="section-title">{personName} का लागि सुझाव</h2>
               <div className="space-y-2">
                 <p className="detail-item">
                   <strong>बुबाको नाम:</strong> {fatherName}

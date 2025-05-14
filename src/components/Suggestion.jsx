@@ -263,7 +263,8 @@ const Suggestion = () => {
           <table>
             <thead>
               <tr>
-                <th>सुझाव</th>
+                <th>सुझाव</th>      
+                <th>सुझाव गरिएका व्यक्ति</th>          
                 <th>सुझाव दिनेको नाम</th>
                 <th>इमेल</th>
                 <th>फोन</th>
@@ -301,6 +302,7 @@ const Suggestion = () => {
                         return text;
                       })()}
                     </td>
+                    <td>{suggestion.suggestion_to.name_in_nepali || "-" }</td>
                     <td>{suggestion.suggestion_by_name || "-"}</td>
                     <td>{suggestion.suggestion_by_email || "-"}</td>
                     <td>{suggestion.suggestion_by_phone || "-"}</td>          

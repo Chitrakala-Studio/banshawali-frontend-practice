@@ -24,13 +24,15 @@ const Compare = () => {
     motherName: "",
   }); // State for Person 1 data
   const [rightPerson, setRightPerson] = useState({
-    name: "",
+    name_in_nepali: "",
     pusta_number: "",
     fatherName: "",
     fatherId: "",
     motherName: "",
     motherId: "",
-  }); // State for Person 2 data
+    father: { name: "", name_in_nepali: "" },
+    mother: { name: "", name_in_nepali: "" },
+  }); // State for Person 2 data with default nested objects
   const [isLeftConfirmed, setIsLeftConfirmed] = useState(true); // Track if Person 1 is confirmed
   const [isRightConfirmed, setIsRightConfirmed] = useState(false); // Track if Person 2 is confirmed
   const [relationship, setRelationship] = useState(""); // Store the comparison result
@@ -50,25 +52,101 @@ const Compare = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch name suggestions for Person 2 based on search query
+  // Fetch name suggestions for Person 2 based on search query with enhanced formatting and data fetch
   const fetchNameSuggestions = async (query) => {
-    if (!query.trim()) {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
       setRightNameSuggestions([]);
       setShowSuggestions(false);
       return;
     }
     setIsLoading(true);
     try {
-      console.log("Fetching suggestions for query:", query);
-      const response = await axios.get(
-        `${API_URL}/people/search?name=${encodeURIComponent(query)}`,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log("API response:", response.data);
-      const suggestions = response.data.data || [];
-      setRightNameSuggestions(suggestions);
+      // First attempt: Search with the query
+      let response = await fetch(`${API_URL}/people/people/search/?name=${encodeURIComponent(trimmedQuery)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        console.warn("Search endpoint failed, attempting to fetch all data:", response.status);
+        // Fallback: Fetch all data with pagination if search fails
+        response = await fetch(`${API_URL}/people/?page=1&limit=100`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) throw new Error("Network response was not ok");
+      }
+
+      const responseData = await response.json();
+      console.log("API Response:", responseData); // Debug: Log full API response
+
+      // Map the response to suggestions with grandparents
+      const suggestions = responseData.data.map(person => ({
+        id: person.id,
+        name: person.name || "",
+        name_in_nepali: person.name_in_nepali || "",
+        pusta_number: person.pusta_number || "",
+        father: {
+          id: person.father?.id || person.father_id || "",
+          name: person.father?.name || person.father_name || "",
+          name_in_nepali: person.father?.name_in_nepali || person.father_name_nepali || "",
+          father: {
+            id: person.father?.father?.id || person.father?.father_id || "",
+            name: person.father?.father?.name || person.father?.grandfather_name || "",
+            name_in_nepali: person.father?.father?.name_in_nepali || person.father?.grandfather_name_nepali || "",
+          },
+        },
+        mother: {
+          id: person.mother?.id || person.mother_id || "",
+          name: person.mother?.name || person.mother_name || "",
+          name_in_nepali: person.mother?.name_in_nepali || person.mother_name_nepali || "",
+        },
+      }));
+      console.log("Mapped Suggestions:", suggestions); // Debug: Log mapped suggestions
+
+      // Normalize strings to handle Unicode issues with Nepali characters
+      const normalizedQuery = trimmedQuery.toLowerCase().normalize("NFC");
+      console.log("Normalized Query:", normalizedQuery); // Debug: Log normalized query
+
+      // Enhanced client-side filtering with normalization
+      const filteredSuggestions = suggestions.filter(sugg => {
+        const pusta_number = sugg.pusta_number;
+        const matchesName = sugg.name && sugg.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesNameInNepali = sugg.name_in_nepali && sugg.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesFatherName = sugg.father?.name && sugg.father.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesFatherNameInNepali = sugg.father?.name_in_nepali && sugg.father.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesMotherName = sugg.mother?.name && sugg.mother.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesMotherNameInNepali = sugg.mother?.name_in_nepali && sugg.mother.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesGrandFatherName = sugg.father.father?.name && sugg.father.father.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesGrandFatherNameInNepali = sugg.father.father?.name_in_nepali && sugg.father.father.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+
+        // Log each person's matching status
+        console.log(`Person ID ${sugg.id}:`, {
+          pusta_number,
+          matchesName,
+          matchesNameInNepali,
+          matchesFatherName,
+          matchesFatherNameInNepali,
+          matchesMotherName,
+          matchesMotherNameInNepali,
+          matchesGrandFatherName,
+          matchesGrandFatherNameInNepali,
+        });
+
+        return matchesName || matchesNameInNepali || matchesFatherName || matchesFatherNameInNepali || matchesMotherName || matchesMotherNameInNepali || matchesGrandFatherName || matchesGrandFatherNameInNepali;
+      });
+      console.log("Filtered Suggestions:", filteredSuggestions); // Debug: Log filtered suggestions
+
+      // Format suggestions as "Pusta_Number|Name|Father|Grandfather|Mother"
+      const formattedSuggestions = filteredSuggestions.map(sugg => ({
+        ...sugg,
+        displayText: `${sugg.pusta_number || "N/A"}|${sugg.name_in_nepali || sugg.name || "N/A"}|${(sugg.father?.name_in_nepali || sugg.father?.name || "N/A") + " " + (sugg.mother?.name_in_nepali || sugg.mother?.name || "N/A")}|${sugg.father.father?.name_in_nepali || sugg.father.father?.name || "N/A"}`,
+      }));
+
+      setRightNameSuggestions(formattedSuggestions);
       setShowSuggestions(true); // Show dropdown after fetching suggestions
-      if (suggestions.length === 0) {
+      if (formattedSuggestions.length === 0) {
         setApiError("No results found for the search query.");
       } else {
         setApiError("");
@@ -102,15 +180,21 @@ const Compare = () => {
 
   // Handle selection of a suggestion and update Person 2 data
   const handleSelectSuggestion = (sugg) => {
-    setRightPerson({
-      name: sugg.name_in_nepali || sugg.name,
+    const updatedRightPerson = {
+      name_in_nepali: sugg.name_in_nepali || sugg.name,
       id: sugg.id,
       pusta_number: sugg.pusta_number,
       fatherName: sugg.father?.name_in_nepali || sugg.father?.name || "",
       motherName: sugg.mother?.name_in_nepali || sugg.mother?.name || "",
       fatherId: sugg.father?.id || "",
       motherId: sugg.mother?.id || "",
-    });
+      grandfatherID: sugg.father.father?.id || "",
+      father: { ...sugg.father, name: sugg.father?.name || "", name_in_nepali: sugg.father?.name_in_nepali || "" },
+      mother: { ...sugg.mother, name: sugg.mother?.name || "", name_in_nepali: sugg.mother?.name_in_nepali || "" },
+      grandfather: { ...sugg.father.father, name: sugg.father.father?.name || "", name_in_nepali: sugg.father.father?.name_in_nepali || "" },
+    };
+    setRightPerson(updatedRightPerson);
+    console.log("Updated rightPerson:", updatedRightPerson); // Debug log
     setSearchQuery("");
     setShowSuggestions(false); // Hide dropdown after selection
   };
@@ -125,56 +209,6 @@ const Compare = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Fetch father suggestions (simulated with timeout)
-  const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const person = familyMembers.find((member) => member.id === personId);
-        if (!person) {
-          console.log("Person not found in familyMembers");
-          resolve([]);
-          return;
-        }
-
-        const fatherName = person.father?.name || "";
-        const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration = member.pusta_number === parentGeneration.toString();
-          const matchesQuery = query.trim() === "" || member.name.toLowerCase().includes(query.toLowerCase());
-          const isMale = member.gender && member.gender.toLowerCase() === "male";
-          const matchesFatherName = member.name === fatherName;
-          return isRightGeneration && matchesQuery && isMale && matchesFatherName;
-        });
-
-        resolve(suggestions);
-      }, 500);
-    });
-  };
-
-  // Fetch mother suggestions (simulated with timeout)
-  const fetchRightMotherSuggestions = (parentGeneration, query, personId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const person = familyMembers.find((member) => member.id === personId);
-        if (!person) {
-          console.log("Person not found in familyMembers");
-          resolve([]);
-          return;
-        }
-
-        const motherName = person.mother?.name || "";
-        const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration = member.pusta_number === parentGeneration.toString();
-          const matchesQuery = query.trim() === "" || member.name.toLowerCase().includes(query.toLowerCase());
-          const isFemale = member.gender && member.gender.toLowerCase() === "female";
-          const matchesMotherName = member.name === motherName;
-          return isRightGeneration && matchesQuery && isFemale && matchesMotherName;
-        });
-
-        resolve(suggestions);
-      }, 500);
-    });
-  };
 
   // Fetch data for Person 1
   useEffect(() => {
@@ -217,7 +251,7 @@ const Compare = () => {
     if (
       !leftPerson.name ||
       !leftPerson.pusta_number ||
-      !rightPerson.name ||
+      !rightPerson.name_in_nepali ||
       !rightPerson.pusta_number
     ) {
       Swal.fire({
@@ -232,10 +266,11 @@ const Compare = () => {
     try {
       setIsLoading(true);
       const leftPersonId = leftPerson.id;
-      const rightPerson_name = rightPerson.name;
+      const rightPerson_name = rightPerson.name_in_nepali;
       const rightPerson_pusta_number = rightPerson.pusta_number;
       const rightPerson_fatherName = rightPerson.fatherId;
       const rightPerson_motherName = rightPerson.motherId;
+      const rightPerson_grandfatherName = rightPerson.grandfatherID;
 
       const response = await axios.post(`${API_URL}/people/compare/`, {
         leftPersonId,
@@ -243,6 +278,7 @@ const Compare = () => {
         rightPerson_pusta_number,
         rightPerson_fatherName,
         rightPerson_motherName,
+        rightPerson_grandfatherName,
       });
 
       setRelationship(response.data.message);
@@ -490,15 +526,15 @@ const Compare = () => {
             top: 100%; /* Position immediately below the input */
             left: 0;
             right: 0;
-            max-height: 200px;
-            overflow-y: auto;
+            max-height: 300px; /* Increased height for more suggestions */
+            overflow-y: auto; /* Enable scrolling */
             background: linear-gradient(to bottom, #fffaf0, #ffffff);
             border: 1px solid var(--neutral-gray);
             border-top: none; /* Remove top border to blend with input */
             border-bottom-left-radius: 6px;
             border-bottom-right-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Shadow effect as requested */
-            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Shadow effect */
+            z-index: 1000; /* Ensure above other elements */
           }
 
           .suggestion-item {
@@ -508,6 +544,9 @@ const Compare = () => {
             color: var(--primary-text);
             cursor: pointer;
             transition: background-color 0.2s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis for long names */
           }
 
           .suggestion-item:hover {
@@ -686,7 +725,7 @@ const Compare = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    disabled={isRightConfirmed}
+                     disabled={isRightConfirmed || relationship} 
                   />
                   <button
                     className="search-btn"
@@ -695,7 +734,7 @@ const Compare = () => {
                   >
                     <FaSearch className="text-black" />
                   </button>
-                  {/* Dropdown integrated into the input field, shown only after search */}
+                  {/* Dropdown integrated into the input field, showing all suggestions with scrolling */}
                   {showSuggestions && rightNameSuggestions.length > 0 && (
                     <div className="suggestions-dropdown">
                       {rightNameSuggestions.map((sugg) => (
@@ -704,9 +743,7 @@ const Compare = () => {
                           className="suggestion-item"
                           onClick={() => handleSelectSuggestion(sugg)}
                         >
-                          {sugg.name_in_nepali || sugg.name} -{" "}
-                          {sugg.father?.name_in_nepali || sugg.father?.name || ""} |{" "}
-                          {sugg.mother?.name_in_nepali || sugg.mother?.name || ""}
+                          {sugg.displayText}
                         </div>
                       ))}
                     </div>
@@ -714,13 +751,32 @@ const Compare = () => {
                 </div>
               </div>
             </div>
-
+            <div className="field">
+              <label className="label">Pusta Number</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.pusta_number || ""}
+                disabled
+                placeholder="Pusta Number"
+              />
+            </div>
+            <div className="field">
+              <label className="label">Name</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.name_in_nepali || ""}
+                disabled
+                placeholder="Name"
+              />
+            </div>
             <div className="field">
               <label className="label">Father's Name</label>
               <input
                 type="text"
                 className="input"
-                value={rightPerson.fatherName}
+                value={rightPerson.father?.name_in_nepali || ""}
                 disabled
                 placeholder="Father's Name"
               />
@@ -731,7 +787,7 @@ const Compare = () => {
               <input
                 type="text"
                 className="input"
-                value={rightPerson.motherName}
+                value={rightPerson.mother?.name_in_nepali || ""}
                 disabled
                 placeholder="Mother's Name"
               />

@@ -5,8 +5,10 @@ import { FaArrowDown, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
-import { NepaliDatePicker } from "nepali-datepicker-reactjs";
-import "nepali-datepicker-reactjs/dist/index.css";
+//import { NepaliDatePicker } from "nepali-datepicker-reactjs";
+import Calendar from "@sbmdkl/nepali-datepicker-reactjs";
+import "@sbmdkl/nepali-datepicker-reactjs/dist/index.css";
+//import "nepali-datepicker-reactjs/dist/index.css";
 import Choices from "choices.js";
 import "choices.js/public/assets/styles/choices.min.css";
 
@@ -996,16 +998,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
               <div className="form-field">
                 <label className="label">Date of Birth</label>
-                <NepaliDatePicker
-                  inputClassName="input"
-                  value={form.dob || undefined}
-                  onChange={handleDateChange}
+                <Calendar
+                  className="input"
+                  value={form.dob || ""}
+                  onChange={({ bsDate }) => {
+                    setForm((prevForm) => ({
+                      ...prevForm,
+                      dob: bsDate || "",
+                    }));
+                  }}
                   options={{
-                    calenderLocale: "ne",
-                    valueLocale: "en",
-                    placeholder: "Select Date",
+                    minDate: "2000-01-01", // adjust as needed
                     maxDate: today,
-                    hideDefaultValue: true,
+                    placeholder: "Select Date",
                   }}
                 />
               </div>
@@ -1028,11 +1033,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               {form.lifestatus === "Dead" && (
                 <div className="form-field">
                   <label className="label">Date of Death</label>
-                  <NepaliDatePicker
-                    inputClassName="input"
+                  <Calendar
+                    className="input"
                     value={form.death_date || ""}
-                    onChange={(value) => {
-                      if (value && new Date(value) > new Date(today)) {
+                    onChange={({ bsDate }) => {
+                      if (bsDate && new Date(bsDate) > new Date(today)) {
                         Swal.fire(
                           "Error",
                           "You cannot select a future date.",
@@ -1042,16 +1047,13 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                       }
                       setForm((prevForm) => ({
                         ...prevForm,
-                        death_date: value || "",
+                        death_date: bsDate || "",
                       }));
                     }}
                     options={{
-                      calenderLocale: "ne",
-                      valueLocale: "en",
                       minDate: form.dob || "",
                       maxDate: today,
                       placeholder: "Select Date",
-                      defaultDate: "",
                     }}
                   />
                 </div>
@@ -1089,7 +1091,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                         }}
                         className="suggestion-item"
                       >
-                        {suggestion.name_in_nepali || suggestion.name}
+                        {suggestion.pusta_number |
+                          suggestion.name_in_nepali |
+                          (suggestion.father.name / suggestion.mother.name) |
+                          suggestion.father.father.name}
                       </li>
                     ))}
                   </ul>
@@ -1124,7 +1129,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                         }}
                         className="suggestion-item"
                       >
-                        {suggestion.name_in_nepali || suggestion.name}
+                        {suggestion.pusta_number |
+                          suggestion.name_in_nepali |
+                          (suggestion.father.name / suggestion.mother.name) |
+                          suggestion.father.father.name}
                       </li>
                     ))}
                   </ul>
