@@ -219,11 +219,6 @@ const TableView = () => {
     updateSuggestionStatus(id, "Rejected", suggestion, image);
   };
 
-  const handleAddRelationClick = (row) => {
-    setSelectedPerson(row);
-    setShowAddRelationModal(true);
-  };
-
   // TableView.jsx
   const handleAddChildClick = async (row) => {
     // …
@@ -1172,14 +1167,7 @@ const TableView = () => {
                             >
                               <Trash2 size={18} />
                             </button>
-                            <button
-                              data-tooltip-id="tooltip"
-                              data-tooltip-content="Add Relation"
-                              className="action-btn"
-                              onClick={() => handleAddRelationClick(row)}
-                            >
-                              <FaPlus size={18} />
-                            </button>
+
                             <button
                               data-tooltip-id="tooltip"
                               data-tooltip-content="Add Child"
@@ -1278,6 +1266,8 @@ const TableView = () => {
               address: selectedRow?.contact_details?.address || "",
             },
             vansha_status: selectedRow?.same_vamsha_status ? "True" : "False",
+            spouses: selectedRow?.spouses || [{ id: null, name: "" }],
+            spouseOptions: data, // 👈 ADD THIS LINE — your full people list
           }}
           onClose={() => setIsEditing(false)}
           onSave={handleSave}
