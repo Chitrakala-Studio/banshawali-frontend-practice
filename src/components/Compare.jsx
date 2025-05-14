@@ -52,9 +52,10 @@ const Compare = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch name suggestions for Person 2 based on search query (using real API)
+  // Fetch name suggestions for Person 2 based on search query (with enhanced debugging and Unicode normalization)
   const fetchNameSuggestions = async (query) => {
-    if (!query.trim()) {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
       setRightNameSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -62,7 +63,7 @@ const Compare = () => {
     setIsLoading(true);
     try {
       // Make API call to search endpoint with query
-      const response = await fetch(`${API_URL}/people/people/?search=${encodeURIComponent(query)}`, {
+      const response = await fetch(`${API_URL}/people/people/search/?name=${encodeURIComponent(trimmedQuery)}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -72,6 +73,9 @@ const Compare = () => {
       }
 
       const responseData = await response.json();
+      console.log("API Response:", responseData); // Debug: Log full API response
+
+      // Map the response to suggestions
       const suggestions = responseData.data.map(person => ({
         id: person.id,
         name: person.name,
@@ -88,11 +92,44 @@ const Compare = () => {
           name_in_nepali: person.mother?.name_in_nepali || "",
         },
       }));
+      console.log("Mapped Suggestions:", suggestions); // Debug: Log mapped suggestions
 
-      const limitedSuggestions = suggestions.slice(0, 4); // Limit to 4 names
-      setRightNameSuggestions(limitedSuggestions);
+      // Normalize strings to handle Unicode issues with Nepali characters
+      const normalizedQuery = trimmedQuery.toLowerCase().normalize("NFC");
+      console.log("Normalized Query:", normalizedQuery); // Debug: Log normalized query
+
+      // Enhanced client-side filtering with normalization
+      const filteredSuggestions = suggestions.filter(sugg => {
+        const pusta_number= sugg.pusta_number;
+        const matchesName = sugg.name && sugg.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesNameInNepali = sugg.name_in_nepali && sugg.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesFatherName = sugg.father?.name && sugg.father.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesFatherNameInNepali = sugg.father?.name_in_nepali && sugg.father.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesMotherName = sugg.mother?.name && sugg.mother.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesMotherNameInNepali = sugg.mother?.name_in_nepali && sugg.mother.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesgrandFatherName = sugg.father.father?.name && sugg.father.father.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        const matchesgrandFatherNameInNepali = sugg.father.father?.name_in_nepali && sugg.father.father.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
+        // Log each person's matching status
+        console.log(`Person ID ${sugg.id}:`, {
+          pusta_number,
+          matchesName,
+          matchesNameInNepali,
+          matchesFatherName,
+          matchesFatherNameInNepali,
+          matchesMotherName,
+          matchesMotherNameInNepali,
+          matchesgrandFatherName,
+          matchesFatherNameInNepali,
+        });
+
+        return matchesName || matchesNameInNepali || matchesFatherName || matchesFatherNameInNepali || matchesMotherName || matchesMotherNameInNepali|| matchesgrandFatherName||
+          matchesgrandFatherNameInNepali;
+      });
+      console.log("Filtered Suggestions:", filteredSuggestions); // Debug: Log filtered suggestions
+
+      setRightNameSuggestions(filteredSuggestions);
       setShowSuggestions(true); // Show dropdown after fetching suggestions
-      if (limitedSuggestions.length === 0) {
+      if (filteredSuggestions.length === 0) {
         setApiError("No results found for the search query.");
       } else {
         setApiError("");
@@ -134,8 +171,10 @@ const Compare = () => {
       motherName: sugg.mother?.name_in_nepali || sugg.mother?.name || "",
       fatherId: sugg.father?.id || "",
       motherId: sugg.mother?.id || "",
+      grandfatherID: sugg.father.father?.id || "",
       father: { ...sugg.father, name: sugg.father?.name || "", name_in_nepali: sugg.father?.name_in_nepali || "" },
       mother: { ...sugg.mother, name: sugg.mother?.name || "", name_in_nepali: sugg.mother?.name_in_nepali || "" },
+      grandfather: { ...sugg.father.father, name: sugg.father.father?.name || "", name_in_nepali: sugg.father.father?.name_in_nepali || "" },
     };
     setRightPerson(updatedRightPerson);
     console.log("Updated rightPerson:", updatedRightPerson); // Debug log
@@ -153,56 +192,6 @@ const Compare = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Fetch father suggestions (simulated with timeout)
-  const fetchRightFatherSuggestions = (parentGeneration, query, personId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const person = familyMembers.find((member) => member.id === personId);
-        if (!person) {
-          console.log("Person not found in familyMembers");
-          resolve([]);
-          return;
-        }
-
-        const fatherName = person.father?.name || "";
-        const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration = member.pusta_number === parentGeneration.toString();
-          const matchesQuery = query.trim() === "" || member.name.toLowerCase().includes(query.toLowerCase());
-          const isMale = member.gender && member.gender.toLowerCase() === "male";
-          const matchesFatherName = member.name === fatherName;
-          return isRightGeneration && matchesQuery && isMale && matchesFatherName;
-        });
-
-        resolve(suggestions);
-      }, 500);
-    });
-  };
-
-  // Fetch mother suggestions (simulated with timeout)
-  const fetchRightMotherSuggestions = (parentGeneration, query, personId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const person = familyMembers.find((member) => member.id === personId);
-        if (!person) {
-          console.log("Person not found in familyMembers");
-          resolve([]);
-          return;
-        }
-
-        const motherName = person.mother?.name || "";
-        const suggestions = familyMembers.filter((member) => {
-          const isRightGeneration = member.pusta_number === parentGeneration.toString();
-          const matchesQuery = query.trim() === "" || member.name.toLowerCase().includes(query.toLowerCase());
-          const isFemale = member.gender && member.gender.toLowerCase() === "female";
-          const matchesMotherName = member.name === motherName;
-          return isRightGeneration && matchesQuery && isFemale && matchesMotherName;
-        });
-
-        resolve(suggestions);
-      }, 500);
-    });
-  };
 
   // Fetch data for Person 1
   useEffect(() => {
@@ -264,6 +253,7 @@ const Compare = () => {
       const rightPerson_pusta_number = rightPerson.pusta_number;
       const rightPerson_fatherName = rightPerson.fatherId;
       const rightPerson_motherName = rightPerson.motherId;
+      const rightPerson_grandfatherName = rightPerson.grandfatherID;
 
       const response = await axios.post(`${API_URL}/people/compare/`, {
         leftPersonId,
@@ -518,7 +508,7 @@ const Compare = () => {
             top: 100%; /* Position immediately below the input */
             left: 0;
             right: 0;
-            max-height: 150px; /* Adjusted height for 4 names with scrolling */
+            max-height: 300px; /* Increased height for more suggestions */
             overflow-y: auto; /* Enable scrolling */
             background: linear-gradient(to bottom, #fffaf0, #ffffff);
             border: 1px solid var(--neutral-gray);
@@ -726,7 +716,7 @@ const Compare = () => {
                   >
                     <FaSearch className="text-black" />
                   </button>
-                  {/* Dropdown integrated into the input field, showing up to 4 names with scrolling */}
+                  {/* Dropdown integrated into the input field, showing all suggestions with scrolling */}
                   {showSuggestions && rightNameSuggestions.length > 0 && (
                     <div className="suggestions-dropdown">
                       {rightNameSuggestions.map((sugg) => (
@@ -745,7 +735,16 @@ const Compare = () => {
                 </div>
               </div>
             </div>
-
+            <div className="field">
+              <label className="label">Pusta Number</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.pusta_number || ""}
+                disabled
+                placeholder="Father's Name"
+              />
+            </div>
             <div className="field">
               <label className="label">Name</label>
               <input
