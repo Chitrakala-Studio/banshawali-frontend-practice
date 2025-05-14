@@ -198,24 +198,60 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       const validData = data.filter(
         (s) => s && typeof s.id === "number" && s.name
       );
+      const mappedData = validData.map((person) => ({
+        id: person.id,
+        name: person.name || "",
+        gender: person.gender || "",
+        father: person.father || { name: "", father: { name: "" } },
+        mother: person.mother || { name: "" },
+      }));
 
-      const fatherData = validData.filter((s) => {
-        if (s.gender) return s.gender.toLowerCase() === "male";
-        const nm = (s.name_in_nepali || s.name).toLowerCase();
-        return (
-          nm.endsWith("नाथ") ||
-          nm.endsWith("प्रसाद") ||
-          nm.endsWith("कुमार") ||
-          !nm.endsWith("ा")
-        );
-      });
+      const fatherData = mappedData
+        .filter((s) => {
+          if (s.gender && typeof s.gender === "string") {
+            return s.gender.toLowerCase() === "male";
+          }
+          const name = s.name.toLowerCase();
+          return (
+            name.endsWith("नाथ") ||
+            name.endsWith("प्रसाद") ||
+            name.endsWith("कुमार") ||
+            !name.endsWith("ा")
+          );
+        })
+        .map((s) => {
+          const personName = s.name;
+          const fatherName = s.father?.name || "";
+          const motherName = s.mother?.name || "";
+          const grandFatherName = s.father?.father?.name || "";
+          return {
+            ...s,
+            displayText: `${personName}|${fatherName}-${motherName}|${grandFatherName}`,
+          };
+        });
 
-      const motherData = validData.filter((s) => {
-        if (s.gender) return s.gender.toLowerCase() === "female";
-        const nm = (s.name_in_nepali || s.name).toLowerCase();
-        return nm.endsWith("ा") || nm.endsWith("कुमारी") || nm.endsWith("देवी");
-      });
-
+      const motherData = mappedData
+        .filter((s) => {
+          if (s.gender && typeof s.gender === "string") {
+            return s.gender.toLowerCase() === "female";
+          }
+          const name = (s.name_in_nepali || s.name).toLowerCase();
+          return (
+            name.endsWith("ा") ||
+            name.endsWith("कुमारी") ||
+            name.endsWith("देवी")
+          );
+        })
+        .map((s) => {
+          const personName = s.name;
+          const fatherName = s.father?.name || "";
+          const motherName = s.mother?.name || "";
+          const grandFatherName = s.father?.father?.name || "";
+          return {
+            ...s,
+            displayText: `${personName}|${fatherName}-${motherName}|${grandFatherName}`,
+          };
+        });
       setSuggestions(fatherData);
       setMotherSuggestions(motherData);
     } catch (error) {
@@ -253,7 +289,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           placeholder: true,
           placeholderValue: "Select Father",
           searchPlaceholderValue: "Search for a father",
-          searchFields: ["label", "customProperties.name_in_nepali"],
+          searchFields: ["label"],
         });
       }
 
@@ -277,7 +313,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               : []),
             ...suggestions.map((s) => ({
               value: s.id.toString(),
-              label: s.name_in_nepali || s.name,
+              label: s.displayText,
               selected: s.id === form.father_id,
               customProperties: {
                 id: s.id,
@@ -304,7 +340,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               : []),
             ...suggestions.map((s) => ({
               value: s.id.toString(),
-              label: s.name_in_nepali || s.name,
+              label: s.displayText,
               selected: s.id === form.father_id,
               customProperties: {
                 id: s.id,
@@ -313,12 +349,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             })),
           ];
 
-      fatherChoicesInstance.current.setChoices(
-        choicesData,
-        "value",
-        "label",
-        true
-      );
+      fatherChoicesInstance.current.setChoices(choicesData, "value", "label", true);
 
       fatherInputRef.current.addEventListener("search", (event) => {
         const searchTerm = event.detail.value.toLowerCase();
@@ -327,9 +358,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       fatherInputRef.current.addEventListener("change", (e) => {
         const selectedId = e.target.value;
-        const source = formData.spouseOptions
-          ? formData.spouseOptions
-          : suggestions;
+        const source = formData.spouseOptions ? formData.spouseOptions : suggestions;
         const selected = source.find((s) => s.id.toString() === selectedId);
         setForm((prev) => ({
           ...prev,
@@ -348,7 +377,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     };
   }, [suggestions, form.father_id, form.father_name, formData.spouseOptions]);
 
-  useEffect(() => {
+ useEffect(() => {
     if (motherInputRef.current) {
       if (!motherChoicesInstance.current) {
         motherChoicesInstance.current = new Choices(motherInputRef.current, {
@@ -361,7 +390,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           placeholder: true,
           placeholderValue: "Select Mother",
           searchPlaceholderValue: "Search for a mother",
-          searchFields: ["label", "customProperties.name_in_nepali"],
+          searchFields: ["label"],
         });
       }
 
@@ -385,7 +414,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               : []),
             ...motherSuggestions.map((s) => ({
               value: s.id.toString(),
-              label: s.name_in_nepali || s.name,
+              label: s.displayText,
               selected: s.id === form.mother_id,
               customProperties: {
                 id: s.id,
@@ -412,7 +441,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               : []),
             ...motherSuggestions.map((s) => ({
               value: s.id.toString(),
-              label: s.name_in_nepali || s.name,
+              label: s.displayText,
               selected: s.id === form.mother_id,
               customProperties: {
                 id: s.id,
@@ -421,12 +450,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             })),
           ];
 
-      motherChoicesInstance.current.setChoices(
-        choicesData,
-        "value",
-        "label",
-        true
-      );
+      motherChoicesInstance.current.setChoices(choicesData, "value", "label", true);
 
       motherInputRef.current.addEventListener("search", (event) => {
         const searchTerm = event.detail.value.toLowerCase();
@@ -454,12 +478,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         motherChoicesInstance.current = null;
       }
     };
-  }, [
-    motherSuggestions,
-    form.mother_id,
-    form.mother_name,
-    formData.spouseOptions,
-  ]);
+  }, [motherSuggestions, form.mother_id, form.mother_name, formData.spouseOptions]);
 
   useEffect(() => {
     if (formData.id) {
@@ -561,6 +580,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       fetchUserDetails();
     }
   }, [formData, API_URL]);
+
 
   // const renderSpouseDropdowns = () => {
   //   return form.spouses.map((spouse, index) => (
@@ -728,27 +748,29 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
 
     setLoading(true);
-    try {
-      const payload = {
-        name: form.name || "",
-        name_in_nepali: form.name_in_nepali || "",
-        pusta_number: form.pusta_number || "",
-        contact_details: {
-          email: form.contact?.email || "",
-          phone: form.contact?.phone || "",
-          address: form.contact?.address || "",
-        },
-        father_id: form.father_id || null,
-        mother_id: form.mother_id || null,
-        date_of_birth: form.dob || null,
-        lifestatus: form.lifestatus || "",
-        date_of_death: form.death_date || null,
-        photo: form.profileImage || "",
-        profession: form.profession || "",
-        gender: form.gender || "",
-        same_vamsha_status: form.vansha_status || "",
-        spouses: form.spouses.filter((s) => s.id).map((s) => ({ id: s.id })),
-      };
+    try{
+    const payload = {
+      name: form.name || "",
+      name_in_nepali: form.name_in_nepali || "",
+      pusta_number: form.pusta_number || "",
+      contact_details: {
+        email: form.contact?.email || "",
+        phone: form.contact?.phone || "",
+        address: form.contact?.address || "",
+      },
+      father_id: form.father_id || null,
+      mother_id: form.mother_id || null,
+      date_of_birth: form.dob || null,
+      lifestatus: form.lifestatus || "",
+      date_of_death: form.death_date || null,
+      photo: form.profileImage || "",
+      profession: form.profession || "",
+      gender: form.gender || "",
+      same_vamsha_status: form.vansha_status || "",
+      spouses: form.spouses
+        .filter((s) => s.id && s.name)
+        .map((s) => ({ id: s.id, name: s.name })),
+    };
 
       const response = form.id
         ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
@@ -1214,10 +1236,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                         }}
                         className="suggestion-item"
                       >
-                        {suggestion.pusta_number |
-                          suggestion.name_in_nepali |
-                          (suggestion.father.name / suggestion.mother.name) |
-                          suggestion.father.father.name}
+                        {suggestion.displayText}
                       </li>
                     ))}
                   </ul>
@@ -1252,10 +1271,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                         }}
                         className="suggestion-item"
                       >
-                        {suggestion.pusta_number |
-                          suggestion.name_in_nepali |
-                          (suggestion.father.name / suggestion.mother.name) |
-                          suggestion.father.father.name}
+                        {suggestion.displayText}
                       </li>
                     ))}
                   </ul>
