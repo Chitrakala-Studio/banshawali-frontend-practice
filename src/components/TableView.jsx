@@ -543,18 +543,10 @@ const TableView = () => {
   };
 
   const handleSave = async (updatedRow) => {
-    try {
-      await axios.put(`${API_URL}/people/${updatedRow.id}/`, updatedRow);
-      fetchData(1);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating data:", error);
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to update data.",
-        icon: "error",
-      });
-    }
+
+    fetchData(1);
+    setIsEditing(false);
+
   };
 
   const handleSaveNew = async (newData) => {

@@ -5,7 +5,7 @@ import { FaArrowDown } from "react-icons/fa";
 import axios from "axios";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
-//import { NepaliDatePicker } from "nepali-datepicker-reactjs";
+import { NepaliDatePicker } from "nepali-datepicker-reactjs";
 import Calendar from '@sbmdkl/nepali-datepicker-reactjs';
 import '@sbmdkl/nepali-datepicker-reactjs/dist/index.css';
 //import "nepali-datepicker-reactjs/dist/index.css";
@@ -461,39 +461,43 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
 
     setLoading(true);
-    try {
-      const payload = {
-        name: form.name || "",
-        name_in_nepali: form.name_in_nepali || "",
-        pusta_number: form.pusta_number || "",
-        contact_details: {
-          email: form.contact?.email || "",
-          phone: form.contact?.phone || "",
-          address: form.contact?.address || "",
-        },
-        father_id: form.father_id || null,
-        mother_id: form.mother_id || null,
-        date_of_birth: form.dob || null,
-        lifestatus: form.lifestatus || "",
-        date_of_death: form.death_date || null,
-        photo: form.profileImage || "",
-        profession: form.profession || "",
-        gender: form.gender || "",
-        same_vamsha_status: form.vansha_status || "",
-      };
+    const payload = {
+      name: form.name || "",
+      name_in_nepali: form.name_in_nepali || "",
+      pusta_number: form.pusta_number || "",
+      contact_details: {
+        email: form.contact?.email || "",
+        phone: form.contact?.phone || "",
+        address: form.contact?.address || "",
+      },
+      father_id: form.father_id || null,
+      mother_id: form.mother_id || null,
+      date_of_birth: form.dob || null,
+      lifestatus: form.lifestatus || "",
+      date_of_death: form.death_date || null,
+      photo: form.profileImage || "",
+      profession: form.profession || "",
+      gender: form.gender || "",
+      same_vamsha_status: form.vansha_status || "",
+    };
 
-      const response = form.id
-        ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
-        : await axios.post(`${API_URL}/people/people/`, payload);
+    const response = form.id
+      ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
+      : await axios.post(`${API_URL}/people/people/`, payload);
 
+    if (response.status == 200) {
+      // Only on success:
       onSave(response.data);
-      Swal.fire("Saved!", "Your changes have been saved.", "success");
-      onClose();
-    } catch (error) {
-      handleBackendError(error, "Failed to save", "Something went wrong!");
-    } finally {
-      setLoading(false);
+      await Swal.fire("Saved!", "Your changes have been saved.", "success");
+    } else {
+      await Swal.fire(
+        "Error",
+        "Failed to save changes. Please try again.",
+        "error" 
+      );
     }
+    onClose();
+    
   };
 
   return (
