@@ -46,6 +46,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const spouseOptions = Array.isArray(formData.spouseOptions)
     ? formData.spouseOptions
     : [];
@@ -129,6 +130,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   };
 
   const fetchSuggestions = async () => {
+    setSuggestionsLoading(true);
     if (Array.isArray(formData.spouseOptions)) {
       // Add Child mode: Use spouseOptions
       const spouseOpts = formData.spouseOptions;
@@ -173,6 +175,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           )
         );
       }
+        setSuggestionsLoading(false);
       return;
     }
 
@@ -181,6 +184,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     if (isNaN(p) || p <= 1) {
       setSuggestions([]);
       setMotherSuggestions([]);
+      setSuggestionsLoading(false);
       return;
     }
 
@@ -254,10 +258,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         });
       setSuggestions(fatherData);
       setMotherSuggestions(motherData);
+      setSuggestionsLoading(false);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setSuggestions([]);
       setMotherSuggestions([]);
+      setSuggestionsLoading(false);
       Swal.fire("Error", "Failed to fetch family members.", "error");
     }
   };
@@ -293,7 +299,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         });
       }
 
-      const choicesData = formData.spouseOptions
+      const choicesData = suggestionsLoading
+        ? [{ value: "", label: "Loading...", disabled: true }]
+        : formData.spouseOptions
         ? [
             { value: "", label: "Select Father", disabled: true },
             ...(form.father_id &&
@@ -375,7 +383,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         fatherChoicesInstance.current = null;
       }
     };
-  }, [suggestions, form.father_id, form.father_name, formData.spouseOptions]);
+  }, [suggestions, form.father_id, form.father_name, formData.spouseOptions,suggestionsLoading]);
 
  useEffect(() => {
     if (motherInputRef.current) {
@@ -394,7 +402,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         });
       }
 
-      const choicesData = formData.spouseOptions
+      const choicesData = suggestionsLoading
+        ? [{ value: "", label: "Loading...", disabled: true }]
+        : formData.spouseOptions
         ? [
             { value: "", label: "Select Mother", disabled: true },
             ...(form.mother_id &&
@@ -478,7 +488,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         motherChoicesInstance.current = null;
       }
     };
-  }, [motherSuggestions, form.mother_id, form.mother_name, formData.spouseOptions]);
+  }, [motherSuggestions, form.mother_id, form.mother_name, formData.spouseOptions,suggestionsLoading]);
 
   useEffect(() => {
     if (formData.id) {
