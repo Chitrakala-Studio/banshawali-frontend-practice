@@ -918,7 +918,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                         }}
                         className="suggestion-item"
                       >
-                        {suggestion.name_in_nepali || suggestion.name}
+                        {suggestion.pusta_number | suggestion.name_in_nepali | suggestion.father.name / suggestion.mother.name | suggestion.father.father.name}
                       </li>
                     ))}
                   </ul>
@@ -953,7 +953,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                         }}
                         className="suggestion-item"
                       >
-                        {suggestion.name_in_nepali || suggestion.name}
+                        {suggestion.pusta_number | suggestion.name_in_nepali | suggestion.father.name / suggestion.mother.name | suggestion.father.father.name}
                       </li>
                     ))}
                   </ul>
