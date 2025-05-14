@@ -128,6 +128,7 @@ const convertImagesToBase64 = async (svgElement) => {
 const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   const [treeData, setTreeData] = useState(null);
   const [familyData, setFamilyData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const treeContainerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 850, height: 600 });
   const [expandfather, setexpandfather] = useState(false);
@@ -144,12 +145,14 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
+      setIsLoading(true);
       console.log(`Fetching data for new ID: ${id}`);
       const data = await fetchFamilyData(id);
       if (data) {
         setFamilyData(data);
         setTreeData(transformToTreeData(data));
       }
+      setIsLoading(false);
     };
 
     fetchData();
@@ -631,6 +634,13 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
           zIndex: "10",
         }}
       >
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="w-12 h-12 border-4 border-teal-700 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-lg text-teal-700">Loading Family Tree...</p>
+          </div>
+        ) : (
+          <>
         <h2 className="text-2xl font-semibold mb-4">
           {selectedPerson} Family Tree
         </h2>
@@ -675,7 +685,9 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
           >
             Print Family Tree
           </button>
-        </div>
+           </div>
+      </>
+        )}
       </div>
     </div>
   );
