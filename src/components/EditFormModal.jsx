@@ -46,6 +46,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const spouseOptions = Array.isArray(formData.spouseOptions)
+    ? formData.spouseOptions
+    : [];
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "Vamshawali";
   const API_URL = import.meta.env.VITE_API_URL;
@@ -60,6 +63,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
     setShowSuggestions(true);
   };
+
+  const filteredSpouseOptions = Array.isArray(formData.spouseOptions)
+    ? formData.spouseOptions.filter((p) => {
+        const formPusta = parseInt(form.pusta_number, 10);
+        return (
+          parseInt(p.pusta_number, 10) === formPusta &&
+          ((form.gender === "Male" && p.gender === "Female") ||
+            (form.gender === "Female" && p.gender === "Male"))
+        );
+      })
+    : [];
 
   const handleFatherMouseLeave = () => {
     hideFatherSuggestionsTimeout.current = setTimeout(() => {
@@ -89,13 +103,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setForm((prev) => ({ ...prev, spouses: updated }));
   };
 
+  // const addSpouseField = () => {
+  //   setForm((prev) => ({
+  //     ...prev,
+  //     spouses: [...prev.spouses, { id: null, name: "" }],
+  //   }));
+  // };
+
   const addSpouseField = () => {
     setForm((prev) => ({
       ...prev,
       spouses: [...prev.spouses, { id: null, name: "" }],
     }));
   };
-
   const removeSpouseField = (index) => {
     const updated = [...form.spouses];
     updated.splice(index, 1);
@@ -167,7 +187,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     try {
       const prevPusta = p - 1;
       const response = await axios.get(
-        `${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
+        ` ${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
         { headers: { "Content-Type": "application/json" } }
       );
 
@@ -205,6 +225,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       Swal.fire("Error", "Failed to fetch family members.", "error");
     }
   };
+
+  useEffect(() => {
+    console.log("Spouse Options:", formData.spouseOptions);
+  }, [formData.spouseOptions]);
 
   useEffect(() => {
     fetchSuggestions();
@@ -443,7 +467,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         try {
           setLoading(true);
           const response = await axios.get(
-            `${API_URL}/people/${formData.id}/`,
+            ` ${API_URL}/people/${formData.id}/`,
             {
               headers: { "Content-Type": "application/json" },
             }
@@ -485,7 +509,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             mother_name: motherName,
             mother_id:
               data.mother_id || (data.mother?.id ?? formData.mother_id) || null,
-            spouses: data.spouses ||
+            spouses: data.spouse ||
               formData.spouses || [{ id: null, name: "" }],
             vansha_status: vanshaStatus,
             contact: {
@@ -538,6 +562,81 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     }
   }, [formData, API_URL]);
 
+  // const renderSpouseDropdowns = () => {
+  //   return form.spouses.map((spouse, index) => (
+  //     <div key={index} className="flex gap-2 items-center mb-2">
+  //       <select
+  //         className="select"
+  //         value={spouse.id || ""}
+  //         onChange={(e) => {
+  //           const selectedId = parseInt(e.target.value, 10);
+  //           const selected = filteredSpouseOptions.find(
+  //             (s) => s.id === selectedId
+  //           );
+  //           handleSpouseIdSelect(index, selected);
+  //         }}
+  //       >
+  //         <option value="">Select Spouse</option>
+  //         {filteredSpouseOptions.map((s) => (
+  //           <option key={s.id} value={s.id}>
+  //             {s.name_in_nepali || s.name}
+  //           </option>
+  //         ))}
+  //       </select>
+
+  //       {form.spouses.length > 1 && (
+  //         <button
+  //           type="button"
+  //           onClick={() => removeSpouseField(index)}
+  //           className="text-red-500 hover:text-red-700 font-semibold"
+  //           title="Remove Spouse"
+  //         >
+  //           ✖
+  //         </button>
+  //       )}
+  //     </div>
+  //   ));
+  // };
+
+  const renderSpouseDropdowns = () => {
+    return form.spouses.map((spouse, index) => (
+      <div key={index} className="flex gap-2 items-center mb-2">
+        <select
+          className="select"
+          value={spouse.id || ""}
+          onChange={(e) => {
+            const selectedId = e.target.value
+              ? parseInt(e.target.value, 10)
+              : null;
+            const selected = filteredSpouseOptions.find(
+              (s) => s.id === selectedId
+            ) || {
+              id: null,
+              name: "",
+            };
+            handleSpouseIdSelect(index, selected);
+          }}
+        >
+          <option value="">Select Spouse</option>
+          {filteredSpouseOptions.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name_in_nepali || s.name}
+            </option>
+          ))}
+        </select>
+        {form.spouses.length > 1 && (
+          <button
+            type="button"
+            onClick={() => removeSpouseField(index)}
+            className="text-red-500 hover:text-red-700 font-semibold"
+            title="Remove Spouse"
+          >
+            ✖
+          </button>
+        )}
+      </div>
+    ));
+  };
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -554,8 +653,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        data
+        ` https://api.cloudinary.com/v1_1/${cloudName}/image/upload,
+        data`
       );
       const cloudinaryUrl = response.data.secure_url;
       setForm((prevForm) => ({
@@ -648,9 +747,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         profession: form.profession || "",
         gender: form.gender || "",
         same_vamsha_status: form.vansha_status || "",
-        spouses: form.spouses
-          .filter((s) => s.id && s.name)
-          .map((s) => ({ id: s.id, name: s.name })),
+        spouses: form.spouses.filter((s) => s.id).map((s) => ({ id: s.id })),
       };
 
       const response = form.id
@@ -688,8 +785,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   return (
     <div className="edit-form-modal">
       <style>
-        {`
-          :root {
+        {`:root {
             --primary-text: #1F2937;
             --secondary-text: #6B7280;
             --primary-dark: #2E4568;
@@ -1169,30 +1265,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <div className="form-field">
                 <h3 className="section-title">Spouse(s)</h3>
 
-                {form.spouses.map((spouse, index) => (
-                  <div key={index} className="flex gap-2 items-center mb-2">
-                    <input
-                      type="text"
-                      className="input"
-                      placeholder={`Spouse Name ${index + 1}`}
-                      value={spouse.name}
-                      onChange={(e) =>
-                        handleSpouseChange(index, e.target.value)
-                      }
-                    />
-
-                    {form.spouses.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeSpouseField(index)}
-                        className="text-red-500 hover:text-red-700 font-semibold"
-                        title="Remove Spouse"
-                      >
-                        ✖
-                      </button>
-                    )}
-                  </div>
-                ))}
+                {renderSpouseDropdowns()}
 
                 <button
                   type="button"
