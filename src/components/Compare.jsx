@@ -24,13 +24,15 @@ const Compare = () => {
     motherName: "",
   }); // State for Person 1 data
   const [rightPerson, setRightPerson] = useState({
-    name: "",
+    name_in_nepali: "",
     pusta_number: "",
     fatherName: "",
     fatherId: "",
     motherName: "",
     motherId: "",
-  }); // State for Person 2 data
+    father: { name: "", name_in_nepali: "" },
+    mother: { name: "", name_in_nepali: "" },
+  }); // State for Person 2 data with default nested objects
   const [isLeftConfirmed, setIsLeftConfirmed] = useState(true); // Track if Person 1 is confirmed
   const [isRightConfirmed, setIsRightConfirmed] = useState(false); // Track if Person 2 is confirmed
   const [relationship, setRelationship] = useState(""); // Store the comparison result
@@ -50,7 +52,7 @@ const Compare = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch name suggestions for Person 2 based on search query
+  // Fetch name suggestions for Person 2 based on search query (using real API)
   const fetchNameSuggestions = async (query) => {
     if (!query.trim()) {
       setRightNameSuggestions([]);
@@ -59,16 +61,38 @@ const Compare = () => {
     }
     setIsLoading(true);
     try {
-      console.log("Fetching suggestions for query:", query);
-      const response = await axios.get(
-        `${API_URL}/people/search?name=${encodeURIComponent(query)}`,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log("API response:", response.data);
-      const suggestions = response.data.data || [];
-      setRightNameSuggestions(suggestions);
+      // Make API call to search endpoint with query
+      const response = await fetch(`${API_URL}/people/people/?search=${encodeURIComponent(query)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const responseData = await response.json();
+      const suggestions = responseData.data.map(person => ({
+        id: person.id,
+        name: person.name,
+        name_in_nepali: person.name_in_nepali,
+        pusta_number: person.pusta_number,
+        father: {
+          id: person.father?.id || "",
+          name: person.father?.name || "",
+          name_in_nepali: person.father?.name_in_nepali || "",
+        },
+        mother: {
+          id: person.mother?.id || "",
+          name: person.mother?.name || "",
+          name_in_nepali: person.mother?.name_in_nepali || "",
+        },
+      }));
+
+      const limitedSuggestions = suggestions.slice(0, 4); // Limit to 4 names
+      setRightNameSuggestions(limitedSuggestions);
       setShowSuggestions(true); // Show dropdown after fetching suggestions
-      if (suggestions.length === 0) {
+      if (limitedSuggestions.length === 0) {
         setApiError("No results found for the search query.");
       } else {
         setApiError("");
@@ -102,15 +126,19 @@ const Compare = () => {
 
   // Handle selection of a suggestion and update Person 2 data
   const handleSelectSuggestion = (sugg) => {
-    setRightPerson({
-      name: sugg.name_in_nepali || sugg.name,
+    const updatedRightPerson = {
+      name_in_nepali: sugg.name_in_nepali || sugg.name,
       id: sugg.id,
       pusta_number: sugg.pusta_number,
       fatherName: sugg.father?.name_in_nepali || sugg.father?.name || "",
       motherName: sugg.mother?.name_in_nepali || sugg.mother?.name || "",
       fatherId: sugg.father?.id || "",
       motherId: sugg.mother?.id || "",
-    });
+      father: { ...sugg.father, name: sugg.father?.name || "", name_in_nepali: sugg.father?.name_in_nepali || "" },
+      mother: { ...sugg.mother, name: sugg.mother?.name || "", name_in_nepali: sugg.mother?.name_in_nepali || "" },
+    };
+    setRightPerson(updatedRightPerson);
+    console.log("Updated rightPerson:", updatedRightPerson); // Debug log
     setSearchQuery("");
     setShowSuggestions(false); // Hide dropdown after selection
   };
@@ -217,7 +245,7 @@ const Compare = () => {
     if (
       !leftPerson.name ||
       !leftPerson.pusta_number ||
-      !rightPerson.name ||
+      !rightPerson.name_in_nepali ||
       !rightPerson.pusta_number
     ) {
       Swal.fire({
@@ -232,7 +260,7 @@ const Compare = () => {
     try {
       setIsLoading(true);
       const leftPersonId = leftPerson.id;
-      const rightPerson_name = rightPerson.name;
+      const rightPerson_name = rightPerson.name_in_nepali;
       const rightPerson_pusta_number = rightPerson.pusta_number;
       const rightPerson_fatherName = rightPerson.fatherId;
       const rightPerson_motherName = rightPerson.motherId;
@@ -490,15 +518,15 @@ const Compare = () => {
             top: 100%; /* Position immediately below the input */
             left: 0;
             right: 0;
-            max-height: 200px;
-            overflow-y: auto;
+            max-height: 150px; /* Adjusted height for 4 names with scrolling */
+            overflow-y: auto; /* Enable scrolling */
             background: linear-gradient(to bottom, #fffaf0, #ffffff);
             border: 1px solid var(--neutral-gray);
             border-top: none; /* Remove top border to blend with input */
             border-bottom-left-radius: 6px;
             border-bottom-right-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Shadow effect as requested */
-            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Shadow effect */
+            z-index: 1000; /* Ensure above other elements */
           }
 
           .suggestion-item {
@@ -508,6 +536,9 @@ const Compare = () => {
             color: var(--primary-text);
             cursor: pointer;
             transition: background-color 0.2s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis for long names */
           }
 
           .suggestion-item:hover {
@@ -695,7 +726,7 @@ const Compare = () => {
                   >
                     <FaSearch className="text-black" />
                   </button>
-                  {/* Dropdown integrated into the input field, shown only after search */}
+                  {/* Dropdown integrated into the input field, showing up to 4 names with scrolling */}
                   {showSuggestions && rightNameSuggestions.length > 0 && (
                     <div className="suggestions-dropdown">
                       {rightNameSuggestions.map((sugg) => (
@@ -716,11 +747,21 @@ const Compare = () => {
             </div>
 
             <div className="field">
+              <label className="label">Name</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.name_in_nepali || ""}
+                disabled
+                placeholder="Name"
+              />
+            </div>
+            <div className="field">
               <label className="label">Father's Name</label>
               <input
                 type="text"
                 className="input"
-                value={rightPerson.fatherName}
+                value={rightPerson.father?.name_in_nepali || ""}
                 disabled
                 placeholder="Father's Name"
               />
@@ -731,7 +772,7 @@ const Compare = () => {
               <input
                 type="text"
                 className="input"
-                value={rightPerson.motherName}
+                value={rightPerson.mother?.name_in_nepali || ""}
                 disabled
                 placeholder="Mother's Name"
               />
