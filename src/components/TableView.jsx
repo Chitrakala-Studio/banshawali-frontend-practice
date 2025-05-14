@@ -224,75 +224,45 @@ const TableView = () => {
     setShowAddRelationModal(true);
   };
 
+  // TableView.jsx
   const handleAddChildClick = async (row) => {
-    setSelectedPerson(row);
-    let spouses = [];
+    // …
 
-    try {
-      const response = await axios.get(`${API_URL}/people/${row.id}/spouses/`, {
-        headers: { "Content-Type": "application/json" },
-      });
-      spouses = Array.isArray(response.data)
-        ? response.data
-        : Array.isArray(response.data?.data)
-        ? response.data.data
-        : Array.isArray(response.data?.results)
-        ? response.data.results
-        : [];
-    } catch (error) {
-      console.error("Error fetching spouse data:", error);
-      spouses = [];
-    }
-
-    let fatherData = { name: "", id: null };
-    let motherData = { name: "", id: null };
-    let spouseOptions = spouses.map((spouse) => ({
-      id: spouse.id,
-      name: spouse.name_in_nepali || spouse.name || "Unknown",
+    // 1) fetch all spouses
+    let spouses = [
+      /* … */
+    ];
+    let spouseOptions = spouses.map((sp) => ({
+      id: sp.id,
+      name: sp.name_in_nepali || sp.name,
     }));
 
-    if (row.gender?.toLowerCase() === "male") {
-      fatherData = {
-        name: row.name_in_nepali || row.name || "Unknown",
-        id: row.id,
-      };
-      if (spouses.length === 1) {
-        motherData = {
-          name: spouses[0].name_in_nepali || spouses[0].name || "Unknown",
-          id: spouses[0].id,
-        };
+    // 2) pick which side is the clicked row, but always hand _all_ spouses
+    let fatherData = { id: null, name: "" };
+    let motherData = { id: null, name: "" };
+
+    if (row.gender.toLowerCase() === "male") {
+      fatherData = { id: row.id, name: row.name_in_nepali || row.name };
+      // don’t pre‐fill motherData if there are >1 spouses
+      if (spouseOptions.length === 1) {
+        motherData = spouseOptions[0];
       }
-    } else if (row.gender?.toLowerCase() === "female") {
-      motherData = {
-        name: row.name_in_nepali || row.name || "Unknown",
-        id: row.id,
-      };
-      if (spouses.length === 1) {
-        fatherData = {
-          name: spouses[0].name_in_nepali || spouses[0].name || "Unknown",
-          id: spouses[0].id,
-        };
+    } else {
+      motherData = { id: row.id, name: row.name_in_nepali || row.name };
+      if (spouseOptions.length === 1) {
+        fatherData = spouseOptions[0];
       }
     }
 
     setChildFormData({
-      pusta_number: (parseInt(row.pusta_number, 10) + 1).toString() || "1",
-      father_name: fatherData.name,
+      pusta_number: (parseInt(row.pusta_number, 10) + 1).toString(),
       father_id: fatherData.id,
-      mother_name: motherData.name,
+      father_name: fatherData.name,
       mother_id: motherData.id,
+      mother_name: motherData.name,
       spouseOptions,
-      gender: "Male",
-      lifestatus: "Alive",
-      name: "",
-      name_in_nepali: "",
-      dob: "",
-      death_date: "",
-      profession: "",
-      contact: { email: "", phone: "", address: "" },
-      vansha_status: "True",
-      profileImage: "",
     });
+
     setIsAddingChild(true);
   };
 
@@ -983,14 +953,19 @@ const TableView = () => {
                   <button
                     onClick={async () => {
                       try {
-                        const response = await fetch(`${API_URL}/people/${id}/?type=download`, {
-                          method: "GET",
-                          headers: {
-                            "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            // Add auth headers if needed
-                          },
-                        });
-                        if (!response.ok) throw new Error("Failed to download file");
+                        const response = await fetch(
+                          `${API_URL}/people/${id}/?type=download`,
+                          {
+                            method: "GET",
+                            headers: {
+                              "Content-Type":
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                              // Add auth headers if needed
+                            },
+                          }
+                        );
+                        if (!response.ok)
+                          throw new Error("Failed to download file");
                         const blob = await response.blob();
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement("a");
