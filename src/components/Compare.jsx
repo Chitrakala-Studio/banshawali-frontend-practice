@@ -619,7 +619,7 @@ const Compare = () => {
           onClick={() => (window.location.href = "https://gautamfamily.org.np/")}
         >
           <FaHome />
-          <span>Home</span>
+          <span>HomePage</span>
         </button>
 
         <button

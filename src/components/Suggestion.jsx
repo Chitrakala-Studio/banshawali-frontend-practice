@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { FaCheck, FaEye, FaTimes } from "react-icons/fa";
+import { FaCheck, FaEye, FaTimes, FaSpinner } from "react-icons/fa";
 import SuggestionModal from "./SuggestionModal";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Check, Eye, X } from "lucide-react";

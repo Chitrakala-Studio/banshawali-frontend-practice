@@ -12,7 +12,7 @@ import FamilyTreeCardButton from "./FamilyTreeCardButton";
 import SearchForm from "./SearchForm";
 import male from "./male1.png";
 import female from "./female1.png";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaSpinner } from "react-icons/fa";
 
 const CardView = () => {
   const { id } = useParams();
@@ -189,12 +189,7 @@ const CardView = () => {
             }
           `}
         </style>
-        <Circles
-          height="80"
-          width="80"
-          color="#F49D37"
-          ariaLabel="loading..."
-        />
+        <FaSpinner className="animate-spin text-5xl text-[#F49D37]" />
       </div>
     );
 

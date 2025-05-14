@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { FaArrowLeft, FaUserPlus, FaHome, FaSearch } from "react-icons/fa";
-import { NotebookPen, Trash2 } from "lucide-react";
+import { FaArrowLeft, FaUserPlus, FaHome, FaSearch, FaSpinner } from "react-icons/fa";
+import { NotebookPen, Trash2, Eye } from "lucide-react";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -491,6 +491,7 @@ const AddAdminPage = () => {
             className="top-bar-btn flex-center"
             onClick={handleViewSuggestions}
           >
+            <Eye size={18} />
             <span>View Suggestions</span>
           </button>
 
@@ -530,19 +531,15 @@ const AddAdminPage = () => {
           <tbody>
             {loading ? (
               <tr className="loading-row">
-                <td colSpan="3">
+                <td colSpan="4">
                   <div className="flex-center">
-                    <ClipLoader
-                      color="var(--neutral-gray)"
-                      loading={true}
-                      size={35}
-                    />
+                    <FaSpinner className="animate-spin text-2xl text-[#F49D37]" />
                   </div>
                 </td>
               </tr>
             ) : admins.length === 0 ? (
               <tr>
-                <td colSpan="3" className="no-data">
+                <td colSpan="4" className="no-data">
                   No admins found.
                 </td>
               </tr>

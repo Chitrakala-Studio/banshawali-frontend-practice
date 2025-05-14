@@ -9,6 +9,7 @@ import {
   FaHome,
   FaUserPlus,
   FaPlus,
+  FaSpinner 
 } from "react-icons/fa";
 import {
   NotebookPen,
@@ -20,6 +21,9 @@ import {
   X as XIcon,
   Upload,
   Baby,
+  Eye,
+  Download,
+ 
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
 import AddRelationModal from "./AddRelationModal";
@@ -884,42 +888,53 @@ const TableView = () => {
             </div>
           </div>
           <div className="flex gap-4">
-            <button className="top-bar-btn flex-center">
-              <FaHome />
-              <a href="https://gautamfamily.org.np/">Homepage</a>
-            </button>
-            {(id || searchApplied) && (
+            {activeTab !== "data" && (
+                  <button onClick={() => navigate("/")} className="top-bar-btn flex-center">
+                     <FaArrowLeft />
+                    <span>Back to Table</span>
+                  </button>
+                  
+                )}
+              {(id || searchApplied) && (
               <button
                 onClick={handleGoBack}
                 className="top-bar-btn flex-center"
               >
                 <FaArrowLeft />
-                <span>View All Table</span>
+                <span>Back to Table</span>
               </button>
             )}
-            <button
-              onClick={() => setShowSearchForm(true)}
-              className="top-bar-btn flex-center"
-            >
-              <FaSearch />
-              <span>Search User</span>
+            <button className="top-bar-btn flex-center">
+              <FaHome />
+              <a href="https://gautamfamily.org.np/">Homepage</a>
             </button>
+            
+            {activeTab !== "suggestions" && !id &&  (
+              <button
+                onClick={() => setShowSearchForm(true)}
+                className="top-bar-btn flex-center"
+              >
+                <FaSearch />
+                <span>Search User</span>
+              </button>
+            )}
+            
+            
             {isAdminLocal && (
               <>
-                {activeTab !== "data" && (
-                  <button onClick={() => navigate("/")} className="top-bar-btn">
-                    View Table
-                  </button>
-                )}
-                {activeTab !== "suggestions" && (
+                
+                 {activeTab !== "suggestions" &&  !id && (
                   <button
                     onClick={() => navigate("/suggestions")}
-                    className="top-bar-btn"
+                    className="top-bar-btn flex-center"
+                    data-tooltip-id="tooltip"
+                    data-tooltip-content="View Suggestions"
                   >
-                    View Suggestions
+                    <Eye size={18} />
+                    <span>View Suggestions</span>
                   </button>
                 )}
-                {activeTab === "data" && (
+                {activeTab === "data" && !id && (
                   <button
                     onClick={() => {
                       setFormData({
@@ -939,7 +954,7 @@ const TableView = () => {
                     <span>+ Add New User</span>
                   </button>
                 )}
-                {activeTab === "data" && (
+                {activeTab === "data" && !id && (
                   <button
                     onClick={() => navigate("/add-admin")}
                     className="top-bar-btn flex-center"
@@ -948,47 +963,50 @@ const TableView = () => {
                     <span>View Admin</span>
                   </button>
                 )}
-                {/* Add this block for Download button */}
-                {activeTab === "data" && id && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const response = await fetch(
-                          `${API_URL}/people/${id}/?type=download`,
-                          {
-                            method: "GET",
-                            headers: {
-                              "Content-Type":
-                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                              // Add auth headers if needed
-                            },
-                          }
-                        );
-                        if (!response.ok)
-                          throw new Error("Failed to download file");
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = `person_${id}.xlsx`;
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                        window.URL.revokeObjectURL(url);
-                      } catch (err) {
-                        Swal.fire({
-                          title: "Error!",
-                          text: "Failed to download file.",
-                          icon: "error",
-                        });
-                      }
-                    }}
-                    className="top-bar-btn flex-center"
-                  >
-                    <span>Download</span>
-                  </button>
-                )}
+                
               </>
+            )}
+
+            {/* Add this block for Download button */}
+            {activeTab === "data" && id && (
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch(
+                      `${API_URL}/people/${id}/?type=download`,
+                      {
+                        method: "GET",
+                        headers: {
+                          "Content-Type":
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                          // Add auth headers if needed
+                        },
+                      }
+                    );
+                    if (!response.ok)
+                      throw new Error("Failed to download file");
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `person_${id}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                  } catch (err) {
+                    Swal.fire({
+                      title: "Error!",
+                      text: "Failed to download file.",
+                      icon: "error",
+                    });
+                  }
+                }}
+                className="top-bar-btn flex-center"
+              >
+                <Download size={18} />
+                <span>Download</span>
+              </button>
             )}
           </div>
         </div>

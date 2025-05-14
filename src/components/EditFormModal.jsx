@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
-import { FaArrowDown, FaPlus } from "react-icons/fa";
+import { FaArrowDown, FaPlus, FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
@@ -653,23 +653,36 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           .map((s) => ({ id: s.id, name: s.name })),
       };
 
-    const response = form.id
-      ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
-      : await axios.post(`${API_URL}/people/people/`, payload);
+      const response = form.id
+        ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
+        : await axios.post(`${API_URL}/people/people/`, payload);
 
-    if (response.status == 200) {
-      // Only on success:
-      onSave(response.data);
-      await Swal.fire("Saved!", "Your changes have been saved.", "success");
-    } else {
-      await Swal.fire(
-        "Error",
-        "Failed to save changes. Please try again.",
-        "error" 
+      if (response.status >= 200 && response.status < 300) {
+        if (response.data && (response.data.id || response.data.name)) {
+          onSave(response.data);
+          await Swal.fire("Saved!", "Your changes have been saved.", "success");
+        } else if (response.data && response.data.message) {
+          await Swal.fire("Saved!", response.data.message, "success");
+        } else {
+          await Swal.fire("Saved!", "Your changes have been saved.", "success");
+        }
+        onClose();
+      } else {
+        await Swal.fire(
+          "Error",
+          "Failed to save changes. Please try again.",
+          "error"
+        );
+      }
+    } catch (error) {
+      handleBackendError(
+        error,
+        "Failed to save",
+        "Something went wrong!"
       );
+    } finally {
+      setLoading(false);
     }
-    onClose();
-    
   };
 
   return (
@@ -909,12 +922,21 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             font-size: 16px;
             color: var(--primary-text);
           }
+           
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+            .animate-spin {
+              animation: spin 1s linear infinite;
+            }
         `}
       </style>
 
       <div className="modal-container">
         {loading ? (
-          <div className="loading-text">Loading...</div>
+          <div className="flex justify-center items-center py-8">
+            <FaSpinner className="animate-spin text-3xl text-[#F49D37]" />
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="form-content">
             <div className="profile-image-container">

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FaArrowDown } from "react-icons/fa";
+import { FaArrowDown, FaSpinner } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axios from "axios";
 import Sanscript from "sanscript";
@@ -327,7 +327,12 @@ const AddRelationModal = ({ person, onClose, onSave, API_URL }) => {
       <div className="add-relation-modal">
         <div className="modal-container">
           {loading ? (
-            <div className="loading-text">Loading...</div>
+           
+            <div className="flex justify-center items-center py-8">
+            <FaSpinner className="animate-spin text-3xl text-[#F49D37]" />
+            </div>
+            
+           
           ) : (
             <form onSubmit={handleSubmit} className="form-content">
               <h3 className="section-title">
