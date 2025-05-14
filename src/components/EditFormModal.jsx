@@ -750,18 +750,23 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         spouses: form.spouses.filter((s) => s.id).map((s) => ({ id: s.id })),
       };
 
-      const response = form.id
-        ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
-        : await axios.post(`${API_URL}/people/people/`, payload);
+    const response = form.id
+      ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
+      : await axios.post(`${API_URL}/people/people/`, payload);
 
+    if (response.status == 200) {
+      // Only on success:
       onSave(response.data);
-      Swal.fire("Saved!", "Your changes have been saved.", "success");
-      onClose();
-    } catch (error) {
-      handleBackendError(error, "Failed to save", "Something went wrong!");
-    } finally {
-      setLoading(false);
+      await Swal.fire("Saved!", "Your changes have been saved.", "success");
+    } else {
+      await Swal.fire(
+        "Error",
+        "Failed to save changes. Please try again.",
+        "error" 
+      );
     }
+    onClose();
+    
   };
 
   return (
