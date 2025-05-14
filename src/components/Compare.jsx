@@ -725,7 +725,7 @@ const Compare = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    disabled={isRightConfirmed}
+                     disabled={isRightConfirmed || relationship} 
                   />
                   <button
                     className="search-btn"
