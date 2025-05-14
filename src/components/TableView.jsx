@@ -986,6 +986,41 @@ const TableView = () => {
                     <span>View Admin</span>
                   </button>
                 )}
+                {/* Add this block for Download button */}
+                {activeTab === "data" && id && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(`${API_URL}/people/${id}/?type=download`, {
+                          method: "GET",
+                          headers: {
+                            "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            // Add auth headers if needed
+                          },
+                        });
+                        if (!response.ok) throw new Error("Failed to download file");
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `person_${id}.xlsx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                      } catch (err) {
+                        Swal.fire({
+                          title: "Error!",
+                          text: "Failed to download file.",
+                          icon: "error",
+                        });
+                      }
+                    }}
+                    className="top-bar-btn flex-center"
+                  >
+                    <span>Download</span>
+                  </button>
+                )}
               </>
             )}
           </div>

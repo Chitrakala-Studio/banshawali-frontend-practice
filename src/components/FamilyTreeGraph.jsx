@@ -19,7 +19,7 @@ const fetchFamilyData = async (id) => {
   try {
     if (!id) return null;
     console.log(`Fetching data for ID: ${id}`);
-    const response = await axios.get(`${API_URL}/familytree/familytree/${id}/`);
+    const response = await axios.get(`${API_URL}/people/familytree/${id}/`);
     return response.data;
   } catch (error) {
     console.error("Error fetching family data:", error);
