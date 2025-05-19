@@ -1,14 +1,11 @@
 import { useRef, useState, useEffect } from "react";
-import { Circles } from "react-loader-spinner";
+import { useNavigate, useParams } from "react-router-dom";
 import FamilyTreeModal from "./FamilyTreeModal";
 import TinderCard from "react-tinder-card";
-import { useNavigate, useParams } from "react-router-dom";
 import FamilyTreeGraph from "./FamilyTreeGraph";
 import ToggleView from "./ToggleView";
 import CardImageSection from "./CardImageSection";
 import CardFooterSection from "./CardFooterSection";
-import NavigationButtons from "./NavigationButtons";
-import FamilyTreeCardButton from "./FamilyTreeCardButton";
 import SearchForm from "./SearchForm";
 import male from "./male1.png";
 import female from "./female1.png";
@@ -17,38 +14,48 @@ import { FaHome, FaSpinner } from "react-icons/fa";
 const CardView = () => {
   const { id } = useParams();
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [infoPopup, setInfoPopup] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isTableView, setIsTableView] = useState(false);
-  const navigate = useNavigate();
   const [isHorizontal, setIsHorizontal] = useState(false);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [nextIndex, setNextIndex] = useState(0);
-  const [previousIndex, setPreviousIndex] = useState(0);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [showSearchPopup, setShowSearchPopup] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const API_URL = import.meta.env.VITE_API_URL;
+  const MAX_CARD_ID = 4000;
 
+  // Handle window resize to detect mobile
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 800);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Fetch card data and navigate to a random card on initial load
   useEffect(() => {
     if (isSearchActive) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_URL}/people/${id}/`, {
+        let cardId = id;
+
+        // On initial load, if id is "1", navigate to a random card
+        if (parseInt(id) === 1) {
+          cardId = Math.floor(Math.random() * MAX_CARD_ID) + 1;
+          navigate(`/card/${cardId}`, { replace: true });
+        }
+
+        const response = await fetch(`${API_URL}/people/${cardId}/`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -60,8 +67,6 @@ const CardView = () => {
         const result = await response.json();
         const result_data = Array.isArray(result.data) ? result.data : [];
         setData(result_data);
-        setPreviousIndex(result.previous || 0);
-        setNextIndex(result.next || 0);
         setLoading(false);
         if (result_data.length > 0) {
           setCurrentIndex(0);
@@ -76,6 +81,7 @@ const CardView = () => {
     fetchData();
   }, [id, isSearchActive, navigate]);
 
+  // Update URL when currentIndex changes during search
   useEffect(() => {
     if (isSearchActive && data.length > 0 && data[currentIndex]?.id) {
       navigate(`/card/${data[currentIndex].id}`, { replace: true });
@@ -122,35 +128,35 @@ const CardView = () => {
   const scrollLeft = () => {
     setInfoPopup(null);
     setIsExpanded(false);
+
     if (isSearchActive) {
       if (data.length > 0) {
         const randomIndex = Math.floor(Math.random() * data.length);
         setCurrentIndex(randomIndex);
       }
-    } else {
-      const randomId =
-        data.length > 0
-          ? data[Math.floor(Math.random() * data.length)].id
-          : previousIndex;
-      navigate(`/card/${randomId}`);
+      return;
     }
+
+    // Navigate to a completely random card ID
+    const randomId = Math.floor(Math.random() * MAX_CARD_ID) + 1;
+    navigate(`/card/${randomId}`);
   };
 
   const scrollRight = () => {
     setInfoPopup(null);
     setIsExpanded(false);
+
     if (isSearchActive) {
       if (data.length > 0) {
         const randomIndex = Math.floor(Math.random() * data.length);
         setCurrentIndex(randomIndex);
       }
-    } else {
-      const randomId =
-        data.length > 0
-          ? data[Math.floor(Math.random() * data.length)].id
-          : nextIndex;
-      navigate(`/card/${randomId}`);
+      return;
     }
+
+    // Navigate to a completely random card ID
+    const randomId = Math.floor(Math.random() * MAX_CARD_ID) + 1;
+    navigate(`/card/${randomId}`);
   };
 
   const handleSwipe = (direction) => {
@@ -277,30 +283,28 @@ const CardView = () => {
             }
 
             .card-view-container {
-              padding: 0; /* Remove padding to extend to top */
+              padding: 0;
               display: flex;
               flex-direction: column;
-              background: linear-gradient(to bottom, #fffaf0, #ffffff);
               background: radial-gradient(circle at top, var(--background-start) 30%, var(--background-end) 100%);
             }
 
             .card-container {
               width: 100vw;
-              height: calc(100vh - 60px); /* Adjust height to fit below the home icon */
+              height: calc(100vh - 60px);
               margin: 0;
               border-radius: 0;
               overflow: hidden;
               box-shadow: none;
-              background-color: #fff; /* Match card background */
+              background-color: #fff;
               display: flex;
               flex-direction: column;
-              
             }
 
             .card-wrapper {
               position: relative;
               width: 100%;
-              flex-grow: 1; /* Allow card to take remaining space */
+              flex-grow: 1;
               scroll-snap-align: center;
               display: flex;
               flex-direction: column;
@@ -372,9 +376,7 @@ const CardView = () => {
               font-size: 24px;
               color: var(--gold-accent);
               transition: all 0.3s ease;
-              background-color:transparent;
-              // Round the background box
-              
+              background-color: transparent;
             }
 
             .home-icon:hover {
@@ -388,7 +390,6 @@ const CardView = () => {
               gap: 8px;
             }
 
-            /* Desktop styles */
             @media (min-width: 800px) {
               .card-view-container {
                 padding: 20px;
@@ -406,7 +407,7 @@ const CardView = () => {
               }
 
               .home-icon-container {
-                display: none; /* Hide home icon on desktop */
+                display: none;
               }
 
               .family-tree-content {
@@ -417,24 +418,24 @@ const CardView = () => {
               }
             }
 
-            /* Mobile styles */
             @media (max-width: 799px) {
               .top-bar-wrapper {
-                display: none; /* Hide the top bar with Homepage button on mobile */
+                display: none;
               }
-                
+
               .home-icon-container {
-                 position: absolute !important;
-    top: 8px;    /* tweak up/down */
-    left: 8px;   /* tweak left/right */
-    z-index: 20; /* above the card */
-  }
+                position: absolute !important;
+                top: 8px;
+                left: 8px;
+                z-index: 20;
+              }
+
               .card-container {
                 border-radius: 0;
                 box-shadow: none;
                 height: calc(100vh - 60px);
-                  position: relative;
-    top: -20px; 
+                position: relative;
+                top: -20px;
               }
             }
           `}

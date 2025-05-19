@@ -10,12 +10,8 @@ import {
   FaMale,
   FaAddressCard,
   FaSkullCrossbones,
-
-
 } from "react-icons/fa";
-import {
-  Users,
-} from "lucide-react";
+import { Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const InfoSection = ({ person }) => {
@@ -34,7 +30,7 @@ const InfoSection = ({ person }) => {
           }
 
           .info-section {
-            padding-bottom: 140px;
+            padding-bottom: 100px;
             width: 100%;
           }
 
@@ -129,7 +125,9 @@ const InfoSection = ({ person }) => {
           <div className="info-list">
             <div className="info-item">
               <FaUser className="info-icon" />
-              {person.name && <p className="no-margin">{person.name_in_nepali}</p>}
+              {person.name && (
+                <p className="no-margin">{person.name_in_nepali}</p>
+              )}
             </div>
 
             <div className="info-item">
@@ -191,29 +189,37 @@ const InfoSection = ({ person }) => {
                 </div>
               )}
 
-              {person.grandfather?.name && person.grandfather.name !== "N/A" && (
-                <div className="info-item">
-                  <FaMale className="info-icon" />
-                  <p className="no-margin">
-                    GrandFather:{" "}
-                    <Link to={`/${person.grandfather.id}`} className="info-link">
-                      {person.grandfather.name_in_nepali}
-                    </Link>
-                  </p>
-                </div>
-              )}
+              {person.grandfather?.name &&
+                person.grandfather.name !== "N/A" && (
+                  <div className="info-item">
+                    <FaMale className="info-icon" />
+                    <p className="no-margin">
+                      GrandFather:{" "}
+                      <Link
+                        to={`/${person.grandfather.id}`}
+                        className="info-link"
+                      >
+                        {person.grandfather.name_in_nepali}
+                      </Link>
+                    </p>
+                  </div>
+                )}
 
-              {person.grandmother?.name && person.grandmother.name !== "N/A" && (
-                <div className="info-item">
-                  <FaFemale className="info-icon" />
-                  <p className="no-margin">
-                    GrandMother:{" "}
-                    <Link to={`/${person.grandmother.id}`} className="info-link">
-                      {person.grandmother.name_in_nepali}
-                    </Link>
-                  </p>
-                </div>
-              )}
+              {person.grandmother?.name &&
+                person.grandmother.name !== "N/A" && (
+                  <div className="info-item">
+                    <FaFemale className="info-icon" />
+                    <p className="no-margin">
+                      GrandMother:{" "}
+                      <Link
+                        to={`/${person.grandmother.id}`}
+                        className="info-link"
+                      >
+                        {person.grandmother.name_in_nepali}
+                      </Link>
+                    </p>
+                  </div>
+                )}
 
               {person.spouse?.length > 0 && (
                 <div
@@ -226,7 +232,9 @@ const InfoSection = ({ person }) => {
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <FaUser className="info-icon" />
-                    <span style={{ fontWeight: 500, marginLeft: 4 }}>Spouse</span>
+                    <span style={{ fontWeight: 500, marginLeft: 4 }}>
+                      Spouse
+                    </span>
                   </div>
                   <div
                     style={{
@@ -239,11 +247,20 @@ const InfoSection = ({ person }) => {
                     }}
                   >
                     {person.spouse.map((spouse, index) => (
-                      <span key={spouse.id || index} style={{ display: "flex", alignItems: "center" }}>
+                      <span
+                        key={spouse.id || index}
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
                         {spouse.gender === "Female" ? (
-                          <FaFemale className="info-icon" style={{ marginRight: 4 }} />
+                          <FaFemale
+                            className="info-icon"
+                            style={{ marginRight: 4 }}
+                          />
                         ) : (
-                          <FaMale className="info-icon" style={{ marginRight: 4 }} />
+                          <FaMale
+                            className="info-icon"
+                            style={{ marginRight: 4 }}
+                          />
                         )}
                         <Link to={`/${spouse.id}`} className="info-link">
                           {spouse.name_in_nepali}
@@ -265,7 +282,9 @@ const InfoSection = ({ person }) => {
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <FaUser className="info-icon" />
-                    <span style={{ fontWeight: 500, marginLeft: 4 }}>Children</span>
+                    <span style={{ fontWeight: 500, marginLeft: 4 }}>
+                      Children
+                    </span>
                   </div>
                   <div
                     style={{
@@ -278,11 +297,20 @@ const InfoSection = ({ person }) => {
                     }}
                   >
                     {person.children.map((child, index) => (
-                      <span key={child.id || index} style={{ display: "flex", alignItems: "center" }}>
+                      <span
+                        key={child.id || index}
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
                         {child.gender === "Female" ? (
-                          <FaFemale className="info-icon" style={{ marginRight: 4 }} />
+                          <FaFemale
+                            className="info-icon"
+                            style={{ marginRight: 4 }}
+                          />
                         ) : (
-                          <FaMale className="info-icon" style={{ marginRight: 4 }} />
+                          <FaMale
+                            className="info-icon"
+                            style={{ marginRight: 4 }}
+                          />
                         )}
                         <Link to={`/${child.id}`} className="info-link">
                           {child.name_in_nepali}
@@ -309,19 +337,25 @@ const InfoSection = ({ person }) => {
               {person.contact_details.phone && (
                 <div className="info-item">
                   <FaPhone className="info-icon" />
-                  <p  className="no-margin">{person.contact_details.phone || "N/A"}</p>
+                  <p className="no-margin">
+                    {person.contact_details.phone || "N/A"}
+                  </p>
                 </div>
               )}
               {person.contact_details.email && (
                 <div className="info-item">
                   <FaEnvelope className="info-icon" />
-                  <p className="no-margin">{person.contact_details.email || "N/A"}</p>
+                  <p className="no-margin">
+                    {person.contact_details.email || "N/A"}
+                  </p>
                 </div>
               )}
               {person.contact_details.address && (
                 <div className="info-item">
                   <FaAddressCard className="info-icon" />
-                  <p className="no-margin">{person.contact_details.address || "N/A"}</p>
+                  <p className="no-margin">
+                    {person.contact_details.address || "N/A"}
+                  </p>
                 </div>
               )}
             </div>
