@@ -33,14 +33,12 @@ const CardView = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const MAX_CARD_ID = 4000;
 
-  // Handle window resize to detect mobile
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 800);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch card data and navigate to a random card on initial load
   useEffect(() => {
     if (isSearchActive) return;
 
@@ -49,7 +47,6 @@ const CardView = () => {
         setLoading(true);
         let cardId = id;
 
-        // On initial load, if id is "1", navigate to a random card
         if (parseInt(id) === 1) {
           cardId = Math.floor(Math.random() * MAX_CARD_ID) + 1;
           navigate(`/card/${cardId}`, { replace: true });
@@ -418,10 +415,30 @@ const CardView = () => {
               }
             }
 
-            @media (max-width: 799px) {
-              .top-bar-wrapper {
-                display: none;
-              }
+         @media (max-width: 799px) {
+  /* Hide the Homepage text span */
+  .top-bar-text {
+    display: none;
+  }
+
+  /* Turn the pill-button into an icon only, colored orange */
+  .top-bar-btn {
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: var(--gold-accent) !important;  /* sets currentColor for the icon */
+  }
+
+  /* Make sure the SVG itself is using that orange */
+  .top-bar-btn svg {
+    color: var(--gold-accent);
+    width: 24px;
+    height: 24px;
+  }
+}
+
+
 
               .home-icon-container {
                 position: absolute !important;
@@ -437,24 +454,49 @@ const CardView = () => {
                 position: relative;
                 top: -20px;
               }
+                @media (max-width: 799px) {
+  /* hide the old floating icon */
+  .home-icon-container {
+    display: none;
+  }
+
+  /* float the one top-bar absolutely above the card */
+  .top-bar-wrapper {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    padding: 0 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 30; /* above the card */
+  }
+
+  /* hide the word “Homepage” and keep only the icon */
+  .top-bar-text {
+    display: none;
+  }
+
+  /* if you want to shrink the button on mobile, you can: */
+  .top-bar-btn {
+    padding: 4px;
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
             }
           `}
         </style>
 
-        <div className="home-icon-container">
-          <a href="https://gautamfamily.org.np/" className="home-icon">
-            <FaHome />
-          </a>
-        </div>
-
         <div className="top-bar-wrapper">
-          {!isMobile && (
-            <ToggleView
-              isTableView={isTableView}
-              toggleView={toggleView}
-              availableId={id}
-            />
-          )}
+          <ToggleView
+            isTableView={isTableView}
+            toggleView={toggleView}
+            availableId={id}
+          />
+
           <a
             href="https://gautamfamily.org.np/"
             className="top-bar-btn flex-center"

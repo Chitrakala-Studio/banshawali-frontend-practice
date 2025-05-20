@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-
+import { FaSitemap, FaSearch } from "react-icons/fa";
+import { ArrowLeftRight } from "lucide-react";
 
 const FooterButtons = ({
   onGenerateFamilyTree,
@@ -82,26 +83,22 @@ const FooterButtons = ({
         onClick={() => navigate(`/compare/${id}`)}
         className="action-btn"
         aria-label="Compare"
-        
       >
-        
-        Compare
+        <ArrowLeftRight size={18} />
       </button>
       <button
         onClick={onGenerateFamilyTree}
         className="action-btn"
         aria-label="Generate Family Tree"
       >
-        
-        Family Tree
+        <FaSitemap size={18} />
       </button>
       <button
         onClick={onSearchButtonClick}
         className="action-btn"
         aria-label="Search"
       >
-        
-        Search
+        <FaSearch size={18} />
       </button>
     </div>
   );

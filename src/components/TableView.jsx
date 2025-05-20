@@ -9,7 +9,7 @@ import {
   FaHome,
   FaUserPlus,
   FaPlus,
-  FaSpinner 
+  FaSpinner,
 } from "react-icons/fa";
 import {
   NotebookPen,
@@ -23,7 +23,6 @@ import {
   Baby,
   Eye,
   Download,
- 
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
 import AddRelationModal from "./AddRelationModal";
@@ -70,7 +69,6 @@ const TableView = () => {
   const isModalOpen =
     isAdding || isEditing || isAddingChild || showSearchForm || showInfoPopup;
   const [lastSearchCriteria, setLastSearchCriteria] = useState(null);
-
 
   useEffect(() => {
     document.body.style.overflow = isModalOpen ? "hidden" : "auto";
@@ -449,41 +447,41 @@ const TableView = () => {
   };
 
   const fetchSearchResults = async (criteria, page = 1, replace = false) => {
-  setLoading(true);
-  try {
-    // Only include primitive values, skip objects/arrays and empty values
-    const paramsObj = {};
-    Object.entries(criteria).forEach(([key, value]) => {
-      if (
-        value !== undefined &&
-        value !== null &&
-        value !== "" &&
-        typeof value !== "object"
-      ) {
-        paramsObj[key] = value;
-      }
-    });
-    paramsObj.page = page;
-    const params = new URLSearchParams(paramsObj).toString();
-    const response = await fetch(`${API_URL}/people/people/search/?${params}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!response.ok) throw new Error("Search failed");
-    const result = await response.json();
-    const results = Array.isArray(result.data) ? result.data : [];
-    setFilteredData(prev =>
-      replace ? results : [...prev, ...results]
-    );
-    setHasMore(result.next !== null);
-  } catch (error) {
-    setFilteredData([]);
-    setHasMore(false);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    setLoading(true);
+    try {
+      // Only include primitive values, skip objects/arrays and empty values
+      const paramsObj = {};
+      Object.entries(criteria).forEach(([key, value]) => {
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          typeof value !== "object"
+        ) {
+          paramsObj[key] = value;
+        }
+      });
+      paramsObj.page = page;
+      const params = new URLSearchParams(paramsObj).toString();
+      const response = await fetch(
+        `${API_URL}/people/people/search/?${params}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Search failed");
+      const result = await response.json();
+      const results = Array.isArray(result.data) ? result.data : [];
+      setFilteredData((prev) => (replace ? results : [...prev, ...results]));
+      setHasMore(result.next !== null);
+    } catch (error) {
+      setFilteredData([]);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoBack = () => {
     if (id) {
@@ -555,10 +553,8 @@ const TableView = () => {
   };
 
   const handleSave = async (updatedRow) => {
-
     fetchData(1);
     setIsEditing(false);
-
   };
 
   const handleSaveNew = async (newData) => {
@@ -913,6 +909,26 @@ const TableView = () => {
             background-color: var(--secondary-light);
             color: var(--primary-dark);
           }
+
+          /* ensure the table always shows and scrolls on mobile */
+.table-wrapper {
+  overflow-x: auto;             /* allow horizontal scrolling */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* make your table take the full width, but allow a minimum width so columns don’t collapse */
+.table-wrapper table {
+  width: 100%;
+  min-width: 600px;             /* adjust to your number of columns */
+}
+
+/* remove any existing “display: none” on small screens */
+@media (max-width: 799px) {
+  .table-wrapper {
+    display: block !important;
+  }
+}
+
         `}
       </style>
 
@@ -931,13 +947,15 @@ const TableView = () => {
           </div>
           <div className="flex gap-4">
             {activeTab !== "data" && (
-                  <button onClick={() => navigate("/")} className="top-bar-btn flex-center">
-                     <FaArrowLeft />
-                    <span>Back to Table</span>
-                  </button>
-                  
-                )}
-              {(id || searchApplied) && (
+              <button
+                onClick={() => navigate("/")}
+                className="top-bar-btn flex-center"
+              >
+                <FaArrowLeft />
+                <span>Back to Table</span>
+              </button>
+            )}
+            {(id || searchApplied) && (
               <button
                 onClick={handleGoBack}
                 className="top-bar-btn flex-center"
@@ -950,8 +968,8 @@ const TableView = () => {
               <FaHome />
               <a href="https://gautamfamily.org.np/">Homepage</a>
             </button>
-            
-            {activeTab !== "suggestions" && !id &&  (
+
+            {activeTab !== "suggestions" && !id && (
               <button
                 onClick={() => setShowSearchForm(true)}
                 className="top-bar-btn flex-center"
@@ -960,12 +978,10 @@ const TableView = () => {
                 <span>Search User</span>
               </button>
             )}
-            
-            
+
             {isAdminLocal && (
               <>
-                
-                 {activeTab !== "suggestions" &&  !id && (
+                {activeTab !== "suggestions" && !id && (
                   <button
                     onClick={() => navigate("/suggestions")}
                     className="top-bar-btn flex-center"
@@ -1005,7 +1021,6 @@ const TableView = () => {
                     <span>View Admin</span>
                   </button>
                 )}
-                
               </>
             )}
 
@@ -1031,7 +1046,11 @@ const TableView = () => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = `${filteredData[0]?.name_in_nepali || filteredData[0]?.name || id}_वंशज.xlsx`;
+                    a.download = `${
+                      filteredData[0]?.name_in_nepali ||
+                      filteredData[0]?.name ||
+                      id
+                    }_वंशज.xlsx`;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
@@ -1054,7 +1073,7 @@ const TableView = () => {
         </div>
 
         {activeTab === "data" && (
-          <div className="table-wrapper flex-center">
+          <div className="table-wrapper overflow-x-auto">
             <table>
               <thead>
                 <tr>
@@ -1324,7 +1343,7 @@ const TableView = () => {
             },
             vansha_status: selectedRow?.same_vamsha_status ? "True" : "False",
             spouses: Array.isArray(selectedRow?.spouse)
-              ? selectedRow.spouse.map(s => ({
+              ? selectedRow.spouse.map((s) => ({
                   id: s.id,
                   name: s.name_in_nepali || s.name,
                 }))

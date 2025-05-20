@@ -30,7 +30,7 @@ const InfoSection = ({ person }) => {
           }
 
           .info-section {
-            padding-bottom: 100px;
+            padding-bottom: 45px;
             width: 100%;
           }
 
@@ -42,7 +42,7 @@ const InfoSection = ({ person }) => {
           }
 
           .info-box {
-            background: linear-gradient(to bottom, #fffaf0, #ffffff);
+            background-color: #fffaf0;
             padding: 16px;
             border-radius: 8px;
             border: 1px solid var(--neutral-gray);
@@ -111,7 +111,7 @@ const InfoSection = ({ person }) => {
             
   @media (max-width: 799px) {
     .info-section {
-      padding-bottom: 140px;
+      padding-bottom: 0.5px;
     }
 
   }
