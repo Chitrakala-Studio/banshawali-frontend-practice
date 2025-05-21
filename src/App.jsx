@@ -34,12 +34,7 @@ const AppRoutes = ({ isMobile }) => (
       <Route path="/card/:id" element={<CardView />} />
       <Route path="/compare/:id" element={<Compare />} />
       <Route path="/add-admin" element={<AddAdminPage />} />{" "}
-      {/* Add this route */}
-      {isMobile ? (
-        <Route path="/" element={<Navigate to="/card/1" />} />
-      ) : (
-        <Route path="/" element={<TableView />} />
-      )}
+      <Route path="/" element={<TableView />} />
       <Route path="/suggestions" element={<TableView />} />
       <Route path="/:id" element={<TableView />} />
       <Route path="/card" element={<Navigate to="/card/1" />} />

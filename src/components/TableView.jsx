@@ -19,9 +19,9 @@ import {
   Lightbulb,
   ArrowLeftRight,
   X as XIcon,
-  Upload,
   Baby,
   Eye,
+  Plus,
   Download,
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
@@ -910,6 +910,24 @@ const TableView = () => {
             color: var(--primary-dark);
           }
 
+          @media only screen and (max-width: 640px) {
+  .top-bar-btn {
+    /* much tighter padding */
+    padding: 4px 8px !important;
+    /* smaller text */
+    font-size: 12px !important;
+  }
+  /* if you want icon-only buttons on the smallest screens: */
+  .top-bar-btn span {
+    display: none !important;
+  }
+  .top-bar-btn svg {
+    /* center the icon perfectly */
+    margin: 0 !important;
+  }
+}
+
+
           /* ensure the table always shows and scrolls on mobile */
 .table-wrapper {
   overflow-x: auto;             /* allow horizontal scrolling */
@@ -933,7 +951,7 @@ const TableView = () => {
       </style>
 
       <div className={isModalOpen ? "blurred" : ""}>
-        <div className="flex items-center justify-between w-full mb-4">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between w-full mb-4 gap-2">
           <div className="flex items-center gap-4">
             <div
               style={{ display: activeTab === "suggestions" ? "none" : "flex" }}
@@ -949,7 +967,7 @@ const TableView = () => {
             {activeTab !== "data" && (
               <button
                 onClick={() => navigate("/")}
-                className="top-bar-btn flex-center"
+                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
               >
                 <FaArrowLeft />
                 <span>Back to Table</span>
@@ -958,13 +976,13 @@ const TableView = () => {
             {(id || searchApplied) && (
               <button
                 onClick={handleGoBack}
-                className="top-bar-btn flex-center"
+                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
               >
                 <FaArrowLeft />
                 <span>Back to Table</span>
               </button>
             )}
-            <button className="top-bar-btn flex-center">
+            <button className="hidden sm:flex top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm">
               <FaHome />
               <a href="https://gautamfamily.org.np/">Homepage</a>
             </button>
@@ -972,7 +990,7 @@ const TableView = () => {
             {activeTab !== "suggestions" && !id && (
               <button
                 onClick={() => setShowSearchForm(true)}
-                className="top-bar-btn flex-center"
+                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
               >
                 <FaSearch />
                 <span>Search User</span>
@@ -984,7 +1002,7 @@ const TableView = () => {
                 {activeTab !== "suggestions" && !id && (
                   <button
                     onClick={() => navigate("/suggestions")}
-                    className="top-bar-btn flex-center"
+                    className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
                     data-tooltip-id="tooltip"
                     data-tooltip-content="View Suggestions"
                   >
@@ -1007,15 +1025,16 @@ const TableView = () => {
                       });
                       setIsAdding(true);
                     }}
-                    className="top-bar-btn flex-center"
+                    className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
                   >
-                    <span>+ Add New User</span>
+                    <Plus size={18} />
+                    <span> Add New User</span>
                   </button>
                 )}
                 {activeTab !== "suggestions" && !id && (
                   <button
                     onClick={() => navigate("/add-admin")}
-                    className="top-bar-btn flex-center"
+                    className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
                   >
                     <FaUserPlus />
                     <span>View Admin</span>
@@ -1063,7 +1082,7 @@ const TableView = () => {
                     });
                   }
                 }}
-                className="top-bar-btn flex-center"
+                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
               >
                 <Download size={18} />
                 <span>Download</span>
