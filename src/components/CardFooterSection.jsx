@@ -13,6 +13,8 @@ const CardFooterSection = ({
   onToggleInfo,
   convertToNepaliNumerals,
   person,
+  isNameAtTop,
+  onMoveName,
 }) => {
   const isPopupActive =
     isExpanded && infoPopup === (person?.name || person?.name_in_nepali);
@@ -32,83 +34,162 @@ const CardFooterSection = ({
 
           .card-footer-section {
             position: fixed;
-             bottom: ${isMobile ? "0" : "2rem"};
-             left:     ${isMobile ? "0" : "50%"};
-  
-        transform:${isMobile ? "none" : "translateX(-50%)"};
+            bottom: ${isMobile ? "0" : "2rem"};
+            left: ${isMobile ? "0" : "50%"};
+            transform: ${isMobile ? "none" : "translateX(-50%)"};
             width: ${isMobile ? "100vw" : "40vw"};
             z-index: 10;
           }
 
           .footer-container {
-            background-color: var(--primary-dark);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            padding: 24px 24px 16px;
+            background-color: ${
+              isMobile ? "transparent" : "var(--primary-dark)"
+            };
+            box-shadow: ${isMobile ? "none" : "0 4px 12px rgba(0, 0, 0, 0.2)"};
+            padding: ${isMobile ? "8px" : "24px 24px 16px"};
             position: relative;
-            border-radius: 15px;
-            mask-image: radial-gradient(60% 40px at 50% 0, transparent 98%, black);
-            -webkit-mask-image: radial-gradient(60% 40px at 50% 0, transparent 98%, black);
+            border-radius: ${isMobile ? "0" : "15px"};
+            mask-image: ${
+              isMobile
+                ? "none"
+                : "radial-gradient(60% 40px at 50% 0, transparent 98%, black)"
+            };
+            -webkit-mask-image: ${
+              isMobile
+                ? "none"
+                : "radial-gradient(60% 40px at 50% 0, transparent 98%, black)"
+            };
           }
 
           .footer-content {
             display: flex;
             align-items: center;
-            margin-bottom: 16px;
-            margin-top: 8px;
+            margin-bottom: ${isMobile ? "0" : "16px"};
+            margin-top: ${isMobile ? "0" : "8px"};
+            justify-content: ${isMobile ? "space-between" : "flex-start"};
           }
 
           .person-info {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: ${isMobile ? "4px" : "8px"};
           }
 
           .person-name {
             font-family: 'Merriweather', serif;
-            font-size: 18px;
+            font-size: ${isMobile ? "14px" : "18px"};
             font-weight: 600;
-            color: #b9bac3;
-            padding: 8px;
-            background-color: rgba(46, 69, 104, 0.2);
-            border-radius: 6px;
-            // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: ${isMobile ? "#d1d5db" : "#b9bac3"};
+            padding: ${isMobile ? "4px" : "8px"};
+            background-color: ${
+              isMobile ? "transparent" : "rgba(46, 69, 104, 0.2)"
+            };
+            border-radius: ${isMobile ? "0" : "6px"};
           }
 
           .highlight {
-            color: #e9d4b0;
+            color: ${isMobile ? "rgba(244, 157, 55, 0.8)" : "#e9d4b0"};
           }
 
           .toggle-btn {
-            padding: 3px;
-            color: #b9bac3;
-            font-size: 20px;
-            background: linear-gradient(135deg, #2e4568 0%, #5a6f94 100%);
-            border: 1px solid #d1d5db;
+            padding: ${isMobile ? "2px" : "3px"};
+            color: ${isMobile ? "#000000" : "#b9bac3"};
+            font-size: ${isMobile ? "18px" : "20px"};
+            background: ${
+              isMobile
+                ? "#fff8dc"
+                : "linear-gradient(135deg, #2e4568 0%, #5a6f94 100%)"
+            };
+            border: ${isMobile ? "1px solid #d1d5db" : "1px solid #d1d5db"};
             border-radius: 50%;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2),
-                      inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            box-shadow: ${
+              isMobile
+                ? "none"
+                : "0 4px 6px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1)"
+            };
             transition: all 0.3s ease;
             cursor: pointer;
+            width: ${isMobile ? "30px" : "auto"};
+            height: ${isMobile ? "30px" : "auto"};
+            display: ${isMobile ? "flex" : "block"};
+            align-items: ${isMobile ? "center" : "initial"};
+            justify-content: ${isMobile ? "center" : "initial"};
           }
 
           .toggle-btn:hover,
           .toggle-btn:focus {
-            background: linear-gradient(135deg, #e9d4b0 0%, #c7b299 100%);
-            color: #000000;
+            background: ${
+              isMobile
+                ? "#fff8dc"
+                : "linear-gradient(135deg, #e9d4b0 0%, #c7b299 100%)"
+            };
+            color: ${isMobile ? "#000000" : "#000000"};
             transform: scale(1.05);
             outline: none;
           }
 
           .toggle-icon {
             transition: transform 0.3s ease;
-            padding: 3px;
+            padding: ${isMobile ? "0" : "3px"};
+            color: ${isMobile ? "#000000" : "inherit"};
+          }
+
+          @media (max-width: 799px) {
+            .footer-container {
+              padding: 8px;
+            }
+
+            .footer-content {
+              justify-content: space-between;
+              margin: 0;
+            }
+
+            .person-info {
+              gap: 4px;
+            }
+
+            .person-name {
+              font-size: 14px;
+              color: #d1d5db;
+              padding: 4px;
+              background-color: transparent;
+              border-radius: 0;
+            }
+
+            .highlight {
+              color: rgba(244, 157, 55, 0.8);
+            }
+
+            .toggle-btn {
+              background: #fff8dc;
+              border: 1px solid #d1d5db;
+              color: #000000;
+              width: 30px;
+              height: 30px;
+              padding: 2px;
+              font-size: 18px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .toggle-btn:hover,
+            .toggle-btn:focus {
+              background: #fff8dc;
+              color: #000000;
+            }
+
+            .toggle-icon {
+              padding: 0;
+              color: #000000;
+            }
           }
         `}
       </style>
 
       <div className="footer-container">
         <div className="footer-content">
-          {!isPopupActive && (
+          {!isPopupActive && !isNameAtTop && (
             <div className="person-info">
               <h2 className="person-name">
                 {person?.name_in_nepali || person?.name || "-"}
@@ -121,21 +202,43 @@ const CardFooterSection = ({
               </h2>
             </div>
           )}
+
           <div style={{ flexGrow: 1 }} />
-          <button
-            className="toggle-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleInfo(person);
-            }}
-            aria-label={isExpanded ? "Collapse info" : "Expand info"}
-          >
-            {isExpanded ? (
-              <FaArrowDown className="toggle-icon" />
-            ) : (
-              <FaArrowUp className="toggle-icon" />
-            )}
-          </button>
+
+          {!(isMobile && isNameAtTop) && (
+            <button
+              className="toggle-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isMobile) {
+                  onMoveName();
+                } else {
+                  onToggleInfo(person);
+                }
+              }}
+              aria-label={
+                isMobile
+                  ? isNameAtTop
+                    ? "Move back"
+                    : "Move to top"
+                  : isExpanded
+                  ? "Collapse info"
+                  : "Expand info"
+              }
+            >
+              {isMobile ? (
+                isNameAtTop ? (
+                  <FaArrowDown className="toggle-icon" />
+                ) : (
+                  <FaArrowUp className="toggle-icon" />
+                )
+              ) : isExpanded ? (
+                <FaArrowUp className="toggle-icon" />
+              ) : (
+                <FaArrowDown className="toggle-icon" />
+              )}
+            </button>
+          )}
         </div>
 
         <FooterButtons
@@ -164,6 +267,8 @@ CardFooterSection.propTypes = {
     name: PropTypes.string,
     pusta_number: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,
+  isNameAtTop: PropTypes.bool,
+  onMoveName: PropTypes.func,
 };
 
 export default CardFooterSection;

@@ -34,47 +34,106 @@ const FooterButtons = ({
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 16px;
-            gap: 16px;
+            padding: ${isMobile ? "8px" : "16px"};
+            gap: ${isMobile ? "8px" : "16px"};
+            background-color: ${isMobile ? "transparent" : "transparent"};
           }
 
           .action-btn {
-            flex: 1;
+            flex: ${isMobile ? "0 0 auto" : "1"};
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 6px;
-            background: linear-gradient(135deg, #2E4568 0%, #5A6F94 100%);
-            border: 1px solid var(--neutral-gray);
-            border-radius: 9999px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2),
-                      inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            padding: ${isMobile ? "8px" : "8px 6px"};
+            background: ${
+              isMobile
+                ? "#fff8dc"
+                : "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)"
+            };
+            border: ${
+              isMobile ? "1px solid #d1d5db" : "1px solid var(--neutral-gray)"
+            };
+            border-radius: ${isMobile ? "50%" : "9999px"};
+            box-shadow: ${
+              isMobile
+                ? "none"
+                : "0 4px 6px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1)"
+            };
             font-family: 'Merriweather', serif;
-            font-size: 14px;
+            font-size: ${isMobile ? "0" : "14px"};
             font-weight: 500;
-            color: #b9bac3;
+            color: ${isMobile ? "#000000" : "#b9bac3"};
             transition: all 0.3s ease;
             cursor: pointer;
+            width: ${isMobile ? "36px" : "auto"};
+            height: ${isMobile ? "36px" : "auto"};
           }
 
           .action-btn:hover,
           .action-btn:focus {
-            background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--secondary-bg-hover) 100%);
-            color: #000000;
+            background: ${
+              isMobile
+                ? "#fff8dc"
+                : "linear-gradient(135deg, var(--secondary-bg) 0%, var(--secondary-bg-hover) 100%)"
+            };
+            color: ${isMobile ? "#000000" : "#000000"};
             outline: none;
           }
 
           .action-btn:hover svg,
           .action-btn:focus svg {
-            color: #000000;
+            color: ${isMobile ? "#000000" : "#000000"};
           }
 
           .icon {
-            margin-right: 8px;
-            width: 20px;
-            height: 20px;
-            color: #b9bac3;
+            margin-right: ${isMobile ? "0" : "8px"};
+            width: ${isMobile ? "18px" : "20px"};
+            height: ${isMobile ? "18px" : "20px"};
+            color: ${isMobile ? "#000000" : "#b9bac3"};
             transition: color 0.3s ease;
+          }
+
+          @media (max-width: 799px) {
+            .footer-buttons {
+              background-color: transparent;
+              justify-content: center;
+              gap: 8px;
+              padding: 8px;
+            }
+
+            .action-btn {
+              background: #fff8dc;
+              border: 1px solid #d1d5db;
+              border-radius: 50%;
+              padding: 8px;
+              width: 36px;
+              height: 36px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .action-btn:hover,
+            .action-btn:focus {
+              background: #fff8dc;
+              color: #000000;
+            }
+
+            .action-btn svg {
+              margin-right: 0;
+              color: #000000;
+            }
+
+            .action-btn:hover svg,
+            .action-btn:focus svg {
+              color: #000000;
+            }
+
+            .icon {
+              width: 18px;
+              height: 18px;
+              color: #000000;
+            }
           }
         `}
       </style>

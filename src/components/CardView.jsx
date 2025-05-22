@@ -9,7 +9,7 @@ import CardFooterSection from "./CardFooterSection";
 import SearchForm from "./SearchForm";
 import male from "./male1.png";
 import female from "./female1.png";
-import { FaHome, FaSpinner } from "react-icons/fa";
+import { FaHome, FaSpinner, FaArrowDown, FaArrowUp } from "react-icons/fa";
 
 const CardView = () => {
   const { id } = useParams();
@@ -29,6 +29,7 @@ const CardView = () => {
   const [showSearchPopup, setShowSearchPopup] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isNameAtTop, setIsNameAtTop] = useState(false); // Only for mobile
 
   const API_URL = import.meta.env.VITE_API_URL;
   const MAX_CARD_ID = 4000;
@@ -68,7 +69,7 @@ const CardView = () => {
         if (result_data.length > 0) {
           setCurrentIndex(0);
         } else {
-          navigate(`/`);
+          navigate("/");
         }
       } catch (err) {
         setError(err);
@@ -78,7 +79,6 @@ const CardView = () => {
     fetchData();
   }, [id, isSearchActive, navigate]);
 
-  // Update URL when currentIndex changes during search
   useEffect(() => {
     if (isSearchActive && data.length > 0 && data[currentIndex]?.id) {
       navigate(`/card/${data[currentIndex].id}`, { replace: true });
@@ -103,6 +103,13 @@ const CardView = () => {
     } else {
       setInfoPopup(displayName);
       setIsExpanded(true);
+    }
+  };
+
+  const handleMoveName = () => {
+    if (isMobile) {
+      setIsNameAtTop(!isNameAtTop);
+      setIsExpanded(!isExpanded); // Toggle expanded state for mobile
     }
   };
 
@@ -134,7 +141,6 @@ const CardView = () => {
       return;
     }
 
-    // Navigate to a completely random card ID
     const randomId = Math.floor(Math.random() * MAX_CARD_ID) + 1;
     navigate(`/card/${randomId}`);
   };
@@ -151,7 +157,6 @@ const CardView = () => {
       return;
     }
 
-    // Navigate to a completely random card ID
     const randomId = Math.floor(Math.random() * MAX_CARD_ID) + 1;
     navigate(`/card/${randomId}`);
   };
@@ -162,11 +167,22 @@ const CardView = () => {
   };
 
   const convertToNepaliNumerals = (number) => {
-    const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+    const nepaliNumerals = [
+      "०",
+      "１",
+      "２",
+      "３",
+      "４",
+      "５",
+      "６",
+      "７",
+      "８",
+      "９",
+    ];
     return number
       .toString()
       .split("")
-      .map((d) => nepaliNumerals[d])
+      .map((d) => nepaliNumerals[parseInt(d)] || d)
       .join("");
   };
 
@@ -182,7 +198,6 @@ const CardView = () => {
               --header-maroon: #800000;
               --neutral-gray: #D1D5DB;
             }
-
             .loading-container {
               display: flex;
               justify-content: center;
@@ -208,7 +223,6 @@ const CardView = () => {
               --header-maroon: #800000;
               --neutral-gray: #D1D5DB;
             }
-
             .error-container {
               display: flex;
               align-items: center;
@@ -237,7 +251,6 @@ const CardView = () => {
               --header-maroon: #800000;
               --neutral-gray: #D1D5DB;
             }
-
             .no-results-container {
               display: flex;
               align-items: center;
@@ -335,6 +348,7 @@ const CardView = () => {
               align-items: center;
               justify-content: space-between;
               padding: 10px 20px;
+              flex-wrap: wrap;
             }
 
             .top-bar-btn {
@@ -387,6 +401,26 @@ const CardView = () => {
               gap: 8px;
             }
 
+            .name-at-top {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              color: var(--secondary-light);
+              background-color: var(--primary-dark);
+              padding: 8px 16px;
+              border-radius: 6px;
+              font-family: 'Merriweather', serif;
+              font-size: 16px;
+              margin-left: auto; /* Align to the right */
+            }
+
+            .name-at-top button {
+              background: transparent;
+              border: none;
+              color: var(--secondary-light);
+              cursor: pointer;
+            }
+
             @media (min-width: 800px) {
               .card-view-container {
                 padding: 20px;
@@ -413,79 +447,81 @@ const CardView = () => {
                 max-height: 90vh;
                 padding: 24px;
               }
+
+              .name-at-top {
+                display: none; /* Disable name-at-top for web view */
+              }
             }
 
-         @media (max-width: 799px) {
-  /* Hide the Homepage text span */
-  .top-bar-text {
-    display: none;
-  }
-
-  /* Turn the pill-button into an icon only, colored orange */
-  .top-bar-btn {
-    background: transparent !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    color: var(--gold-accent) !important;  /* sets currentColor for the icon */
-  }
-
-  /* Make sure the SVG itself is using that orange */
-  .top-bar-btn svg {
-    color: var(--gold-accent);
-    width: 24px;
-    height: 24px;
-  }
-}
-
-
-
-              .home-icon-container {
-                position: absolute !important;
-                top: 8px;
-                left: 8px;
-                z-index: 20;
+            @media (max-width: 799px) {
+              .top-bar-wrapper {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding: 8px 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                z-index: 30;
               }
 
               .card-container {
-                border-radius: 0;
-                box-shadow: none;
-                height: calc(100vh - 60px);
-                position: relative;
-                top: -20px;
+                margin-top: 56px;
+                top: auto !important;
+                position: relative !important;
               }
-                @media (max-width: 799px) {
-  /* hide the old floating icon */
-  .home-icon-container {
-    display: none;
-  }
 
-  /* float the one top-bar absolutely above the card */
-  .top-bar-wrapper {
-    position: absolute;
-    top: 8px;
-    left: 0;
-    right: 0;
-    padding: 0 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 30; /* above the card */
-  }
+              .top-bar-btn {
+                padding: 4px;
+                background: transparent !important;
+                box-shadow: none !important;
+              }
 
-  /* hide the word “Homepage” and keep only the icon */
-  .top-bar-text {
-    display: none;
-  }
+              .top-bar-btn span {
+                display: none;
+              }
 
-  /* if you want to shrink the button on mobile, you can: */
-  .top-bar-btn {
-    padding: 4px;
-    background: transparent;
-    box-shadow: none;
-  }
-}
+              .top-bar-text {
+                display: none;
+              }
 
+              .top-bar-btn {
+                background: transparent !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                color: var(--gold-accent) !important;
+              }
+
+              .top-bar-btn svg {
+                color: var(--gold-accent);
+                width: 24px;
+                height: 24px;
+              }
+
+              .mobile-info-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: var(--primary-dark);
+                color: var(--secondary-light);
+              }
+
+              .mobile-person-name {
+                margin: 0;
+                font-family: 'Merriweather', serif;
+                font-size: 18px;
+              }
+
+              .toggle-btn {
+                background: transparent;
+                border: none;
+                color: var(--secondary-light);
+                font-size: 20px;
+                cursor: pointer;
+              }
             }
           `}
         </style>
@@ -502,63 +538,100 @@ const CardView = () => {
             className="top-bar-btn flex-center"
           >
             <FaHome />
-            Homepage
+            <span className="top-bar-text">Homepage</span>
           </a>
+
+          {isMobile && isNameAtTop && (
+            <div className="name-at-top">
+              <span>
+                {currentPerson?.name_in_nepali || currentPerson?.name || "-"}
+              </span>
+              <button
+                onClick={handleMoveName}
+                aria-label={isExpanded ? "Collapse" : "Expand"}
+              >
+                {isExpanded ? (
+                  <FaArrowDown size={20} />
+                ) : (
+                  <FaArrowUp size={20} />
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="card-container">
-          {isInfoOpen ? (
-            <div className="card-wrapper">
-              <CardImageSection
-                person={currentPerson}
-                isExpanded={isExpanded}
-                onScrollLeft={scrollLeft}
-                onScrollRight={scrollRight}
-                isHovered={isHovered}
-                onSwipe={() => {}}
+        {isMobile && isExpanded && !isNameAtTop ? (
+          <div className="mobile-info-header">
+            <h2 className="mobile-person-name">
+              {currentPerson?.name_in_nepali || currentPerson?.name || "-"}
+            </h2>
+            <button
+              className="toggle-btn"
+              onClick={handleMoveName}
+              aria-label={isExpanded ? "Move to Top" : "Expand"}
+            >
+              {isExpanded ? <FaArrowUp size={20} /> : <FaArrowDown size={20} />}
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="card-container">
+              {isInfoOpen ? (
+                <div className="card-wrapper">
+                  <CardImageSection
+                    person={currentPerson}
+                    isExpanded={isExpanded}
+                    onScrollLeft={scrollLeft}
+                    onScrollRight={scrollRight}
+                    isHovered={isHovered}
+                    onSwipe={() => {}}
+                    isMobile={isMobile}
+                    maleImage={male}
+                    femaleImage={female}
+                    convertToNepaliNumerals={convertToNepaliNumerals}
+                    onToggleInfo={handleToggleInfo}
+                  />
+                </div>
+              ) : (
+                <TinderCard
+                  className="card-wrapper"
+                  preventSwipe={["up", "down"]}
+                  onSwipe={handleSwipe}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <CardImageSection
+                    person={currentPerson}
+                    isExpanded={isExpanded}
+                    onScrollLeft={scrollLeft}
+                    onScrollRight={scrollRight}
+                    isHovered={isHovered}
+                    onSwipe={handleSwipe}
+                    isMobile={isMobile}
+                    maleImage={male}
+                    femaleImage={female}
+                    convertToNepaliNumerals={convertToNepaliNumerals}
+                    onToggleInfo={handleToggleInfo}
+                  />
+                </TinderCard>
+              )}
+
+              <CardFooterSection
+                id={id}
+                onGenerateFamilyTree={handleFooterGenerate}
+                infoPopup={infoPopup}
                 isMobile={isMobile}
-                maleImage={male}
-                femaleImage={female}
-                convertToNepaliNumerals={convertToNepaliNumerals}
+                onSearchButtonClick={() => setShowSearchPopup(true)}
+                isExpanded={isExpanded}
                 onToggleInfo={handleToggleInfo}
+                onMoveName={handleMoveName}
+                isNameAtTop={isNameAtTop}
+                convertToNepaliNumerals={convertToNepaliNumerals}
+                person={currentPerson}
               />
             </div>
-          ) : (
-            <TinderCard
-              className="card-wrapper"
-              preventSwipe={["up", "down"]}
-              onSwipe={handleSwipe}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              <CardImageSection
-                person={currentPerson}
-                isExpanded={isExpanded}
-                onScrollLeft={scrollLeft}
-                onScrollRight={scrollRight}
-                isHovered={isHovered}
-                onSwipe={handleSwipe}
-                isMobile={isMobile}
-                maleImage={male}
-                femaleImage={female}
-                convertToNepaliNumerals={convertToNepaliNumerals}
-                onToggleInfo={handleToggleInfo}
-              />
-            </TinderCard>
-          )}
-
-          <CardFooterSection
-            id={id}
-            onGenerateFamilyTree={handleFooterGenerate}
-            infoPopup={infoPopup}
-            isMobile={isMobile}
-            onSearchButtonClick={() => setShowSearchPopup(true)}
-            isExpanded={isExpanded}
-            onToggleInfo={handleToggleInfo}
-            convertToNepaliNumerals={convertToNepaliNumerals}
-            person={currentPerson}
-          />
-        </div>
+          </>
+        )}
 
         {selectedPerson && (
           <div className="family-tree-modal">
