@@ -28,111 +28,60 @@ const FooterButtons = ({
             --secondary-bg: #E9D4B0;
             --secondary-bg-hover: #D9C4A0;
           }
-
           .footer-buttons {
             width: 100%;
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             align-items: center;
-            padding: ${isMobile ? "8px" : "16px"};
-            gap: ${isMobile ? "8px" : "16px"};
-            background-color: ${isMobile ? "transparent" : "transparent"};
+            padding: ${isMobile ? "12px 0 16px 0" : "16px"};
+            gap: ${isMobile ? "24px" : "16px"};
+            background: none !important;
+            box-shadow: none !important;
+            border-top: none !important;
           }
-
           .action-btn {
-            flex: ${isMobile ? "0 0 auto" : "1"};
+            flex: 0 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: ${isMobile ? "8px" : "8px 6px"};
-            background: ${
-              isMobile
-                ? "#fff8dc"
-                : "linear-gradient(135deg, #2E4568 0%, #5A6F94 100%)"
-            };
-            border: ${
-              isMobile ? "1px solid #d1d5db" : "1px solid var(--neutral-gray)"
-            };
-            border-radius: ${isMobile ? "50%" : "9999px"};
-            box-shadow: ${
-              isMobile
-                ? "none"
-                : "0 4px 6px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1)"
-            };
-            font-family: 'Merriweather', serif;
-            font-size: ${isMobile ? "0" : "14px"};
-            font-weight: 500;
-            color: ${isMobile ? "#000000" : "#b9bac3"};
-            transition: all 0.3s ease;
-            cursor: pointer;
-            width: ${isMobile ? "36px" : "auto"};
-            height: ${isMobile ? "36px" : "auto"};
+            padding: 10px;
+            background: transparent !important;
+            border: 1px solid #d1d5db;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            font-size: 0;
+            color: #000000;
+            transition: all 0.2s;
+            width: 44px;
+            height: 44px;
           }
-
+          .action-btn svg {
+            color: #2E4568;
+            width: 22px;
+            height: 22px;
+          }
           .action-btn:hover,
           .action-btn:focus {
-            background: ${
-              isMobile
-                ? "#fff8dc"
-                : "linear-gradient(135deg, var(--secondary-bg) 0%, var(--secondary-bg-hover) 100%)"
-            };
-            color: ${isMobile ? "#000000" : "#000000"};
+            background: rgba(244, 157, 55, 0.12) !important;
+            color: #000000;
             outline: none;
           }
-
           .action-btn:hover svg,
           .action-btn:focus svg {
-            color: ${isMobile ? "#000000" : "#000000"};
+            color: #F49D37;
           }
-
-          .icon {
-            margin-right: ${isMobile ? "0" : "8px"};
-            width: ${isMobile ? "18px" : "20px"};
-            height: ${isMobile ? "18px" : "20px"};
-            color: ${isMobile ? "#000000" : "#b9bac3"};
-            transition: color 0.3s ease;
-          }
-
           @media (max-width: 799px) {
             .footer-buttons {
-              background-color: transparent;
-              justify-content: center;
-              gap: 8px;
-              padding: 8px;
+              gap: 24px;
+              padding: 12px 0 16px 0;
+              background: none !important;
+              border-top: none !important;
+              box-shadow: none !important;
             }
-
             .action-btn {
-              background: #fff8dc;
-              border: 1px solid #d1d5db;
-              border-radius: 50%;
-              padding: 8px;
-              width: 36px;
-              height: 36px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
-
-            .action-btn:hover,
-            .action-btn:focus {
-              background: #fff8dc;
-              color: #000000;
-            }
-
-            .action-btn svg {
-              margin-right: 0;
-              color: #000000;
-            }
-
-            .action-btn:hover svg,
-            .action-btn:focus svg {
-              color: #000000;
-            }
-
-            .icon {
-              width: 18px;
-              height: 18px;
-              color: #000000;
+              width: 44px;
+              height: 44px;
+              background: transparent !important;
             }
           }
         `}

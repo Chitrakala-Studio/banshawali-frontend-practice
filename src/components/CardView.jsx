@@ -454,184 +454,155 @@ const CardView = () => {
             }
 
             @media (max-width: 799px) {
-              .top-bar-wrapper {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                padding: 8px 16px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                z-index: 30;
-              }
-
-              .card-container {
-                margin-top: 56px;
-                top: auto !important;
-                position: relative !important;
-              }
-
-              .top-bar-btn {
-                padding: 4px;
-                background: transparent !important;
-                box-shadow: none !important;
-              }
-
-              .top-bar-btn span {
-                display: none;
-              }
-
-              .top-bar-text {
-                display: none;
-              }
-
-              .top-bar-btn {
-                background: transparent !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
-                color: var(--gold-accent) !important;
-              }
-
-              .top-bar-btn svg {
-                color: var(--gold-accent);
-                width: 24px;
-                height: 24px;
-              }
-
-              .mobile-info-header {
+              .mobile-header-bar {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 padding: 12px 16px;
                 background: var(--primary-dark);
                 color: var(--secondary-light);
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 30;
               }
-
-              .mobile-person-name {
-                margin: 0;
+              .mobile-header-bar .person-name {
                 font-family: 'Merriweather', serif;
                 font-size: 18px;
+                font-weight: 600;
+                color: var(--secondary-light);
+                margin: 0;
+                flex: 1;
+                text-align: left;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
               }
-
-              .toggle-btn {
+              .mobile-header-bar .toggle-btn {
                 background: transparent;
                 border: none;
                 color: var(--secondary-light);
                 font-size: 20px;
                 cursor: pointer;
+                margin-left: 8px;
+              }
+              .card-container {
+                margin-top: 56px;
               }
             }
           `}
         </style>
-
-        <div className="top-bar-wrapper">
-          <ToggleView
-            isTableView={isTableView}
-            toggleView={toggleView}
-            availableId={id}
-          />
-
-          <a
-            href="https://gautamfamily.org.np/"
-            className="top-bar-btn flex-center"
-          >
-            <FaHome />
-            <span className="top-bar-text">Homepage</span>
-          </a>
-
-          {isMobile && isNameAtTop && (
-            <div className="name-at-top">
-              <span>
-                {currentPerson?.name_in_nepali || currentPerson?.name || "-"}
-              </span>
-              <button
-                onClick={handleMoveName}
-                aria-label={isExpanded ? "Collapse" : "Expand"}
-              >
-                {isExpanded ? (
-                  <FaArrowDown size={20} />
-                ) : (
-                  <FaArrowUp size={20} />
-                )}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {isMobile && isExpanded && !isNameAtTop ? (
-          <div className="mobile-info-header">
-            <h2 className="mobile-person-name">
+        {/* Mobile header: show toggle/homepage if popup is not open, else show name+arrow */}
+        {isMobile && !isExpanded && (
+          <div className="top-bar-wrapper" style={{position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, background: 'var(--primary-dark)', padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+            <ToggleView
+              isTableView={isTableView}
+              toggleView={toggleView}
+              availableId={id}
+            />
+            <a
+              href="https://gautamfamily.org.np/"
+              className="top-bar-btn flex-center"
+              style={{background: 'transparent', color: 'var(--gold-accent)', boxShadow: 'none', borderRadius: '50%', padding: 0}}
+            >
+              <FaHome style={{fontSize: 24}} />
+            </a>
+          </div>
+        )}
+        {isMobile && isExpanded && currentPerson && (
+          <div className="mobile-header-bar" style={{position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, background: 'var(--primary-dark)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px'}}>
+            <span className="person-name">
               {currentPerson?.name_in_nepali || currentPerson?.name || "-"}
-            </h2>
+            </span>
             <button
               className="toggle-btn"
               onClick={handleMoveName}
-              aria-label={isExpanded ? "Move to Top" : "Expand"}
+              aria-label={isExpanded ? "Collapse" : "Expand"}
             >
-              {isExpanded ? <FaArrowUp size={20} /> : <FaArrowDown size={20} />}
+              {isExpanded ? <FaArrowDown size={20} /> : <FaArrowUp size={20} />}
             </button>
           </div>
-        ) : (
-          <>
-            <div className="card-container">
-              {isInfoOpen ? (
-                <div className="card-wrapper">
-                  <CardImageSection
-                    person={currentPerson}
-                    isExpanded={isExpanded}
-                    onScrollLeft={scrollLeft}
-                    onScrollRight={scrollRight}
-                    isHovered={isHovered}
-                    onSwipe={() => {}}
-                    isMobile={isMobile}
-                    maleImage={male}
-                    femaleImage={female}
-                    convertToNepaliNumerals={convertToNepaliNumerals}
-                    onToggleInfo={handleToggleInfo}
-                  />
-                </div>
-              ) : (
-                <TinderCard
-                  className="card-wrapper"
-                  preventSwipe={["up", "down"]}
-                  onSwipe={handleSwipe}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                >
-                  <CardImageSection
-                    person={currentPerson}
-                    isExpanded={isExpanded}
-                    onScrollLeft={scrollLeft}
-                    onScrollRight={scrollRight}
-                    isHovered={isHovered}
-                    onSwipe={handleSwipe}
-                    isMobile={isMobile}
-                    maleImage={male}
-                    femaleImage={female}
-                    convertToNepaliNumerals={convertToNepaliNumerals}
-                    onToggleInfo={handleToggleInfo}
-                  />
-                </TinderCard>
-              )}
+        )}
+        {/* Desktop header: keep as is */}
+        {!isMobile && (
+          <div className="top-bar-wrapper">
+            <ToggleView
+              isTableView={isTableView}
+              toggleView={toggleView}
+              availableId={id}
+            />
+            <a
+              href="https://gautamfamily.org.np/"
+              className="top-bar-btn flex-center"
+            >
+              <FaHome />
+              <span className="top-bar-text">Homepage</span>
+            </a>
+          </div>
+        )}
 
-              <CardFooterSection
-                id={id}
-                onGenerateFamilyTree={handleFooterGenerate}
-                infoPopup={infoPopup}
-                isMobile={isMobile}
-                onSearchButtonClick={() => setShowSearchPopup(true)}
-                isExpanded={isExpanded}
-                onToggleInfo={handleToggleInfo}
-                onMoveName={handleMoveName}
-                isNameAtTop={isNameAtTop}
-                convertToNepaliNumerals={convertToNepaliNumerals}
+        <div className="card-container">
+          {isInfoOpen ? (
+            <div className="card-wrapper" style={{paddingBottom: isMobile ? 80 : 0}}>
+              <CardImageSection
                 person={currentPerson}
+                isExpanded={isExpanded}
+                onScrollLeft={scrollLeft}
+                onScrollRight={scrollRight}
+                isHovered={isHovered}
+                onSwipe={() => {}}
+                isMobile={isMobile}
+                maleImage={male}
+                femaleImage={female}
+                convertToNepaliNumerals={convertToNepaliNumerals}
+                onToggleInfo={handleToggleInfo}
               />
             </div>
-          </>
-        )}
+          ) : (
+            <TinderCard
+              className="card-wrapper"
+              preventSwipe={["up", "down"]}
+              onSwipe={handleSwipe}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <CardImageSection
+                person={currentPerson}
+                isExpanded={isExpanded}
+                onScrollLeft={scrollLeft}
+                onScrollRight={scrollRight}
+                isHovered={isHovered}
+                onSwipe={handleSwipe}
+                isMobile={isMobile}
+                maleImage={male}
+                femaleImage={female}
+                convertToNepaliNumerals={convertToNepaliNumerals}
+                onToggleInfo={handleToggleInfo}
+              />
+            </TinderCard>
+          )}
+
+          <CardFooterSection
+            id={id}
+            onGenerateFamilyTree={handleFooterGenerate}
+            infoPopup={infoPopup}
+            isMobile={isMobile}
+            onSearchButtonClick={() => setShowSearchPopup(true)}
+            isExpanded={isExpanded}
+            onToggleInfo={handleToggleInfo}
+            onMoveName={handleMoveName}
+            isNameAtTop={isNameAtTop}
+            convertToNepaliNumerals={convertToNepaliNumerals}
+            person={{
+              ...currentPerson,
+              // Ensure pusta_number is always shown in Nepali numerals
+              pusta_number: currentPerson?.pusta_number
+                ? convertToNepaliNumerals(currentPerson.pusta_number)
+                : "-",
+            }}
+          />
+        </div>
 
         {selectedPerson && (
           <div className="family-tree-modal">

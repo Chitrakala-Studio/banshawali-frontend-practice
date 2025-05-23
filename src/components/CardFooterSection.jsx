@@ -20,7 +20,7 @@ const CardFooterSection = ({
     isExpanded && infoPopup === (person?.name || person?.name_in_nepali);
 
   return (
-    <div className="card-footer-section">
+    <div className="card-footer-section" style={{position: isMobile ? 'fixed' : 'absolute', bottom: 0, left: 0, width: '100vw', zIndex: 50, pointerEvents: 'auto', background: 'none', border: 'none', boxShadow: 'none'}}>
       <style>
         {`
           :root {
@@ -42,23 +42,10 @@ const CardFooterSection = ({
           }
 
           .footer-container {
-            background-color: ${
-              isMobile ? "transparent" : "var(--primary-dark)"
-            };
-            box-shadow: ${isMobile ? "none" : "0 4px 12px rgba(0, 0, 0, 0.2)"};
-            padding: ${isMobile ? "8px" : "24px 24px 16px"};
-            position: relative;
-            border-radius: ${isMobile ? "0" : "15px"};
-            mask-image: ${
-              isMobile
-                ? "none"
-                : "radial-gradient(60% 40px at 50% 0, transparent 98%, black)"
-            };
-            -webkit-mask-image: ${
-              isMobile
-                ? "none"
-                : "radial-gradient(60% 40px at 50% 0, transparent 98%, black)"
-            };
+            background: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
           }
 
           .footer-content {
@@ -135,8 +122,15 @@ const CardFooterSection = ({
           }
 
           @media (max-width: 799px) {
+            .card-container {
+              padding-bottom: 80px !important;
+            }
+
             .footer-container {
-              padding: 8px;
+              background: none !important;
+              box-shadow: none !important;
+              border: none !important;
+              padding: 0 !important;
             }
 
             .footer-content {
