@@ -17,7 +17,7 @@ const CardImageSection = ({
 }) => {
   return (
     <div
-      className={`relative w-full h-[85vh] flex flex-col overflow-y-auto ${
+      className={`relative w-full h-[100vh] flex flex-col overflow-y-auto ${
         isExpanded ? "overflow-y-scroll" : "overflow-y-hidden"
       }`}
     >

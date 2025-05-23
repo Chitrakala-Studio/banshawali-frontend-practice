@@ -167,18 +167,7 @@ const CardView = () => {
   };
 
   const convertToNepaliNumerals = (number) => {
-    const nepaliNumerals = [
-      "०",
-      "１",
-      "２",
-      "３",
-      "４",
-      "５",
-      "６",
-      "７",
-      "８",
-      "９",
-    ];
+    const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
     return number
       .toString()
       .split("")
@@ -469,6 +458,7 @@ const CardView = () => {
               }
               .mobile-header-bar .person-name {
                 font-family: 'Merriweather', serif;
+                padding-left:9px;
                 font-size: 18px;
                 font-weight: 600;
                 color: var(--secondary-light);
@@ -495,7 +485,21 @@ const CardView = () => {
         </style>
         {/* Mobile header: show toggle/homepage if popup is not open, else show name+arrow */}
         {isMobile && !isExpanded && (
-          <div className="top-bar-wrapper" style={{position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, background: 'var(--primary-dark)', padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+          <div
+            className="top-bar-wrapper"
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 30,
+              background: "var(--primary-dark)",
+              padding: "8px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <ToggleView
               isTableView={isTableView}
               toggleView={toggleView}
@@ -504,17 +508,43 @@ const CardView = () => {
             <a
               href="https://gautamfamily.org.np/"
               className="top-bar-btn flex-center"
-              style={{background: 'transparent', color: 'var(--gold-accent)', boxShadow: 'none', borderRadius: '50%', padding: 0}}
+              style={{
+                background: "transparent",
+                color: "var(--gold-accent)",
+                boxShadow: "none",
+                borderRadius: "50%",
+                padding: 0,
+              }}
             >
-              <FaHome style={{fontSize: 24}} />
+              <FaHome style={{ fontSize: 24 }} />
             </a>
           </div>
         )}
         {isMobile && isExpanded && currentPerson && (
-          <div className="mobile-header-bar" style={{position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, background: 'var(--primary-dark)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px'}}>
+          <div
+            className="mobile-header-bar"
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 30,
+              background: "var(--primary-dark)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "12px 16px",
+            }}
+          >
             <span className="person-name">
               {currentPerson?.name_in_nepali || currentPerson?.name || "-"}
+              {currentPerson?.pusta_number && (
+                <span style={{ marginLeft: "8px" }}>
+                  {convertToNepaliNumerals(currentPerson?.pusta_number)}
+                </span>
+              )}
             </span>
+
             <button
               className="toggle-btn"
               onClick={handleMoveName}
@@ -544,7 +574,10 @@ const CardView = () => {
 
         <div className="card-container">
           {isInfoOpen ? (
-            <div className="card-wrapper" style={{paddingBottom: isMobile ? 80 : 0}}>
+            <div
+              className="card-wrapper"
+              style={{ paddingBottom: isMobile ? 80 : 0 }}
+            >
               <CardImageSection
                 person={currentPerson}
                 isExpanded={isExpanded}

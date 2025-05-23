@@ -20,7 +20,7 @@ const CardFooterSection = ({
     isExpanded && infoPopup === (person?.name || person?.name_in_nepali);
 
   return (
-    <div className="card-footer-section" style={{position: isMobile ? 'fixed' : 'absolute', bottom: 0, left: 0, width: '100vw', zIndex: 50, pointerEvents: 'auto', background: 'none', border: 'none', boxShadow: 'none'}}>
+    <div className="card-footer-section">
       <style>
         {`
           :root {
@@ -31,20 +31,39 @@ const CardFooterSection = ({
             --gold-accent: #F49D37;
             --neutral-gray: #D1D5DB;
           }
+.card-footer-section {
+     
+      
+    position: ${isMobile ? "fixed" : "absolute"};
+    bottom:   ${isMobile ? "0" : "2rem"};
+    left:     ${isMobile ? "0" : "50%"};
+    transform:${isMobile ? "none" : "translateX(-50%)"};
+    width:    ${isMobile ? "100vw" : "40vw"};
+    z-index: 10;
+    overflow: visible;
+  }
 
-          .card-footer-section {
-            position: fixed;
-            bottom: ${isMobile ? "0" : "2rem"};
-            left: ${isMobile ? "0" : "50%"};
-            transform: ${isMobile ? "none" : "translateX(-50%)"};
-            width: ${isMobile ? "100vw" : "40vw"};
-            z-index: 10;
-          }
+ .footer-container {
+    background-color: var(--primary-dark);
+    border-radius: 15px;
+    padding: 20px 16px 16px;
+    /* ↑ bump this mask center 10px higher: */
+    mask-image: radial-gradient(60% 60px at 50% -20px, transparent 95%, black);
+    -webkit-mask-image: radial-gradient(60% 60px at 50% -20px, transparent 95%, black);
+  }
+
+
+@media (min-width: 800px) {
+  .footer-container {
+    mask-image: radial-gradient(60% 40px at 50% 0, transparent 98%, black);
+    -webkit-mask-image: radial-gradient(60% 40px at 50% 0, transparent 98%, black);
+  }
+}
+
+
 
           .footer-container {
-            background: none !important;
-            box-shadow: none !important;
-            border: none !important;
+            
             padding: 0 !important;
           }
 
@@ -61,6 +80,14 @@ const CardFooterSection = ({
             align-items: center;
             gap: ${isMobile ? "4px" : "8px"};
           }
+
+            @media (max-width: 799px) {
+    .footer-container {
+      /* drop the mask on mobile if you want fully rectangular footer */
+      mask-image: none !important;
+      -webkit-mask-image: none !important;
+    }
+  }
 
           .person-name {
             font-family: 'Merriweather', serif;
@@ -177,6 +204,87 @@ const CardFooterSection = ({
               padding: 0;
               color: #000000;
             }
+
+            /* 1) Desktop: add a white “wave” at the top of the footer */
+@media (min-width: 800px) {
+  .card-footer-section {
+    position: absolute;       /* as you already have */
+    bottom: 2rem;             /* as you already have */
+    left: 50%;                /* as you already have */
+    transform: translateX(-50%);
+    width: 40vw;
+    background: var(--primary-dark);
+    z-index: 10;
+    overflow: visible;        /* allow the pseudo to show */
+  }
+
+  .card-footer-section::before {
+    content: "";
+    position: absolute;
+    top: -30px;               /* pull it up into the white panel */
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: white;
+    /* make the bottom of that pseudo curve */
+    border-bottom-left-radius: 50% 35px;
+    border-bottom-right-radius: 50% 35px;
+    z-index: 11;              /* sit above the footer but below your info text */
+  }
+}
+
+/* 2) Mobile: remove the blue background entirely */
+@media (max-width: 799px) {
+  .card-footer-section {
+    background: transparent !important;
+    box-shadow: none    !important;
+    border-radius: 0    !important;
+  }
+}
+
+/* Base footer (desktop) */
+.card-footer-section {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40vw;
+  background: var(--primary-dark);
+  overflow: visible; /* allow the wave to show */
+  z-index: 10;
+}
+
+/* draw the curved white “wave” above the footer */
+@media (min-width: 800px) {
+  .card-footer-section::before {
+    content: "";
+    position: absolute;
+    top: -350px;                
+    left: 0;
+    width: 100%;
+    height: 350px;             
+    background: white;
+    /* a wider curve: */
+    border-bottom-left-radius: 100% 60px;
+    border-bottom-right-radius: 100% 60px;
+    z-index: 11;
+  }
+}
+
+
+/* mobile: full-width, transparent footer */
+@media (max-width: 799px) {
+  .card-footer-section {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
           }
         `}
       </style>

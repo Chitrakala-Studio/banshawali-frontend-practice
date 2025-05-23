@@ -43,10 +43,11 @@ const InfoSection = ({ person }) => {
 
           .info-box {
             background-color: #fffaf0;
-            padding: 16px;
+            padding: 25px;
             border-radius: 8px;
             border: 1px solid var(--neutral-gray);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          
           }
 
           .box-title {
@@ -111,7 +112,7 @@ const InfoSection = ({ person }) => {
             
   @media (max-width: 799px) {
     .info-section {
-      padding-bottom: 0.5px;
+      padding-bottom: 55px;
     }
 
   }
