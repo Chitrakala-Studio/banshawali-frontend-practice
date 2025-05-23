@@ -1475,35 +1475,76 @@ const TableView = () => {
                         </div>
                       </div>
                       <hr className="mobile-list-divider" />
-                      <div className="mobile-list-actions" style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', marginTop: 0, paddingTop: 0 }}>
+                      <div className="mobile-list-actions" style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', marginTop: 0 }}>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flex: 1, justifyContent: 'center' }}>
-                          <button className="mobile-list-action-btn" title="Info" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleInfoClick(row); }}>
-                            <i className="fa fa-info-circle"></i>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Info"
+                            className="action-btn"
+                            onClick={() => handleInfoClick(row)}
+                          >
+                            <Info size={20} />
                           </button>
-                          <button className="mobile-list-action-btn" title="Compare" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleCompare(row); }}>
-                            <i className="fa fa-balance-scale"></i>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Compare"
+                            className="action-btn"
+                            onClick={() => handleCompare(row)}
+                          >
+                            <ArrowLeftRight size={20} />
                           </button>
-                          <button className="mobile-list-action-btn" title="Family Tree" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleFamilyTree(row); }}>
-                            <i className="fa fa-sitemap"></i>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Family Tree"
+                            className="action-btn"
+                            onClick={() => handleFamilyTree(row)}
+                          >
+                            <FaSitemap size={20} />
                           </button>
-                          <button className="mobile-list-action-btn" title="View Card" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); setSelectedRow(row); setShowInfoPopup(true); }}>
-                            <i className="fa fa-id-card"></i>
-                          </button>
-                          {isAdminLocal && (
+                          {isAdminLocal ? (
                             <>
-                              <button className="mobile-list-action-btn" title="Edit" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleEditClick(row); }}>
-                                <i className="fa fa-edit"></i>
+                              <button
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Edit"
+                                className="action-btn"
+                                onClick={() => handleEditClick(row)}
+                              >
+                                <NotebookPen size={20} />
                               </button>
-                              <button className="mobile-list-action-btn" title="Delete" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleDelete(row); }}>
-                                <i className="fa fa-trash"></i>
+                              <button
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Delete"
+                                className="action-btn"
+                                onClick={() => handleDelete(row)}
+                              >
+                                <Trash2 size={20} />
                               </button>
-                              <button className="mobile-list-action-btn" title="Add Child" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleAddChildClick(row); }}>
-                                <i className="fa fa-user-plus"></i>
+                              <button
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Add Child"
+                                className="action-btn"
+                                onClick={() => handleAddChildClick(row)}
+                              >
+                                <Baby size={20} />
                               </button>
                             </>
+                          ) : (
+                            <button
+                              data-tooltip-id="tooltip"
+                              data-tooltip-content="Suggest Edit"
+                              className="action-btn"
+                              onClick={() => handleSuggestionClick(row)}
+                            >
+                              <Lightbulb size={20} />
+                            </button>
                           )}
-                          <button className="mobile-list-action-btn" title="Suggest Edit" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleSuggestionClick(row); }}>
-                            <i className="fa fa-lightbulb-o"></i>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Card"
+                            className="action-btn"
+                            onClick={() => navigate(`/card/${row.id}`)}
+                          >
+                            <IdCard size={20} />
                           </button>
                         </div>
                       </div>
