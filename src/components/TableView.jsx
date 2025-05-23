@@ -602,6 +602,13 @@ const TableView = () => {
     });
   };
 
+  // Add state to track expanded rows for mobile
+  const [expandedRows, setExpandedRows] = useState({});
+
+  const toggleExpandRow = (index) => {
+    setExpandedRows((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+
   const finalData = filteredData;
   const visibleData = finalData;
 
@@ -910,6 +917,142 @@ const TableView = () => {
             color: var(--primary-dark);
           }
 
+          .mobile-list-view {
+            margin-top: 12px;
+          }
+          .mobile-list-item {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+            margin-bottom: 18px;
+            padding: 0;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+            position: relative;
+          }
+          .mobile-list-header {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px 16px 0 16px;
+          }
+          .mobile-list-avatar-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 16px;
+          }
+          .mobile-list-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #f2f2f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 4px;
+          }
+          .mobile-list-names-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+          }
+          .mobile-list-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2px;
+          }
+          .mobile-list-name {
+            font-weight: 600;
+            font-size: 1.08rem;
+            color: #222;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .mobile-list-pusta {
+            font-size: 0.98rem;
+            color: #6b6b6b;
+            font-weight: 400;
+            margin-left: 10px;
+            white-space: nowrap;
+          }
+          .mobile-list-father-row {
+            font-size: 0.98rem;
+            color: #6b6b6b;
+            font-weight: 400;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .mobile-list-expand-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2E4568;
+            margin-left: 8px;
+            cursor: pointer;
+            outline: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+          }
+          .mobile-list-expand-btn:active {
+            background: #e9e9e9;
+          }
+          .mobile-list-divider {
+            border: none;
+            border-top: 1px solid #ececec;
+            margin: 0;
+          }
+          .mobile-list-details {
+            background: #fff;
+            font-size: 1.01rem;
+            padding: 0;
+          }
+          .mobile-list-details-row {
+            padding: 12px 16px 12px 16px;
+            font-weight: 500;
+            color: #222;
+            display: flex;
+            align-items: center;
+          }
+          .mobile-list-details-row span {
+            font-weight: 400;
+            color: #444;
+            margin-left: 4px;
+          }
+          .mobile-list-actions {
+            display: flex;
+            justify-content: flex-start;
+            gap: 16px;
+            margin: 0;
+            padding: 12px 16px 12px 16px;
+            flex-wrap: wrap;
+          }
+          .mobile-list-action-btn {
+            background: none;
+            border: none;
+            color: #2E4568;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background 0.15s;
+          }
+          .mobile-list-action-btn:active {
+            background: #e9e9e9;
+          }
+
           @media only screen and (max-width: 640px) {
   .top-bar-btn {
     /* much tighter padding */
@@ -1092,211 +1235,490 @@ const TableView = () => {
         </div>
 
         {activeTab === "data" && (
-          <div className="table-wrapper overflow-x-auto">
-            <table>
-              <thead>
-                <tr>
-                  <th>नाम</th>
-                  <th>पुस्ता नम्बर</th>
-                  <th>बाबुको नाम</th>
-                  <th>आमाको नाम</th>
-                  <th>हजुरबुबाको नाम</th>
-                  <th>बाजेको नाम </th>
-                  <th>कार्यहरू</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && filteredData.length === 0 ? (
-                  <tr className="loading-row">
-                    <td colSpan={7}>
-                      <div className="flex-center" style={{ minHeight: 60 }}>
-                        <ClipLoader
-                          color="var(--neutral-gray)"
-                          loading={true}
-                          size={35}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredData.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="no-data">
-                      {id
-                        ? `No data found for ID ${id}. The record may not exist or has been deleted.`
-                        : "No data available. Try adding a new user or searching for existing ones."}
-                    </td>
-                  </tr>
-                ) : (
-                  filteredData.map((row, index) => (
-                    <tr key={index}>
-                      <td
-                        className={`name-cell text-primary ${
-                          row.gender?.toLowerCase() === "male"
-                            ? "male"
-                            : row.gender?.toLowerCase() === "female"
-                            ? "female"
-                            : "other"
-                        }`}
-                      >
+          isMobile ? (
+            <div className="mobile-list-container">
+              <style>{`
+      .mobile-list-container {
+        padding: 0 8px;
+      }
+      .mobile-list-item {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+        margin-bottom: 18px;
+        padding: 0;
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+        position: relative;
+      }
+      .mobile-list-header {
+        display: flex;
+        align-items: flex-start;
+        padding: 16px 16px 0 16px;
+      }
+      .mobile-list-avatar-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 16px;
+      }
+      .mobile-list-avatar {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #f2f2f2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin-bottom: 4px;
+      }
+      .mobile-list-names-block {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+      }
+      .mobile-list-name-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 2px;
+      }
+      .mobile-list-name {
+        font-weight: 600;
+        font-size: 1.08rem;
+        color: #222;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .mobile-list-pusta {
+        font-size: 0.98rem;
+        color: #6b6b6b;
+        font-weight: 400;
+        margin-left: 10px;
+        white-space: nowrap;
+      }
+      .mobile-list-father-row {
+        font-size: 0.98rem;
+        color: #6b6b6b;
+        font-weight: 400;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .mobile-list-expand-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #2E4568;
+        margin-left: 8px;
+        cursor: pointer;
+        outline: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+      }
+      .mobile-list-expand-btn:active {
+        background: #e9e9e9;
+      }
+      .mobile-list-divider {
+        border: none;
+        border-top: 1px solid #ececec;
+        margin: 0;
+      }
+      .mobile-list-details {
+        background: #fff;
+        font-size: 1.01rem;
+        padding: 0;
+      }
+      .mobile-list-details-row {
+        padding: 12px 16px 12px 16px;
+        font-weight: 500;
+        color: #222;
+        display: flex;
+        align-items: center;
+      }
+      .mobile-list-details-row span {
+        font-weight: 400;
+        color: #444;
+        margin-left: 4px;
+      }
+      .mobile-list-actions {
+        display: flex;
+        justify-content: flex-start;
+        gap: 16px;
+        margin: 0;
+        padding: 12px 16px 12px 16px;
+        flex-wrap: wrap;
+      }
+      .mobile-list-action-btn {
+        background: none;
+        border: none;
+        color: #2E4568;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: 6px;
+        transition: background 0.15s;
+      }
+      .mobile-list-action-btn:active {
+        background: #e9e9e9;
+      }
+    `}</style>
+              {visibleData.map((row, idx) => (
+                <div className="mobile-list-item" key={row.id}>
+                  <div className="mobile-list-header">
+                    <div className="mobile-list-avatar-block">
+                      <div className="mobile-list-avatar">
                         <img
                           src={
-                            row.photo &&
-                            typeof row.photo === "string" &&
-                            row.photo.startsWith("http")
+                            row.photo && typeof row.photo === "string" && row.photo.startsWith("http")
                               ? row.photo
                               : row.gender?.toLowerCase() === "male"
                               ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                               : row.gender?.toLowerCase() === "female"
-                              ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+                              ? "https://res.cloudinary.com/da48nhp3z/image/upload_v1740120672/femaleicon_vhrive.jpg"
                               : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png"
                           }
-                          alt="Profile"
-                          className="w-10 h-10 rounded-full object-cover"
+                          alt="User"
+                          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
                         />
-                        <span>{row.name_in_nepali || "-"}</span>
-                      </td>
-                      <td className="text-center">
-                        <div
-                          className={`pusta-number ${
-                            row.pusta_number && row.pusta_number % 2 === 0
-                              ? "bg-pusta-even"
-                              : "bg-pusta-odd"
-                          }`}
-                        >
-                          {convertToNepaliNumerals(row.pusta_number, true)}
+                      </div>
+                    </div>
+                    <div className="mobile-list-names-block">
+                      <div className="mobile-list-name-row">
+                        <div className="mobile-list-name">
+                          {row.name_in_nepali || row.name}
                         </div>
-                      </td>
-                      <td>
-                        {row.father?.id && row.father.name_in_nepali ? (
+                        <div style={{ flex: 1 }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <div className="mobile-list-pusta" style={{ fontWeight: 500, color: '#2E4568', fontSize: '1rem', display: 'flex', alignItems: 'center' }}>
+                            <span style={{ fontWeight: 400, color: '#444', marginRight: 1 }}>पु. न:</span>
+                            <span style={{ fontWeight: 600, color: '#2E4568', fontSize: '1.1rem', marginRight: 2 }}>{convertToNepaliNumerals(row.pusta_number, true) || '-'}</span>
+                          </div>
+                          <button
+                            className="mobile-list-expand-btn"
+                            aria-label={expandedRows[idx] ? 'Collapse' : 'Expand'}
+                            onClick={e => { e.stopPropagation(); toggleExpandRow(idx); }}
+                          >
+                            {expandedRows[idx] ? <span>&#8722;</span> : <span>&#43;</span>}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mobile-list-father-row">
+                        बाबुको नाम: {row.father?.id && (row.father.name_in_nepali || row.father.name) ? (
                           <span
                             className="cursor-pointer text-primary"
                             onClick={() => navigate(`/${row.father.id}`)}
                           >
-                            {row.father.name_in_nepali}
+                            {row.father.name_in_nepali || row.father.name}
                           </span>
                         ) : (
                           <span className="text-secondary">-</span>
                         )}
-                      </td>
-                      <td>
-                        {row.mother?.id &&
-                        (row.mother.name_in_nepali || row.mother.name) ? (
-                          <span
-                            className="cursor-pointer text-primary"
-                            onClick={() => navigate(`/${row.mother.id}`)}
-                          >
-                            {row.mother.name_in_nepali || row.mother.name}
-                          </span>
-                        ) : (
-                          <span className="text-secondary">-</span>
-                        )}
-                      </td>
-                      <td>
-                        {row.grandfather?.id &&
-                        row.grandfather.name_in_nepali ? (
-                          <span
-                            className="cursor-pointer text-primary"
-                            onClick={() => navigate(`/${row.grandfather.id}`)}
-                          >
-                            {row.grandfather.name_in_nepali}
-                          </span>
-                        ) : (
-                          <span className="text-secondary">-</span>
-                        )}
-                      </td>
-                      <td>
-                        {row.great_grandfather?.id &&
-                        row.great_grandfather.name_in_nepali ? (
-                          <span
-                            className="cursor-pointer text-primary"
-                            onClick={() =>
-                              navigate(`/${row.great_grandfather.id}`)
-                            }
-                          >
-                            {row.great_grandfather.name_in_nepali}
-                          </span>
-                        ) : (
-                          <span className="text-secondary">-</span>
-                        )}
-                      </td>
-                      <td className="flex-center space-x-2">
-                        <button
-                          data-tooltip-id="tooltip"
-                          data-tooltip-content="View Info"
-                          className="action-btn"
-                          onClick={() => handleInfoClick(row)}
-                        >
-                          <Info size={18} />
-                        </button>
-                        <button
-                          data-tooltip-id="tooltip"
-                          data-tooltip-content="Compare"
-                          className="action-btn"
-                          onClick={() => handleCompare(row)}
-                        >
-                          <ArrowLeftRight size={18} />
-                        </button>
-                        <button
-                          data-tooltip-id="tooltip"
-                          data-tooltip-content="Family Tree"
-                          className="action-btn"
-                          onClick={() => handleFamilyTree(row)}
-                        >
-                          <FaSitemap size={18} />
-                        </button>
-                        {isAdminLocal ? (
-                          <>
-                            <button
-                              data-tooltip-id="tooltip"
-                              data-tooltip-content="Edit"
-                              className="action-btn"
-                              onClick={() => handleEditClick(row)}
+                      </div>
+                    </div>
+                  </div>
+                  {expandedRows[idx] && (
+                    <>
+                      <hr className="mobile-list-divider" />
+                      <div className="mobile-list-details">
+                        <div className="mobile-list-details-row">
+                          <b>आमाको नाम:</b>{' '}
+                          {row.mother?.id && (row.mother.name_in_nepali || row.mother.name) ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() => navigate(`/${row.mother.id}`)}
                             >
-                              <NotebookPen size={18} />
-                            </button>
-                            <button
-                              data-tooltip-id="tooltip"
-                              data-tooltip-content="Delete"
-                              className="action-btn"
-                              onClick={() => handleDelete(row)}
+                              {row.mother.name_in_nepali || row.mother.name}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </div>
+                        <hr className="mobile-list-divider" />
+                        <div className="mobile-list-details-row">
+                          <b>हजुरबुबाको नाम:</b>{' '}
+                          {row.grandfather?.id && (row.grandfather.name_in_nepali || row.grandfather.name) ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() => navigate(`/${row.grandfather.id}`)}
                             >
-                              <Trash2 size={18} />
-                            </button>
-
-                            <button
-                              data-tooltip-id="tooltip"
-                              data-tooltip-content="Add Child"
-                              className="action-btn"
-                              onClick={() => handleAddChildClick(row)}
+                              {row.grandfather.name_in_nepali || row.grandfather.name}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </div>
+                        <hr className="mobile-list-divider" />
+                        <div className="mobile-list-details-row">
+                          <b>बाजेको नाम:</b>{' '}
+                          {row.great_grandfather?.id && (row.great_grandfather.name_in_nepali || row.great_grandfather.name) ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() => navigate(`/${row.great_grandfather.id}`)}
                             >
-                              <Baby size={18} />
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            data-tooltip-id="tooltip"
-                            data-tooltip-content="Suggest Edit"
-                            className="action-btn"
-                            onClick={() => handleSuggestionClick(row)}
-                          >
-                            <Lightbulb size={18} />
+                              {row.great_grandfather.name_in_nepali || row.great_grandfather.name}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </div>
+                      </div>
+                      <hr className="mobile-list-divider" />
+                      <div className="mobile-list-actions" style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', marginTop: 0, paddingTop: 0 }}>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flex: 1, justifyContent: 'center' }}>
+                          <button className="mobile-list-action-btn" title="Info" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleInfoClick(row); }}>
+                            <i className="fa fa-info-circle"></i>
                           </button>
-                        )}
-                        <button
-                          data-tooltip-id="tooltip"
-                          data-tooltip-content="View Card"
-                          className="action-btn"
-                          onClick={() => navigate(`/card/${row.id}`)}
-                        >
-                          <IdCard size={18} />
-                        </button>
+                          <button className="mobile-list-action-btn" title="Compare" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleCompare(row); }}>
+                            <i className="fa fa-balance-scale"></i>
+                          </button>
+                          <button className="mobile-list-action-btn" title="Family Tree" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleFamilyTree(row); }}>
+                            <i className="fa fa-sitemap"></i>
+                          </button>
+                          <button className="mobile-list-action-btn" title="View Card" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); setSelectedRow(row); setShowInfoPopup(true); }}>
+                            <i className="fa fa-id-card"></i>
+                          </button>
+                          {isAdminLocal && (
+                            <>
+                              <button className="mobile-list-action-btn" title="Edit" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleEditClick(row); }}>
+                                <i className="fa fa-edit"></i>
+                              </button>
+                              <button className="mobile-list-action-btn" title="Delete" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleDelete(row); }}>
+                                <i className="fa fa-trash"></i>
+                              </button>
+                              <button className="mobile-list-action-btn" title="Add Child" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleAddChildClick(row); }}>
+                                <i className="fa fa-user-plus"></i>
+                              </button>
+                            </>
+                          )}
+                          <button className="mobile-list-action-btn" title="Suggest Edit" style={{ minWidth: 36, minHeight: 36, fontSize: '1.15rem', padding: 0 }} onClick={e => { e.stopPropagation(); handleSuggestionClick(row); }}>
+                            <i className="fa fa-lightbulb-o"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="table-wrapper overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>नाम</th>
+                    <th>पुस्ता नम्बर</th>
+                    <th>बाबुको नाम</th>
+                    <th>आमाको नाम</th>
+                    <th>हजुरबुबाको नाम</th>
+                    <th>बाजेको नाम </th>
+                    <th>कार्यहरू</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading && filteredData.length === 0 ? (
+                    <tr className="loading-row">
+                      <td colSpan={7}>
+                        <div className="flex-center" style={{ minHeight: 60 }}>
+                          <ClipLoader
+                            color="var(--neutral-gray)"
+                            loading={true}
+                            size={35}
+                          />
+                        </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : filteredData.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="no-data">
+                        {id
+                          ? `No data found for ID ${id}. The record may not exist or has been deleted.`
+                          : "No data available. Try adding a new user or searching for existing ones."}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredData.map((row, index) => (
+                      <tr key={index}>
+                        <td
+                          className={`name-cell text-primary ${
+                            row.gender?.toLowerCase() === "male"
+                              ? "male"
+                              : row.gender?.toLowerCase() === "female"
+                              ? "female"
+                              : "other"
+                          }`}
+                        >
+                          <img
+                            src={
+                              row.photo &&
+                              typeof row.photo === "string" &&
+                              row.photo.startsWith("http")
+                                ? row.photo
+                                : row.gender?.toLowerCase() === "male"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload_v1740120672/maleicon_anaxb1.png"
+                                : row.gender?.toLowerCase() === "female"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload_v1740120672/femaleicon_vhrive.jpg"
+                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png"
+                            }
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <span>{row.name_in_nepali || "-"}</span>
+                        </td>
+                        <td className="text-center">
+                          <div
+                            className={`pusta-number ${
+                              row.pusta_number && row.pusta_number % 2 === 0
+                                ? "bg-pusta-even"
+                                : "bg-pusta-odd"
+                            }`}
+                          >
+                            {convertToNepaliNumerals(row.pusta_number, true)}
+                          </div>
+                        </td>
+                        <td>
+                          {row.father?.id && row.father.name_in_nepali ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() => navigate(`/${row.father.id}`)}
+                            >
+                              {row.father.name_in_nepali}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </td>
+                        <td>
+                          {row.mother?.id &&
+                          (row.mother.name_in_nepali || row.mother.name) ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() => navigate(`/${row.mother.id}`)}
+                            >
+                              {row.mother.name_in_nepali || row.mother.name}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </td>
+                        <td>
+                          {row.grandfather?.id &&
+                          row.grandfather.name_in_nepali ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() => navigate(`/${row.grandfather.id}`)}
+                            >
+                              {row.grandfather.name_in_nepali}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </td>
+                        <td>
+                          {row.great_grandfather?.id &&
+                          row.great_grandfather.name_in_nepali ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() =>
+                                navigate(`/${row.great_grandfather.id}`)
+                              }
+                            >
+                              {row.great_grandfather.name_in_nepali}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </td>
+                        <td className="flex-center space-x-2">
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Info"
+                            className="action-btn"
+                            onClick={() => handleInfoClick(row)}
+                          >
+                            <Info size={18} />
+                          </button>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Compare"
+                            className="action-btn"
+                            onClick={() => handleCompare(row)}
+                          >
+                            <ArrowLeftRight size={18} />
+                          </button>
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Family Tree"
+                            className="action-btn"
+                            onClick={() => handleFamilyTree(row)}
+                          >
+                            <FaSitemap size={18} />
+                          </button>
+                          {isAdminLocal ? (
+                            <>
+                              <button
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Edit"
+                                className="action-btn"
+                                onClick={() => handleEditClick(row)}
+                              >
+                                <NotebookPen size={18} />
+                              </button>
+                              <button
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Delete"
+                                className="action-btn"
+                                onClick={() => handleDelete(row)}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+
+                              <button
+                                data-tooltip-id="tooltip"
+                                data-tooltip-content="Add Child"
+                                className="action-btn"
+                                onClick={() => handleAddChildClick(row)}
+                              >
+                                <Baby size={18} />
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              data-tooltip-id="tooltip"
+                              data-tooltip-content="Suggest Edit"
+                              className="action-btn"
+                              onClick={() => handleSuggestionClick(row)}
+                            >
+                              <Lightbulb size={18} />
+                            </button>
+                          )}
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Card"
+                            className="action-btn"
+                            onClick={() => navigate(`/card/${row.id}`)}
+                          >
+                            <IdCard size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )
         )}
 
         {!id ? (
