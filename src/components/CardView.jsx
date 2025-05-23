@@ -290,7 +290,7 @@ const CardView = () => {
 
             .card-container {
               width: 100vw;
-              height: calc(100vh - 60px);
+              height: calc(100vh - 50px);
               margin: 0;
               border-radius: 0;
               overflow: hidden;
@@ -478,7 +478,7 @@ const CardView = () => {
                 margin-left: 8px;
               }
               .card-container {
-                margin-top: 56px;
+                margin-top: 50px;
               }
             }
           `}

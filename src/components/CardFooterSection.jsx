@@ -161,6 +161,7 @@ const CardFooterSection = ({
             }
 
             .footer-content {
+              padding: 0 1rem 0 1rem;
               justify-content: space-between;
               margin: 0;
             }
