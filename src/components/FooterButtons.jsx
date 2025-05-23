@@ -95,44 +95,88 @@ const FooterButtons = ({
 
           @media (max-width: 799px) {
             .footer-buttons {
-              background-color: transparent;
-              justify-content: center;
-              gap: 8px;
-              padding: 8px;
-            }
-
-            .action-btn {
-              background: #fff8dc;
-              border: 1px solid #d1d5db;
-              border-radius: 50%;
-              padding: 8px;
-              width: 36px;
-              height: 36px;
               display: flex;
+              align-items: flex-end;
+              gap: 0px;
+              margin-top: 0px;
+              margin-bottom: 12px;
+              padding: 0 8px;
+            }
+            .action-btn {
+              width: 60px;
+              height: 60px;
+              min-width: 60px;
+              min-height: 60px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #fff8dc 70%, #f9e7c4 100%);
+              box-shadow: 0 8px 32px 0 rgba(244, 157, 55, 0.52),
+                0 4px 18px 0 rgba(0, 0, 0, 0.32);
+              border: 1.5px solid #e9d4b0;
+              display: flex;
+              flex-direction: column;
               align-items: center;
               justify-content: center;
+              font-size: 32px;
+              color: #2e4568;
+              transition: box-shadow 0.2s, transform 0.2s;
+              position: relative;
+              margin: 0 2px;
+              padding: 0;
             }
-
-            .action-btn:hover,
+            .action-btn:active,
             .action-btn:focus {
-              background: #fff8dc;
-              color: #000000;
+              box-shadow: 0 16px 48px 0 rgba(244, 157, 55, 0.60),
+                0 8px 24px 0 rgba(0, 0, 0, 0.36);
+              transform: scale(1.13);
+              outline: none;
             }
-
-            .action-btn svg {
-              margin-right: 0;
-              color: #000000;
-            }
-
-            .action-btn:hover svg,
-            .action-btn:focus svg {
-              color: #000000;
-            }
-
             .icon {
-              width: 18px;
-              height: 18px;
-              color: #000000;
+              width: 28px;
+              height: 28px;
+              margin-right: 0;
+            }
+          }
+          @media (min-width: 800px) {
+            .footer-buttons {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 32px;
+              margin-bottom: 8px;
+            }
+            .footer-btn {
+              min-width: 130px;
+              height: 52px;
+              border-radius: 26px;
+              background: linear-gradient(135deg, #fff8dc 70%, #f9e7c4 100%);
+              box-shadow: 0 2px 8px 0 rgba(244, 157, 55, 0.12),
+                0 1px 4px 0 rgba(0, 0, 0, 0.08);
+              border: 1.5px solid #e9d4b0;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+              font-size: 24px;
+              color: #2e4568;
+              padding: 0 22px;
+              gap: 12px;
+              transition: box-shadow 0.2s, transform 0.2s;
+              position: relative;
+            }
+            .footer-btn span {
+              display: inline-block;
+              font-size: 17px;
+              font-weight: 500;
+              color: #2e4568;
+              margin-left: 10px;
+              letter-spacing: 0.01em;
+            }
+            .footer-btn:active,
+            .footer-btn:focus {
+              box-shadow: 0 6px 20px 0 rgba(244, 157, 55, 0.22),
+                0 3px 12px 0 rgba(0, 0, 0, 0.14);
+              transform: scale(1.06);
+              outline: none;
             }
           }
         `}
@@ -143,21 +187,24 @@ const FooterButtons = ({
         className="action-btn"
         aria-label="Compare"
       >
-        <ArrowLeftRight size={18} />
+        <ArrowLeftRight size={18} className="icon" />
+        {!isMobile && <span>Compare</span>}
       </button>
       <button
         onClick={onGenerateFamilyTree}
         className="action-btn"
         aria-label="Generate Family Tree"
       >
-        <FaSitemap size={18} />
+        <FaSitemap size={18} className="icon" />
+        {!isMobile && <span>Family Tree</span>}
       </button>
       <button
         onClick={onSearchButtonClick}
         className="action-btn"
         aria-label="Search"
       >
-        <FaSearch size={18} />
+        <FaSearch size={18} className="icon" />
+        {!isMobile && <span>Search</span>}
       </button>
     </div>
   );
