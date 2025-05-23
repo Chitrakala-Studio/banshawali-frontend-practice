@@ -30,8 +30,9 @@ const InfoSection = ({ person }) => {
           }
 
           .info-section {
-            padding-bottom: 45px;
+            padding: 0 0 80px 0; /* ensure enough space for footer on all devices */
             width: 100%;
+            box-sizing: border-box;
           }
 
           .info-container {
@@ -115,6 +116,12 @@ const InfoSection = ({ person }) => {
       padding-bottom: 55px;
     }
 
+  }
+
+  @media (min-width: 800px) {
+    .info-section {
+      padding-bottom: 110px; /* extra gap for desktop/tablet footer */
+    }
   }
         `}
       </style>

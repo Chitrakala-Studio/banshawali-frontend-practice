@@ -46,7 +46,7 @@ const CardFooterSection = ({
  .footer-container {
     background-color: var(--primary-dark);
     border-radius: 15px;
-    padding: 20px 16px 16px;
+    padding: 20px 16px 0px;
     /* ↑ bump this mask center 10px higher: */
     mask-image: radial-gradient(60% 60px at 50% -20px, transparent 95%, black);
     -webkit-mask-image: radial-gradient(60% 60px at 50% -20px, transparent 95%, black);
@@ -62,15 +62,11 @@ const CardFooterSection = ({
 
 
 
-          .footer-container {
-            
-            padding: 0 !important;
-          }
+          
 
           .footer-content {
             display: flex;
             align-items: center;
-            margin-bottom: ${isMobile ? "0" : "16px"};
             margin-top: ${isMobile ? "0" : "8px"};
             justify-content: ${isMobile ? "space-between" : "flex-start"};
           }
@@ -157,7 +153,7 @@ const CardFooterSection = ({
               background: none !important;
               box-shadow: none !important;
               border: none !important;
-              padding: 0 !important;
+              padding: 0px !important;
             }
 
             .footer-content {
@@ -286,7 +282,27 @@ const CardFooterSection = ({
   }
 }
 
-          }
+            @media (max-width: 1024px) {
+              .footer-container {
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0px !important;
+                position: relative;
+                z-index: 20;
+              }
+              .footer-content {
+                padding: 0 1rem 0 1rem;
+                justify-content: space-between;
+                margin: 0;
+                background: none !important; /* Remove blue overlay on mobile/tablet */
+                border-radius: 18px 18px 0 0;
+                box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+                min-height: 64px;
+                position: relative;
+                z-index: 21;
+              }
+            }
         `}
       </style>
 
