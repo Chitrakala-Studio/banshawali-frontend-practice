@@ -1387,8 +1387,8 @@ const TableView = () => {
                               : row.gender?.toLowerCase() === "male"
                               ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                               : row.gender?.toLowerCase() === "female"
-                              ? "https://res.cloudinary.com/da48nhp3z/image/upload_v1740120672/femaleicon_vhrive.jpg"
-                              : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png"
+                              ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                              : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                           }
                           alt="User"
                           style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
@@ -1415,22 +1415,28 @@ const TableView = () => {
                           </button>
                         </div>
                       </div>
-                      <div className="mobile-list-father-row">
-                        बाबुको नाम: {row.father?.id && (row.father.name_in_nepali || row.father.name) ? (
-                          <span
-                            className="cursor-pointer text-primary"
-                            onClick={() => navigate(`/${row.father.id}`)}
-                          >
-                            {row.father.name_in_nepali || row.father.name}
-                          </span>
-                        ) : (
-                          <span className="text-secondary">-</span>
-                        )}
-                      </div>
+                      
                     </div>
                   </div>
                   {expandedRows[idx] && (
                     <>
+                      <hr className="mobile-list-divider" />
+                        <div className="mobile-list-details">
+                          <div className="mobile-list-details-row">
+                            <b>बाबुको नाम: </b>
+                            {row.father?.id && (row.father.name_in_nepali || row.father.name) ? (
+                              <span
+                                className="cursor-pointer text-primary"
+                                onClick={() => navigate(`/${row.father.id}`)}
+                              >
+                                {row.father.name_in_nepali || row.father.name}
+                              </span>
+                            ) : (
+                              <span className="text-secondary">-</span>
+                            )}
+                          </div>
+                        </div>
+                      
                       <hr className="mobile-list-divider" />
                       <div className="mobile-list-details">
                         <div className="mobile-list-details-row">
@@ -1609,7 +1615,7 @@ const TableView = () => {
                                 : row.gender?.toLowerCase() === "male"
                                 ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                                 : row.gender?.toLowerCase() === "female"
-                                ? "https://res.cloudinary.com/da48nhp3z/image/upload_v1740120672/femaleicon_vhrive.jpg"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                                 : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png"
                             }
                             alt="User"

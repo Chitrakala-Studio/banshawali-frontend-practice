@@ -654,7 +654,7 @@ const UserProfileModal = ({ user, onClose }) => {
               />
             ) : (
               <img
-                src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+                src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.jpg"
                 alt="Female profile"
                 className="profile-image"
                 style={{ width: "100%", height: "auto" }}
