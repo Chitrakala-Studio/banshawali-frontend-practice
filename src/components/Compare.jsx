@@ -76,16 +76,25 @@ const Compare = () => {
       }
 
       const responseData = await response.json();
-      // Support both 'results' and 'data' keys
-      const people = responseData.results || responseData.data || [];
+      // Support both 'results' and 'data' keys, flattening if needed
+      let people = [];
+      if (responseData.results && typeof responseData.results === 'object') {
+        people = Object.values(responseData.results).flat();
+      } else if (Array.isArray(responseData.results)) {
+        people = responseData.results;
+      } else if (Array.isArray(responseData.data)) {
+        people = responseData.data;
+      }
 
       // Map the response to suggestions in the required format
       const suggestions = people.map(person => ({
+        id: person.id,
         pusta_number: person.pusta_number || "",
         name: person.name || "",
         father: person.father || "",
+        mother: person.mother || "",
         grandfather: person.grandfather || "",
-        // For selection, keep the whole object
+        grandmother: person.grandmother || "",
         raw: person
       }));
 
@@ -126,15 +135,17 @@ const Compare = () => {
   // Handle selection of a suggestion and update Person 2 data
   const handleSelectSuggestion = (sugg) => {
     setRightPerson({
+      id: sugg.id, // Use the person id for comparison
       name_in_nepali: sugg.name,
       pusta_number: sugg.pusta_number,
       fatherName: sugg.father || "",
-      motherName: "",
-      fatherId: "",
-      motherId: "",
+      motherName: sugg.mother || "",
+      fatherId: sugg.fatherId || "",
+      motherId: sugg.motherId || "",
       father: { name: sugg.father || "", name_in_nepali: sugg.father || "" },
-      mother: { name: "", name_in_nepali: "" },
+      mother: { name: sugg.mother || "", name_in_nepali: sugg.mother || "" },
       grandfather: { name: sugg.grandfather || "", name_in_nepali: sugg.grandfather || "" },
+      grandmother: { name: sugg.grandmother || "", name_in_nepali: sugg.grandmother || "" },
     });
     setSearchQuery("");
     setShowSuggestions(false);
@@ -189,15 +200,10 @@ const Compare = () => {
       }, 100);
     });
 
-    if (
-      !leftPerson.name ||
-      !leftPerson.pusta_number ||
-      !rightPerson.name_in_nepali ||
-      !rightPerson.pusta_number
-    ) {
+    if (!leftPerson.id || !rightPerson.id) {
       Swal.fire({
         title: "Missing Information",
-        text: "Both Name and pusta_number fields are required for comparison.",
+        text: "Both persons must be selected for comparison.",
         icon: "warning",
         confirmButtonText: "Okay",
       });
@@ -207,19 +213,11 @@ const Compare = () => {
     try {
       setIsLoading(true);
       const leftPersonId = leftPerson.id;
-      const rightPerson_name = rightPerson.name_in_nepali;
-      const rightPerson_pusta_number = rightPerson.pusta_number;
-      const rightPerson_fatherName = rightPerson.fatherId;
-      const rightPerson_motherName = rightPerson.motherId;
-      const rightPerson_grandfatherName = rightPerson.grandfatherID;
+      const rightPersonId = rightPerson.id;
 
       const response = await axios.post(`${API_URL}/people/compare/`, {
         leftPersonId,
-        rightPerson_name,
-        rightPerson_pusta_number,
-        rightPerson_fatherName,
-        rightPerson_motherName,
-        rightPerson_grandfatherName,
+        rightPersonId,
       });
 
       setRelationship(response.data.message);
@@ -679,11 +677,24 @@ const Compare = () => {
                   {showSuggestions && rightNameSuggestions.length > 0 && (
                     <div className="suggestions-dropdown">
                       {rightNameSuggestions.map((sugg, idx) => {
-                        let display = sugg.pusta_number || "";
-                        if (sugg.name) display += ` | ${sugg.name}`;
-                        if (sugg.father) display += ` | ${sugg.father}`;
-                        // Only add grandfather if present
-                        if (sugg.grandfather) display += ` | ${sugg.grandfather}`;
+                        // Format: Pu | name | Father/mother | grandfather/grandmother
+                        let pusta = Array.isArray(sugg.pusta_number) ? (sugg.pusta_number[0] || "") : (sugg.pusta_number || "");
+                        if (typeof pusta === 'object' && pusta !== null) pusta = ""; // handle [{}] case
+                        let display = pusta;
+                        if (display) display += " | ";
+                        if (sugg.name) display += sugg.name;
+                        // Handle father/mother (array or string)
+                        let father = Array.isArray(sugg.father) ? sugg.father.join(", ") : sugg.father || "";
+                        let mother = Array.isArray(sugg.mother) ? sugg.mother.join(", ") : sugg.mother || "";
+                        let fatherMother = father;
+                        if (mother) fatherMother += `/${mother}`;
+                        if (fatherMother) display += ` | ${fatherMother}`;
+                        // Handle grandfather/grandmother (array or string)
+                        let grandfather = Array.isArray(sugg.grandfather) ? sugg.grandfather.join(", ") : sugg.grandfather || "";
+                        let grandmother = Array.isArray(sugg.grandmother) ? sugg.grandmother.join(", ") : sugg.grandmother || "";
+                        let grandParents = grandfather;
+                        if (grandmother) grandParents += `/${grandmother}`;
+                        if (grandParents) display += ` | ${grandParents}`;
                         return (
                           <div
                             key={idx}
