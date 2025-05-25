@@ -62,15 +62,12 @@ const Compare = () => {
     }
     setIsLoading(true);
     try {
-      // First attempt: Search with the query
-      let response = await fetch(`${API_URL}/people/people/search/?name=${encodeURIComponent(trimmedQuery)}`, {
+      let response = await fetch(`${API_URL}/people/name-search/?name=${encodeURIComponent(trimmedQuery)}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
-        console.warn("Search endpoint failed, attempting to fetch all data:", response.status);
-        // Fallback: Fetch all data with pagination if search fails
         response = await fetch(`${API_URL}/people/?page=1&limit=100`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -79,80 +76,28 @@ const Compare = () => {
       }
 
       const responseData = await response.json();
-      console.log("API Response:", responseData); // Debug: Log full API response
+      // Support both 'results' and 'data' keys
+      const people = responseData.results || responseData.data || [];
 
-      // Map the response to suggestions with grandparents
-      const suggestions = responseData.data.map(person => ({
-        id: person.id,
-        name: person.name || "",
-        name_in_nepali: person.name_in_nepali || "",
+      // Map the response to suggestions in the required format
+      const suggestions = people.map(person => ({
         pusta_number: person.pusta_number || "",
-        father: {
-          id: person.father?.id || person.father_id || "",
-          name: person.father?.name || person.father_name || "",
-          name_in_nepali: person.father?.name_in_nepali || person.father_name_nepali || "",
-          father: {
-            id: person.father?.father?.id || person.father?.father_id || "",
-            name: person.father?.father?.name || person.father?.grandfather_name || "",
-            name_in_nepali: person.father?.father?.name_in_nepali || person.father?.grandfather_name_nepali || "",
-          },
-        },
-        mother: {
-          id: person.mother?.id || person.mother_id || "",
-          name: person.mother?.name || person.mother_name || "",
-          name_in_nepali: person.mother?.name_in_nepali || person.mother_name_nepali || "",
-        },
-      }));
-      console.log("Mapped Suggestions:", suggestions); // Debug: Log mapped suggestions
-
-      // Normalize strings to handle Unicode issues with Nepali characters
-      const normalizedQuery = trimmedQuery.toLowerCase().normalize("NFC");
-      console.log("Normalized Query:", normalizedQuery); // Debug: Log normalized query
-
-      // Enhanced client-side filtering with normalization
-      const filteredSuggestions = suggestions.filter(sugg => {
-        const pusta_number = sugg.pusta_number;
-        const matchesName = sugg.name && sugg.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
-        const matchesNameInNepali = sugg.name_in_nepali && sugg.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
-        const matchesFatherName = sugg.father?.name && sugg.father.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
-        const matchesFatherNameInNepali = sugg.father?.name_in_nepali && sugg.father.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
-        const matchesMotherName = sugg.mother?.name && sugg.mother.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
-        const matchesMotherNameInNepali = sugg.mother?.name_in_nepali && sugg.mother.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
-        const matchesGrandFatherName = sugg.father.father?.name && sugg.father.father.name.toLowerCase().normalize("NFC").includes(normalizedQuery);
-        const matchesGrandFatherNameInNepali = sugg.father.father?.name_in_nepali && sugg.father.father.name_in_nepali.toLowerCase().normalize("NFC").includes(normalizedQuery);
-
-        // Log each person's matching status
-        console.log(`Person ID ${sugg.id}:`, {
-          pusta_number,
-          matchesName,
-          matchesNameInNepali,
-          matchesFatherName,
-          matchesFatherNameInNepali,
-          matchesMotherName,
-          matchesMotherNameInNepali,
-          matchesGrandFatherName,
-          matchesGrandFatherNameInNepali,
-        });
-
-        return matchesName || matchesNameInNepali || matchesFatherName || matchesFatherNameInNepali || matchesMotherName || matchesMotherNameInNepali || matchesGrandFatherName || matchesGrandFatherNameInNepali;
-      });
-      console.log("Filtered Suggestions:", filteredSuggestions); // Debug: Log filtered suggestions
-
-      // Format suggestions as "Pusta_Number|Name|Father|Grandfather|Mother"
-      const formattedSuggestions = filteredSuggestions.map(sugg => ({
-        ...sugg,
-        displayText: `${sugg.pusta_number || "N/A"}|${sugg.name_in_nepali || sugg.name || "N/A"}|${(sugg.father?.name_in_nepali || sugg.father?.name || "N/A") + " " + (sugg.mother?.name_in_nepali || sugg.mother?.name || "N/A")}|${sugg.father.father?.name_in_nepali || sugg.father.father?.name || "N/A"}`,
+        name: person.name || "",
+        father: person.father || "",
+        grandfather: person.grandfather || "",
+        // For selection, keep the whole object
+        raw: person
       }));
 
-      setRightNameSuggestions(formattedSuggestions);
-      setShowSuggestions(true); // Show dropdown after fetching suggestions
-      if (formattedSuggestions.length === 0) {
+      // Remove client-side filtering: always show all backend results
+      setRightNameSuggestions(suggestions);
+      setShowSuggestions(true);
+      if (suggestions.length === 0) {
         setApiError("No results found for the search query.");
       } else {
         setApiError("");
       }
     } catch (error) {
-      console.error("Error fetching name suggestions:", error);
       setApiError("Failed to fetch name suggestions. Please try again.");
       Swal.fire({
         title: "Error",
@@ -180,23 +125,19 @@ const Compare = () => {
 
   // Handle selection of a suggestion and update Person 2 data
   const handleSelectSuggestion = (sugg) => {
-    const updatedRightPerson = {
-      name_in_nepali: sugg.name_in_nepali || sugg.name,
-      id: sugg.id,
+    setRightPerson({
+      name_in_nepali: sugg.name,
       pusta_number: sugg.pusta_number,
-      fatherName: sugg.father?.name_in_nepali || sugg.father?.name || "",
-      motherName: sugg.mother?.name_in_nepali || sugg.mother?.name || "",
-      fatherId: sugg.father?.id || "",
-      motherId: sugg.mother?.id || "",
-      grandfatherID: sugg.father.father?.id || "",
-      father: { ...sugg.father, name: sugg.father?.name || "", name_in_nepali: sugg.father?.name_in_nepali || "" },
-      mother: { ...sugg.mother, name: sugg.mother?.name || "", name_in_nepali: sugg.mother?.name_in_nepali || "" },
-      grandfather: { ...sugg.father.father, name: sugg.father.father?.name || "", name_in_nepali: sugg.father.father?.name_in_nepali || "" },
-    };
-    setRightPerson(updatedRightPerson);
-    console.log("Updated rightPerson:", updatedRightPerson); // Debug log
+      fatherName: sugg.father || "",
+      motherName: "",
+      fatherId: "",
+      motherId: "",
+      father: { name: sugg.father || "", name_in_nepali: sugg.father || "" },
+      mother: { name: "", name_in_nepali: "" },
+      grandfather: { name: sugg.grandfather || "", name_in_nepali: sugg.grandfather || "" },
+    });
     setSearchQuery("");
-    setShowSuggestions(false); // Hide dropdown after selection
+    setShowSuggestions(false);
   };
 
   // Close dropdown when clicking outside the search field
@@ -737,15 +678,22 @@ const Compare = () => {
                   {/* Dropdown integrated into the input field, showing all suggestions with scrolling */}
                   {showSuggestions && rightNameSuggestions.length > 0 && (
                     <div className="suggestions-dropdown">
-                      {rightNameSuggestions.map((sugg) => (
-                        <div
-                          key={sugg.id}
-                          className="suggestion-item"
-                          onClick={() => handleSelectSuggestion(sugg)}
-                        >
-                          {sugg.displayText}
-                        </div>
-                      ))}
+                      {rightNameSuggestions.map((sugg, idx) => {
+                        let display = sugg.pusta_number || "";
+                        if (sugg.name) display += ` | ${sugg.name}`;
+                        if (sugg.father) display += ` | ${sugg.father}`;
+                        // Only add grandfather if present
+                        if (sugg.grandfather) display += ` | ${sugg.grandfather}`;
+                        return (
+                          <div
+                            key={idx}
+                            className="suggestion-item"
+                            onClick={() => handleSelectSuggestion(sugg)}
+                          >
+                            {display}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
