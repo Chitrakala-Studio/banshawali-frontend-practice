@@ -22,6 +22,8 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 const GenderIcon = ({ gender, label }) => {
   const iconBase = { width: 20, height: 20, marginRight: 8 };
@@ -58,10 +60,10 @@ const UserProfileModal = ({ user, onClose }) => {
       navigator.clipboard
         .writeText(user.bio)
         .then(() => {
-          alert("Bio copied to clipboard!");
+            toast.success("Bio copied to clipboard!");
         })
         .catch((err) => {
-          console.error("Failed to copy text: ", err);
+          toast.error("Failed to copy text");
         });
     }
   };
@@ -71,10 +73,10 @@ const UserProfileModal = ({ user, onClose }) => {
       navigator.clipboard
         .writeText(user.bio_siblings)
         .then(() => {
-          alert("Bio of Siblings copied to clipboard!");
+          toast.success("Bio of Siblings copied to clipboard!");
         })
         .catch((err) => {
-          console.error("Failed to copy text: ", err);
+          toast.error("Failed to copy text");
         });
     }
   };
@@ -606,7 +608,6 @@ const UserProfileModal = ({ user, onClose }) => {
            /* Responsive: stack columns on small screens */
           @media (max-width: 600px) {
             .header-section {
-              flex-direction: column;
               gap: 8px;
             }
             .header-image-container,
@@ -617,6 +618,14 @@ const UserProfileModal = ({ user, onClose }) => {
             .profile-image {
               width: 100%;
               height: 140px;
+            }
+
+            ..bio{
+              padding-right: 0; /* Remove right padding on small screens */
+            }
+
+            .tab-btn {
+              padding: 4px 8px;
             }
           }
         `}
@@ -658,7 +667,7 @@ const UserProfileModal = ({ user, onClose }) => {
             {/* Main bio with copy icon */}
             {user.bio && (
               <div className="bio-container">
-                <p className="bio justify-text" style={{ marginRight: "36px" }}>{user.bio}</p>
+                <p className="bio justify-text">{user.bio}</p>
                 <button
                   onClick={handleCopy}
                   className="copy-btn bio-copy-fixed"

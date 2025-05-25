@@ -80,3 +80,7 @@
   border-radius: 4px !important;
   padding: 8px !important;
 }
+
+table{
+  margin-left: -20px;
+}

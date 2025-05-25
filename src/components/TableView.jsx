@@ -840,7 +840,8 @@ const TableView = () => {
 
           .swal-textarea {
             height: 150px;
-            width: 410px;
+            width: 257px;
+            max-width: 410px;
             background-color: var(--popup-start);
             border: 2px solid var(--secondary-light);
             border-radius: 10px;
