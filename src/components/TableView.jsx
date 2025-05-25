@@ -1600,21 +1600,21 @@ const TableView = () => {
                               : "other"
                           }`}
                         >
+
                           <img
                             src={
-                              row.photo &&
-                              typeof row.photo === "string" &&
-                              row.photo.startsWith("http")
+                              row.photo && typeof row.photo === "string" && row.photo.startsWith("http")
                                 ? row.photo
                                 : row.gender?.toLowerCase() === "male"
-                                ? "https://res.cloudinary.com/da48nhp3z/image/upload_v1740120672/maleicon_anaxb1.png"
+                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                                 : row.gender?.toLowerCase() === "female"
                                 ? "https://res.cloudinary.com/da48nhp3z/image/upload_v1740120672/femaleicon_vhrive.jpg"
                                 : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png"
                             }
-                            alt="Profile"
+                            alt="User"
                             className="w-10 h-10 rounded-full object-cover"
                           />
+
                           <span>{row.name_in_nepali || "-"}</span>
                         </td>
                         <td className="text-center">
