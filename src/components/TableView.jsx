@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   FaArrowLeft,
@@ -39,6 +39,7 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import Suggestion from "./Suggestion";
 import ClipLoader from "react-spinners/ClipLoader";
 import FamilyTreeGraph from "./FamilyTreeGraph";
+import TableHeader from "./TableHeader"; // Import the new component
 
 const TableView = () => {
   const { id } = useParams();
@@ -99,11 +100,9 @@ const TableView = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Consolidated useEffect for initial setup and data fetching
   useEffect(() => {
     console.log("Running consolidated useEffect for initial setup");
 
-    // Set up admin status
     const userStr = localStorage.getItem("user");
     if (userStr) {
       const user = JSON.parse(userStr);
@@ -112,11 +111,23 @@ const TableView = () => {
       setIsAdminLocal(false);
     }
 
-    // Determine active tab and fetch data
     if (location.pathname === "/suggestions") {
       console.log("Path is /suggestions, setting activeTab to suggestions");
       setActiveTab("suggestions");
       fetchSuggestions();
+    } else if (location.pathname === "/add-new-user") {
+      setActiveTab("data");
+      setFormData({
+        username: "",
+        pusta_number: "",
+        father_name: "",
+        mother_name: "",
+        dob: "",
+        lifestatus: "Alive",
+        profession: "",
+        gender: "Male",
+      });
+      setIsAdding(true);
     } else {
       console.log("Path is not /suggestions, setting activeTab to data");
       setActiveTab("data");
@@ -124,7 +135,6 @@ const TableView = () => {
     }
   }, [location.pathname, id]);
 
-  // useEffect for window resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 800);
     window.addEventListener("resize", handleResize);
@@ -223,26 +233,18 @@ const TableView = () => {
     updateSuggestionStatus(id, "Rejected", suggestion, image);
   };
 
-  // TableView.jsx
   const handleAddChildClick = async (row) => {
-    // …
-
-    // 1) fetch all spouses
-    let spouses = [
-      /* … */
-    ];
+    let spouses = [];
     let spouseOptions = spouses.map((sp) => ({
       id: sp.id,
       name: sp.name_in_nepali || sp.name,
     }));
 
-    // 2) pick which side is the clicked row, but always hand _all_ spouses
     let fatherData = { id: null, name: "" };
     let motherData = { id: null, name: "" };
 
     if (row.gender.toLowerCase() === "male") {
       fatherData = { id: row.id, name: row.name_in_nepali || row.name };
-      // don’t pre‐fill motherData if there are >1 spouses
       if (spouseOptions.length === 1) {
         motherData = spouseOptions[0];
       }
@@ -449,7 +451,6 @@ const TableView = () => {
   const fetchSearchResults = async (criteria, page = 1, replace = false) => {
     setLoading(true);
     try {
-      // Only include primitive values, skip objects/arrays and empty values
       const paramsObj = {};
       Object.entries(criteria).forEach(([key, value]) => {
         if (
@@ -602,7 +603,6 @@ const TableView = () => {
     });
   };
 
-  // Add state to track expanded rows for mobile
   const [expandedRows, setExpandedRows] = useState({});
 
   const toggleExpandRow = (index) => {
@@ -1071,7 +1071,6 @@ const TableView = () => {
   }
 }
 
-
           /* ensure the table always shows and scrolls on mobile */
 .table-wrapper {
   overflow-x: auto;             /* allow horizontal scrolling */
@@ -1090,153 +1089,25 @@ const TableView = () => {
     display: block !important;
   }
 }
-
         `}
       </style>
 
       <div className={isModalOpen ? "blurred" : ""}>
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between w-full mb-4 gap-2">
-          <div className="flex items-center gap-4">
-            <div
-              style={{ display: activeTab === "suggestions" ? "none" : "flex" }}
-            >
-              <ToggleView
-                isTableView={isTableView}
-                toggleView={() => setIsTableView(!isTableView)}
-                availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
-              />
-            </div>
-          </div>
-          <div className="flex gap-4">
-            {activeTab !== "data" && (
-              <button
-                onClick={() => navigate("/")}
-                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
-              >
-                <FaArrowLeft />
-                <span>Back to Table</span>
-              </button>
-            )}
-            {(id || searchApplied) && (
-              <button
-                onClick={handleGoBack}
-                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
-              >
-                <FaArrowLeft />
-                <span>Back to Table</span>
-              </button>
-            )}
-            <button className="hidden sm:flex top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm">
-              <FaHome />
-              <a href="https://gautamfamily.org.np/">Homepage</a>
-            </button>
+        <TableHeader
+          activeTab={activeTab}
+          id={id}
+          searchApplied={searchApplied}
+          isAdmin={isAdminLocal}
+          isTableView={isTableView}
+          toggleView={() => setIsTableView(!isTableView)}
+          availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
+          navigate={navigate}
+          setShowSearchForm={setShowSearchForm}
+          filteredData={filteredData}
+        />
 
-            {activeTab !== "suggestions" && !id && (
-              <button
-                onClick={() => setShowSearchForm(true)}
-                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
-              >
-                <FaSearch />
-                <span>Search User</span>
-              </button>
-            )}
-
-            {isAdminLocal && (
-              <>
-                {activeTab !== "suggestions" && !id && (
-                  <button
-                    onClick={() => navigate("/suggestions")}
-                    className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
-                    data-tooltip-id="tooltip"
-                    data-tooltip-content="View Suggestions"
-                  >
-                    <Eye size={18} />
-                    <span>View Suggestions</span>
-                  </button>
-                )}
-                {activeTab !== "suggestions" && !id && (
-                  <button
-                    onClick={() => {
-                      setFormData({
-                        username: "",
-                        pusta_number: "",
-                        father_name: "",
-                        mother_name: "",
-                        dob: "",
-                        lifestatus: "Alive",
-                        profession: "",
-                        gender: "Male",
-                      });
-                      setIsAdding(true);
-                    }}
-                    className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
-                  >
-                    <Plus size={18} />
-                    <span> Add New User</span>
-                  </button>
-                )}
-                {activeTab !== "suggestions" && !id && (
-                  <button
-                    onClick={() => navigate("/add-admin")}
-                    className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
-                  >
-                    <FaUserPlus />
-                    <span>View Admin</span>
-                  </button>
-                )}
-              </>
-            )}
-
-            {/* Add this block for Download button */}
-            {activeTab !== "suggestions" && id && (
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch(
-                      `${API_URL}/people/${id}/?type=download`,
-                      {
-                        method: "GET",
-                        headers: {
-                          "Content-Type":
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                          // Add auth headers if needed
-                        },
-                      }
-                    );
-                    if (!response.ok)
-                      throw new Error("Failed to download file");
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `${
-                      filteredData[0]?.name_in_nepali ||
-                      filteredData[0]?.name ||
-                      id
-                    }_वंशज.xlsx`;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    window.URL.revokeObjectURL(url);
-                  } catch (err) {
-                    Swal.fire({
-                      title: "Error!",
-                      text: "Failed to download file.",
-                      icon: "error",
-                    });
-                  }
-                }}
-                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
-              >
-                <Download size={18} />
-                <span>Download</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {activeTab === "data" && (
-          isMobile ? (
+        {activeTab === "data" &&
+          (isMobile ? (
             <div className="mobile-list-container">
               <style>{`
       .mobile-list-container {
@@ -1382,7 +1253,9 @@ const TableView = () => {
                       <div className="mobile-list-avatar">
                         <img
                           src={
-                            row.photo && typeof row.photo === "string" && row.photo.startsWith("http")
+                            row.photo &&
+                            typeof row.photo === "string" &&
+                            row.photo.startsWith("http")
                               ? row.photo
                               : row.gender?.toLowerCase() === "male"
                               ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
@@ -1391,7 +1264,12 @@ const TableView = () => {
                               : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                           }
                           alt="User"
-                          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
                         />
                       </div>
                     </div>
@@ -1401,47 +1279,92 @@ const TableView = () => {
                           {row.name_in_nepali || row.name}
                         </div>
                         <div style={{ flex: 1 }} />
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <div className="mobile-list-pusta" style={{ fontWeight: 500, color: '#2E4568', fontSize: '1rem', display: 'flex', alignItems: 'center' }}>
-                            <span style={{ fontWeight: 400, color: '#444', marginRight: 1 }}>पु. न:</span>
-                            <span style={{ fontWeight: 600, color: '#2E4568', fontSize: '1.1rem', marginRight: 2 }}>{convertToNepaliNumerals(row.pusta_number, true) || '-'}</span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                          }}
+                        >
+                          <div
+                            className="mobile-list-pusta"
+                            style={{
+                              fontWeight: 500,
+                              color: "#2E4568",
+                              fontSize: "1rem",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontWeight: 400,
+                                color: "#444",
+                                marginRight: 1,
+                              }}
+                            >
+                              पु. न:
+                            </span>
+                            <span
+                              style={{
+                                fontWeight: 600,
+                                color: "#2E4568",
+                                fontSize: "1.1rem",
+                                marginRight: 2,
+                              }}
+                            >
+                              {convertToNepaliNumerals(
+                                row.pusta_number,
+                                true
+                              ) || "-"}
+                            </span>
                           </div>
                           <button
                             className="mobile-list-expand-btn"
-                            aria-label={expandedRows[idx] ? 'Collapse' : 'Expand'}
-                            onClick={e => { e.stopPropagation(); toggleExpandRow(idx); }}
+                            aria-label={
+                              expandedRows[idx] ? "Collapse" : "Expand"
+                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleExpandRow(idx);
+                            }}
                           >
-                            {expandedRows[idx] ? <span>&#8722;</span> : <span>&#43;</span>}
+                            {expandedRows[idx] ? (
+                              <span>−</span>
+                            ) : (
+                              <span>+</span>
+                            )}
                           </button>
                         </div>
                       </div>
-                      
                     </div>
                   </div>
                   {expandedRows[idx] && (
                     <>
                       <hr className="mobile-list-divider" />
-                        <div className="mobile-list-details">
-                          <div className="mobile-list-details-row">
-                            <b>बाबुको नाम: </b>
-                            {row.father?.id && (row.father.name_in_nepali || row.father.name) ? (
-                              <span
-                                className="cursor-pointer text-primary"
-                                onClick={() => navigate(`/${row.father.id}`)}
-                              >
-                                {row.father.name_in_nepali || row.father.name}
-                              </span>
-                            ) : (
-                              <span className="text-secondary">-</span>
-                            )}
-                          </div>
+                      <div className="mobile-list-details">
+                        <div className="mobile-list-details-row">
+                          <b>बाबुको नाम: </b>
+                          {row.father?.id &&
+                          (row.father.name_in_nepali || row.father.name) ? (
+                            <span
+                              className="cursor-pointer text-primary"
+                              onClick={() => navigate(`/${row.father.id}`)}
+                            >
+                              {row.father.name_in_nepali || row.father.name}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
                         </div>
-                      
+                      </div>
+
                       <hr className="mobile-list-divider" />
                       <div className="mobile-list-details">
                         <div className="mobile-list-details-row">
-                          <b>आमाको नाम:</b>{' '}
-                          {row.mother?.id && (row.mother.name_in_nepali || row.mother.name) ? (
+                          <b>आमाको नाम:</b>{" "}
+                          {row.mother?.id &&
+                          (row.mother.name_in_nepali || row.mother.name) ? (
                             <span
                               className="cursor-pointer text-primary"
                               onClick={() => navigate(`/${row.mother.id}`)}
@@ -1454,13 +1377,16 @@ const TableView = () => {
                         </div>
                         <hr className="mobile-list-divider" />
                         <div className="mobile-list-details-row">
-                          <b>हजुरबुबाको नाम:</b>{' '}
-                          {row.grandfather?.id && (row.grandfather.name_in_nepali || row.grandfather.name) ? (
+                          <b>हजुरबुबाको नाम:</b>{" "}
+                          {row.grandfather?.id &&
+                          (row.grandfather.name_in_nepali ||
+                            row.grandfather.name) ? (
                             <span
                               className="cursor-pointer text-primary"
                               onClick={() => navigate(`/${row.grandfather.id}`)}
                             >
-                              {row.grandfather.name_in_nepali || row.grandfather.name}
+                              {row.grandfather.name_in_nepali ||
+                                row.grandfather.name}
                             </span>
                           ) : (
                             <span className="text-secondary">-</span>
@@ -1468,13 +1394,18 @@ const TableView = () => {
                         </div>
                         <hr className="mobile-list-divider" />
                         <div className="mobile-list-details-row">
-                          <b>बाजेको नाम:</b>{' '}
-                          {row.great_grandfather?.id && (row.great_grandfather.name_in_nepali || row.great_grandfather.name) ? (
+                          <b>बाजेको नाम:</b>{" "}
+                          {row.great_grandfather?.id &&
+                          (row.great_grandfather.name_in_nepali ||
+                            row.great_grandfather.name) ? (
                             <span
                               className="cursor-pointer text-primary"
-                              onClick={() => navigate(`/${row.great_grandfather.id}`)}
+                              onClick={() =>
+                                navigate(`/${row.great_grandfather.id}`)
+                              }
                             >
-                              {row.great_grandfather.name_in_nepali || row.great_grandfather.name}
+                              {row.great_grandfather.name_in_nepali ||
+                                row.great_grandfather.name}
                             </span>
                           ) : (
                             <span className="text-secondary">-</span>
@@ -1482,8 +1413,24 @@ const TableView = () => {
                         </div>
                       </div>
                       <hr className="mobile-list-divider" />
-                      <div className="mobile-list-actions" style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', marginTop: 0 }}>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flex: 1, justifyContent: 'center' }}>
+                      <div
+                        className="mobile-list-actions"
+                        style={{
+                          alignItems: "center",
+                          justifyContent: "center",
+                          display: "flex",
+                          marginTop: 0,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: 8,
+                            flexWrap: "wrap",
+                            flex: 1,
+                            justifyContent: "center",
+                          }}
+                        >
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="View Info"
@@ -1607,10 +1554,11 @@ const TableView = () => {
                               : "other"
                           }`}
                         >
-
                           <img
                             src={
-                              row.photo && typeof row.photo === "string" && row.photo.startsWith("http")
+                              row.photo &&
+                              typeof row.photo === "string" &&
+                              row.photo.startsWith("http")
                                 ? row.photo
                                 : row.gender?.toLowerCase() === "male"
                                 ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
@@ -1621,7 +1569,6 @@ const TableView = () => {
                             alt="User"
                             className="w-10 h-10 rounded-full object-cover"
                           />
-
                           <span>{row.name_in_nepali || "-"}</span>
                         </td>
                         <td className="text-center">
@@ -1766,8 +1713,7 @@ const TableView = () => {
                 </tbody>
               </table>
             </div>
-          )
-        )}
+          ))}
 
         {!id ? (
           <InfiniteScroll
@@ -1803,7 +1749,10 @@ const TableView = () => {
       {isAdding && (
         <EditFormModal
           formData={formData}
-          onClose={() => setIsAdding(false)}
+          onClose={() => {
+            setIsAdding(false);
+            navigate("/"); // Navigate back to table view after closing
+          }}
           onSave={handleSaveNew}
         />
       )}

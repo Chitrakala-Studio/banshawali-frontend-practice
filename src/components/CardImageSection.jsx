@@ -23,26 +23,31 @@ const CardImageSection = ({
     >
       <style>
         {`
-          .image-container {
-            position: relative;
-            width: 100%;
-            transition: height 0.3s ease; /* Smooth transition for height change */
-          }
+    .image-container {
+      position: relative;
+      width: 100%;
+      transition: height 0.3s ease;
+    }
 
-          /* Adjust image height based on isExpanded */
-          .image-container:not(.expanded) {
-            height: 100%; /* Full height when collapsed */
-          }
+    .image-container:not(.expanded) {
+      height: 100%;
+    }
 
-          .image-container.expanded {
-            height: 70%; /* Reduced height when expanded */
-          }
+    .image-container.expanded {
+      height: 70%;
+    }
 
-          .info-container {
-            width: 100%;
-            flex-grow: 1; /* Take remaining space */
-          }
-        `}
+    /* Only for web view (min-width: 800px) */
+    @media (min-width: 800px) {
+      .image-container {
+        height: 500px; /* 👈 adjust this value as needed */
+      }
+
+      .image-container.expanded {
+        height: 400px; /* 👈 adjust as needed when expanded */
+      }
+    }
+  `}
       </style>
 
       <div className={`image-container ${isExpanded ? "expanded" : ""}`}>

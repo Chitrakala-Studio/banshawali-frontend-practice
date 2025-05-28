@@ -257,9 +257,6 @@ const CardView = () => {
     );
 
   const currentPerson = data[currentIndex];
-  const isInfoOpen =
-    isExpanded &&
-    infoPopup === (currentPerson?.name || currentPerson?.name_in_nepali);
 
   return (
     <>
@@ -483,7 +480,6 @@ const CardView = () => {
             }
           `}
         </style>
-        {/* Mobile header: show toggle/homepage if popup is not open, else show name+arrow */}
         {isMobile && !isExpanded && (
           <div
             className="top-bar-wrapper"
@@ -547,14 +543,18 @@ const CardView = () => {
 
             <button
               className="toggle-btn"
-              onClick={handleMoveName}
+              onClick={(event) => {
+                event.stopPropagation(); // Prevent swipe behavior
+                handleMoveName();
+              }}
+              onTouchStart={(e) => e.stopPropagation()} // Prevent touch events
+              onTouchMove={(e) => e.stopPropagation()} // Prevent touch move
               aria-label={isExpanded ? "Collapse" : "Expand"}
             >
               {isExpanded ? <FaArrowDown size={20} /> : <FaArrowUp size={20} />}
             </button>
           </div>
         )}
-        {/* Desktop header: keep as is */}
         {!isMobile && (
           <div className="top-bar-wrapper">
             <ToggleView
@@ -573,10 +573,10 @@ const CardView = () => {
         )}
 
         <div className="card-container">
-          {isInfoOpen ? (
+          {isExpanded ? (
             <div
               className="card-wrapper"
-              style={{ paddingBottom: isMobile ? 80 : 0 }}
+              style={{ paddingBottom: isMobile ? 80 : 0, touchAction: "pan-y" }}
             >
               <CardImageSection
                 person={currentPerson}
@@ -629,7 +629,6 @@ const CardView = () => {
             convertToNepaliNumerals={convertToNepaliNumerals}
             person={{
               ...currentPerson,
-              // Ensure pusta_number is always shown in Nepali numerals
               pusta_number: currentPerson?.pusta_number
                 ? convertToNepaliNumerals(currentPerson.pusta_number)
                 : "-",

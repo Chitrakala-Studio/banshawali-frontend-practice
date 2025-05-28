@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 import ReactD3Tree from "react-d3-tree";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./App.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import Swal from "sweetalert2";
@@ -79,25 +78,6 @@ const findNodeById = (tree, id) => {
   }
 
   return null;
-};
-
-const handlePrint = async () => {
-  const confirmation = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to print the family tree?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Yes, print it!",
-  });
-
-  if (confirmation.isConfirmed) {
-    window.print(); // Trigger the browser's print dialog
-    Swal.fire(
-      "Printed!",
-      "Your family tree has been sent to the printer.",
-      "success"
-    );
-  }
 };
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -215,7 +195,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
       if (svgElement) {
         await delay(500);
 
-        // Inline all styles
         function inlineStyles(svg) {
           const allElements = svg.querySelectorAll("*");
           allElements.forEach((el) => {
@@ -231,9 +210,8 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
 
         inlineStyles(svgElement);
 
-        // Fix stroke styling
         svgElement.querySelectorAll("path, line").forEach((el) => {
-          el.setAttribute("stroke", "#999");
+          el.setAttribute("stroke", "#B9BAC3");
           el.setAttribute("stroke-width", "2");
         });
 
@@ -279,6 +257,11 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   };
 
   const handleNameClick = (nodeDatum) => {
+    // Prevent navigation in mobile view
+    if (isMobile) {
+      return; // Do nothing if in mobile view
+    }
+
     if (!nodeDatum.isCollapsible && nodeDatum.real_id) {
       if (typeof closePopup === "function") {
         closePopup();
@@ -440,7 +423,6 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
               : remaining
           );
         } else {
-          // Truncate last line with ellipsis
           lines[MAX_LINES - 1] =
             lines[MAX_LINES - 1].slice(0, MAX_LINE_LENGTH - 3) + "...";
         }
@@ -449,14 +431,14 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
     };
 
     const nameLines = wrapText(nodeDatum.name);
-    const nameBlockHeight = nameLines.length * 22; // 22px per line
+    const nameBlockHeight = nameLines.length * 22;
 
     return (
       <g
         className="tree-node"
         id="family-tree"
         strokeWidth="0.5"
-        fontFamily="sans-serif"
+        fontFamily="'Merriweather', serif"
         cursor="pointer"
         fontWeight="200"
         onClick={() => handleNodeClick(nodeDatum)}
@@ -470,8 +452,10 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             height="65"
             rx="15"
             ry="15"
-            fill={gender === "Male" ? "#d4fff5" : "#ffcee9"}
-            stroke="#ccc"
+            fill={
+              gender === "Male" ? "var(--accent-male)" : "var(--accent-female)"
+            }
+            stroke="var(--neutral-gray)"
             strokeWidth="1"
             filter="url(#shadow)"
             pointerEvents="all"
@@ -485,8 +469,8 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             height="40"
             rx="20"
             ry="20"
-            fill="#f49D37"
-            stroke="#bbb"
+            fill="var(--secondary-light)"
+            stroke="var(--neutral-gray)"
             strokeWidth="1"
             filter="url(#shadow)"
             pointerEvents="all"
@@ -532,7 +516,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             y="0"
             textAnchor="middle"
             fontSize="14"
-            fill="#333"
+            fill="var(--primary-dark)"
             strokeWidth="0"
             fontWeight="bold"
             pointerEvents="none"
@@ -547,15 +531,20 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             textAnchor="middle"
             fontSize="16"
             dominantBaseline="middle"
-            fill="#333"
+            fill="var(--white)"
             strokeWidth="0"
             fontWeight="500"
-            cursor="pointer"
+            // Only make the name clickable in non-mobile view
+            cursor={isMobile ? "default" : "pointer"}
             className="name-text"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNameClick(nodeDatum);
-            }}
+            onClick={
+              isMobile
+                ? undefined // No click handler in mobile view
+                : (e) => {
+                    e.stopPropagation();
+                    handleNameClick(nodeDatum);
+                  }
+            }
           >
             {nameLines.map((line, i) => (
               <tspan key={i} x="25" dy={i === 0 ? 0 : 22} strokeWidth="0">
@@ -573,7 +562,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             textAnchor="middle"
             fontSize="12"
             fontWeight="normal"
-            fill="#666"
+            fill="var(--white)"
             pointerEvents="none"
           >
             {nodeDatum.pusta}
@@ -588,7 +577,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             style={{ transition: "transform 0.3s ease" }}
             pointerEvents="none"
           >
-            <ChevronRight size="18" color="#666" />
+            <ChevronRight size="18" color="var(--primary-dark)" />
           </g>
         )}
       </g>
@@ -598,95 +587,189 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   return (
     <div
       style={{
-        color: "#800000",
+        color: "var(--primary-dark)",
         position: "relative",
       }}
     >
+      <style>
+        {`
+          :root {
+            --primary-dark: #2E4568;
+            --primary-hover: #4A6A9D;
+            --secondary-light: #E9D4B0;
+            --secondary-lighter: #D9C4A0;
+            --accent-male: #4A6A9D;
+            --accent-female: #D4A5A5;
+            --accent-other: #B9BAC3;
+            --neutral-gray: #B9BAC3;
+            --neutral-light-gray: #E0E0E0;
+            --background-start: #F8E5C0;
+            --background-end: #CDE8D0;
+            --white: #FFFFFF;
+            --popup-start: #A6C8A5;
+            --popup-end: #B9BAC3;
+          }
+
+          .tree-container {
+            background: radial-gradient(circle at top, var(--background-start) 30%, var(--background-end) 100%);
+            position: relative;
+            width: ${isMobile ? "80vh" : "100%"};
+            height: ${isMobile ? "160vw" : "50em"};
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transform: ${isMobile ? "rotate(90deg)" : "none"};
+            transform-origin: ${isMobile ? "down left" : "none"};
+            overflow: auto;
+            z-index: 10;
+          }
+
+          .tree-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+          }
+
+          .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+          }
+
+          .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--neutral-gray);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+
+          .loading-text {
+            margin-top: 16px;
+            font-family: 'Merriweather', serif;
+            font-size: 18px;
+            color: var(--primary-dark);
+          }
+
+          .action-buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-top: 10px;
+          }
+
+          .action-button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: var(--secondary-light);
+            background-color: var(--primary-dark);
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .action-button:hover {
+            background-color: var(--primary-hover);
+            color: var(--white);
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          }
+
+          .close-button {
+            background: linear-gradient(to bottom, var(--popup-start), var(--popup-end));
+            border: 2px solid var(--secondary-light);
+            border-radius: 50%;
+            padding: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            line-height: 0;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+          }
+
+          .close-button:hover {
+            transform: scale(1.1);
+          }
+
+          .custom-link {
+            stroke: var(--neutral-gray) !important;
+            stroke-width: 1px !important;
+            fill: none !important;
+          }
+        `}
+      </style>
+
       {typeof closePopup === "function" && (
         <button
           aria-label="Close family tree"
           onClick={closePopup}
           onTouchStart={closePopup}
-          className="absolute bg-white/70 backdrop-blur p-1 rounded-full shadow z-[1000]"
-          style={{
-            lineHeight: 0,
-            top: "12px",
-            right: "12px",
-          }}
+          className="close-button"
         >
-          <XIcon size={18} />
+          <XIcon size={18} color="var(--primary-dark)" />
         </button>
       )}
-      <div
-        className="tree"
-        ref={treeContainerRef}
-        style={{
-          position: "relative",
-          width: isMobile ? "80vh" : "100%",
-          height: isMobile ? "160vw" : "50em",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          transform: isMobile ? "rotate(90deg)" : "none",
-          transformOrigin: isMobile ? "down left" : "none",
-          overflow: "auto",
-          zIndex: "10",
-        }}
-      >
+
+      <div className="tree-container" ref={treeContainerRef}>
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="w-12 h-12 border-4 border-teal-700 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-lg text-teal-700">Loading Family Tree...</p>
+          <div className="loading-container">
+            <div className="spinner"></div>
+            <p className="loading-text">Loading Family Tree...</p>
           </div>
         ) : (
           <>
-        <h2 className="text-2xl font-semibold mb-4">
-          {selectedPerson} Family Tree
-        </h2>
-        {treeData && (
-          <ReactD3Tree
-            data={treeData}
-            orientation="horizontal"
-            nodeSize={{ x: 200, y: 200 }}
-            translate={{
-              x: isMobile ? dimensions.width / 6 : dimensions.width / 2,
-              y: isMobile ? dimensions.height / 1.3 : dimensions.height / 3,
-            }}
-            renderCustomNodeElement={({ nodeDatum }) => renderNode(nodeDatum)}
-            onNodeClick={handleNodeClick}
-            separation={{ siblings: 0.5, nonSiblings: 0.9 }}
-            pathFunc="step"
-            pathProps={{
-              fill: "none", // kill the fill that’s making trapezoids
-              stroke: "var(--primary-dark)", // your desired line color
-              strokeWidth: 0.5, // a crisp 1px stroke
-            }}
-            pathClassFunc={() => "custom-link"}
-          />
-        )}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "10px",
-            marginTop: "10px",
-          }}
-        >
-          <button
-            onClick={handlePDF}
-            className="save-button bg-teal-700 text-white h-6 border-black/10 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2 text-sm"
-          >
-            Save as PDF
-          </button>
-          <button
-            onClick={handlePrint}
-            className="print-button bg-teal-700 text-sm text-white border-black/10 h-6 px-4 py-3 rounded-md focus:outline-none hover:bg-teal-600 hover:scale-110 hover:border-black/10 hover:shadow-lg transition-all shadow-md flex items-center space-x-2"
-          >
-            Print Family Tree
-          </button>
-           </div>
-      </>
+            <h2 className="tree-title">{selectedPerson} Family Tree</h2>
+            {treeData && (
+              <ReactD3Tree
+                data={treeData}
+                orientation="horizontal"
+                nodeSize={{ x: 200, y: 200 }}
+                translate={{
+                  x: isMobile ? dimensions.width / 6 : dimensions.width / 2,
+                  y: isMobile ? dimensions.height / 1.3 : dimensions.height / 3,
+                }}
+                renderCustomNodeElement={({ nodeDatum }) =>
+                  renderNode(nodeDatum)
+                }
+                onNodeClick={handleNodeClick}
+                separation={{ siblings: 0.5, nonSiblings: 0.9 }}
+                pathFunc="step"
+                pathProps={{
+                  fill: "none",
+                  stroke: "var(--neutral-gray)",
+                  strokeWidth: 0.5,
+                }}
+                pathClassFunc={() => "custom-link"}
+              />
+            )}
+            <div className="action-buttons">
+              <button onClick={handlePDF} className="action-button">
+                Save as PDF
+              </button>
+              <button onClick={handlePrint} className="action-button">
+                Print Family Tree
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
