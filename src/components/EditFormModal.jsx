@@ -32,6 +32,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     },
     profession: formData.profession || "",
     profileImage: formData.profileImage || "",
+    blood: formData.blood || "",
+    designation: formData.designation || "",
+    company: formData.company || "",
+    location: formData.location || "",
   }));
 
   const [suggestions, setSuggestions] = useState([]);
@@ -535,6 +539,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         gender: form.gender || "",
         same_vamsha_status: form.vansha_status || "",
         spouses: form.spouses.filter((s) => s.id).map((s) => s.id),
+        blood: form.blood || undefined,
+        designation: form.designation || undefined,
+        company: form.company || undefined,
+        location: form.location || undefined,
       };
 
       const response = form.id
@@ -920,6 +928,19 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
 
               <div className="form-field">
+                <label className="label">Blood Group</label>
+                <input
+                  type="text"
+                  name="blood"
+                  value={form.blood || ''}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="Enter blood group (optional)"
+                  style={{ backgroundImage: "none" }}
+                />
+              </div>
+
+              <div className="form-field">
                 <label className="label">Gender <span style={{color: 'red'}}>*</span></label>
                 <select
                   name="gender"
@@ -1137,6 +1158,42 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   style={{ backgroundImage: "none" }}
                 />
               </div>
+              <div className="form-field">
+                <label className="label">Designation</label>
+                <input
+                  type="text"
+                  name="designation"
+                  value={form.designation || ''}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="Enter designation (optional)"
+                  style={{ backgroundImage: "none" }}
+                />
+              </div>
+              <div className="form-field">
+                <label className="label">Company</label>
+                <input
+                  type="text"
+                  name="company"
+                  value={form.company || ''}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="Enter company (optional)"
+                  style={{ backgroundImage: "none" }}
+                />
+              </div>
+              <div className="form-field">
+                <label className="label">Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={form.location || ''}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="Enter location (optional)"
+                  style={{ backgroundImage: "none" }}
+                />
+              </div>
             </div>
 
             <div className="flex justify-center w-full">
@@ -1179,6 +1236,10 @@ EditFormModal.propTypes = {
     mother_name: PropTypes.string,
     spouses: PropTypes.arrayOf(PropTypes.string),
     profession: PropTypes.string,
+    blood: PropTypes.string,
+    designation: PropTypes.string,
+    company: PropTypes.string,
+    location: PropTypes.string,
     contact: PropTypes.shape({
       email: PropTypes.string,
       phone: PropTypes.string,
