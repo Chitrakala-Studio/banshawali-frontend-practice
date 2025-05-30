@@ -15,6 +15,9 @@ const TableHeader = ({
   navigate,
   setShowSearchForm,
   filteredData,
+  setFilteredData, // Fix: Add setFilteredData prop
+  data, // Fix: Add data prop
+  setSearchApplied, // NEW: Accept setSearchApplied as a prop
 }) => {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between w-full mb-4 gap-2 p-2">
@@ -28,22 +31,16 @@ const TableHeader = ({
         </div>
       </div>
       <div className="flex flex-wrap sm:flex-nowrap justify-start sm:justify-end gap-2 w-full sm:w-auto">
-        {activeTab !== "data" && (
-          <button
-            onClick={() => navigate("/")}
-            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
-            title={window.innerWidth < 640 ? "Back" : ""}
-          >
-            <FaArrowLeft size={window.innerWidth < 640 ? 18 : undefined} />
-            <span className="hidden sm:inline">Back to Table</span>
-          </button>
-        )}
+        {/* Show Back to Table only when (id || searchApplied) is true */}
         {(id || searchApplied) && (
           <button
             onClick={() => {
               if (id) {
+                setSearchApplied(false); // Ensure button hides immediately
                 navigate("/", { replace: true });
               } else if (searchApplied) {
+                setFilteredData(data);
+                setSearchApplied(false); // Ensure button hides immediately
                 navigate("/");
               }
             }}
@@ -173,6 +170,9 @@ TableHeader.propTypes = {
   navigate: PropTypes.func.isRequired,
   setShowSearchForm: PropTypes.func.isRequired,
   filteredData: PropTypes.array.isRequired,
+  setFilteredData: PropTypes.func.isRequired, // Fix: Add prop type for setFilteredData
+  data: PropTypes.array.isRequired, // Fix: Add prop type for data
+  setSearchApplied: PropTypes.func.isRequired, // NEW: Add prop type for setSearchApplied
 };
 
 export default TableHeader;

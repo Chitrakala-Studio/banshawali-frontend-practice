@@ -1116,6 +1116,9 @@ const TableView = () => {
           navigate={navigate}
           setShowSearchForm={setShowSearchForm}
           filteredData={filteredData}
+          setFilteredData={setFilteredData}
+          data={data}
+          setSearchApplied={setSearchApplied} // Pass setSearchApplied
         />
 
         {activeTab === "data" &&
