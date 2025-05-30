@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import Swal from "sweetalert2";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { FaCheck, FaEye, FaTimes, FaSpinner } from "react-icons/fa";
@@ -23,7 +23,7 @@ const Suggestion = () => {
   const fetchSuggestions = async (page) => {
     setLoading(true);
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}/people/suggestions/?page=${page}`
       );
       const suggestionArray = response.data.data;
@@ -56,7 +56,7 @@ const Suggestion = () => {
         image: image,
         id: id,
       };
-      await axios.put(`${API_URL}/people/suggestions/${id}/`, payload, {
+      await axiosInstance.put(`${API_URL}/people/suggestions/${id}/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       setSuggestions((prevSuggestions) =>

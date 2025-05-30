@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -215,7 +215,7 @@ const Compare = () => {
       const leftPersonId = leftPerson.id;
       const rightPersonId = rightPerson.id;
 
-      const response = await axios.post(`${API_URL}/people/compare/`, {
+      const response = await axiosInstance.post(`${API_URL}/people/compare/`, {
         leftPersonId,
         rightPersonId,
       });

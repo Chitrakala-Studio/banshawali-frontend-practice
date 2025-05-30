@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import { FaArrowDown, FaSpinner } from "react-icons/fa";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
 import Calendar from "@sbmdkl/nepali-datepicker-reactjs";
@@ -122,7 +122,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
     try {
       const prevPusta = p - 1;
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -211,7 +211,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     setSpouseOptionsLoading(true);
     const oppositeGender = form.gender === "Male" ? "Female" : "Male";
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}/people/people/search/?pusta_number=${form.pusta_number}&gender=${oppositeGender}`,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -294,7 +294,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       const fetchUserDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(
+          const response = await axiosInstance.get(
             `${API_URL}/people/${formData.id}/`,
             { headers: { "Content-Type": "application/json" } }
           );
@@ -546,8 +546,8 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
       };
 
       const response = form.id
-        ? await axios.put(`${API_URL}/people/${form.id}/`, payload)
-        : await axios.post(`${API_URL}/people/people/`, payload);
+        ? await axiosInstance.put(`${API_URL}/people/${form.id}/`, payload)
+        : await axiosInstance.post(`${API_URL}/people/people/`, payload);
 
       if (response.status >= 200 && response.status < 300) {
         if (response.data && (response.data.id || response.data.name)) {

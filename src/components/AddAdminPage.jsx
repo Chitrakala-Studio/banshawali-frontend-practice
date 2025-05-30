@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaArrowLeft, FaUserPlus, FaHome, FaSearch, FaSpinner } from "react-icons/fa";
@@ -41,7 +41,7 @@ const AddAdminPage = () => {
     setLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem("user"));
-      const response = await axios.get(`${API_URL}/auth/auth/user-list/`, {
+      const response = await axiosInstance.get(`${API_URL}/auth/auth/user-list/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.token}`,
@@ -158,7 +158,7 @@ const AddAdminPage = () => {
   
         try {
           const user = JSON.parse(localStorage.getItem("user"));
-          await axios.put(`${API_URL}/auth/auth/user-list/${admin.id}/`, payload, {
+          await axiosInstance.put(`${API_URL}/auth/auth/user-list/${admin.id}/`, payload, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user?.token}`,
@@ -235,7 +235,7 @@ const AddAdminPage = () => {
       if (result.isConfirmed) {
         try {
           const user = JSON.parse(localStorage.getItem("user"));
-          await axios.delete(`${API_URL}/auth/auth/user-list/${admin.id}/`, {
+          await axiosInstance.delete(`${API_URL}/auth/auth/user-list/${admin.id}/`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user?.token}`,

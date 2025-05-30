@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Swal from "sweetalert2";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
   useEffect(() => {
@@ -135,7 +135,7 @@ const AddAdminForm = ({ onClose, onAdminAdded, API_URL }) => {
 
         try {
           const user = JSON.parse(localStorage.getItem("user"));
-          await axios.post(`${API_URL}/auth/auth/register/`, payload, {
+          await axiosInstance.post(`${API_URL}/auth/auth/register/`, payload, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user?.token}`,

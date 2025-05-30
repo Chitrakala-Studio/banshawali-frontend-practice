@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ReactD3Tree from "react-d3-tree";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import { useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -18,7 +18,7 @@ const fetchFamilyData = async (id) => {
   try {
     if (!id) return null;
     console.log(`Fetching data for ID: ${id}`);
-    const response = await axios.get(`${API_URL}/people/familytree/${id}/`);
+    const response = await axiosInstance.get(`${API_URL}/people/familytree/${id}/`);
     return response.data;
   } catch (error) {
     console.error("Error fetching family data:", error);

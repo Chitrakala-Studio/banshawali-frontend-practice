@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import {
   FaArrowLeft,
   FaSearch,
@@ -211,7 +211,7 @@ const TableView = () => {
   const fetchSuggestions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/people/suggestions/`);
+      const response = await axiosInstance.get(`${API_URL}/people/suggestions/`);
       console.log("Fetched suggestions:", response.data);
       const suggestionArray = response.data.data;
       setSuggestions(suggestionArray);
@@ -412,7 +412,7 @@ const TableView = () => {
         };
 
         try {
-          await axios.post(`${API_URL}/people/suggestions/`, payload, {
+          await axiosInstance.post(`${API_URL}/people/suggestions/`, payload, {
             headers: { "Content-Type": "application/json" },
           });
           return suggestion;
@@ -513,7 +513,7 @@ const TableView = () => {
   const updateSuggestionStatus = async (id, newStatus, suggestion, image) => {
     try {
       const payload = { status: newStatus, suggestion, image, id };
-      await axios.put(`${API_URL}/people/suggestions/${id}/`, payload, {
+      await axiosInstance.put(`${API_URL}/people/suggestions/${id}/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       setSuggestions((prevSuggestions) =>
@@ -572,7 +572,7 @@ const TableView = () => {
 
   const handleSaveNew = async (newData) => {
     try {
-      await axios.post(`${API_URL}/people/`, newData);
+      await axiosInstance.post(`${API_URL}/people/`, newData);
       fetchData(1);
       setIsAdding(false);
       setIsAddingChild(false);
@@ -600,7 +600,7 @@ const TableView = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`${API_URL}/people/${row.id}/`);
+          await axiosInstance.delete(`${API_URL}/people/${row.id}/`);
           fetchData(1);
           Swal.fire(
             "Deleted!",

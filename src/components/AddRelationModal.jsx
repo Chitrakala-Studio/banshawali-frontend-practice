@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FaArrowDown, FaSpinner } from "react-icons/fa";
 import Swal from "sweetalert2";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import Sanscript from "sanscript";
 
 const AddRelationModal = ({ person, onClose, onSave, API_URL }) => {
@@ -89,7 +89,7 @@ const AddRelationModal = ({ person, onClose, onSave, API_URL }) => {
 
       console.log("Creating spouse with payload:", payload);
 
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${normalizedApiUrl}/people/add-spouse/`,
         payload,
         {
