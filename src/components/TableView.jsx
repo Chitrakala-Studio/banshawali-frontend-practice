@@ -445,6 +445,7 @@ const TableView = () => {
       setCurrentPage(1);
       return;
     }
+    setLoading(true); // Set loading immediately after modal closes
     setSearchApplied(true);
     setShowSearchForm(false);
     setLastSearchCriteria(criteria);
@@ -1857,6 +1858,67 @@ const TableView = () => {
         />
       )}
       <ReactTooltip id="tooltip" place="top" effect="solid" />
+
+      {/* Overlay loading spinner and blur when loading is true */}
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(255,255,255,0.6)",
+            backdropFilter: "blur(4px)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <svg
+              style={{ animation: "spin 1s linear infinite" }}
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              width="60"
+              height="60"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="#F49D37"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="#2E4568"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+            <div
+              style={{
+                marginTop: 16,
+                color: "#2E4568",
+                fontFamily: "Merriweather, serif",
+                fontSize: 18,
+              }}
+            >
+              Loading...
+            </div>
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
