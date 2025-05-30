@@ -148,13 +148,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           if (s.gender && typeof s.gender === "string") {
             return s.gender.toLowerCase() === "male";
           }
-          const name = s.name.toLowerCase();
-          return (
-            name.endsWith("नाथ") ||
-            name.endsWith("प्रसाद") ||
-            name.endsWith("कुमार") ||
-            !name.endsWith("ा")
-          );
+          return false; // Only allow explicit gender match
         })
         .map((s) => {
           const personName = s.name_in_nepali || s.name;
@@ -172,12 +166,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
           if (s.gender && typeof s.gender === "string") {
             return s.gender.toLowerCase() === "female";
           }
-          const name = (s.name_in_nepali || s.name).toLowerCase();
-          return (
-            name.endsWith("ा") ||
-            name.endsWith("कुमारी") ||
-            name.endsWith("देवी")
-          );
+          return false; // Only allow explicit gender match
         })
         .map((s) => {
           const personName = s.name_in_nepali || s.name;

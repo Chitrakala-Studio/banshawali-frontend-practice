@@ -135,6 +135,13 @@ const UserProfileModal = ({ user, onClose }) => {
           {user.location && <span>{user.location}</span>}
         </p>
       )}
+      {user.blood && (
+        <p className="info-item">
+          <FaHeart className="info-icon" style={{ color: '#F49D37' }} />
+          <strong>Blood Group : </strong>
+          {user.blood}
+        </p>
+      )}
     </div>
   );
 

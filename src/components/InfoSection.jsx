@@ -10,6 +10,7 @@ import {
   FaMale,
   FaAddressCard,
   FaSkullCrossbones,
+  FaHeart,
 } from "react-icons/fa";
 import { Users } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -158,6 +159,13 @@ const InfoSection = ({ person }) => {
               <div className="info-item">
                 <FaSkullCrossbones className="info-icon" />
                 <p>{person.date_of_death}</p>
+              </div>
+            )}
+
+            {person.blood && (
+              <div className="info-item">
+                <FaHeart className="info-icon" style={{ color: '#F49D37' }} />
+                <p className="no-margin">Blood Group: {person.blood}</p>
               </div>
             )}
           </div>
