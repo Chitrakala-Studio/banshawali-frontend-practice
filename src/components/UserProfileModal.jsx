@@ -123,6 +123,18 @@ const UserProfileModal = ({ user, onClose }) => {
           {user.profession}
         </p>
       )}
+      {/* JOB: Designation, Company, Location */}
+      {(user.designation || user.company || user.location) && (
+        <p className="info-item">
+          <FaUser className="info-icon" />
+          <strong>Job : </strong>
+          {user.designation && <span>{user.designation}</span>}
+          {user.designation && (user.company || user.location) && <span>, </span>}
+          {user.company && <span>{user.company}</span>}
+          {user.company && user.location && <span>, </span>}
+          {user.location && <span>{user.location}</span>}
+        </p>
+      )}
     </div>
   );
 

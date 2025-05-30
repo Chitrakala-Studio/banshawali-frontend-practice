@@ -371,14 +371,27 @@ const InfoSection = ({ person }) => {
         )}
 
         {/* Professional Information Box */}
-        {person.profession && (
+        {(person.profession || person.designation || person.company || person.location) && (
           <div className="info-box">
             <h3 className="box-title">Professional Information</h3>
             <div className="info-list">
-              <div className="info-item">
-                <FaBriefcase className="info-icon" />
-                <p>{person.profession || "N/A"}</p>
-              </div>
+              {person.profession && (
+                <div className="info-item">
+                  <FaBriefcase className="info-icon" />
+                  <p>{person.profession || "N/A"}</p>
+                </div>
+              )}
+              {(person.designation || person.company || person.location) && (
+                <div className="info-item">
+                  <FaUser className="info-icon" />
+                  <span style={{ fontWeight: 500 }}>Job:   </span>
+                  {person.designation && <span>{person.designation}</span>}
+                  {person.designation && (person.company || person.location) && <span>, </span>}
+                  {person.company && <span>{person.company}</span>}
+                  {person.company && person.location && <span>, </span>}
+                  {person.location && <span>{person.location}</span>}
+                </div>
+              )}
             </div>
           </div>
         )}
