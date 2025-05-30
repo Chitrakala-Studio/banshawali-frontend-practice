@@ -1,187 +1,180 @@
 /* Root Variables */
 :root {
-    --primary-text: #1F2937;
-    --secondary-text: #6B7280;
-    --primary-dark: #2E4568;
-    --primary-hover: #4A6A9D;
-    --gold-accent: #F49D37;
-    --header-maroon: #800000;
-    --neutral-gray: #D1D5DB;
-  }
-  
-  /* Desktop Design */
+  --primary-text: #1f2937;
+  --secondary-text: #6b7280;
+  --primary-dark: #2e4568;
+  --primary-hover: #4a6a9d;
+  --gold-accent: #f49d37;
+  --header-maroon: #800000;
+  --neutral-gray: #d1d5db;
+}
+
+/* Desktop Design */
+.admin-login-container {
+  display: flex;
+  height: 100vh;
+  background: linear-gradient(to bottom, #fffaf0, #ffffff);
+}
+
+.admin-login-image {
+  flex: 1;
+  overflow: hidden;
+}
+
+.background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-login-form {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to right, #fffaf0, #ffffff);
+}
+
+.admin-login-form h1 {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--gold-accent);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+form label {
+  font-family: "Merriweather", serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary-text);
+}
+
+form input {
+  width: 100%;
+  padding: 8px 12px;
+  font-family: "Merriweather", serif;
+  font-size: 16px;
+  border: 1px solid var(--neutral-gray);
+  border-radius: 6px;
+  background: linear-gradient(to right, #fffaf0, #ffffff);
+  color: var(--primary-text);
+  transition: all 0.3s ease;
+}
+
+form input:focus {
+  outline: none;
+  border-color: var(--gold-accent);
+  box-shadow: 0 0 0 3px rgba(244, 157, 55, 0.2);
+}
+
+.toggle-options {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-options label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--secondary-text);
+  width: 100%;
+}
+
+.toggle-options input {
+  height: 16px;
+  width: 16px;
+  margin-right: 8px;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 8px 16px;
+  font-family: "Merriweather", serif;
+  font-size: 16px;
+  color: #ffffff;
+  background-color: var(--primary-dark);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover,
+.submit-button:focus {
+  background-color: var(--primary-hover);
+  outline: none;
+}
+
+p {
+  margin-top: 16px;
+  font-family: "Merriweather", serif;
+  font-size: 14px;
+  color: var(--secondary-text);
+  text-align: center;
+}
+
+p a {
+  color: var(--primary-dark);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+p a:hover,
+p a:focus {
+  color: var(--primary-hover);
+  text-decoration: underline;
+  outline: none;
+}
+
+/* Mobile View: For screens smaller than 768px */
+@media (max-width: 768px) {
   .admin-login-container {
-    display: flex;
-    height: 100vh;
-    background: linear-gradient(to bottom, #fffaf0, #ffffff);
+    flex-direction: column; /* Stack elements vertically */
+    min-height: 100vh; /* Ensure full viewport height */
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
   }
-  
+
   .admin-login-image {
-    flex: 1;
-    overflow: hidden;
+    display: none; /* Hide image on mobile */
   }
-  
-  .background-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
+
   .admin-login-form {
-    flex: 1;
-    padding: 32px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(to right, #fffaf0, #ffffff);
-  }
-  
-  .admin-login-form h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 32px;
-    font-weight: 600;
-    color: var(--gold-accent);
-    margin-bottom: 24px;
-    text-align: center;
-  }
-  
-  form {
-    width: 100%;
+    width: 90%;
     max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    padding: 24px;
+    flex: none; /* Remove flex grow/shrink */
   }
-  
-  form label {
-    font-family: 'Merriweather', serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--primary-text);
+
+  .admin-login-form h1 {
+    font-size: 28px;
   }
-  
+
   form input {
     width: 100%;
     padding: 8px 12px;
-    font-family: 'Merriweather', serif;
-    font-size: 16px;
-    border: 1px solid var(--neutral-gray);
-    border-radius: 6px;
-    background: linear-gradient(to right, #fffaf0, #ffffff);
-    color: var(--primary-text);
-    transition: all 0.3s ease;
-  }
-  
-  form input:focus {
-    outline: none;
-    border-color: var(--gold-accent);
-    box-shadow: 0 0 0 3px rgba(244, 157, 55, 0.2);
-  }
-  
-  .toggle-options {
-    display: flex;
-    align-items: center;
-  }
-  
-  .toggle-options label {
-    display: flex;
-    align-items: center;
     font-size: 14px;
-    color: var(--secondary-text);
-    width: 100%;
   }
-  
-  .toggle-options input {
-    height: 16px;
-    width: 16px;
-    margin-right: 8px;
-  }
-  
+
   .submit-button {
     width: 100%;
     padding: 8px 16px;
-    font-family: 'Merriweather', serif;
-    font-size: 16px;
-    color: #ffffff;
-    background-color: var(--primary-dark);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .submit-button:hover,
-  .submit-button:focus {
-    background-color: var(--primary-hover);
-    outline: none;
-  }
-  
-  p {
-    margin-top: 16px;
-    font-family: 'Merriweather', serif;
     font-size: 14px;
-    color: var(--secondary-text);
-    text-align: center;
   }
-  
-  p a {
-    color: var(--primary-dark);
-    font-weight: 600;
-    transition: all 0.3s ease;
+
+  p {
+    font-size: 12px;
   }
-  
-  p a:hover,
-  p a:focus {
-    color: var(--primary-hover);
-    text-decoration: underline;
-    outline: none;
-  }
-  
-  /* Mobile View: For screens smaller than 768px */
-  @media (max-width: 768px) {
-    .admin-login-container {
-      flex-direction: column;
-      height: auto;
-      align-items: center;
-    }
-  
-    .admin-login-image {
-      width: 100%;
-      height: 200px;
-      overflow: hidden;
-    }
-  
-    .background-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  
-    .admin-login-form {
-      width: 90%;
-      max-width: 400px;
-      padding: 24px;
-      margin-top: 16px;
-    }
-  
-    .admin-login-form h1 {
-      font-size: 28px;
-    }
-  
-    form input {
-      width: 100%;
-      padding: 8px 12px;
-      font-size: 14px;
-    }
-  
-    .submit-button {
-      width: 100%;
-      padding: 8px 16px;
-      font-size: 14px;
-    }
-  
-    p {
-      font-size: 12px;
-    }
-  }
+}

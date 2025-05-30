@@ -611,7 +611,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
           }
 
           .tree-container {
-            background: radial-gradient(circle at top, var(--background-start) 30%, var(--background-end) 100%);
+            background: #E9D4B0;
             position: relative;
             width: ${isMobile ? "80vh" : "100%"};
             height: ${isMobile ? "160vw" : "50em"};
@@ -621,8 +621,9 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             align-items: center;
             transform: ${isMobile ? "rotate(90deg)" : "none"};
             transform-origin: ${isMobile ? "down left" : "none"};
-            overflow: auto;
+            overflow: hidden; /* Changed from auto to hidden */
             z-index: 10;
+            border: 2px solid transparent;
           }
 
           .tree-title {
@@ -666,7 +667,8 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             display: flex;
             flex-direction: row;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 10px; /* Changed from margin-bottom to margin-top */
+            justify-content: center;
           }
 
           .action-button {

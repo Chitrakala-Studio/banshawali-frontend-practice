@@ -317,17 +317,17 @@ const CardView = () => {
               backdrop-filter: blur(5px);
             }
 
-            .family-tree-content {
-              background: linear-gradient(to bottom, #fffaf0, #ffffff);
-              width: 95%;
-              max-height: 80vh;
-              padding: 12px;
-              border-radius: 15px;
-              border: 2px solid var(--gold-accent);
-              position: relative;
-              overflow: auto;
-              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            }
+           .family-tree-content {
+  background: #E9D4B0; 
+  width: 95%;
+  max-height: 80vh;
+  padding: 12px; 
+  border-radius: 15px;
+  border: 2px solid var(--gold-accent);
+  position: relative;
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
 
             .top-bar-wrapper {
               display: flex;

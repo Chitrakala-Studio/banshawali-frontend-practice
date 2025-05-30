@@ -182,9 +182,9 @@ const CardFooterSection = ({
                     <FaArrowUp className="toggle-icon" />
                   )
                 ) : isExpanded ? (
-                  <FaArrowUp className="toggle-icon" />
-                ) : (
                   <FaArrowDown className="toggle-icon" />
+                ) : (
+                  <FaArrowUp className="toggle-icon" />
                 )}
               </button>
             )}
