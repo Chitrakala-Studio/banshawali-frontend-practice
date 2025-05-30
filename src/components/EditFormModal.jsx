@@ -242,12 +242,11 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   useEffect(() => {
     fetchSpouseOptions();
-  }, [form.pusta_number, form.gender]);
+  }, [form.gender]);
 
   useEffect(() => {
     fetchSuggestions();
   }, [
-    form.pusta_number,
     formData.spouseOptions,
     formData.father_id,
     formData.mother_id,
@@ -692,6 +691,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           .form-field {
             width: 100%;
+            margin-bottom: 18px; /* Add more space between each form field */
           }
 
           .label {
@@ -837,8 +837,9 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
       <div className="modal-container">
         {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <FaSpinner className="animate-spin text-3xl text-[#F49D37]" />
+          <div className="flex flex-col justify-center items-center py-8">
+            <FaSpinner className="animate-spin text-4xl text-[#F49D37] mb-2" />
+            <span className="loading-text">Loading...</span>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="form-content">
@@ -866,13 +867,17 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               <h3 className="section-title">Personal Information</h3>
 
               <div className="form-field">
-                <label className="label">Pusta Number</label>
+                <label className="label">Pusta Number <span style={{color: 'red'}}>*</span></label>
                 <input
                   type="number"
                   name="pusta_number"
                   required
                   value={form.pusta_number}
                   onChange={handleChange}
+                  onBlur={() => {
+                    fetchSpouseOptions();
+                    fetchSuggestions();
+                  }}
                   className="input"
                   placeholder="Enter Pusta Number"
                   style={{ backgroundImage: "none" }}
@@ -880,7 +885,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
 
               <div className="form-field">
-                <label className="label">Name (in English)</label>
+                <label className="label">Name (in English) <span style={{color: 'red'}}>*</span></label>
                 <input
                   type="text"
                   name="name"
@@ -915,7 +920,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
 
               <div className="form-field">
-                <label className="label">Gender</label>
+                <label className="label">Gender <span style={{color: 'red'}}>*</span></label>
                 <select
                   name="gender"
                   value={form.gender}
@@ -948,7 +953,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
 
               <div className="form-field">
-                <label className="label">Status</label>
+                <label className="label">Status <span style={{color: 'red'}}>*</span></label>
                 <select
                   name="lifestatus"
                   value={form.lifestatus}
@@ -1002,7 +1007,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   value={selectedFather}
                   isLoading={suggestionsLoading}
                   isClearable
-                  placeholder="Select Father"
+                  placeholder={suggestionsLoading ? "Loading ..." : "Select Father"}
                   onChange={(selected) => {
                     setForm((prev) => ({
                       ...prev,
@@ -1021,7 +1026,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   value={selectedMother}
                   isLoading={suggestionsLoading}
                   isClearable
-                  placeholder="Select Mother"
+                  placeholder={suggestionsLoading ? "Loading ..." : "Select Mother"}
                   onChange={(selected) => {
                     setForm((prev) => ({
                       ...prev,
@@ -1041,7 +1046,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   isMulti
                   isLoading={spouseOptionsLoading}
                   isClearable
-                  placeholder="Select Spouse(s)"
+                  placeholder={spouseOptionsLoading ? "Loading ..." : "Select Spouse(s)"}
                   onChange={(selected) => {
                     setForm((prev) => ({
                       ...prev,
@@ -1060,7 +1065,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
             <div className="form-field">
               <h3 className="section-title">Vansha Status</h3>
-              <label className="label">Same Vansha</label>
+              <label className="label">Same Vansha <span style={{color: 'red'}}>*</span></label>
               <select
                 name="vansha_status"
                 value={form.vansha_status}

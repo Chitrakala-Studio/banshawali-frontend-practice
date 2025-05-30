@@ -70,6 +70,7 @@ const TableView = () => {
   const isModalOpen =
     isAdding || isEditing || isAddingChild || showSearchForm || showInfoPopup;
   const [lastSearchCriteria, setLastSearchCriteria] = useState(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
     document.body.style.overflow = isModalOpen ? "hidden" : "auto";
@@ -234,34 +235,37 @@ const TableView = () => {
   };
 
   const handleAddChildClick = async (row) => {
-    let spouses = [];
-    let spouseOptions = spouses.map((sp) => ({
+    console.log("Adding child for row:", row);
+    // Only include direct spouses (not all relatives)
+    const spouses = Array.isArray(row.spouse) ? row.spouse : [];
+    // Filter out any spouse objects that are not direct spouses (should not include parents, grandparents, etc.)
+    // Assuming each spouse object has at least an id and name
+    
+    
+    const spouseOptions = spouses.map((sp) => ({
       id: sp.id,
       name: sp.name_in_nepali || sp.name,
     }));
 
+
     let fatherData = { id: null, name: "" };
     let motherData = { id: null, name: "" };
 
-    if (row.gender.toLowerCase() === "male") {
+    if (row.gender && row.gender.toLowerCase() === "male") {
       fatherData = { id: row.id, name: row.name_in_nepali || row.name };
-      if (spouseOptions.length === 1) {
-        motherData = spouseOptions[0];
-      }
-    } else {
+      // For a male, let user select mother from spouseOptions (only direct spouses)
+    } else if (row.gender && row.gender.toLowerCase() === "female") {
       motherData = { id: row.id, name: row.name_in_nepali || row.name };
-      if (spouseOptions.length === 1) {
-        fatherData = spouseOptions[0];
-      }
+      // For a female, let user select father from spouseOptions (only direct spouses)
     }
 
     setChildFormData({
-      pusta_number: (parseInt(row.pusta_number, 10) + 1).toString(),
+      pusta_number: row.pusta_number ? (parseInt(row.pusta_number, 10) + 1).toString() : "",
       father_id: fatherData.id,
       father_name: fatherData.name,
       mother_id: motherData.id,
       mother_name: motherData.name,
-      spouseOptions,
+      spouseOptions: spouseOptions, // Only direct spouses
     });
 
     setIsAddingChild(true);
@@ -494,7 +498,14 @@ const TableView = () => {
   };
 
   const handleEditClick = (row) => {
-    setSelectedRow(row);
+    // Map father/mother info from row to expected formData fields
+    setSelectedRow({
+      ...row,
+      father_id: row.father_id || row.father?.id || null,
+      father_name: row.father_name || row.father?.name_in_nepali || row.father?.name || "",
+      mother_id: row.mother_id || row.mother?.id || null,
+      mother_name: row.mother_name || row.mother?.name_in_nepali || row.mother?.name || "",
+    });
     setIsEditing(true);
   };
 
@@ -545,7 +556,7 @@ const TableView = () => {
 
   const handleInfoClick = (row) => {
     setSelectedRow(row);
-    console.log("Selected Row Data:", row);
+    setScrollPosition(window.scrollY);
     setShowInfoPopup(true);
   };
 
@@ -1826,7 +1837,12 @@ const TableView = () => {
       {showInfoPopup && (
         <UserProfileModal
           user={{ ...selectedRow, contact: selectedRow?.contact_details }}
-          onClose={() => setShowInfoPopup(false)}
+          onClose={() => {
+            setShowInfoPopup(false);
+            setTimeout(() => {
+              window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+            }, 0);
+          }}
         />
       )}
       {showAddRelationModal && selectedPerson && (
