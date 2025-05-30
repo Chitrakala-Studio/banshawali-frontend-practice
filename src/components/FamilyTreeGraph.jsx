@@ -36,31 +36,29 @@ const transformToTreeData = (familyData) => {
     photo: familyData.photo,
     gender: familyData.gender,
     id: familyData.id,
+    real_id: familyData.id, // Ensure real_id is present for root
     pusta: familyData.pusta,
+    isCollapsible: false, // Not collapsible for main node
     children: [],
   };
 
-  if (familyData.father) {
-    tree.children.push({
-      name: "Father",
-      id: `father-group-${familyData.id}`,
-      real_id: familyData.id,
-      isCollapsible: true,
-      collapsed: true,
-      children: [],
-    });
-  }
-
-  if (familyData.children) {
-    tree.children.push({
-      name: "Children",
-      id: `children-group-${familyData.id}`,
-      real_id: familyData.id,
-      isCollapsible: true,
-      collapsed: true,
-      children: [],
-    });
-  }
+  // Always add Father and Children group nodes, even if empty, to ensure the structure is present
+  tree.children.push({
+    name: "Father",
+    id: `father-group-${familyData.id}`,
+    real_id: familyData.id,
+    isCollapsible: true,
+    collapsed: true,
+    children: [],
+  });
+  tree.children.push({
+    name: "Children",
+    id: `children-group-${familyData.id}`,
+    real_id: familyData.id,
+    isCollapsible: true,
+    collapsed: true,
+    children: [],
+  });
 
   return tree;
 };
@@ -443,20 +441,22 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
         fontWeight="200"
         onClick={() => handleNodeClick(nodeDatum)}
       >
-        {/* Background */}
+        {/* Card Background with shadow and rounded corners */}
         {!isGroupNode && (
           <rect
             x="-95"
             y="-40"
             width="180"
             height="65"
-            rx="15"
-            ry="15"
+            rx="18"
+            ry="18"
             fill={
-              gender === "Male" ? "var(--accent-male)" : "var(--accent-female)"
+              gender === "Male"
+                ? "url(#male-gradient)"
+                : "url(#female-gradient)"
             }
-            stroke="var(--neutral-gray)"
-            strokeWidth="1"
+            stroke="#F49D37"
+            strokeWidth="2.5"
             filter="url(#shadow)"
             pointerEvents="all"
           />
@@ -469,43 +469,68 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             height="40"
             rx="20"
             ry="20"
-            fill="var(--secondary-light)"
-            stroke="var(--neutral-gray)"
-            strokeWidth="1"
+            fill="url(#group-gradient)"
+            stroke="#F49D37"
+            strokeWidth="2.5"
             filter="url(#shadow)"
             pointerEvents="all"
           />
         )}
-        {/* Shadow Definition */}
+        {/* SVG Gradients */}
         <defs>
+          <linearGradient id="male-gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#4A6A9D" />
+            <stop offset="100%" stopColor="#a1c4fd" />
+          </linearGradient>
+          <linearGradient id="female-gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#D4A5A5" />
+            <stop offset="100%" stopColor="#fbe7c6" />
+          </linearGradient>
+          <linearGradient id="group-gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#E9D4B0" />
+            <stop offset="100%" stopColor="#B9BAC3" />
+          </linearGradient>
           <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.2" />
+            <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.18" />
           </filter>
         </defs>
-        {/* Image */}
+        {/* Profile Image */}
+        {!isGroupNode && (
+          <circle
+            cx="-65"
+            cy="-7.5"
+            r="28"
+            fill="#fff"
+            stroke="#B9BAC3"
+            strokeWidth="1.5"
+            filter="url(#shadow)"
+          />
+        )}
         {!isGroupNode &&
           (nodeDatum.photo && nodeDatum.photo !== "null" ? (
             <image
-              x="-95"
-              y="-40"
-              width="65"
-              height="65"
+              x="-93"
+              y="-35"
+              width="56"
+              height="56"
               href={nodeDatum.photo}
-              preserveAspectRatio="xMidYMid slice"
+              clipPath="circle(28px at 28px 28px)"
+              style={{ borderRadius: '50%' }}
               pointerEvents="none"
             />
           ) : (
             <image
-              x="-95"
-              y="-40"
-              width="65"
-              height="65"
+              x="-93"
+              y="-35"
+              width="56"
+              height="56"
               href={
                 nodeDatum.gender === "Male"
                   ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
                   : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
               }
-              preserveAspectRatio="xMidYMid slice"
+              clipPath="circle(28px at 28px 28px)"
+              style={{ borderRadius: '50%' }}
               pointerEvents="none"
             />
           ))}
@@ -515,8 +540,8 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             x="0"
             y="0"
             textAnchor="middle"
-            fontSize="14"
-            fill="var(--primary-dark)"
+            fontSize="15"
+            fill="#2E4568"
             strokeWidth="0"
             fontWeight="bold"
             pointerEvents="none"
@@ -529,17 +554,16 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             x="25"
             y={-13.5 + (nameLines.length > 0 ? -10 : 0)}
             textAnchor="middle"
-            fontSize="16"
+            fontSize="17"
             dominantBaseline="middle"
-            fill="var(--white)"
+            fill="#fff"
             strokeWidth="0"
-            fontWeight="500"
-            // Only make the name clickable in non-mobile view
+            fontWeight="600"
             cursor={isMobile ? "default" : "pointer"}
             className="name-text"
             onClick={
               isMobile
-                ? undefined // No click handler in mobile view
+                ? undefined
                 : (e) => {
                     e.stopPropagation();
                     handleNameClick(nodeDatum);
@@ -553,36 +577,94 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             ))}
           </text>
         )}
-
         {/* Pusta (Family Lineage) */}
-        {!isGroupNode && (
-          <text
-            x="20"
-            y="20"
-            textAnchor="middle"
-            fontSize="12"
-            fontWeight="normal"
-            fill="var(--white)"
-            pointerEvents="none"
-          >
-            {nodeDatum.pusta}
-          </text>
+        {!isGroupNode && nodeDatum.pusta && (
+          <g>
+            
+            <text
+              x="25"
+              y="9"
+              textAnchor="middle"
+              fontSize="17"
+              fontWeight="bold"
+              fill="#F49D37" // Changed to gold accent
+              stroke="#2E4568"
+              strokeWidth="0.7"
+              style={{ letterSpacing: '1px', filter: 'drop-shadow(0 1px 2px #2E456888)' }}
+              pointerEvents="none"
+              dominantBaseline="middle"
+            >
+              {nodeDatum.pusta}
+            </text>
+          </g>
         )}
         {/* Expand/Collapse Icon */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(35, -5) rotate(${
-              nodeDatum.collapsed ? 0 : 90
-            })`}
+            transform={`translate(35, -5) rotate(${nodeDatum.collapsed ? 0 : 90})`}
             style={{ transition: "transform 0.3s ease" }}
             pointerEvents="none"
           >
-            <ChevronRight size="18" color="var(--primary-dark)" />
+            <ChevronRight size="18" color="#2E4568" />
           </g>
         )}
       </g>
     );
   };
+
+  // Center the tree automatically as it grows horizontally and as nodes expand
+  useEffect(() => {
+    if (!treeContainerRef.current) return;
+    const container = treeContainerRef.current;
+    setTimeout(() => {
+      const svg = container.querySelector('.rd3t-svg');
+      if (svg) {
+        const nodes = svg.querySelectorAll('.rd3t-node');
+        if (nodes.length > 0) {
+          // Find the root node (first node)
+          const rootNode = nodes[0];
+          const rootRect = rootNode.getBoundingClientRect();
+          const svgRect = svg.getBoundingClientRect();
+          // Calculate the center position of the root node relative to the SVG
+          const rootCenterX = rootRect.left + rootRect.width / 2 - svgRect.left;
+          const rootCenterY = rootRect.top + rootRect.height / 2 - svgRect.top;
+
+          // Center the container on the root node
+          let targetScrollLeft = rootCenterX - container.clientWidth / 2;
+          let targetScrollTop = rootCenterY - container.clientHeight / 2;
+
+          // --- Enhanced auto-drag logic: ---
+          // If the root node is too close to the left or right edge, auto-drag to keep it visible and centered
+          const margin = 60; // px, how close to edge before auto-drag
+          const rootLeftInContainer = rootRect.left - container.getBoundingClientRect().left;
+          const rootRightInContainer = rootRect.right - container.getBoundingClientRect().left;
+
+          // If root node is going out left
+          if (rootLeftInContainer < margin) {
+            targetScrollLeft = Math.max(0, container.scrollLeft - (margin - rootLeftInContainer));
+          }
+          // If root node is going out right
+          if (rootRightInContainer > container.clientWidth - margin) {
+            targetScrollLeft = Math.min(
+              svg.clientWidth - container.clientWidth,
+              container.scrollLeft + (rootRightInContainer - (container.clientWidth - margin))
+            );
+          }
+
+          // Clamp scroll values
+          targetScrollLeft = Math.max(0, Math.min(targetScrollLeft, svg.clientWidth - container.clientWidth));
+          targetScrollTop = Math.max(0, Math.min(targetScrollTop, svg.clientHeight - container.clientHeight));
+
+          container.scrollLeft = targetScrollLeft;
+          container.scrollTop = targetScrollTop;
+        } else {
+          // Fallback: center the SVG
+          container.scrollLeft = (svg.clientWidth - container.clientWidth) / 2;
+          container.scrollTop = (svg.clientHeight - container.clientHeight) / 2;
+        }
+      }
+    }, 400);
+  }, [treeData, dimensions]);
 
   return (
     <div
@@ -603,40 +685,36 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             --accent-other: #B9BAC3;
             --neutral-gray: #B9BAC3;
             --neutral-light-gray: #E0E0E0;
-            --background-start: #F8E5C0;
-            --background-end: #CDE8D0;
+            --background-start: #fdf6e3;
+            --background-end: #e0f7fa;
             --white: #FFFFFF;
             --popup-start: #A6C8A5;
             --popup-end: #B9BAC3;
+            --gold-accent: #F49D37;
           }
-
-                 .tree-container {
-    background: #E9D4B0;
-    position: relative;
-    width: 850px;        
-    height: 570px;      
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;    
-    border: 2px solid transparent;
-  }
-
-  @media (max-width: 800px) {
-    .tree-container {
-      width: 600px;     /* a smaller fixed size on narrow screens */
-      height: 500px;
-    }
-  }
+          .tree-container {
+            background: linear-gradient(120deg, #fbe7c6 0%, #a1c4fd 100%);
+            border: 3px solid var(--gold-accent);
+            box-shadow: 0 8px 32px rgba(44, 62, 80, 0.12);
+            border-radius: 24px;
+            padding: 24px 0 0 0;
+            margin: 0 auto;
+            overflow: auto;
+            position: relative;
+            width: 850px;        
+            height: 570px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
           .tree-title {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
+            font-size: 2rem;
             color: var(--primary-dark);
-            margin-bottom: 16px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 18px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
+            letter-spacing: 1px;
           }
-
           .loading-container {
             display: flex;
             flex-direction: column;
@@ -670,31 +748,26 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             display: flex;
             flex-direction: row;
             gap: 10px;
-            margin-top: 10px; /* Changed from margin-bottom to margin-top */
+            margin-top: 10px;
             justify-content: center;
           }
 
           .action-button {
-            padding: 8px 16px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            color: var(--secondary-light);
-            background-color: var(--primary-dark);
+            padding: 10px 22px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            color: var(--white);
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary-hover));
             font-family: 'Playfair Display', serif;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 1rem;
             border: none;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            transition: background 0.2s, transform 0.2s;
           }
 
           .action-button:hover {
-            background-color: var(--primary-hover);
-            color: var(--white);
+            background: linear-gradient(90deg, var(--primary-hover), var(--primary-dark));
             transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
           }
 
           .close-button {
@@ -702,7 +775,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             border: 2px solid var(--secondary-light);
             border-radius: 50%;
             padding: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             line-height: 0;
             position: absolute;
             top: 12px;
@@ -719,6 +792,21 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             stroke: var(--neutral-gray) !important;
             stroke-width: 1px !important;
             fill: none !important;
+          }
+
+          @media (max-width: 800px) {
+            .tree-container {
+              width: 100vw;
+              min-width: 0;
+              max-width: 100vw;
+              height: 500px;
+              border-radius: 0;
+              padding: 0;
+            }
+            .tree-title {
+              font-size: 1.2rem;
+              margin-bottom: 10px;
+            }
           }
         `}
       </style>
