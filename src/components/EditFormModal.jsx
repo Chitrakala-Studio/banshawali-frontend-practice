@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
-import { FaArrowDown, FaPlus, FaSpinner } from "react-icons/fa";
+import { FaArrowDown, FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import Sanscript from "sanscript";
 import handleBackendError from "./handleBackendError";
 import Calendar from "@sbmdkl/nepali-datepicker-reactjs";
 import "@sbmdkl/nepali-datepicker-reactjs/dist/index.css";
-import Choices from "choices.js";
-import "choices.js/public/assets/styles/choices.min.css";
+import Select from "react-select";
 
 const EditFormModal = ({ formData, onClose, onSave }) => {
   const [form, setForm] = useState(() => ({
@@ -37,14 +36,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
   const [suggestions, setSuggestions] = useState([]);
   const [motherSuggestions, setMotherSuggestions] = useState([]);
-  const fatherInputRef = useRef(null);
-  const motherInputRef = useRef(null);
-  const fatherChoicesInstance = useRef(null);
-  const motherChoicesInstance = useRef(null);
-  const spouseInputRef = useRef(null);
-  const spouseChoicesInstance = useRef(null);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showMotherSuggestions, setShowMotherSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [spouseOptionsLoading, setSpouseOptionsLoading] = useState(false);
@@ -263,237 +254,34 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     API_URL,
   ]);
 
-  useEffect(() => {
-    if (fatherInputRef.current) {
-      if (!fatherChoicesInstance.current) {
-        fatherChoicesInstance.current = new Choices(fatherInputRef.current, {
-          removeItemButton: true,
-          shouldSort: false,
-          searchEnabled: true,
-          noResultsText: "No males found in previous generation",
-          placeholder: true,
-          placeholderValue: "Select Father",
-          searchPlaceholderValue: "Search for a father",
-          searchFields: ["label"],
-        });
-      }
-
-      const choicesData = suggestionsLoading
-        ? [{ value: "", label: "Loading...", disabled: true }]
-        : [
-            { value: "", label: "Select Father", disabled: true },
-            ...(form.father_id &&
-            form.father_name &&
-            !suggestions.some((s) => s.id === form.father_id)
-              ? [
-                  {
-                    value: form.father_id.toString(),
-                    label: form.father_name,
-                    selected: true,
-                    customProperties: {
-                      id: form.father_id,
-                      name_in_nepali: form.father_name,
-                    },
-                  },
-                ]
-              : []),
-            ...suggestions.map((s) => ({
-              value: s.id.toString(),
-              label: s.displayText,
-              selected: s.id === form.father_id,
-              customProperties: {
-                id: s.id,
-                name_in_nepali: s.name_in_nepali || s.name,
-              },
-            })),
-          ];
-      fatherChoicesInstance.current.setChoices(
-        choicesData,
-        "value",
-        "label",
-        true
-      );
-
-      fatherInputRef.current.addEventListener("search", (event) => {
-        const searchTerm = event.detail.value.toLowerCase();
-        setShowSuggestions(!!searchTerm);
-      });
-
-      fatherInputRef.current.addEventListener("change", (e) => {
-        const selectedId = e.target.value;
-        const selected =
-          suggestions.find((s) => s.id.toString() === selectedId) ||
-          (form.father_id && form.father_id.toString() === selectedId
-            ? { id: form.father_id, name: form.father_name }
-            : null);
-        setForm((prev) => ({
-          ...prev,
-          father_id: selected ? selected.id : null,
-          father_name: selected ? selected.name_in_nepali || selected.name : "",
-        }));
-        setShowSuggestions(false);
-      });
-    }
-
-    return () => {
-      if (fatherChoicesInstance.current) {
-        fatherChoicesInstance.current.destroy();
-        fatherChoicesInstance.current = null;
-      }
-    };
-  }, [suggestions, form.father_id, form.father_name, suggestionsLoading]);
-
-  useEffect(() => {
-    if (motherInputRef.current) {
-      if (!motherChoicesInstance.current) {
-        motherChoicesInstance.current = new Choices(motherInputRef.current, {
-          removeItemButton: true,
-          shouldSort: false,
-          searchEnabled: true,
-          noResultsText: "No females found in previous generation",
-          placeholder: true,
-          placeholderValue: "Select Mother",
-          searchPlaceholderValue: "Search for a mother",
-          searchFields: ["label"],
-        });
-      }
-
-      const choicesData = suggestionsLoading
-        ? [{ value: "", label: "Loading...", disabled: true }]
-        : [
-            { value: "", label: "Select Mother", disabled: true },
-            ...(form.mother_id &&
-            form.mother_name &&
-            !motherSuggestions.some((s) => s.id === form.mother_id)
-              ? [
-                  {
-                    value: form.mother_id.toString(),
-                    label: form.mother_name,
-                    selected: true,
-                    customProperties: {
-                      id: form.mother_id,
-                      name_in_nepali: form.mother_name,
-                    },
-                  },
-                ]
-              : []),
-            ...motherSuggestions.map((s) => ({
-              value: s.id.toString(),
-              label: s.displayText,
-              selected: s.id === form.mother_id,
-              customProperties: {
-                id: s.id,
-                name_in_nepali: s.name_in_nepali || s.name,
-              },
-            })),
-          ];
-
-      motherChoicesInstance.current.setChoices(
-        choicesData,
-        "value",
-        "label",
-        true
-      );
-
-      motherInputRef.current.addEventListener("search", (event) => {
-        const searchTerm = event.detail.value.toLowerCase();
-        setShowMotherSuggestions(!!searchTerm);
-      });
-
-      motherInputRef.current.addEventListener("change", (e) => {
-        const selectedId = e.target.value;
-        const selected =
-          motherSuggestions.find((s) => s.id.toString() === selectedId) ||
-          (form.mother_id && form.mother_id.toString() === selectedId
-            ? { id: form.mother_id, name: form.mother_name }
-            : null);
-        setForm((prev) => ({
-          ...prev,
-          mother_id: selected ? selected.id : null,
-          mother_name: selected ? selected.name_in_nepali || selected.name : "",
-        }));
-        setShowMotherSuggestions(false);
-      });
-    }
-
-    return () => {
-      if (motherChoicesInstance.current) {
-        motherChoicesInstance.current.destroy();
-        motherChoicesInstance.current = null;
-      }
-    };
-  }, [motherSuggestions, form.mother_id, form.mother_name, suggestionsLoading]);
-
-  useEffect(() => {
-    if (spouseInputRef.current) {
-      if (!spouseChoicesInstance.current) {
-        spouseChoicesInstance.current = new Choices(spouseInputRef.current, {
-          removeItemButton: true,
-          shouldSort: false,
-          searchEnabled: true,
-          placeholder: true,
-          placeholderValue: "Select Spouse(s)",
-          searchPlaceholderValue: "Search for a spouse",
-          searchFields: ["label"],
-          maxItemCount: -1,
-          duplicateItemsAllowed: false,
-        });
-      }
-
-      const selectedSpouseIds = form.spouses.map((sp) => sp.id);
-      const missingSpouses = form.spouses.filter(
-        (sp) => sp.id && !filteredSpouseOptions.some((opt) => opt.id === sp.id)
-      );
-
-      const choicesData = [
-        ...missingSpouses.map((sp) => ({
-          value: sp.id ? sp.id.toString() : "",
+  const fatherOptions = suggestions.map((s) => ({
+    value: s.id,
+    label: s.displayText,
+    name_in_nepali: s.name_in_nepali || s.name,
+  }));
+  const motherOptions = motherSuggestions.map((s) => ({
+    value: s.id,
+    label: s.displayText,
+    name_in_nepali: s.name_in_nepali || s.name,
+  }));
+  const spouseOptionsRS = filteredSpouseOptions.map((s) => ({
+    value: s.id,
+    label: s.name_in_nepali || s.name,
+    name_in_nepali: s.name_in_nepali || s.name,
+  }));
+  const selectedFather =
+    fatherOptions.find((opt) => opt.value === form.father_id) || null;
+  const selectedMother =
+    motherOptions.find((opt) => opt.value === form.mother_id) || null;
+  const selectedSpouses = form.spouses
+    ? form.spouses.filter((sp) => sp.id).map((sp) =>
+        spouseOptionsRS.find((opt) => opt.value === sp.id) || {
+          value: sp.id,
           label: sp.name,
-          selected: true,
-          customProperties: {
-            id: sp.id,
-            name_in_nepali: sp.name,
-          },
-        })),
-        ...filteredSpouseOptions.map((s) => ({
-          value: s.id ? s.id.toString() : "",
-          label: s.displayText || s.name_in_nepali || s.name,
-          selected: selectedSpouseIds.includes(s.id),
-          customProperties: {
-            id: s.id,
-            name_in_nepali: s.name_in_nepali || s.name,
-          },
-        })),
-      ];
-
-      spouseChoicesInstance.current.setChoices(
-        choicesData,
-        "value",
-        "label",
-        true
-      );
-
-      spouseInputRef.current.addEventListener("change", (e) => {
-        const selectedOptions = Array.from(e.target.selectedOptions).map(
-          (opt) => ({
-            id: parseInt(opt.value, 10),
-            name: opt.textContent,
-          })
-        );
-        setForm((prev) => ({
-          ...prev,
-          spouses: selectedOptions,
-        }));
-      });
-    }
-
-    return () => {
-      if (spouseChoicesInstance.current) {
-        spouseChoicesInstance.current.destroy();
-        spouseChoicesInstance.current = null;
-      }
-    };
-  }, [filteredSpouseOptions, form.spouses]);
+          name_in_nepali: sp.name,
+        }
+      )
+    : [];
 
   useEffect(() => {
     if (formData.id) {
@@ -1201,109 +989,66 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             <div className="form-field">
               <h3 className="section-title">Family Information</h3>
 
-              <div className="form-field relative">
+              <div className="form-field">
                 <label className="label">Father Name</label>
-                {suggestionsLoading ? (
-                  <div className="loading-container">
-                    <span>Loading...</span>
-                    <FaSpinner className="animate-spin text-xl text-[#F49D37]" />
-                  </div>
-                ) : (
-                  <>
-                    <select
-                      ref={fatherInputRef}
-                      name="father_name"
-                      className="select"
-                    />
-                    {showSuggestions && suggestions.length > 0 && (
-                      <ul
-                        className="suggestions-list"
-                        onMouseEnter={handleFatherMouseEnter}
-                        onMouseLeave={handleFatherMouseLeave}
-                      >
-                        {suggestions.map((suggestion, index) => (
-                          <li
-                            key={index}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setForm((prev) => ({
-                                ...prev,
-                                father_name:
-                                  suggestion.name_in_nepali || suggestion.name,
-                                father_id: suggestion.id,
-                              }));
-                              setShowSuggestions(false);
-                            }}
-                            className="suggestion-item"
-                          >
-                            {suggestion.displayText}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </>
-                )}
+                <Select
+                  options={fatherOptions}
+                  value={selectedFather}
+                  isLoading={suggestionsLoading}
+                  isClearable
+                  placeholder="Select Father"
+                  onChange={(selected) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      father_id: selected ? selected.value : null,
+                      father_name: selected ? selected.name_in_nepali : "",
+                    }));
+                  }}
+                  classNamePrefix="react-select"
+                />
               </div>
 
-              <div className="form-field relative">
+              <div className="form-field">
                 <label className="label">Mother Name</label>
-                {suggestionsLoading ? (
-                  <div className="loading-container">
-                    <span>Loading...</span>
-                    <FaSpinner className="animate-spin text-xl text-[#F49D37]" />
-                  </div>
-                ) : (
-                  <>
-                    <select
-                      ref={motherInputRef}
-                      name="mother_name"
-                      className="select"
-                    />
-                    {showMotherSuggestions && motherSuggestions.length > 0 && (
-                      <ul
-                        className="suggestions-list"
-                        onMouseEnter={handleMotherMouseEnter}
-                        onMouseLeave={handleMotherMouseLeave}
-                      >
-                        {motherSuggestions.map((suggestion, index) => (
-                          <li
-                            key={index}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setForm((prev) => ({
-                                ...prev,
-                                mother_name:
-                                  suggestion.name_in_nepali || suggestion.name,
-                                mother_id: suggestion.id,
-                              }));
-                              setShowMotherSuggestions(false);
-                            }}
-                            className="suggestion-item"
-                          >
-                            {suggestion.displayText}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </>
-                )}
+                <Select
+                  options={motherOptions}
+                  value={selectedMother}
+                  isLoading={suggestionsLoading}
+                  isClearable
+                  placeholder="Select Mother"
+                  onChange={(selected) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      mother_id: selected ? selected.value : null,
+                      mother_name: selected ? selected.name_in_nepali : "",
+                    }));
+                  }}
+                  classNamePrefix="react-select"
+                />
               </div>
 
               <div className="form-field">
                 <label className="label">Spouse(s)</label>
-                {spouseOptionsLoading ? (
-                  <div className="loading-container">
-                    <span>Loading...</span>
-                    <FaSpinner className="animate-spin text-xl text-[#F49D37]" />
-                  </div>
-                ) : (
-                  <select
-                    ref={spouseInputRef}
-                    name="spouses"
-                    className="select"
-                    multiple
-                  />
-                )}
+                <Select
+                  options={spouseOptionsRS}
+                  value={selectedSpouses}
+                  isMulti
+                  isLoading={spouseOptionsLoading}
+                  isClearable
+                  placeholder="Select Spouse(s)"
+                  onChange={(selected) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      spouses: selected
+                        ? selected.map((sp) => ({
+                            id: sp.value,
+                            name: sp.name_in_nepali,
+                          }))
+                        : [],
+                    }));
+                  }}
+                  classNamePrefix="react-select"
+                />
               </div>
             </div>
 
