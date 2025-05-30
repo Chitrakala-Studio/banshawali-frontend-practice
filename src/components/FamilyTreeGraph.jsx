@@ -854,13 +854,13 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
                 pathClassFunc={() => "custom-link"}
               />
             )}
-            <div className="action-buttons">
+            <div className="action-buttons mb-2">
               <button onClick={handlePDF} className="action-button">
                 Save as PDF
               </button>
-              <button onClick={handlePrint} className="action-button">
+              {/* <button onClick={handlePrint} className="action-button">
                 Print Family Tree
-              </button>
+              </button> */}
             </div>
           </>
         )}

@@ -638,7 +638,6 @@ const CardView = () => {
 
         {selectedPerson && (
           <div className="family-tree-modal">
-            <div className="family-tree-content">
               <FamilyTreeGraph
                 id={id}
                 selectedPerson={selectedPerson}
@@ -648,7 +647,6 @@ const CardView = () => {
                   setIsHorizontal(false);
                 }}
               />
-            </div>
           </div>
         )}
       </div>
