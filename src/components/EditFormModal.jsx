@@ -274,13 +274,16 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const selectedMother =
     motherOptions.find((opt) => opt.value === form.mother_id) || null;
   const selectedSpouses = form.spouses
-    ? form.spouses.filter((sp) => sp.id).map((sp) =>
-        spouseOptionsRS.find((opt) => opt.value === sp.id) || {
-          value: sp.id,
-          label: sp.name,
-          name_in_nepali: sp.name,
-        }
-      )
+    ? form.spouses
+        .filter((sp) => sp.id)
+        .map(
+          (sp) =>
+            spouseOptionsRS.find((opt) => opt.value === sp.id) || {
+              value: sp.id,
+              label: sp.name,
+              name_in_nepali: sp.name,
+            }
+        )
     : [];
 
   useEffect(() => {
@@ -872,6 +875,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={handleChange}
                   className="input"
                   placeholder="Enter Pusta Number"
+                  style={{ backgroundImage: "none" }}
                 />
               </div>
 
@@ -885,6 +889,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={handleChange}
                   className="input"
                   placeholder="Enter your name (in English)"
+                  style={{ backgroundImage: "none" }}
                 />
                 <button
                   type="button"
@@ -905,6 +910,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={handleChange}
                   className="input"
                   placeholder="Enter your name (in Nepali)"
+                  style={{ backgroundImage: "none" }}
                 />
               </div>
 
@@ -1080,6 +1086,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={handleContactChange}
                   className="input"
                   placeholder="Enter email address"
+                  style={{ backgroundImage: "none" }}
                 />
               </div>
 
@@ -1092,6 +1099,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={handleContactChange}
                   className="input"
                   placeholder="Enter phone number"
+                  style={{ backgroundImage: "none" }}
                 />
               </div>
 
@@ -1104,6 +1112,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={handleContactChange}
                   className="input"
                   placeholder="Enter address"
+                  style={{ backgroundImage: "none" }}
                 />
               </div>
             </div>
@@ -1120,6 +1129,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                   onChange={handleChange}
                   className="input"
                   placeholder="Enter profession"
+                  style={{ backgroundImage: "none" }}
                 />
               </div>
             </div>

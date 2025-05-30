@@ -1806,7 +1806,11 @@ const TableView = () => {
 
       {showFamilyTree && familyTreePerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#E9D4B0] p-6 rounded-lg w-[90vw] h-[90vh] overflow-auto relative">
+          <div
+            className="bg-[#E9D4B0] p-6 rounded-lg w-[850px]
+    h-[650px]  overflow-y-hidden
+    overflow-x-auto"
+          >
             <FamilyTreeGraph
               id={String(familyTreePerson.id)}
               selectedPerson={

@@ -610,22 +610,25 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
             --popup-end: #B9BAC3;
           }
 
-          .tree-container {
-            background: #E9D4B0;
-            position: relative;
-            width: ${isMobile ? "80vh" : "100%"};
-            height: ${isMobile ? "160vw" : "50em"};
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transform: ${isMobile ? "rotate(90deg)" : "none"};
-            transform-origin: ${isMobile ? "down left" : "none"};
-            overflow: hidden; /* Changed from auto to hidden */
-            z-index: 10;
-            border: 2px solid transparent;
-          }
+                 .tree-container {
+    background: #E9D4B0;
+    position: relative;
+    width: 850px;        
+    height: 570px;      
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;    
+    border: 2px solid transparent;
+  }
 
+  @media (max-width: 800px) {
+    .tree-container {
+      width: 600px;     /* a smaller fixed size on narrow screens */
+      height: 500px;
+    }
+  }
           .tree-title {
             font-family: 'Playfair Display', serif;
             font-size: 24px;

@@ -17,8 +17,8 @@ const TableHeader = ({
   filteredData,
 }) => {
   return (
-    <div className="flex flex-wrap sm:flex-nowrap items-center justify-between w-full mb-4 gap-2">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between w-full mb-4 gap-2 p-2">
+      <div className="flex items-center gap-2 w-full sm:w-auto">
         <div style={{ display: activeTab === "suggestions" ? "none" : "flex" }}>
           <ToggleView
             isTableView={isTableView}
@@ -27,14 +27,15 @@ const TableHeader = ({
           />
         </div>
       </div>
-      <div className="flex gap-4">
+      <div className="flex flex-wrap sm:flex-nowrap justify-start sm:justify-end gap-2 w-full sm:w-auto">
         {activeTab !== "data" && (
           <button
             onClick={() => navigate("/")}
-            className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
+            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+            title={window.innerWidth < 640 ? "Back" : ""}
           >
-            <FaArrowLeft />
-            <span>Back to Table</span>
+            <FaArrowLeft size={window.innerWidth < 640 ? 18 : undefined} />
+            <span className="hidden sm:inline">Back to Table</span>
           </button>
         )}
         {(id || searchApplied) && (
@@ -43,28 +44,35 @@ const TableHeader = ({
               if (id) {
                 navigate("/", { replace: true });
               } else if (searchApplied) {
-                // Reset search state is handled in TableView's handleGoBack
                 navigate("/");
               }
             }}
-            className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
+            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+            title={window.innerWidth < 640 ? "Back" : ""}
           >
-            <FaArrowLeft />
-            <span>Back to Table</span>
+            <FaArrowLeft size={window.innerWidth < 640 ? 18 : undefined} />
+            <span className="hidden sm:inline">Back to Table</span>
           </button>
         )}
-        <button className="hidden sm:flex top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm">
-          <FaHome />
-          <a href="https://gautamfamily.org.np/">Homepage</a>
-        </button>
+        <a
+          href="https://gautamfamily.org.np/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden sm:flex top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+          title={window.innerWidth < 640 ? "Home" : ""}
+        >
+          <FaHome size={window.innerWidth < 640 ? 18 : undefined} />
+          <span className="hidden sm:inline">Homepage</span>
+        </a>
 
         {activeTab !== "suggestions" && !id && (
           <button
             onClick={() => setShowSearchForm(true)}
-            className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
+            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+            title={window.innerWidth < 640 ? "Search" : ""}
           >
-            <FaSearch />
-            <span>Search User</span>
+            <FaSearch size={window.innerWidth < 640 ? 18 : undefined} />
+            <span className="hidden sm:inline">Search User</span>
           </button>
         )}
 
@@ -73,21 +81,23 @@ const TableHeader = ({
             {activeTab !== "suggestions" && !id && (
               <button
                 onClick={() => navigate("/suggestions")}
-                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
+                className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
                 data-tooltip-id="tooltip"
                 data-tooltip-content="View Suggestions"
+                title={window.innerWidth < 640 ? "Suggestions" : ""}
               >
-                <Eye size={18} />
-                <span>View Suggestions</span>
+                <Eye size={window.innerWidth < 640 ? 18 : 18} />
+                <span className="hidden sm:inline">View Suggestions</span>
               </button>
             )}
             {activeTab !== "suggestions" && !id && (
               <button
                 onClick={() => navigate("/add-admin")}
-                className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
+                className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+                title={window.innerWidth < 640 ? "Admin" : ""}
               >
-                <FaUserPlus />
-                <span>View Admin</span>
+                <FaUserPlus size={window.innerWidth < 640 ? 18 : undefined} />
+                <span className="hidden sm:inline">View Admin</span>
               </button>
             )}
           </>
@@ -95,14 +105,12 @@ const TableHeader = ({
 
         {activeTab !== "suggestions" && !id && isAdmin && (
           <button
-            onClick={() => {
-              // This triggers the Add New User modal, handled in TableView
-              navigate("/add-new-user");
-            }}
-            className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
+            onClick={() => navigate("/add-new-user")}
+            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+            title={window.innerWidth < 640 ? "Add User" : ""}
           >
-            <Plus size={18} />
-            <span>Add New User</span>
+            <Plus size={window.innerWidth < 640 ? 18 : 18} />
+            <span className="hidden sm:inline">Add New User</span>
           </button>
         )}
 
@@ -142,10 +150,11 @@ const TableHeader = ({
                 });
               }
             }}
-            className="top-bar-btn flex-center px-3 py-2 text-xs sm:px-6 sm:py-2 sm:text-sm"
+            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+            title={window.innerWidth < 640 ? "Download" : ""}
           >
-            <Download size={18} />
-            <span>Download</span>
+            <Download size={window.innerWidth < 640 ? 18 : 18} />
+            <span className="hidden sm:inline">Download</span>
           </button>
         )}
       </div>
