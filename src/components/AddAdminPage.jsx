@@ -26,7 +26,7 @@ const AddAdminPage = () => {
     if (userStr) {
       const user = JSON.parse(userStr);
       setCurrentUser(user);
-      if (user && user.token && user.role === "admin") {
+      if (user && user.token && user.role === "superadmin") {
         setIsAdminLocal(true);
         fetchAdmins();
       } else {

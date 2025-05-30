@@ -35,7 +35,7 @@ const AdminLogin = () => {
         const user_Details = {
           username: response.data.user.username,
           token: response.data.access,
-          role: "admin",
+          role: response.data.user.role,
         };
         localStorage.setItem("user", JSON.stringify(user_Details));
         navigate("/");

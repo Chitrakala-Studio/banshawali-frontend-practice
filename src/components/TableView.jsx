@@ -45,6 +45,7 @@ const TableView = () => {
   const { id } = useParams();
   const [searchApplied, setSearchApplied] = useState(false);
   const [isAdminLocal, setIsAdminLocal] = useState(false);
+  const [isSuperAdminLocal, setIsSuperAdminLocal] = useState(false);
   const [isTableView, setIsTableView] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,9 +108,11 @@ const TableView = () => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
       const user = JSON.parse(userStr);
-      setIsAdminLocal(user && user.token && user.role === "admin");
+      setIsAdminLocal(user && user.token && (user.role === "admin" || user.role === "superadmin"));
+      setIsSuperAdminLocal(user && user.token && user.role === "superadmin");
     } else {
       setIsAdminLocal(false);
+      setIsSuperAdminLocal(false);
     }
 
     if (location.pathname === "/suggestions") {
@@ -1110,6 +1113,7 @@ const TableView = () => {
           id={id}
           searchApplied={searchApplied}
           isAdmin={isAdminLocal}
+          isSuperAdmin={isSuperAdminLocal}
           isTableView={isTableView}
           toggleView={() => setIsTableView(!isTableView)}
           availableId={visibleData.length > 0 ? visibleData[0]?.id : null}

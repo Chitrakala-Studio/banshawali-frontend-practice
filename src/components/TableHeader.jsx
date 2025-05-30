@@ -9,6 +9,7 @@ const TableHeader = ({
   id,
   searchApplied,
   isAdmin,
+  isSuperAdmin,
   isTableView,
   toggleView,
   availableId,
@@ -32,24 +33,19 @@ const TableHeader = ({
         </div>
       </div>
       <div className="flex flex-wrap sm:flex-nowrap justify-start sm:justify-end gap-2 w-full sm:w-auto">
-        {/* Show Back to Table only when (id || searchApplied) is true */}
-        {(id || searchApplied) && (
+        {/* Always show Back to Table in suggestions view, and in other views when (id || searchApplied) is true */}
+        {((activeTab === "suggestions") || id || searchApplied) && (
           <button
             onClick={() => {
-              if (id) {
-                setSearchApplied(false); // Ensure button hides immediately
-                navigate("/", { replace: true });
-              } else if (searchApplied) {
-                setSearchApplied(false); // Hide button immediately
-                if (typeof onBackToTable === "function") {
-                  onBackToTable(); // Trigger fetchData(1) in TableView
-                } else {
-                  setFilteredData(data); // fallback
-                }
-                navigate("/");
+              setSearchApplied(false);
+              if (typeof onBackToTable === "function") {
+                onBackToTable();
+              } else {
+                setFilteredData(data);
               }
+              navigate("/");
             }}
-            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+            className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:!gap-0"
             title={window.innerWidth < 640 ? "Back" : ""}
           >
             <FaArrowLeft size={window.innerWidth < 640 ? 18 : undefined} />
@@ -92,7 +88,10 @@ const TableHeader = ({
                 <span className="hidden sm:inline">View Suggestions</span>
               </button>
             )}
-            {activeTab !== "suggestions" && !id && (
+          </>
+        )}
+        {isSuperAdmin && activeTab !== "suggestions" && !id && (
+          <>
               <button
                 onClick={() => navigate("/add-admin")}
                 className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
@@ -101,7 +100,6 @@ const TableHeader = ({
                 <FaUserPlus size={window.innerWidth < 640 ? 18 : undefined} />
                 <span className="hidden sm:inline">View Admin</span>
               </button>
-            )}
           </>
         )}
 
@@ -169,6 +167,7 @@ TableHeader.propTypes = {
   id: PropTypes.string,
   searchApplied: PropTypes.bool.isRequired,
   isAdmin: PropTypes.bool.isRequired,
+  isSuperAdmin: PropTypes.bool.isRequired,
   isTableView: PropTypes.bool.isRequired,
   toggleView: PropTypes.func.isRequired,
   availableId: PropTypes.string,
