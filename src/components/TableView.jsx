@@ -1118,7 +1118,8 @@ const TableView = () => {
           filteredData={filteredData}
           setFilteredData={setFilteredData}
           data={data}
-          setSearchApplied={setSearchApplied} // Pass setSearchApplied
+          setSearchApplied={setSearchApplied}
+          onBackToTable={() => fetchData(1)} // NEW: pass callback for refetch
         />
 
         {activeTab === "data" &&
@@ -1736,12 +1737,8 @@ const TableView = () => {
             next={handleLoadMore}
             hasMore={hasMore && visibleData.length >= 15}
             loader={
-              <div className="flex justify-center items-center py-6">
-                <ClipLoader
-                  color="var(--neutral-gray)"
-                  loading={true}
-                  size={35}
-                />
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }}>
+                <ClipLoader color="var(--neutral-gray)" loading={true} size={32} />
               </div>
             }
             style={{ overflow: "hidden" }}
@@ -1862,8 +1859,8 @@ const TableView = () => {
       )}
       <ReactTooltip id="tooltip" place="top" effect="solid" />
 
-      {/* Overlay loading spinner and blur when loading is true */}
-      {loading && (
+      {/* Overlay loading spinner and blur for initial load or after search, but not for infinite scroll */}
+      {loading && (filteredData.length === 0 || searchApplied) && (
         <div
           style={{
             position: "fixed",

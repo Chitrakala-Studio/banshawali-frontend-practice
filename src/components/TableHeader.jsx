@@ -18,6 +18,7 @@ const TableHeader = ({
   setFilteredData, // Fix: Add setFilteredData prop
   data, // Fix: Add data prop
   setSearchApplied, // NEW: Accept setSearchApplied as a prop
+  onBackToTable, // NEW: callback to trigger fetchData(1)
 }) => {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between w-full mb-4 gap-2 p-2">
@@ -39,8 +40,12 @@ const TableHeader = ({
                 setSearchApplied(false); // Ensure button hides immediately
                 navigate("/", { replace: true });
               } else if (searchApplied) {
-                setFilteredData(data);
-                setSearchApplied(false); // Ensure button hides immediately
+                setSearchApplied(false); // Hide button immediately
+                if (typeof onBackToTable === "function") {
+                  onBackToTable(); // Trigger fetchData(1) in TableView
+                } else {
+                  setFilteredData(data); // fallback
+                }
                 navigate("/");
               }
             }}
@@ -173,6 +178,7 @@ TableHeader.propTypes = {
   setFilteredData: PropTypes.func.isRequired, // Fix: Add prop type for setFilteredData
   data: PropTypes.array.isRequired, // Fix: Add prop type for data
   setSearchApplied: PropTypes.func.isRequired, // NEW: Add prop type for setSearchApplied
+  onBackToTable: PropTypes.func, // NEW: Add prop type for onBackToTable
 };
 
 export default TableHeader;
