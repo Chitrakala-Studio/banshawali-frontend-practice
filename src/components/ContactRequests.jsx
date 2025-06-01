@@ -340,7 +340,7 @@ const ContactRequest = () => {
                           return text;
                         })()}
                       </td>
-                      <td>{contact.person?.name_in_nepali || "-"}</td>
+                      <td>{contact.person_details?.name_in_nepali || "-"}</td>
                       <td>{contact.requester_name || "-"}</td>
                       <td>{contact.requester_email || "-"}</td>
                       <td>{contact.requester_phone || "-"}</td>
