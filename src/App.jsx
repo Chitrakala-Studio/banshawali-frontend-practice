@@ -12,6 +12,7 @@ import Compare from "./components/Compare";
 import TableView from "./components/TableView";
 import CardView from "./components/CardView";
 import AddAdminPage from "./components/AddAdminPage"; // Import AddAdminPage
+import ContactRequest from "./components/ContactRequests";
 
 const RedirectOnMobile = ({ setIsMobile }) => {
   useEffect(() => {
@@ -38,6 +39,7 @@ const AppRoutes = ({ isMobile }) => (
       <Route path="/suggestions" element={<TableView />} />
       <Route path="/:id" element={<TableView />} />
       <Route path="/card" element={<Navigate to="/card/1" />} />
+      <Route path="/request-contact" element={<TableView />} />
     </Routes>
   </>
 );

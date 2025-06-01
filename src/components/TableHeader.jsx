@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FaArrowLeft, FaSearch, FaHome, FaUserPlus } from "react-icons/fa";
-import { Eye, Plus, Download } from "lucide-react";
+import { Eye, Plus, Download , Contact} from "lucide-react";
 import ToggleView from "./ToggleView";
 
 const TableHeader = ({
@@ -24,7 +24,7 @@ const TableHeader = ({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between w-full mb-4 gap-2 p-2">
       <div className="flex items-center gap-2 w-full sm:w-auto">
-        <div style={{ display: activeTab === "suggestions" ? "none" : "flex" }}>
+        <div style={{ display: activeTab === "suggestions" || "request-contact" ? "none" : "flex" }}>
           <ToggleView
             isTableView={isTableView}
             toggleView={toggleView}
@@ -34,7 +34,7 @@ const TableHeader = ({
       </div>
       <div className="flex flex-wrap sm:flex-nowrap justify-start sm:justify-end gap-2 w-full sm:w-auto">
         {/* Always show Back to Table in suggestions view, and in other views when (id || searchApplied) is true */}
-        {((activeTab === "suggestions") || id || searchApplied) && (
+        {((activeTab === "suggestions") || id || searchApplied || activeTab === "request-contact") && (
           <button
             onClick={() => {
               setSearchApplied(false);
@@ -63,7 +63,7 @@ const TableHeader = ({
           <span className="hidden sm:inline">Homepage</span>
         </a>
 
-        {activeTab !== "suggestions" && !id && (
+        {activeTab !== "suggestions" && activeTab !== "request-contact" && !id && (
           <button
             onClick={() => setShowSearchForm(true)}
             className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
@@ -90,6 +90,19 @@ const TableHeader = ({
             )}
           </>
         )}
+
+        {activeTab !== "request-contact" && !id && isAdmin && (
+
+          <button
+              onClick={() => navigate("/request-contact")}
+              className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
+              title={window.innerWidth < 640 ? "Contact Requests" : ""}
+            >
+              <Contact size={window.innerWidth < 640 ? 18 : 18 } />
+              <span className="hidden sm:inline">Contact Requests</span>
+            </button>
+        )}
+
         {isSuperAdmin && activeTab !== "suggestions" && !id && (
           <>
               <button
@@ -103,7 +116,7 @@ const TableHeader = ({
           </>
         )}
 
-        {activeTab !== "suggestions" && !id && isAdmin && (
+        {activeTab !== "suggestions" && activeTab !== "request-contact" && !id && isAdmin && (
           <button
             onClick={() => navigate("/add-new-user")}
             className="top-bar-btn flex-center w-[48px] h-[48px] sm:w-auto sm:h-auto sm:px-3 sm:py-2 sm:text-sm text-xs max-[639px]:!w-[48px] max-[639px]:!h-[48px] max-[639px]:!p-0 max-[639px]:gap-0"
@@ -112,9 +125,13 @@ const TableHeader = ({
             <Plus size={window.innerWidth < 640 ? 18 : 18} />
             <span className="hidden sm:inline">Add New User</span>
           </button>
+
+          // Request COnatct Button
         )}
 
-        {activeTab !== "suggestions" && id && (
+        
+
+        {activeTab !== "suggestions" && activeTab !== "request-contact" && id && (
           <button
             onClick={async () => {
               try {

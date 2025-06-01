@@ -24,6 +24,8 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
+import male1 from "./male1.png";
+import female1 from "./female1.png";
 
 const GenderIcon = ({ gender, label }) => {
   const iconBase = { width: 20, height: 20, marginRight: 8 };
@@ -47,6 +49,10 @@ const GenderIcon = ({ gender, label }) => {
 
 const UserProfileModal = ({ user, onClose }) => {
   const [activeTab, setActiveTab] = useState("personal");
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestForm, setRequestForm] = useState({ name: '', email: '', phone: '', reason: '' });
+  const [requestError, setRequestError] = useState('');
+  const [requestSuccess, setRequestSuccess] = useState('');
 
   if (!user) {
     return null;
@@ -68,14 +74,26 @@ const UserProfileModal = ({ user, onClose }) => {
     }
   };
 
-  const handleCopySiblings = () => {
-    if (user.bio_siblings) {
+  const handleCopySiblings = (bioSiblings) => {
+    if (Array.isArray(bioSiblings)) {
+      const text = bioSiblings.join('\n');
+      if (text.trim()) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            toast.success("Bio of Siblings copied to clipboard!");
+          })
+          .catch(() => {
+            toast.error("Failed to copy text");
+          });
+      }
+    } else if (bioSiblings) {
       navigator.clipboard
-        .writeText(user.bio_siblings)
+        .writeText(bioSiblings)
         .then(() => {
           toast.success("Bio of Siblings copied to clipboard!");
         })
-        .catch((err) => {
+        .catch(() => {
           toast.error("Failed to copy text");
         });
     }
@@ -325,6 +343,7 @@ const UserProfileModal = ({ user, onClose }) => {
 
   const renderContact = () => {
     const contact = user.contact_details || {};
+    const showRequestBtn = isMasked(contact.email) || isMasked(contact.phone);
     return (
       <div className="info-section">
         {contact.email && (
@@ -348,8 +367,75 @@ const UserProfileModal = ({ user, onClose }) => {
             {contact.address}
           </p>
         )}
+        {showRequestBtn && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24, width: '100%' }}>
+            <button
+              className="request-details-btn request-details-btn-center"
+              onClick={() => setShowRequestModal(true)}
+              style={{ minWidth: 160, fontWeight: 600, fontFamily: 'Playfair Display, serif', fontSize: 17, margin: '0 auto' }}
+            >
+              Request Details
+            </button>
+          </div>
+        )}
       </div>
     );
+  };
+
+  // Helper to check if a value is masked (e.g., contains asterisk or underscore anywhere in the string)
+  const isMasked = (val) => typeof val === 'string' && /[\*_]/.test(val);
+
+  // Request Details Modal logic
+  const handleRequestInputChange = (e) => {
+    const { name, value } = e.target;
+    setRequestForm((prev) => ({ ...prev, [name]: value }));
+    setRequestError('');
+    setRequestSuccess('');
+  };
+
+  const handleRequestSubmit = async (e) => {
+    e.preventDefault();
+    if (!requestForm.name.trim() || !requestForm.phone.trim() || !requestForm.reason.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Missing Fields',
+        text: 'Name, Phone, and Reason are required.'
+      });
+      return;
+    }
+    setRequestError('');
+    setRequestSuccess('');
+    try {
+      const payload = {
+        person: user.id,
+        requester_name: requestForm.name,
+        requester_email: requestForm.email,
+        requester_phone: requestForm.phone,
+        reason: requestForm.reason,
+      };
+      const apiUrl = `${import.meta.env.VITE_API_URL}/people/contact-requests/`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to submit request');
+      }
+      Swal.fire({
+        icon: 'success',
+        title: 'Request Submitted',
+        text: 'Your request has been submitted.'
+      });
+      setRequestForm({ name: '', email: '', phone: '', reason: '' });
+      setShowRequestModal(false);
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: 'Failed to submit request. Please try again.'
+      });
+    }
   };
 
   return (
@@ -624,6 +710,29 @@ const UserProfileModal = ({ user, onClose }) => {
             outline: none;
           }
 
+          .request-details-btn {
+            background-color: #2E4568;
+            color: #E9D4B0;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-top: 8px;
+          }
+          .request-details-btn:hover, .request-details-btn:focus {
+            background-color: #4A6A9D;
+            outline: none;
+            transform: translateY(-2px) scale(1.04);
+          }
+          .request-details-btn-center {
+            display: block;
+            margin: 0 auto;
+          }
+
            /* Responsive: stack columns on small screens */
           @media (max-width: 600px) {
             .header-section {
@@ -656,7 +765,7 @@ const UserProfileModal = ({ user, onClose }) => {
         </button>
 
         <div className="header-section">
-          <div class="header-image-container">
+          <div className="header-image-container">
             {user.photo ? (
               <img
                 src={user.photo}
@@ -666,14 +775,14 @@ const UserProfileModal = ({ user, onClose }) => {
               />
             ) : user.gender && String(user.gender).toLowerCase() === "male" ? (
               <img
-                src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                src={male1}
                 alt="Male profile"
                 className="profile-image"
                 style={{ width: "100%", height: "auto" }}
               />
             ) : (
               <img
-                src="https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.jpg"
+                src={female1}
                 alt="Female profile"
                 className="profile-image"
                 style={{ width: "100%", height: "auto" }}
@@ -705,7 +814,7 @@ const UserProfileModal = ({ user, onClose }) => {
                 <div className="bio-container">
                   <p className="bio justify-text" style={{ marginRight: "36px" }}>{user.bio_siblings}</p>
                   <button
-                    onClick={handleCopySiblings}
+                    onClick={() => handleCopySiblings(user.bio_siblings)}
                     className="copy-btn bio-copy-fixed"
                     title="Copy bio of Siblings"
                     style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)" }}
@@ -737,6 +846,124 @@ const UserProfileModal = ({ user, onClose }) => {
           {activeTab === "family" && renderFamilyRelations()}
           {activeTab === "contact" && renderContact()}
         </div>
+        {showRequestModal && (
+          <div className="request-modal-overlay">
+            <div className="request-modal">
+              <div className="request-modal-title-row">
+                <span className="request-modal-title">Request Contact Details for {user.name_in_nepali || user.name || '-'}</span>
+              </div>
+              <form onSubmit={handleRequestSubmit}>
+                <div className="swal-row">
+                  <div className="swal-field-full">
+                    <label className="swal-label">Name <span style={{color:'red'}}>*</span></label>
+                    <input name="name" className="swal-input" value={requestForm.name} onChange={handleRequestInputChange} required />
+                  </div>
+                </div>
+                <div className="swal-row">
+                  <div className="swal-field">
+                    <label className="swal-label">Email</label>
+                    <input name="email" className="swal-input" value={requestForm.email} onChange={handleRequestInputChange} type="email" />
+                  </div>
+                  <div className="swal-field">
+                    <label className="swal-label">Phone <span style={{color:'red'}}>*</span></label>
+                    <input name="phone" className="swal-input" value={requestForm.phone} onChange={handleRequestInputChange} required />
+                  </div>
+                </div>
+                <div className="swal-field-full">
+                  <label className="swal-label">Reason for Contact <span style={{color:'red'}}>*</span></label>
+                  <textarea name="reason" className="swal-textarea" value={requestForm.reason} onChange={handleRequestInputChange} required />
+                </div>
+                <div className="swal-btn-row">
+                  <button type="button" className="swal-cancel-btn" onClick={()=>setShowRequestModal(false)}>Cancel</button>
+                  <button type="submit" className="swal-confirm-btn">Submit</button>
+                </div>
+              </form>
+            </div>
+            <style>{`
+              .request-modal-title-row {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 18px;
+              }
+              .request-modal-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 22px;
+                font-weight: 600;
+                color: #2E4568;
+                margin: 0;
+                padding: 0;
+              }
+              .request-for-name {
+                font-family: 'Playfair Display', serif;
+                font-size: 18px;
+                color: #4A6A9D;
+                font-weight: 500;
+                margin: 0;
+                padding: 0;
+                text-decoration: none;
+              }
+              .request-modal-overlay {
+                position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100;
+                display: flex; align-items: center; justify-content: center;
+              }
+              .request-modal {
+                background: #fffaf0; border-radius: 12px; padding: 32px 24px; min-width: 320px; max-width: 95vw;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+                border: 2px solid #F49D37;
+              }
+              .request-modal-title {
+                font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: #2E4568; margin-bottom: 18px;
+              }
+              .swal-label { display: block; margin-top: 8px; font-family: 'Merriweather', serif; font-size: 15px; color: #2E4568; }
+              .swal-input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1.5px solid #E9D4B0; font-size: 16px; margin-bottom: 4px; font-family: 'Merriweather', serif; }
+              .swal-textarea { width: 100%; min-height: 80px; border-radius: 8px; border: 1.5px solid #E9D4B0; font-size: 16px; font-family: 'Merriweather', serif; margin-bottom: 4px; }
+              .swal-confirm-btn, .swal-cancel-btn { border-radius: 8px; padding: 10px 20px; font-family: 'Playfair Display', serif; font-size: 16px; transition: background-color 0.2s, transform 0.2s; }
+              .swal-confirm-btn { background-color: #2E4568; color: #E9D4B0; }
+              .swal-cancel-btn { background-color: #E9D4B0; color: #2E4568; }
+              .swal-confirm-btn:hover { background-color: #4A6A9D; }
+              .swal-cancel-btn:hover { background-color: #D9C4A0; }
+              .swal-row {
+                display: flex;
+                gap: 16px;
+                margin-bottom: 8px;
+                flex-wrap: wrap;
+              }
+              .swal-field {
+                flex: 1 1 0;
+                min-width: 120px;
+                display: flex;
+                flex-direction: column;
+              }
+              .swal-field-full {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 8px;
+              }
+              .swal-btn-row {
+                display: flex;
+                justify-content: center;
+                gap: 16px;
+                margin-top: 18px;
+              }
+              @media (max-width: 600px) {
+                .request-modal {
+                  padding: 24px 16px;
+                }
+                .swal-row {
+                  flex-direction: column;
+                  gap: 0;
+                }
+                .swal-btn-row {
+                  flex-direction: column;
+                  gap: 8px;
+                }
+              }
+            `}</style>
+          </div>
+        )}
       </div>
     </div>
   );

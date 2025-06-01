@@ -37,9 +37,12 @@ import { useDropzone } from "react-dropzone";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import Suggestion from "./Suggestion";
+import ContactRequest from "./ContactRequests";
 import ClipLoader from "react-spinners/ClipLoader";
 import FamilyTreeGraph from "./FamilyTreeGraph";
 import TableHeader from "./TableHeader"; // Import the new component
+import male1 from "./male1.png";
+import female1 from "./female1.png";
 
 const TableView = () => {
   const { id } = useParams();
@@ -62,6 +65,7 @@ const TableView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
+   const [isrequestContact, setIsRequestContact] = useState([]);
   const [showAddRelationModal, setShowAddRelationModal] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800);
@@ -119,6 +123,10 @@ const TableView = () => {
       console.log("Path is /suggestions, setting activeTab to suggestions");
       setActiveTab("suggestions");
       fetchSuggestions();
+    } else if (location.pathname === "/request-contact") {
+      console.log("Path is /request-contact, setting activeTab to request-contact");
+      setActiveTab("request-contact");
+      fetchContactRequests();
     } else if (location.pathname === "/add-new-user") {
       setActiveTab("data");
       setFormData({
@@ -221,6 +229,23 @@ const TableView = () => {
       setHasMore(response.data.next !== null);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchContactRequests = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(`${API_URL}/people/contact-requests/`);
+      console.log("Fetched contact requests:", response.data);
+      const requestArray = response.data.data;
+      setIsRequestContact(requestArray);
+      setHasMore(response.data.next !== null);
+    } catch (error) {
+      console.error("Error fetching contact requests:", error);
+      setIsRequestContact([]);
       setHasMore(false);
     } finally {
       setLoading(false);
@@ -390,19 +415,20 @@ const TableView = () => {
           return false;
         }
 
-        let photoUrl = "";
+        let s3Url = "";
         if (file) {
-          const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-          const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-          const cloudUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-          const uploadData = new FormData();
-          uploadData.append("file", file);
-          uploadData.append("upload_preset", uploadPreset);
+          // S3 upload logic using presigned URL
           try {
-            const response = await axios.post(cloudUrl, uploadData);
-            photoUrl = response.data.secure_url;
+            // 1. Request a presigned URL from the backend
+            const formData = new FormData();
+            formData.append('file', file);
+            const uploadRes = await axiosInstance.post(`${API_URL}/people/people/upload-to-s3/`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            s3Url = uploadRes.data.url || uploadRes.data.Location || uploadRes.data.path || '';
           } catch (error) {
-            Swal.showValidationMessage(`Cloudinary upload failed: ${error}`);
+            Swal.showValidationMessage(`S3 upload failed: ${error}`);
           }
         }
         const payload = {
@@ -411,7 +437,7 @@ const TableView = () => {
           suggestion_by_name: name,
           suggestion_by_email: email,
           suggestion_by_phone: phone,
-          ...(photoUrl && { image: photoUrl }),
+          ...(s3Url && { image: s3Url }),
         };
 
         try {
@@ -540,6 +566,35 @@ const TableView = () => {
       });
     }
   };
+
+  const updateContactRequestStatus = async (id, newStatus, contactRequest) => {
+    try {
+      const payload = { status: newStatus, contactRequest, id };
+      await axiosInstance.put(`${API_URL}/people/contact-requests/${id}/`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+      setIsRequestContact((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === id
+            ? { ...request, status: newStatus }
+            : request
+        )
+      );
+      Swal.fire({
+        title: `${newStatus}!`,
+        text: `Contact request status updated to ${newStatus}.`,
+        icon: "success",
+      });
+    } catch (error) {
+      console.error("Error updating contact request status:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update contact request status.",
+        icon: "error",
+      });
+    }
+  };
+
 
   const calculateAge = (dob, lifestatus) => {
     if (lifestatus && lifestatus.toLowerCase() === "dead") return "मृत्यु";
@@ -855,7 +910,7 @@ const TableView = () => {
 
           .swal-textarea {
             height: 150px;
-            width: 257px;
+            width: 100%;
             max-width: 410px;
             background-color: var(--popup-start);
             border: 2px solid var(--secondary-light);
@@ -1273,23 +1328,16 @@ const TableView = () => {
                       <div className="mobile-list-avatar">
                         <img
                           src={
-                            row.photo &&
-                            typeof row.photo === "string" &&
-                            row.photo.startsWith("http")
+                            row.photo && typeof row.photo === "string" && row.photo.startsWith("http")
                               ? row.photo
                               : row.gender?.toLowerCase() === "male"
-                              ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                              ? male1
                               : row.gender?.toLowerCase() === "female"
-                              ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-                              : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                              ? female1
+                              : male1
                           }
                           alt="User"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                          }}
+                          className="w-10 h-10 rounded-full object-cover"
                         />
                       </div>
                     </div>
@@ -1576,15 +1624,13 @@ const TableView = () => {
                         >
                           <img
                             src={
-                              row.photo &&
-                              typeof row.photo === "string" &&
-                              row.photo.startsWith("http")
+                              row.photo && typeof row.photo === "string" && row.photo.startsWith("http")
                                 ? row.photo
                                 : row.gender?.toLowerCase() === "male"
-                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
+                                ? male1
                                 : row.gender?.toLowerCase() === "female"
-                                ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-                                : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/defaulticon.png"
+                                ? female1
+                                : male1
                             }
                             alt="User"
                             className="w-10 h-10 rounded-full object-cover"
@@ -1747,10 +1793,14 @@ const TableView = () => {
             }
             style={{ overflow: "hidden" }}
           >
-            {activeTab !== "data" && <Suggestion />}
+            {activeTab === "suggestions" && <Suggestion />}
+            {activeTab === "request-contact" && <ContactRequest />}
           </InfiniteScroll>
         ) : (
-          activeTab !== "data" && <Suggestion />
+          <>
+            {activeTab === "suggestions" && <Suggestion />}
+            {activeTab === "request-contact" && <ContactRequest />}
+          </>
         )}
       </div>
 

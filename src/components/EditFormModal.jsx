@@ -44,8 +44,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [spouseOptionsLoading, setSpouseOptionsLoading] = useState(false);
   const [spouseOptions, setSpouseOptions] = useState([]);
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dc1gouxxw";
-  const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "Vamshawali";
   const API_URL = import.meta.env.VITE_API_URL;
 
   const today = new Date().toISOString().split("T")[0];
@@ -421,25 +419,18 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const previewUrl = URL.createObjectURL(file);
-    setForm((prevForm) => ({
-      ...prevForm,
-      profileImage: previewUrl,
-    }));
-
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", preset);
-
     try {
-      const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        data
-      );
-      const cloudinaryUrl = response.data.secure_url;
+      // Upload file to backend endpoint (people/people/upload-to-s3/)
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadRes = await axiosInstance.post(`${API_URL}/people/people/upload-to-s3/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      // Show uploaded image immediately from the returned URL
+      const s3Url = uploadRes.data.url || uploadRes.data.Location || uploadRes.data.path || '';
       setForm((prevForm) => ({
         ...prevForm,
-        profileImage: cloudinaryUrl,
+        profileImage: s3Url,
       }));
     } catch (error) {
       handleBackendError(
@@ -649,20 +640,21 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
 
           .profile-image-label {
             cursor: pointer;
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            background-color: #e5e7eb;
+            background: none;
+            border: none;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            border: 2px solid var(--neutral-gray);
-            transition: all 0.3s ease;
+            padding: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
           }
 
           .profile-image-label:hover {
-            background-color: #d1d5db;
+            background-color: #e1e1e1;
           }
 
           .profile-image {
@@ -670,11 +662,15 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
+            background: none;
+            border: none;
+            box-shadow: none;
+            display: block;
           }
 
           .placeholder-text {
-            font-size: 32px;
-            color: #6b7280;
+            font-size: 48px;
+            color: #bdbdbd;
           }
 
           .section-title {
@@ -823,10 +819,6 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             color: var(--primary-text);
           }
 
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-          .animate-spin {
             animation: spin 1s linear infinite;
           }
         `}
@@ -841,15 +833,16 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         ) : (
           <form onSubmit={handleSubmit} className="form-content">
             <div className="profile-image-container">
-              <label htmlFor="profileImage" className="profile-image-label">
+              <label htmlFor="profileImage" className="profile-image-label" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', border: '2px solid #d1d5db', width: 120, height: 120, borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: 0 }}>
                 {form.profileImage ? (
                   <img
                     src={form.profileImage}
                     alt="Profile"
                     className="profile-image"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', background: '#fff', border: 'none', boxShadow: 'none' }}
                   />
                 ) : (
-                  <span className="placeholder-text">+</span>
+                  <span className="placeholder-text" style={{ fontSize: 48, color: '#bdbdbd' }}>+</span>
                 )}
               </label>
               <input
@@ -857,6 +850,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
                 id="profileImage"
                 onChange={handleImageChange}
                 className="hidden"
+                accept="image/*"
               />
             </div>
 

@@ -11,6 +11,8 @@ import Swal from "sweetalert2";
 import "svg2pdf.js";
 import { Canvg } from "canvg";
 import { ChevronRight, X as XIcon } from "lucide-react";
+import male1 from "./male1.png";
+import female1 from "./female1.png";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -526,8 +528,8 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
               height="56"
               href={
                 nodeDatum.gender === "Male"
-                  ? "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/maleicon_anaxb1.png"
-                  : "https://res.cloudinary.com/da48nhp3z/image/upload/v1740120672/femaleicon_vhrive.jpg"
+                  ? male1
+                  : female1
               }
               clipPath="circle(28px at 28px 28px)"
               style={{ borderRadius: '50%' }}
