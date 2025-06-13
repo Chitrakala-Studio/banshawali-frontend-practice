@@ -10,7 +10,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
 
   const debouncedSearch = debounce((newCriteria) => {
     const queryParams = new URLSearchParams(newCriteria).toString();
-    fetch(`${API_URL}/people/people/search/?${queryParams}`, {
+    fetch(`${API_URL}/search/?${queryParams}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     })
@@ -31,7 +31,7 @@ const SearchForm = ({ initialCriteria, onSearch, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const queryParams = new URLSearchParams(criteria).toString();
-    const url = `${API_URL}/people/people/search/?${queryParams}`;
+    const url = `${API_URL}/search/?${queryParams}`;
 
     fetch(url, {
       method: "GET",

@@ -33,6 +33,7 @@ const AppRoutes = ({ isMobile }) => (
       <Route path="/login" element={<AdminLogin />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/card/:id" element={<CardView />} />
+      <Route path="/compare" element={<Compare />} />
       <Route path="/compare/:id" element={<Compare />} />
       <Route path="/add-admin" element={<AddAdminPage />} />{" "}
       <Route path="/" element={<TableView />} />

@@ -36,6 +36,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     designation: formData.designation || "",
     company: formData.company || "",
     location: formData.location || "",
+    book_id: formData.book_id || "", // Added book_id to form state
   }));
 
   const [suggestions, setSuggestions] = useState([]);
@@ -121,7 +122,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     try {
       const prevPusta = p - 1;
       const response = await axiosInstance.get(
-        `${API_URL}/people/people/familyrelations?pusta_number=${prevPusta}`,
+        `${API_URL}/familyrelations?pusta_number=${prevPusta}`,
         { headers: { "Content-Type": "application/json" } }
       );
 
@@ -199,7 +200,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     const oppositeGender = form.gender === "Male" ? "Female" : "Male";
     try {
       const response = await axiosInstance.get(
-        `${API_URL}/people/people/search/?pusta_number=${form.pusta_number}&gender=${oppositeGender}`,
+        `${API_URL}/search/?pusta_number=${form.pusta_number}&gender=${oppositeGender}`,
         { headers: { "Content-Type": "application/json" } }
       );
       let data = response.data;
@@ -282,7 +283,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         try {
           setLoading(true);
           const response = await axiosInstance.get(
-            `${API_URL}/people/${formData.id}/`,
+            `${API_URL}/${formData.id}/`,
             { headers: { "Content-Type": "application/json" } }
           );
           const data = response.data;
@@ -337,6 +338,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             },
             profession: data.profession || formData.profession || "",
             profileImage: data.photo || formData.profileImage || "",
+            book_id: data.book_id || formData.book_id || "", // Map book_id from response
           });
         } catch (error) {
           console.error("Error fetching user details:", error);
@@ -366,6 +368,7 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
             },
             profession: formData.profession || "",
             profileImage: formData.profileImage || "",
+            book_id: formData.book_id || "", // Ensure book_id is set
           });
         } finally {
           setLoading(false);
@@ -420,10 +423,10 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
     if (!file) return;
 
     try {
-      // Upload file to backend endpoint (people/people/upload-to-s3/)
+      // Upload file to backend endpoint (upload-to-s3/)
       const formData = new FormData();
       formData.append('file', file);
-      const uploadRes = await axiosInstance.post(`${API_URL}/people/people/upload-to-s3/`, formData, {
+      const uploadRes = await axiosInstance.post(`${API_URL}/upload-to-s3/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       // Show uploaded image immediately from the returned URL
@@ -523,11 +526,12 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
         designation: form.designation || undefined,
         company: form.company || undefined,
         location: form.location || undefined,
+        book_id: form.book_id || undefined, // Include book_id in payload
       };
 
       const response = form.id
-        ? await axiosInstance.put(`${API_URL}/people/${form.id}/`, payload)
-        : await axiosInstance.post(`${API_URL}/people/people/`, payload);
+        ? await axiosInstance.put(`${API_URL}/${form.id}/`, payload)
+        : await axiosInstance.post(`${API_URL}/`, payload);
 
       if (response.status >= 200 && response.status < 300) {
         if (response.data && (response.data.id || response.data.name)) {
@@ -1179,6 +1183,24 @@ const EditFormModal = ({ formData, onClose, onSave }) => {
               </div>
             </div>
 
+            <div className="form-field">
+              <h3 className="section-title">Additional Information</h3>
+
+              <div className="form-field">
+                <label className="label">Kitab Number</label>
+                <input
+                  type="text"
+                  id="book_id"
+                  name="book_id"
+                  value={form.book_id}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="Enter Kitab Number"
+                  style={{ backgroundImage: "none" }}
+                />
+              </div>
+            </div>
+
             <div className="flex justify-center w-full">
               <button type="submit" disabled={loading} className="submit-btn">
                 {loading ? "Saving..." : "Save"}
@@ -1228,6 +1250,7 @@ EditFormModal.propTypes = {
       phone: PropTypes.string,
       address: PropTypes.string,
     }),
+    book_id: PropTypes.string, // Added book_id prop type
   }).isRequired,
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,

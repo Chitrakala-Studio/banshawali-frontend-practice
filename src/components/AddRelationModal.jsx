@@ -78,7 +78,7 @@ const AddRelationModal = ({ person, onClose, onSave, API_URL }) => {
       const normalizedApiUrl = normalizeUrl(API_URL);
       console.log("Person data:", person);
       console.log("API_URL:", normalizedApiUrl);
-      console.log("POST URL:", `${normalizedApiUrl}/people/add-spouse/`);
+      console.log("POST URL:", `${normalizedApiUrl}/add-spouse/`);
 
       const payload = {
         person_id: person.id,
@@ -90,7 +90,7 @@ const AddRelationModal = ({ person, onClose, onSave, API_URL }) => {
       console.log("Creating spouse with payload:", payload);
 
       const response = await axiosInstance.post(
-        `${normalizedApiUrl}/people/add-spouse/`,
+        `${normalizedApiUrl}/add-spouse/`,
         payload,
         {
           headers: { "Content-Type": "application/json" },

@@ -12,7 +12,7 @@ import {
   FaSkullCrossbones,
   FaHeart,
 } from "react-icons/fa";
-import { Users } from "lucide-react";
+import { Users, LucideBookUser } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const InfoSection = ({ person }) => {
@@ -132,6 +132,7 @@ const InfoSection = ({ person }) => {
         <div className="info-box">
           <h3 className="box-title">Personal Information</h3>
           <div className="info-list">
+        
             <div className="info-item">
               <FaUser className="info-icon" />
               {person.name && (
@@ -147,6 +148,13 @@ const InfoSection = ({ person }) => {
               )}
               {person.gender && <p className="no-margin">{person.gender}</p>}
             </div>
+
+            {person.book_id && (
+              <div className="info-item">
+                <LucideBookUser className="info-icon" />
+                <span>{person.book_id}</span>
+              </div>
+            )}
 
             {person.date_of_birth && (
               <div className="info-item">
@@ -168,6 +176,7 @@ const InfoSection = ({ person }) => {
                 <p className="no-margin">Blood Group: {person.blood}</p>
               </div>
             )}
+            
           </div>
         </div>
 

@@ -33,7 +33,8 @@ const Compare = () => {
     father: { name: "", name_in_nepali: "" },
     mother: { name: "", name_in_nepali: "" },
   }); // State for Person 2 data with default nested objects
-  const [isLeftConfirmed, setIsLeftConfirmed] = useState(true); // Track if Person 1 is confirmed
+  // Set initial isLeftConfirmed based on presence of id param
+  const [isLeftConfirmed, setIsLeftConfirmed] = useState(!!id);
   const [isRightConfirmed, setIsRightConfirmed] = useState(false); // Track if Person 2 is confirmed
   const [relationship, setRelationship] = useState(""); // Store the comparison result
   const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
@@ -41,7 +42,12 @@ const Compare = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Current search query for Person 2
   const [showSuggestions, setShowSuggestions] = useState(false); // Control visibility of the dropdown
 
-  const searchFieldRef = useRef(null); // Ref to handle clicks outside the search field
+  // State for left person search
+  const [leftSearchQuery, setLeftSearchQuery] = useState("");
+  const [leftNameSuggestions, setLeftNameSuggestions] = useState([]);
+  const [showLeftSuggestions, setShowLeftSuggestions] = useState(false);
+  const leftSearchFieldRef = useRef(null);
+  const searchFieldRef = useRef(null);
 
   // Handle window resize to update mobile view
   useEffect(() => {
@@ -62,13 +68,13 @@ const Compare = () => {
     }
     setIsLoading(true);
     try {
-      let response = await fetch(`${API_URL}/people/name-search/?name=${encodeURIComponent(trimmedQuery)}`, {
+      let response = await fetch(`${API_URL}/advanced-search/by_name/?name=${encodeURIComponent(trimmedQuery)}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
-        response = await fetch(`${API_URL}/people/?page=1&limit=100`, {
+        response = await fetch(`${API_URL}/?page=1&limit=100`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -120,6 +126,67 @@ const Compare = () => {
     }
   };
 
+  // Fetch name suggestions for left person
+  const fetchLeftNameSuggestions = async (query) => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      setLeftNameSuggestions([]);
+      setShowLeftSuggestions(false);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      let response = await fetch(`${API_URL}/advanced-search/by_name/?name=${encodeURIComponent(trimmedQuery)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        response = await fetch(`${API_URL}/?page=1&limit=100`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) throw new Error("Network response was not ok");
+      }
+      const responseData = await response.json();
+      let people = [];
+      if (responseData.results && typeof responseData.results === 'object') {
+        people = Object.values(responseData.results).flat();
+      } else if (Array.isArray(responseData.results)) {
+        people = responseData.results;
+      } else if (Array.isArray(responseData.data)) {
+        people = responseData.data;
+      }
+      const suggestions = people.map(person => ({
+        id: person.id,
+        pusta_number: person.pusta_number || "",
+        name: person.name || "",
+        father: person.father || "",
+        mother: person.mother || "",
+        grandfather: person.grandfather || "",
+        grandmother: person.grandmother || "",
+        raw: person
+      }));
+      setLeftNameSuggestions(suggestions);
+      setShowLeftSuggestions(true);
+      if (suggestions.length === 0) {
+        setApiError("No results found for the search query.");
+      } else {
+        setApiError("");
+      }
+    } catch (error) {
+      setApiError("Failed to fetch name suggestions. Please try again.");
+      Swal.fire({
+        title: "Error",
+        text: "Failed to fetch name suggestions.",
+        icon: "error",
+        confirmButtonText: "Okay",
+      });
+      setShowLeftSuggestions(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Trigger search when button is clicked
   const handleSearch = () => {
     fetchNameSuggestions(searchQuery);
@@ -151,30 +218,81 @@ const Compare = () => {
     setShowSuggestions(false);
   };
 
-  // Close dropdown when clicking outside the search field
+  // Handle search and select for left person
+  const handleLeftSearch = () => {
+    fetchLeftNameSuggestions(leftSearchQuery);
+  };
+  const handleLeftKeyPress = (e) => {
+    if (e.key === "Enter") {
+      fetchLeftNameSuggestions(leftSearchQuery);
+    }
+  };
+  const handleSelectLeftSuggestion = (sugg) => {
+    setLeftPerson({
+      id: sugg.id,
+      name_in_nepali: sugg.name,
+      pusta_number: sugg.pusta_number,
+      fatherName: sugg.father || "",
+      motherName: sugg.mother || "",
+      fatherId: sugg.fatherId || "",
+      motherId: sugg.motherId || "",
+      father: { name: sugg.father || "", name_in_nepali: sugg.father || "" },
+      mother: { name: sugg.mother || "", name_in_nepali: sugg.mother || "" },
+      grandfather: { name: sugg.grandfather || "", name_in_nepali: sugg.grandfather || "" },
+      grandmother: { name: sugg.grandmother || "", name_in_nepali: sugg.grandmother || "" },
+    });
+    setLeftSearchQuery("");
+    setShowLeftSuggestions(false);
+    setIsLeftConfirmed(true);
+  };
+
+  // Close dropdowns when clicking outside the search fields
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchFieldRef.current && !searchFieldRef.current.contains(event.target)) {
+      if (searchFieldRef && searchFieldRef.current && !searchFieldRef.current.contains(event.target)) {
         setShowSuggestions(false);
+      }
+      if (leftSearchFieldRef && leftSearchFieldRef.current && !leftSearchFieldRef.current.contains(event.target)) {
+        setShowLeftSuggestions(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch data for Person 1
+  // When id param changes, reset left person and isLeftConfirmed accordingly
   useEffect(() => {
+    if (!id) {
+      setLeftPerson({
+        name: "",
+        pusta_number: "",
+        fatherName: "",
+        motherName: "",
+      });
+      setIsLeftConfirmed(false);
+      return;
+    }
     const fetchLeftPersonData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_URL}/people/${id}/`, {
+        const response = await fetch(`${API_URL}/${id}/`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-
-        const response_data = await response.json();
-        const fetchedData = response_data.data[0];
-        setLeftPerson(fetchedData);
+        if (response.ok) {
+          const response_data = await response.json();
+          const fetchedData = response_data;
+          setLeftPerson(fetchedData);
+          setIsLeftConfirmed(true);
+        } else {
+          setApiError("Failed to fetch left person's data. Please try again later.");
+          Swal.fire({
+            title: "Error",
+            text: "There was an issue fetching the left person's data.",
+            icon: "error",
+            confirmButtonText: "Okay",
+          });
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         setApiError("Failed to fetch left person's data. Please try again later.");
@@ -215,7 +333,7 @@ const Compare = () => {
       const leftPersonId = leftPerson.id;
       const rightPersonId = rightPerson.id;
 
-      const response = await axiosInstance.post(`${API_URL}/people/compare/`, {
+      const response = await axiosInstance.post(`${API_URL}/compare/compare/`, {
         leftPersonId,
         rightPersonId,
       });
@@ -579,6 +697,62 @@ const Compare = () => {
         <div className="person-card">
           <h2 className="card-title">Person 1</h2>
           <div className="field-container">
+            {/* If no id, show search for left person */}
+            {!id && (
+              <div className="search-field" ref={leftSearchFieldRef}>
+                <div className="field">
+                  <label className="label">Search Name</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="text"
+                      placeholder="Enter Name to Search"
+                      className={`input ${showLeftSuggestions ? "dropdown-open" : ""}`}
+                      value={leftSearchQuery}
+                      onChange={(e) => setLeftSearchQuery(e.target.value)}
+                      onKeyPress={handleLeftKeyPress}
+                      disabled={isLeftConfirmed}
+                    />
+                    <button
+                      className="search-btn"
+                      onClick={handleLeftSearch}
+                      disabled={isLeftConfirmed || !leftSearchQuery.trim()}
+                    >
+                      <FaSearch className="text-black" />
+                    </button>
+                    {showLeftSuggestions && leftNameSuggestions.length > 0 && (
+                      <div className="suggestions-dropdown">
+                        {leftNameSuggestions.map((sugg, idx) => {
+                          let pusta = Array.isArray(sugg.pusta_number) ? (sugg.pusta_number[0] || "") : (sugg.pusta_number || "");
+                          if (typeof pusta === 'object' && pusta !== null) pusta = "";
+                          let display = pusta;
+                          if (display) display += " | ";
+                          if (sugg.name) display += sugg.name;
+                          let father = Array.isArray(sugg.father) ? sugg.father.join(", ") : sugg.father || "";
+                          let mother = Array.isArray(sugg.mother) ? sugg.mother.join(", ") : sugg.mother || "";
+                          let fatherMother = father;
+                          if (mother) fatherMother += `/${mother}`;
+                          if (fatherMother) display += ` | ${fatherMother}`;
+                          let grandfather = Array.isArray(sugg.grandfather) ? sugg.grandfather.join(", ") : sugg.grandfather || "";
+                          let grandmother = Array.isArray(sugg.grandmother) ? sugg.grandmother.join(", ") : sugg.grandmother || "";
+                          let grandParents = grandfather;
+                          if (grandmother) grandParents += `/${grandmother}`;
+                          if (grandParents) display += ` | ${grandParents}`;
+                          return (
+                            <div
+                              key={idx}
+                              className="suggestion-item"
+                              onClick={() => handleSelectLeftSuggestion(sugg)}
+                            >
+                              {display}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="field">
               <label className="label">Pusta Number</label>
               <input
@@ -593,6 +767,17 @@ const Compare = () => {
                   }))
                 }
                 disabled={isLeftConfirmed}
+              />
+            </div>
+
+            <div className="field">
+              <label className="label">Book ID</label>
+              <input
+                type="text"
+                placeholder="Book ID"
+                className="input"
+                value={leftPerson.book_id || ""}
+                disabled
               />
             </div>
 
@@ -644,6 +829,19 @@ const Compare = () => {
                   }))
                 }
                 disabled={isLeftConfirmed}
+              />
+            </div>
+
+            
+
+            <div className="field">
+              <label className="label">Grandfather's Name</label>
+              <input
+                type="text"
+                placeholder="Grandfather's Name"
+                className="input"
+                value={leftPerson.grandfather?.name_in_nepali || leftPerson.grandfather || ""}
+                disabled
               />
             </div>
           </div>
@@ -720,6 +918,18 @@ const Compare = () => {
                 placeholder="Pusta Number"
               />
             </div>
+
+            <div className="field">
+              <label className="label">Book ID</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.book_id || ""}
+                disabled
+                placeholder="Book ID"
+              />
+            </div>
+
             <div className="field">
               <label className="label">Name</label>
               <input
@@ -749,6 +959,17 @@ const Compare = () => {
                 value={rightPerson.mother?.name_in_nepali || ""}
                 disabled
                 placeholder="Mother's Name"
+              />
+            </div>
+
+            <div className="field">
+              <label className="label">Grandfather's Name</label>
+              <input
+                type="text"
+                className="input"
+                value={rightPerson.grandfather?.name_in_nepali || rightPerson.grandfather || ""}
+                disabled
+                placeholder="Grandfather's Name"
               />
             </div>
           </div>

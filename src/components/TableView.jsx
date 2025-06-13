@@ -10,6 +10,7 @@ import {
   FaUserPlus,
   FaPlus,
   FaSpinner,
+  
 } from "react-icons/fa";
 import {
   NotebookPen,
@@ -23,6 +24,10 @@ import {
   Eye,
   Plus,
   Download,
+  TrendingUp,
+  TrendingDown,
+  
+  
 } from "lucide-react";
 import EditFormModal from "./EditFormModal";
 import AddRelationModal from "./AddRelationModal";
@@ -162,7 +167,7 @@ const TableView = () => {
       );
       let response_data;
       if (id) {
-        const response = await fetch(`${API_URL}/people/${id}/`, {
+        const response = await fetch(`${API_URL}/${id}/`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -171,11 +176,8 @@ const TableView = () => {
         }
         const result = await response.json();
         console.log("Single person response:", result);
-        console.log(
-          "Fetched person data (raw):",
-          JSON.stringify(result.data, null, 2)
-        );
-        if (!result.data) {
+        // If result is a single person object, treat it as a single result
+        if (result && result.detail === "No Person matches the given query.") {
           console.error("No data found for ID:", id);
           setData([]);
           setFilteredData([]);
@@ -183,12 +185,30 @@ const TableView = () => {
           setLoading(false);
           return;
         }
-        response_data = Array.isArray(result.data)
-          ? result.data
-          : [result.data];
+        if (result.results !== undefined) {
+          response_data = Array.isArray(result.results) ? result.results : [result.results];
+        } else if (result.id) {
+          // Single person object, normalize to array and ensure all expected fields
+          const normalized = {
+            ...result,
+            // Add any missing fields here if needed for table columns
+            pusta_number: result.pusta_number || '',
+            name: result.name || '',
+            name_in_nepali: result.name_in_nepali || '',
+            book_id: result.book_id || '',
+          };
+          response_data = [normalized];
+        } else {
+          console.error("No data found for ID:", id);
+          setData([]);
+          setFilteredData([]);
+          setHasMore(false);
+          setLoading(false);
+          return;
+        }
         setHasMore(false);
       } else {
-        const response = await fetch(`${API_URL}/people/people/?page=${page}`, {
+        const response = await fetch(`${API_URL}/?page=${page}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -197,18 +217,19 @@ const TableView = () => {
         }
         const result = await response.json();
         console.log("People list response:", result);
-        response_data = result.data || [];
+        response_data = result.results || [];
         setHasMore(result.next !== null);
       }
 
+      // Always ensure data is an array
       if (page === 1 || id) {
-        setData(response_data);
-        setFilteredData(response_data);
+        setData(Array.isArray(response_data) ? response_data : []);
+        setFilteredData(Array.isArray(response_data) ? response_data : []);
       } else {
-        setData((prev) => [...prev, ...response_data]);
-        setFilteredData((prev) => [...prev, ...response_data]);
+        setData((prev) => [...(Array.isArray(prev) ? prev : []), ...(Array.isArray(response_data) ? response_data : [])]);
+        setFilteredData((prev) => [...(Array.isArray(prev) ? prev : []), ...(Array.isArray(response_data) ? response_data : [])]);
       }
-      console.log("Visible data after fetch:", response_data);
+      console.log("Visible data after fetch:", Array.isArray(response_data) ? response_data : []);
     } catch (error) {
       console.error("Fetch error:", error);
       setData([]);
@@ -222,7 +243,7 @@ const TableView = () => {
   const fetchSuggestions = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`${API_URL}/people/suggestions/`);
+      const response = await axiosInstance.get(`${API_URL}/suggestions/`);
       console.log("Fetched suggestions:", response.data);
       const suggestionArray = response.data.data;
       setSuggestions(suggestionArray);
@@ -238,7 +259,7 @@ const TableView = () => {
   const fetchContactRequests = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`${API_URL}/people/contact-requests/`);
+      const response = await axiosInstance.get(`${API_URL}/contact-requests/`);
       console.log("Fetched contact requests:", response.data);
       const requestArray = response.data.data;
       setIsRequestContact(requestArray);
@@ -251,6 +272,34 @@ const TableView = () => {
       setLoading(false);
     }
   };
+
+  // Fetch ancestors for a person by ID
+const fetchAncestors = async (personId) => {
+  setLoading(true);
+  try {
+    const response = await axiosInstance.get(`${API_URL}/genealogy/${personId}/ancestors/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching ancestors:', error);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Fetch descendants for a person by ID
+const fetchDescendants = async (personId) => {
+  setLoading(true);
+  try {
+    const response = await axiosInstance.get(`${API_URL}/genealogy/${personId}/descendants/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching descendants:', error);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAccept = (e, id, suggestion, image) => {
     e.stopPropagation();
@@ -422,7 +471,7 @@ const TableView = () => {
             // 1. Request a presigned URL from the backend
             const formData = new FormData();
             formData.append('file', file);
-            const uploadRes = await axiosInstance.post(`${API_URL}/people/people/upload-to-s3/`, formData, {
+            const uploadRes = await axiosInstance.post(`${API_URL}/upload-to-s3/`, formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
             });
 
@@ -499,7 +548,8 @@ const TableView = () => {
       paramsObj.page = page;
       const params = new URLSearchParams(paramsObj).toString();
       const response = await fetch(
-        `${API_URL}/people/people/search/?${params}`,
+        `${API_URL}/search/?${params}`,
+
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -507,7 +557,7 @@ const TableView = () => {
       );
       if (!response.ok) throw new Error("Search failed");
       const result = await response.json();
-      const results = Array.isArray(result.data) ? result.data : [];
+      const results = Array.isArray(result.results) ? result.results : [];
       setFilteredData((prev) => (replace ? results : [...prev, ...results]));
       setHasMore(result.next !== null);
     } catch (error) {
@@ -542,7 +592,7 @@ const TableView = () => {
   const updateSuggestionStatus = async (id, newStatus, suggestion, image) => {
     try {
       const payload = { status: newStatus, suggestion, image, id };
-      await axiosInstance.put(`${API_URL}/people/suggestions/${id}/`, payload, {
+      await axiosInstance.put(`${API_URL}/suggestions/${id}/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       setSuggestions((prevSuggestions) =>
@@ -570,7 +620,7 @@ const TableView = () => {
   const updateContactRequestStatus = async (id, newStatus, contactRequest) => {
     try {
       const payload = { status: newStatus, contactRequest, id };
-      await axiosInstance.put(`${API_URL}/people/contact-requests/${id}/`, payload, {
+      await axiosInstance.put(`${API_URL}/contact-requests/${id}/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       setIsRequestContact((prevRequests) =>
@@ -630,7 +680,7 @@ const TableView = () => {
 
   const handleSaveNew = async (newData) => {
     try {
-      await axiosInstance.post(`${API_URL}/people/`, newData);
+      await axiosInstance.post(`${API_URL}/`, newData);
       fetchData(1);
       setIsAdding(false);
       setIsAddingChild(false);
@@ -658,7 +708,7 @@ const TableView = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axiosInstance.delete(`${API_URL}/people/${row.id}/`);
+          await axiosInstance.delete(`${API_URL}/${row.id}/`);
           fetchData(1);
           Swal.fire(
             "Deleted!",
@@ -679,29 +729,114 @@ const TableView = () => {
     setExpandedRows((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
-  const finalData = filteredData;
-  const visibleData = finalData;
+  // Ancestor/Descendant state
+const [genealogyData, setGenealogyData] = useState([]);
+const [genealogyType, setGenealogyType] = useState("");
+const [genealogyPage, setGenealogyPage] = useState(1);
+const [genealogyHasMore, setGenealogyHasMore] = useState(false);
+const [showGenealogy, setShowGenealogy] = useState(false);
+const [genealogyPersonId, setGenealogyPersonId] = useState(null);
 
-  const handleLoadMore = () => {
-    const nextPage = currentPage + 1;
-    setCurrentPage(nextPage);
-    if (searchApplied && lastSearchCriteria) {
-      fetchSearchResults(lastSearchCriteria, nextPage, false);
-    } else {
-      fetchData(nextPage);
+const handleAncestor = async (personId) => {
+  setGenealogyType("ancestor");
+  setGenealogyPersonId(personId);
+  setGenealogyPage(1);
+  setShowGenealogy(true);
+  setLoading(true);
+  try {
+    const response = await axiosInstance.get(`${API_URL}/genealogy/${personId}/ancestors/?page=1`);
+    const results = Array.isArray(response.data.results) ? response.data.results : response.data;
+    setGenealogyData(results);
+    setGenealogyHasMore(!!response.data.next);
+  } catch (error) {
+    setGenealogyData([]);
+    setGenealogyHasMore(false);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleDescendant = async (personId) => {
+  setGenealogyType("descendant");
+  setGenealogyPersonId(personId);
+  setGenealogyPage(1);
+  setShowGenealogy(true);
+  setLoading(true);
+  try {
+    const response = await axiosInstance.get(`${API_URL}/genealogy/${personId}/descendants/?page=1`);
+    const results = Array.isArray(response.data.results) ? response.data.results : response.data;
+    setGenealogyData(results);
+    setGenealogyHasMore(!!response.data.next);
+  } catch (error) {
+    setGenealogyData([]);
+    setGenealogyHasMore(false);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const fetchMoreGenealogy = async () => {
+    if (!genealogyPersonId) return;
+    const nextPage = genealogyPage + 1;
+    setLoading(true);
+    try {
+      const url =
+        genealogyType === "ancestor"
+          ? `${API_URL}/genealogy/${genealogyPersonId}/ancestors/?page=${nextPage}`
+          : `${API_URL}/genealogy/${genealogyPersonId}/descendants/?page=${nextPage}`;
+      const response = await axiosInstance.get(url);
+      const results = Array.isArray(response.data.results) ? response.data.results : response.data;
+      setGenealogyData((prev) => [...prev, ...results]);
+      setGenealogyPage(nextPage);
+      setGenealogyHasMore(!!response.data.next);
+    } catch (error) {
+      setGenealogyHasMore(false);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const convertToNepaliNumerals = (number, useNepali = true) => {
-    if (number == null || isNaN(number)) return "-";
-    if (!useNepali) return number.toString();
-    const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
-    return number
-      .toString()
-      .split("")
-      .map((digit) => nepaliNumerals[digit])
-      .join("");
-  };
+  // Infinite scroll: load more main data (non-genealogy)
+const handleLoadMore = async () => {
+  const nextPage = currentPage + 1;
+  setLoading(true);
+  try {
+    if (searchApplied && lastSearchCriteria) {
+      // Fetch more search results
+      await fetchSearchResults(lastSearchCriteria, nextPage, false);
+    } else {
+      // Fetch next page of main data
+      const response = await fetch(`${API_URL}/?page=${nextPage}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) throw new Error("Failed to fetch next page");
+      const result = await response.json();
+      const results = Array.isArray(result.results) ? result.results : [];
+      setData((prev) => [...prev, ...results]);
+      setFilteredData((prev) => [...prev, ...results]);
+      setHasMore(result.next !== null);
+      setCurrentPage(nextPage);
+    }
+  } catch (error) {
+    setHasMore(false);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // Always normalize filteredData to an array for rendering
+  const finalData = Array.isArray(filteredData)
+    ? filteredData
+    : filteredData && typeof filteredData === "object"
+    ? [filteredData]
+    : [];
+  // Use genealogyData if in genealogy mode, else use finalData
+  const visibleData = showGenealogy ? genealogyData : finalData;
+
+  // Infinite scroll handler: use genealogy or normal load more
+  const handleInfiniteScroll = showGenealogy ? fetchMoreGenealogy : handleLoadMore;
+  const infiniteHasMore = showGenealogy ? genealogyHasMore : hasMore;
 
   return (
     <div className="table-view transition-all duration-300 relative">
@@ -1171,15 +1306,19 @@ const TableView = () => {
           isSuperAdmin={isSuperAdminLocal}
           isTableView={isTableView}
           toggleView={() => setIsTableView(!isTableView)}
-          availableId={visibleData.length > 0 ? visibleData[0]?.id : null}
+          availableId={visibleData.length > 0 ? String(visibleData[0]?.id) : null}
           navigate={navigate}
           setShowSearchForm={setShowSearchForm}
           filteredData={filteredData}
           setFilteredData={setFilteredData}
           data={data}
           setSearchApplied={setSearchApplied}
-          onBackToTable={() => fetchData(1)} // NEW: pass callback for refetch
+          onBackToTable={() => fetchData(1)}
+          genealogyType={genealogyType}
+          showGenealogy={showGenealogy}
         />
+
+        
 
         {activeTab === "data" &&
           (isMobile ? (
@@ -1410,9 +1549,24 @@ const TableView = () => {
                   {expandedRows[idx] && (
                     <>
                       <hr className="mobile-list-divider" />
+
                       <div className="mobile-list-details">
                         <div className="mobile-list-details-row">
-                          <b>बाबुको नाम: </b>
+                          <b>किताब नम्बर: </b>
+                          {row.book_number ? (
+                            <span className="text-primary">
+                              {convertToNepaliNumerals(row.book_number, true)}
+                            </span>
+                          ) : (
+                            <span className="text-secondary">-</span>
+                          )}
+                        </div>
+                      </div>
+
+
+                      <div className="mobile-list-details">
+                        <div className="mobile-list-details-row">
+                          <b>पिता : </b>
                           {row.father?.id &&
                           (row.father.name_in_nepali || row.father.name) ? (
                             <span
@@ -1430,7 +1584,7 @@ const TableView = () => {
                       <hr className="mobile-list-divider" />
                       <div className="mobile-list-details">
                         <div className="mobile-list-details-row">
-                          <b>आमाको नाम:</b>{" "}
+                          <b>माता :</b>{" "}
                           {row.mother?.id &&
                           (row.mother.name_in_nepali || row.mother.name) ? (
                             <span
@@ -1445,7 +1599,7 @@ const TableView = () => {
                         </div>
                         <hr className="mobile-list-divider" />
                         <div className="mobile-list-details-row">
-                          <b>हजुरबुबाको नाम:</b>{" "}
+                          <b>पितामह :</b>{" "}
                           {row.grandfather?.id &&
                           (row.grandfather.name_in_nepali ||
                             row.grandfather.name) ? (
@@ -1462,7 +1616,7 @@ const TableView = () => {
                         </div>
                         <hr className="mobile-list-divider" />
                         <div className="mobile-list-details-row">
-                          <b>बाजेको नाम:</b>{" "}
+                          <b>प्रपितामह :</b>{" "}
                           {row.great_grandfather?.id &&
                           (row.great_grandfather.name_in_nepali ||
                             row.great_grandfather.name) ? (
@@ -1581,18 +1735,19 @@ const TableView = () => {
                 <thead>
                   <tr>
                     <th>नाम</th>
+                    <th>किताब नम्बर</th>
                     <th>पुस्ता नम्बर</th>
-                    <th>बाबुको नाम</th>
-                    <th>आमाको नाम</th>
-                    <th>हजुरबुबाको नाम</th>
-                    <th>बाजेको नाम </th>
+                    <th>पिता</th>
+                    <th>माता</th>
+                    <th>पितामह</th>
+                    <th>प्रपितामह</th>
                     <th>कार्यहरू</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {loading && filteredData.length === 0 ? (
+                  {loading && visibleData.length === 0 ? (
                     <tr className="loading-row">
-                      <td colSpan={7}>
+                      <td colSpan={8}>
                         <div className="flex-center" style={{ minHeight: 60 }}>
                           <ClipLoader
                             color="var(--neutral-gray)"
@@ -1602,16 +1757,18 @@ const TableView = () => {
                         </div>
                       </td>
                     </tr>
-                  ) : filteredData.length === 0 ? (
+                  ) : visibleData.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="no-data">
-                        {id
+                      <td colSpan={8} className="no-data">
+                        {showGenealogy
+                          ? 'No genealogy data found.'
+                          : id
                           ? `No data found for ID ${id}. The record may not exist or has been deleted.`
                           : "No data available. Try adding a new user or searching for existing ones."}
                       </td>
                     </tr>
                   ) : (
-                    filteredData.map((row, index) => (
+                    visibleData.map((row, index) => (
                       <tr key={index}>
                         <td
                           className={`name-cell text-primary ${
@@ -1636,6 +1793,9 @@ const TableView = () => {
                             className="w-10 h-10 rounded-full object-cover"
                           />
                           <span>{row.name_in_nepali || "-"}</span>
+                        </td>
+                        <td className="text-center">
+                          {row.book_id ? row.book_id : "-"}
                         </td>
                         <td className="text-center">
                           <div
@@ -1710,14 +1870,26 @@ const TableView = () => {
                           >
                             <Info size={18} />
                           </button>
+
+                          {/* Ancestor */}
                           <button
                             data-tooltip-id="tooltip"
-                            data-tooltip-content="Compare"
+                            data-tooltip-content="View Ancestor Info"
                             className="action-btn"
-                            onClick={() => handleCompare(row)}
+                            onClick={() => handleAncestor(row.id)}
                           >
-                            <ArrowLeftRight size={18} />
+                            <TrendingUp size={18} />
                           </button>
+
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="View Descendant Info"
+                            className="action-btn"
+                            onClick={() => handleDescendant(row.id)}
+                          >
+                            <TrendingDown size={18} />
+                          </button>
+
                           <button
                             data-tooltip-id="tooltip"
                             data-tooltip-content="Family Tree"
@@ -1726,6 +1898,16 @@ const TableView = () => {
                           >
                             <FaSitemap size={18} />
                           </button>
+
+                          <button
+                            data-tooltip-id="tooltip"
+                            data-tooltip-content="Compare"
+                            className="action-btn"
+                            onClick={() => handleCompare(row)}
+                          >
+                            <ArrowLeftRight size={18} />
+                          </button>
+                          
                           {isAdminLocal ? (
                             <>
                               <button
@@ -1781,11 +1963,12 @@ const TableView = () => {
             </div>
           ))}
 
+        {/* Infinite scroll for both normal and genealogy mode */}
         {!id ? (
           <InfiniteScroll
             dataLength={visibleData.length}
-            next={handleLoadMore}
-            hasMore={hasMore && visibleData.length >= 15}
+            next={handleInfiniteScroll}
+            hasMore={infiniteHasMore && visibleData.length >= 15}
             loader={
               <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }}>
                 <ClipLoader color="var(--neutral-gray)" loading={true} size={32} />
@@ -1971,5 +2154,20 @@ const TableView = () => {
     </div>
   );
 };
+
+// Utility: Convert English numerals to Nepali numerals
+function convertToNepaliNumerals(number, fallbackDash = false) {
+  if (number === undefined || number === null || number === "") {
+    return fallbackDash ? "-" : "";
+  }
+  const nepaliNumerals = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+  return number
+    .toString()
+    .split("")
+    .map(function(digit) {
+      return /\d/.test(digit) ? nepaliNumerals[parseInt(digit, 10)] : digit;
+    })
+    .join("");
+}
 
 export default TableView;

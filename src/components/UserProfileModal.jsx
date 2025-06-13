@@ -10,6 +10,7 @@ import {
   Users,
   Globe,
   UserCircle,
+  LucideBookUser
 } from "lucide-react";
 import {
   FaBirthdayCake,
@@ -159,6 +160,13 @@ const UserProfileModal = ({ user, onClose }) => {
           <strong>Blood Group : </strong>
           {user.blood}
         </p>
+      )}
+      {user.book_id && (
+        <div className="profile-info-item">
+          <LucideBookUser className="info-icon" />
+          <strong>किताब नम्बर : </strong>
+          <span>{user.book_id ? user.book_id : "-"}</span>
+        </div>
       )}
     </div>
   );
@@ -413,7 +421,7 @@ const UserProfileModal = ({ user, onClose }) => {
         requester_phone: requestForm.phone,
         reason: requestForm.reason,
       };
-      const apiUrl = `${import.meta.env.VITE_API_URL}/people/contact-requests/`;
+      const apiUrl = `${import.meta.env.VITE_API_URL}/contact-requests/`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

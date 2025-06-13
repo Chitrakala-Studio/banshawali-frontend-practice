@@ -53,7 +53,7 @@ const CardView = () => {
           navigate(`/card/${cardId}`, { replace: true });
         }
 
-        const response = await fetch(`${API_URL}/people/${cardId}/`, {
+        const response = await fetch(`${API_URL}/${cardId}/`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -63,10 +63,14 @@ const CardView = () => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const result = await response.json();
-        const result_data = Array.isArray(result.data) ? result.data : [];
+        if (result && result.detail === "No Person matches the given query.") {
+          navigate("/");
+          return;
+        }
+        const result_data = Array.isArray(result.data) ? result.data : result;
         setData(result_data);
         setLoading(false);
-        if (result_data.length > 0) {
+        if (Array.isArray(result_data) ? result_data.length > 0 : !!result_data) {
           setCurrentIndex(0);
         } else {
           navigate("/");
@@ -256,7 +260,7 @@ const CardView = () => {
       </div>
     );
 
-  const currentPerson = data[currentIndex];
+  const currentPerson = data && Array.isArray(data) && data.length > 0 ? data[currentIndex] : data && !Array.isArray(data) ? data : undefined;
 
   return (
     <>
@@ -578,19 +582,21 @@ const CardView = () => {
               className="card-wrapper"
               style={{ paddingBottom: isMobile ? 80 : 0, touchAction: "pan-y" }}
             >
-              <CardImageSection
-                person={currentPerson}
-                isExpanded={isExpanded}
-                onScrollLeft={scrollLeft}
-                onScrollRight={scrollRight}
-                isHovered={isHovered}
-                onSwipe={() => {}}
-                isMobile={isMobile}
-                maleImage={male}
-                femaleImage={female}
-                convertToNepaliNumerals={convertToNepaliNumerals}
-                onToggleInfo={handleToggleInfo}
-              />
+              {currentPerson && (
+                <CardImageSection
+                  person={currentPerson}
+                  isExpanded={isExpanded}
+                  onScrollLeft={scrollLeft}
+                  onScrollRight={scrollRight}
+                  isHovered={isHovered}
+                  onSwipe={() => {}}
+                  isMobile={isMobile}
+                  maleImage={male}
+                  femaleImage={female}
+                  convertToNepaliNumerals={convertToNepaliNumerals}
+                  onToggleInfo={handleToggleInfo}
+                />
+              )}
             </div>
           ) : (
             <TinderCard
@@ -600,19 +606,21 @@ const CardView = () => {
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              <CardImageSection
-                person={currentPerson}
-                isExpanded={isExpanded}
-                onScrollLeft={scrollLeft}
-                onScrollRight={scrollRight}
-                isHovered={isHovered}
-                onSwipe={handleSwipe}
-                isMobile={isMobile}
-                maleImage={male}
-                femaleImage={female}
-                convertToNepaliNumerals={convertToNepaliNumerals}
-                onToggleInfo={handleToggleInfo}
-              />
+              {currentPerson && (
+                <CardImageSection
+                  person={currentPerson}
+                  isExpanded={isExpanded}
+                  onScrollLeft={scrollLeft}
+                  onScrollRight={scrollRight}
+                  isHovered={isHovered}
+                  onSwipe={handleSwipe}
+                  isMobile={isMobile}
+                  maleImage={male}
+                  femaleImage={female}
+                  convertToNepaliNumerals={convertToNepaliNumerals}
+                  onToggleInfo={handleToggleInfo}
+                />
+              )}
             </TinderCard>
           )}
 

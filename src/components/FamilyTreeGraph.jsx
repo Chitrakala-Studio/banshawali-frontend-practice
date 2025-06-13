@@ -20,7 +20,7 @@ const fetchFamilyData = async (id) => {
   try {
     if (!id) return null;
     console.log(`Fetching data for ID: ${id}`);
-    const response = await axiosInstance.get(`${API_URL}/people/familytree/${id}/`);
+    const response = await axiosInstance.get(`${API_URL}/familytree/${id}/tree/`);
     return response.data;
   } catch (error) {
     console.error("Error fetching family data:", error);
@@ -34,7 +34,7 @@ const transformToTreeData = (familyData) => {
   console.log("Transforming family data:", familyData);
 
   const tree = {
-    name: familyData.selectedPerson,
+    name: familyData.name,
     photo: familyData.photo,
     gender: familyData.gender,
     id: familyData.id,
@@ -113,6 +113,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   const [dimensions, setDimensions] = useState({ width: 850, height: 600 });
   const [expandfather, setexpandfather] = useState(false);
   const [expandchild, setexpandchild] = useState(false);
+  const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -396,17 +397,35 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
   };
 
   const renderNode = (nodeDatum) => {
-    const isGroupNode =
-      nodeDatum.name === "Father" || nodeDatum.name === "Children";
+    const isGroupNode = nodeDatum.name === "Father" || nodeDatum.name === "Children";
     const gender = nodeDatum.gender;
-    const MAX_LINE_LENGTH = 16;
-    const MAX_LINES = 2;
+    const isHovered = hoveredNodeId === nodeDatum.id;
+    let name = nodeDatum.name || "";
+    const pusta = nodeDatum.pusta || "";
+    const photo = nodeDatum.photo && nodeDatum.photo !== "null" ? nodeDatum.photo : (gender === "Male" ? male1 : female1);
+
+    // Node dimensions and style (match ProfileCard proportions)
+    const NODE_WIDTH = 160;
+    const NODE_HEIGHT = 160;
+    const HEADER_HEIGHT = 54;
+    const BLUE = "#2196F3";
+    const HEADER_BG = "#f5f5f5";
+    const BORDER = isHovered ? "#1976D2" : "#B9BAC3";
+    const SHADOW = isHovered ? "0 4px 16px #1976D244" : "0 2px 8px #B9BAC344";
+
+    // Show pusta number in header as Name (pustaNum)
+    let headerText = name;
+    if (pusta) {
+      headerText = `${name}  (${pusta})`;
+    }
+
+    // For name wrapping
+    const MAX_LINE_LENGTH = 18;
     const wrapText = (text) => {
-      if (!text || text.trim() === "") return [];
+      if (!text) return [""];
       let lines = [];
       let remaining = text.trim();
-
-      while (remaining.length > MAX_LINE_LENGTH && lines.length < MAX_LINES) {
+      while (remaining.length > MAX_LINE_LENGTH && lines.length < 2) {
         let breakIdx = Math.max(
           remaining.lastIndexOf("/", MAX_LINE_LENGTH),
           remaining.lastIndexOf(" ", MAX_LINE_LENGTH)
@@ -415,195 +434,111 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
         lines.push(remaining.slice(0, breakIdx).trim());
         remaining = remaining.slice(breakIdx).trim();
       }
-      if (remaining) {
-        if (lines.length < MAX_LINES) {
-          lines.push(
-            remaining.length > MAX_LINE_LENGTH
-              ? remaining.slice(0, MAX_LINE_LENGTH - 3) + "..."
-              : remaining
-          );
-        } else {
-          lines[MAX_LINES - 1] =
-            lines[MAX_LINES - 1].slice(0, MAX_LINE_LENGTH - 3) + "...";
-        }
-      }
+      if (remaining.length) lines.push(remaining);
       return lines;
     };
+    const nameLines = wrapText(headerText);
 
-    const nameLines = wrapText(nodeDatum.name);
-    const nameBlockHeight = nameLines.length * 22;
-
-    return (
-      <g
-        className="tree-node"
-        id="family-tree"
-        strokeWidth="0.5"
-        fontFamily="'Merriweather', serif"
-        cursor="pointer"
-        fontWeight="200"
-        onClick={() => handleNodeClick(nodeDatum)}
-      >
-        {/* Card Background with shadow and rounded corners */}
-        {!isGroupNode && (
+    if (isGroupNode) {
+      // Group node style: pill with orange border, white fill, bold text
+      return (
+        <g
+          className="tree-node group-node"
+          onClick={() => handleNodeClick(nodeDatum)}
+          style={{ cursor: "pointer" }}
+        >
           <rect
-            x="-95"
-            y="-40"
-            width="180"
-            height="65"
-            rx="18"
-            ry="18"
-            fill={
-              gender === "Male"
-                ? "url(#male-gradient)"
-                : "url(#female-gradient)"
-            }
-            stroke="#F49D37"
-            strokeWidth="2.5"
-            filter="url(#shadow)"
-            pointerEvents="all"
-          />
-        )}
-        {isGroupNode && (
-          <rect
-            x="-55"
-            y="-25"
-            width="120"
-            height="40"
-            rx="20"
-            ry="20"
-            fill="url(#group-gradient)"
-            stroke="#F49D37"
-            strokeWidth="2.5"
-            filter="url(#shadow)"
-            pointerEvents="all"
-          />
-        )}
-        {/* SVG Gradients */}
-        <defs>
-          <linearGradient id="male-gradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#4A6A9D" />
-            <stop offset="100%" stopColor="#a1c4fd" />
-          </linearGradient>
-          <linearGradient id="female-gradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#D4A5A5" />
-            <stop offset="100%" stopColor="#fbe7c6" />
-          </linearGradient>
-          <linearGradient id="group-gradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#E9D4B0" />
-            <stop offset="100%" stopColor="#B9BAC3" />
-          </linearGradient>
-          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.18" />
-          </filter>
-        </defs>
-        {/* Profile Image */}
-        {!isGroupNode && (
-          <circle
-            cx="-65"
-            cy="-7.5"
-            r="28"
+            x={-60}
+            y={-20}
+            width={120}
+            height={36}
+            rx={18}
+            ry={18}
             fill="#fff"
-            stroke="#B9BAC3"
-            strokeWidth="1.5"
-            filter="url(#shadow)"
+            stroke="#F49D37"
+            strokeWidth="2.5"
+            style={{ filter: "drop-shadow(0 2px 8px #F49D3722)" }}
           />
-        )}
-        {!isGroupNode &&
-          (nodeDatum.photo && nodeDatum.photo !== "null" ? (
-            <image
-              x="-93"
-              y="-35"
-              width="56"
-              height="56"
-              href={nodeDatum.photo}
-              clipPath="circle(28px at 28px 28px)"
-              style={{ borderRadius: '50%' }}
-              pointerEvents="none"
-            />
-          ) : (
-            <image
-              x="-93"
-              y="-35"
-              width="56"
-              height="56"
-              href={
-                nodeDatum.gender === "Male"
-                  ? male1
-                  : female1
-              }
-              clipPath="circle(28px at 28px 28px)"
-              style={{ borderRadius: '50%' }}
-              pointerEvents="none"
-            />
-          ))}
-        {/* Name */}
-        {isGroupNode && (
           <text
             x="0"
-            y="0"
+            y="3"
             textAnchor="middle"
             fontSize="15"
             fill="#2E4568"
-            strokeWidth="0"
-            fontWeight="bold"
+            style={{ fontFamily: 'Merriweather, serif', letterSpacing: 1 }}
             pointerEvents="none"
           >
             {nodeDatum.name}
           </text>
-        )}
-        {!isGroupNode && (
-          <text
-            x="25"
-            y={-13.5 + (nameLines.length > 0 ? -10 : 0)}
-            textAnchor="middle"
-            fontSize="17"
-            dominantBaseline="middle"
-            fill="#fff"
-            strokeWidth="0"
-            fontWeight="600"
-            cursor={isMobile ? "default" : "pointer"}
-            className="name-text"
-            onClick={
-              isMobile
-                ? undefined
-                : (e) => {
-                    e.stopPropagation();
-                    handleNameClick(nodeDatum);
-                  }
-            }
-          >
-            {nameLines.map((line, i) => (
-              <tspan key={i} x="25" dy={i === 0 ? 0 : 22} strokeWidth="0">
-                {line}
-              </tspan>
-            ))}
-          </text>
-        )}
-        {/* Pusta (Family Lineage) */}
-        {!isGroupNode && nodeDatum.pusta && (
-          <g>
-            
-            <text
-              x="25"
-              y="9"
-              textAnchor="middle"
-              fontSize="17"
-              fontWeight="bold"
-              fill="#F49D37" // Changed to gold accent
-              stroke="#2E4568"
-              strokeWidth="0.7"
-              style={{ letterSpacing: '1px', filter: 'drop-shadow(0 1px 2px #2E456888)' }}
+          {nodeDatum.isCollapsible && (
+            <g
+              transform={`translate(50, 0) rotate(${nodeDatum.collapsed ? 0 : 90})`}
+              style={{ transition: "transform 0.3s ease" }}
               pointerEvents="none"
-              dominantBaseline="middle"
             >
-              {nodeDatum.pusta}
-            </text>
-          </g>
-        )}
-        {/* Expand/Collapse Icon */}
+              <ChevronRight size="18" color="#2E4568" />
+            </g>
+          )}
+        </g>
+      );
+    }
+
+    // Main person node
+    return (
+      <g
+        className="tree-node person-node"
+        onMouseEnter={() => setHoveredNodeId(nodeDatum.id)}
+        onMouseLeave={() => setHoveredNodeId(null)}
+        onClick={() => handleNodeClick(nodeDatum)}
+        style={{ filter: SHADOW, cursor: "pointer" }}
+      >
+        {/* Outer rounded rectangle with border */}
+        <rect
+          x={-NODE_WIDTH / 2}
+          y={-NODE_HEIGHT / 2}
+          width={NODE_WIDTH}
+          height={NODE_HEIGHT}
+          rx={20}
+          ry={20}
+          fill="#fff"
+          stroke={BORDER}
+          strokeWidth={isHovered ? 3 : 2}
+        />
+        {/* Name text in header */}
+        <text
+          x={0}
+          y={-NODE_HEIGHT / 2 + 38}
+          textAnchor="middle"
+          fontSize="20"
+          pointerEvents="none"
+          fill="#2E4568"
+        >
+          {headerText}
+        </text>
+        {/* Thick blue divider */}
+        <rect
+          x={-NODE_WIDTH / 2 + 24}
+          y={-NODE_HEIGHT / 2 + 60}
+          width={NODE_WIDTH - 48}
+          height={2}
+          rx={3.5}
+          fill="#2196F3"
+        />
+        
+        {/* Profile image or icon centered */}
+        <image
+          x={-36}
+          y={-NODE_HEIGHT / 2 + 82}
+          width={72}
+          height={72}
+          href={photo}
+          style={{}}
+          pointerEvents="none"
+        />
+        {/* Chevron for collapsible nodes */}
         {nodeDatum.isCollapsible && (
           <g
-            transform={`translate(35, -5) rotate(${nodeDatum.collapsed ? 0 : 90})`}
+            transform={`translate(${NODE_WIDTH / 2 - 18}, 0) rotate(${nodeDatum.collapsed ? 0 : 90})`}
             style={{ transition: "transform 0.3s ease" }}
             pointerEvents="none"
           >
@@ -792,7 +727,7 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
 
           .custom-link {
             stroke: var(--neutral-gray) !important;
-            stroke-width: 1px !important;
+            stroke-width: 4px !important;
             fill: none !important;
           }
 
@@ -846,12 +781,12 @@ const FamilyTreeGraph = ({ selectedPerson, id, isMobile, closePopup }) => {
                   renderNode(nodeDatum)
                 }
                 onNodeClick={handleNodeClick}
-                separation={{ siblings: 0.5, nonSiblings: 0.9 }}
+                separation={{ siblings: 0.9, nonSiblings: 1.3 }}
                 pathFunc="step"
                 pathProps={{
                   fill: "none",
                   stroke: "var(--neutral-gray)",
-                  strokeWidth: 0.5,
+                  strokeWidth: 1.2,
                 }}
                 pathClassFunc={() => "custom-link"}
               />

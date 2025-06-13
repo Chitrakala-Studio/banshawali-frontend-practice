@@ -24,7 +24,7 @@ const Suggestion = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(
-        `${API_URL}/people/suggestions/?page=${page}`
+        `${API_URL}/suggestions/?page=${page}`
       );
       const suggestionArray = response.data.data;
       if (page === 1) {
@@ -56,7 +56,7 @@ const Suggestion = () => {
         image: image,
         id: id,
       };
-      await axiosInstance.put(`${API_URL}/people/suggestions/${id}/`, payload, {
+      await axiosInstance.put(`${API_URL}/suggestions/${id}/`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       setSuggestions((prevSuggestions) =>
